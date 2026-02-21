@@ -1,0 +1,14 @@
+{
+  "name": "assessment-center",
+  "platform": "WEB",
+  "repository": "https://github.com/rekyli198/assessment-center",
+  "environmentVariables": {
+    "VITE_API_URL": "https://6tk4qqlhs6.execute-api.us-east-1.amazonaws.com/prod",
+    "_LIVE_UPDATES": "[]"
+  },
+  "buildSpec": "version: 1\nfrontend:\n  phases:\n    preBuild:\n      commands:\n        - cd frontend\n        - npm ci\n    build:\n      commands:\n        - npm run build\n  artifacts:\n    baseDirectory: frontend/dist\n    files:\n      - '**/*'\n  cache:\n    paths:\n      - frontend/node_modules/**/*",
+  "enableBasicAuth": true,
+  "basicAuthCredentials": {
+    "username": "assessment-admin"
+  }
+}

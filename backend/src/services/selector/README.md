@@ -4,9 +4,11 @@ This directory contains all backend services for the Selector module.
 
 ## Services
 
-### SelectorConfigService
+### SelectorConfigService ✅
 
 Service responsible for loading and caching configuration files (questions.json and matrix.json).
+
+**Status**: COMPLETED
 
 **Features:**
 - Load questions configuration with validation
@@ -15,6 +17,24 @@ Service responsible for loading and caching configuration files (questions.json 
 - Zod schema validation for data integrity
 - Support for local file system (development) and S3 (production)
 - Configuration integrity validation
+
+### SelectorSessionService ⏳
+
+Service responsible for managing assessment sessions (save, load, list).
+
+**Status**: IN PROGRESS (Basic structure complete, async methods pending)
+
+**Completed:**
+- generateSessionId() - Generate unique session IDs
+- createSession() - Initialize new sessions
+- updateAnswer() - Add/update answers in session
+- markCompleted() - Mark session as completed
+
+**Pending:**
+- saveSession() - Save session to storage (S3/local)
+- loadSession() - Load session from storage
+- listSessions() - List sessions for a client
+- deleteSession() - Delete session from storage
 
 **Usage:**
 

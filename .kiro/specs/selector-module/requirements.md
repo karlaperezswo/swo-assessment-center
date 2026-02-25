@@ -294,7 +294,7 @@
 - MUST use separate API routes
 
 ### C-2: Integration Points
-- MAY modify App.tsx to add Selector tab
+- MAY modify AssessPhase.tsx to add Selector sub-tab
 - MAY modify index.ts to add Selector routes
 - MAY add types to assessment.ts
 - All modifications MUST be minimal and isolated
@@ -351,7 +351,7 @@
 - [ ] Statistics calculate correctly
 
 ### Phase 4: Integration
-- [ ] Selector tab appears in navigation
+- [ ] Selector sub-tab appears in Assess phase navigation
 - [ ] No conflicts with existing modules
 - [ ] Styles match existing UI
 - [ ] Performance meets requirements
@@ -366,7 +366,7 @@
 - AI-powered recommendations
 - Multi-language support
 - Custom scoring matrix editor
-- Integration with other MAP Center phases
+- Integration with other MAP Center phases (currently standalone in Assess)
 - Email notifications
 - Collaborative editing
 - Version control for assessments

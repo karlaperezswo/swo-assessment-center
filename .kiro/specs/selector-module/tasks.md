@@ -222,24 +222,24 @@
 
 ### 11. Frontend Integration (⚠️ Modifications)
 
-- [ ] 11.1 Modify frontend/src/App.tsx
-  - [ ] 11.1.1 Add 'selector' to MigrationPhase type
-  - [ ] 11.1.2 Add selector state management
-  - [ ] 11.1.3 Add selector to phaseStatus
-  - [ ] 11.1.4 Add SelectorPhase render case
-  - [ ] 11.1.5 Test that existing phases still work
+- [x] 11.1 Modify frontend/src/components/phases/AssessPhase.tsx
+  - [x] 11.1.1 Import SelectorPhase component
+  - [x] 11.1.2 Import Target icon from lucide-react
+  - [x] 11.1.3 Add 'selector' to tabs array (after 'immersion-day')
+  - [x] 11.1.4 Add SelectorPhase render case
+  - [ ] 11.1.5 Test that existing sub-tabs still work
 
-- [ ] 11.2 Modify frontend/src/types/assessment.ts
-  - [ ] 11.2.1 Add SelectorQuestion interface
-  - [ ] 11.2.2 Add SelectorAnswer interface
-  - [ ] 11.2.3 Add SelectorSession interface
-  - [ ] 11.2.4 Add SelectorResult interface
-  - [ ] 11.2.5 Add SelectorHistory interface
+- [x] 11.2 Modify frontend/src/types/assessment.ts
+  - [x] 11.2.1 Add SelectorQuestion interface
+  - [x] 11.2.2 Add SelectorAnswer interface
+  - [x] 11.2.3 Add SelectorSession interface
+  - [x] 11.2.4 Add SelectorResult interface
+  - [x] 11.2.5 Add SelectorHistory interface
 
-- [ ] 11.3 Update PhaseNavigator
-  - [ ] 11.3.1 Add "Selector" tab to navigation
-  - [ ] 11.3.2 Add icon for Selector tab
-  - [ ] 11.3.3 Test tab switching
+- [x] 11.3 Verify sub-tab integration
+  - [x] 11.3.1 Selector appears after "Día de Inmersión"
+  - [x] 11.3.2 Target icon displays correctly
+  - [ ] 11.3.3 Test sub-tab switching
 
 ### 12. Styling & UX
 
@@ -388,7 +388,7 @@
 
 **Integration Points (⚠️ Require Approval):**
 1. backend/src/index.ts (add route)
-2. frontend/src/App.tsx (add phase)
+2. frontend/src/components/phases/AssessPhase.tsx (add sub-tab)
 3. frontend/src/types/assessment.ts (add types)
 
 **New Files Created:** ~30 files

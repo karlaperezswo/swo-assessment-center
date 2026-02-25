@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Loader2, CheckCircle2, CloudOff } from 'lucide-react';
+import { AlertCircle, Loader2, CheckCircle2, CloudOff, History, Calendar, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Question {
@@ -52,6 +52,9 @@ export function SelectorPhase() {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [showValidation, setShowValidation] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [sessionHistory, setSessionHistory] = useState<any[]>([]);
   const questionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -149,6 +152,45 @@ export function SelectorPhase() {
     }
   };
 
+  const loadHistory = async () => {
+    if (!clientName) return;
+    
+    setHistoryLoading(true);
+    try {
+      const response = await fetch(`http://localhost:4000/api/selector/sessions/${encodeURIComponent(clientName)}?limit=5`);
+      const data = await response.json();
+      if (data.success) {
+        setSessionHistory(data.data || []);
+        setShowHistory(true);
+      }
+    } catch (error) {
+      console.error('Error loading history:', error);
+      toast.error('Error al cargar el historial');
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const loadPreviousSession = async (session: any) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://localhost:4000/api/selector/session/${encodeURIComponent(session.clientName)}/${session.sessionId}`);
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setSessionId(data.data.sessionId);
+        setAnswers(data.data.answers || []);
+        setShowHistory(false);
+        toast.success('Sesión cargada exitosamente');
+      }
+    } catch (error) {
+      console.error('Error loading session:', error);
+      toast.error('Error al cargar la sesión');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAnswer = (questionId: string, answer: string) => {
     const newAnswers = answers.filter(a => a.questionId !== questionId);
     newAnswers.push({
@@ -229,7 +271,7 @@ export function SelectorPhase() {
   // Start session screen
   if (!sessionId) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto p-6 space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Selector de Herramienta MAP</CardTitle>
@@ -247,12 +289,85 @@ export function SelectorPhase() {
                 placeholder="Ej: Acme Corp"
               />
             </div>
-            <Button onClick={handleStartSession} disabled={!clientName || loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Comenzar Assessment
-            </Button>
+            <div className="flex gap-3">
+              <Button onClick={handleStartSession} disabled={!clientName || loading}>
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Comenzar Nuevo Assessment
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={loadHistory} 
+                disabled={!clientName || historyLoading}
+              >
+                {historyLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <History className="mr-2 h-4 w-4" />}
+                Ver Historial
+              </Button>
+            </div>
           </CardContent>
         </Card>
+
+        {/* History Panel */}
+        {showHistory && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                Historial de Assessments: {clientName}
+              </CardTitle>
+              <CardDescription>
+                Últimos 5 assessments realizados
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {sessionHistory.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>No hay assessments previos para este cliente</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {sessionHistory.map((session) => (
+                    <div 
+                      key={session.sessionId} 
+                      className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <Badge variant={session.completed ? 'default' : 'secondary'}>
+                              {session.completed ? 'Completado' : 'En progreso'}
+                            </Badge>
+                            <span className="text-sm text-gray-600">
+                              {session.answers?.length || 0} / 28 preguntas
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              <span>{new Date(session.createdAt).toLocaleDateString('es-ES')}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              <span>{new Date(session.updatedAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          onClick={() => loadPreviousSession(session)}
+                          disabled={loading}
+                        >
+                          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                          Cargar
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     );
   }

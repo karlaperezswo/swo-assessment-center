@@ -7,11 +7,12 @@ import { MigrationReadiness } from '@/components/assess/MigrationReadiness';
 import { BriefingsWorkshops } from '@/components/assess/BriefingsWorkshops';
 import { ImmersionDay } from '@/components/assess/ImmersionDay';
 import { MigrationWaves } from '@/components/migrate/MigrationWaves';
+import { DependencyMap } from '@/components/DependencyMap';
 import {
   ExcelData, UploadSummary, ClientFormData, CostBreakdown,
   PhaseStatus, BriefingSession, ImmersionDayPlan, MigrationWave,
 } from '@/types/assessment';
-import { Upload, DollarSign, Gauge, Presentation, GraduationCap, Waves } from 'lucide-react';
+import { Upload, DollarSign, Gauge, Presentation, GraduationCap, Waves, Network } from 'lucide-react';
 
 interface AssessPhaseProps {
   excelData: ExcelData | null;
@@ -43,6 +44,7 @@ export function AssessPhase({
     {
       tabs: [
         { value: 'rapid-discovery', label: 'Descubrimiento Rápido', icon: <Upload className="h-4 w-4" /> },
+        { value: 'dependency-map', label: 'Mapa de Dependencias', icon: <Network className="h-4 w-4" /> },
         { value: 'tco-report', label: 'Reporte TCO', icon: <DollarSign className="h-4 w-4" /> },
         { value: 'migration-readiness', label: 'Preparación para Migración', icon: <Gauge className="h-4 w-4" /> },
         { value: 'wave-planning', label: 'Planificación de Olas', icon: <Waves className="h-4 w-4" /> },
@@ -64,6 +66,9 @@ export function AssessPhase({
             onDataLoaded={onDataLoaded}
             onFormChange={onFormChange}
           />
+        )}
+        {activeTab === 'dependency-map' && (
+          <DependencyMap />
         )}
         {activeTab === 'tco-report' && (
           <TCOReport

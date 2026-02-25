@@ -124,25 +124,27 @@
   - [ ] 6.1.2 Create index.ts for exports
 
 - [ ] 6.2 Create base components
-  - [ ] 6.2.1 Create SelectorMain.tsx (container)
-  - [ ] 6.2.2 Create SelectorStepper.tsx (multi-step form)
-  - [ ] 6.2.3 Create SelectorQuestion.tsx (individual question)
+  - [ ] 6.2.1 Create SelectorPhase.tsx (single-page component)
+  - [ ] 6.2.2 Create SelectorQuestionList.tsx (scrollable list)
+  - [ ] 6.2.3 Create SelectorQuestion.tsx (individual question with validation)
   - [ ] 6.2.4 Create SelectorProgress.tsx (progress bar)
 
-### 7. Questionnaire Flow
+### 7. Questionnaire Flow (Single Page - NO Stepper)
 
-- [ ] 7.1 Implement SelectorStepper
-  - [ ] 7.1.1 Add category navigation
-  - [ ] 7.1.2 Add question rendering
+- [ ] 7.1 Implement Single-Page Question List
+  - [ ] 7.1.1 Display ALL 28 questions in scrollable container
+  - [ ] 7.1.2 Group questions by category with visual headers
   - [ ] 7.1.3 Add answer selection logic
-  - [ ] 7.1.4 Add validation before next step
-  - [ ] 7.1.5 Add previous/next navigation
+  - [ ] 7.1.4 Remove category navigation (no Next/Previous buttons)
+  - [ ] 7.1.5 Ensure smooth scrolling between categories
 
-- [ ] 7.2 Implement SelectorQuestion
-  - [ ] 7.2.1 Add boolean question type (radio buttons)
-  - [ ] 7.2.2 Add multiple choice type (radio buttons)
-  - [ ] 7.2.3 Add help text tooltip
-  - [ ] 7.2.4 Add visual feedback for selected answer
+- [ ] 7.2 Implement Mandatory Question Validation
+  - [ ] 7.2.1 Highlight unanswered questions with RED border
+  - [ ] 7.2.2 Add warning icon (⚠️) to unanswered questions
+  - [ ] 7.2.3 Show "Esta pregunta es obligatoria" message
+  - [ ] 7.2.4 Update counter "X / 28 respondidas" in real-time
+  - [ ] 7.2.5 Disable "Calculate" button until ALL 28 answered
+  - [ ] 7.2.6 Show message "Debes responder todas las preguntas (X faltan)"
 
 - [ ] 7.3 Implement auto-save
   - [ ] 7.3.1 Add debounced save hook (500ms)

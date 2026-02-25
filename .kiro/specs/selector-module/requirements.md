@@ -63,22 +63,27 @@
 ### FR-1: Questionnaire System
 
 #### FR-1.1: Question Display
-- Display 28 questions organized in 8 categories
-- Show category name and description
-- Display progress indicator (X/28 questions)
+- Display ALL 28 questions on a SINGLE scrollable page
+- Questions grouped visually by category (11 categories)
+- Show category headers with name and description
+- Display progress indicator (X/28 respondidas)
 - Show help text for complex questions
+- **NO pagination or "Next Category" buttons**
 
 #### FR-1.2: Answer Input
 - Boolean questions: Two radio buttons (Sí/No)
 - Multiple choice: Radio buttons for all options
 - Only one answer per question allowed
 - Clear visual indication of selected answer
+- **ALL 28 questions are MANDATORY**
 
-#### FR-1.3: Navigation
-- Step-by-step flow by category
-- "Next" button to advance
-- "Previous" button to go back
-- "Skip" option for non-mandatory questions (if any)
+#### FR-1.3: Validation & Visual Feedback
+- Unanswered questions highlighted in RED
+- Warning icon (⚠️) next to unanswered questions
+- Message: "Esta pregunta es obligatoria"
+- Counter showing "X / 28 respondidas"
+- "Calcular Recomendación" button DISABLED until all answered
+- Clear message: "Debes responder todas las preguntas (X faltan)"
 
 ### FR-2: Auto-Save Functionality
 

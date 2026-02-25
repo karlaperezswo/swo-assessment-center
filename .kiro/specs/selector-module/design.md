@@ -72,8 +72,8 @@ Crear un módulo completamente independiente dentro del MAP Center que automatic
 All components in `frontend/src/components/selector/`:
 
 - **SelectorMain.tsx** - Main container component
-- **SelectorStepper.tsx** - Multi-step form by category
-- **SelectorQuestion.tsx** - Individual question component
+- **SelectorQuestionList.tsx** - Single-page scrollable list (all 28 questions)
+- **SelectorQuestion.tsx** - Individual question component with validation
 - **SelectorProgress.tsx** - Progress bar indicator
 - **SelectorResults.tsx** - Results dashboard
 - **SelectorRadarChart.tsx** - Comparative radar chart
@@ -81,6 +81,8 @@ All components in `frontend/src/components/selector/`:
 - **SelectorRecommendation.tsx** - Recommended tool badge
 - **SelectorHistory.tsx** - Historical assessments (5 per page)
 - **SelectorExport.tsx** - Export buttons (PDF/CSV)
+
+**Note:** No stepper/pagination - all questions on single scrollable page.
 
 #### 2.2.2 Backend Services (NEW)
 All services in `backend/src/services/selector/`:
@@ -382,20 +384,59 @@ const handleAnswerChange = useDebouncedCallback(
 - Add "Selector" to phase navigation
 - Add SelectorPhase component to render
 
-### 5.2 Stepper Flow
+### 5.2 Questionnaire Layout (Single Page)
+
+**IMPORTANT:** All 28 questions are displayed on a single scrollable page, grouped by category.
 
 ```
-Category 1: Infraestructura Actual (5 questions)
-  ├─ Progress: 0/5
-  ├─ Q1: ¿RVTools completo? [Si] [No]
-  ├─ Q2: ¿Cuántos servidores? [<30] [100-500] [500-999] [>1000]
-  └─ Auto-save after each answer
+┌─────────────────────────────────────────────────────┐
+│  Assessment: Acme Corp                               │
+│  Progress: 25 / 28 respondidas                       │
+│  ⚠️ Faltan 3 preguntas por responder                │
+└─────────────────────────────────────────────────────┘
 
-Category 2: Conectividad (3 questions)
-  └─ ...
+┌─────────────────────────────────────────────────────┐
+│  📦 INFRAESTRUCTURA ACTUAL (5 preguntas)            │
+├─────────────────────────────────────────────────────┤
+│  ✅ Q1: ¿Tiene acceso a RVTools completo?          │
+│      [●Sí] [○No]                                    │
+│                                                      │
+│  ✅ Q2: ¿Cuántos servidores tiene?                 │
+│      [○<30] [●100-500] [○500-999] [○>1000]         │
+│                                                      │
+│  ❌ Q3: ¿Qué tipo de virtualización usa?           │ ← ROJO
+│      [○VMware] [○Hyper-V] [○KVM] [○Otro]           │
+│      ⚠️ Esta pregunta es obligatoria                │
+│                                                      │
+│  ✅ Q4: ...                                         │
+│  ✅ Q5: ...                                         │
+└─────────────────────────────────────────────────────┘
 
-[Continue to Results]
+┌─────────────────────────────────────────────────────┐
+│  🔌 CONECTIVIDAD (3 preguntas)                      │
+├─────────────────────────────────────────────────────┤
+│  ✅ Q6: ...                                         │
+│  ❌ Q7: ...                                         │ ← ROJO
+│  ✅ Q8: ...                                         │
+└─────────────────────────────────────────────────────┘
+
+... (todas las 11 categorías visibles en scroll)
+
+┌─────────────────────────────────────────────────────┐
+│  [Calcular Recomendación] ← Deshabilitado          │
+│  ⚠️ Debes responder todas las preguntas (3 faltan) │
+└─────────────────────────────────────────────────────┘
 ```
+
+**Key UX Rules:**
+1. ❌ NO pagination or "Next Category" buttons
+2. ✅ All questions visible in single scrollable page
+3. ✅ Questions grouped visually by category headers
+4. ✅ Unanswered questions highlighted in RED with warning icon
+5. ✅ All 28 questions are MANDATORY
+6. ✅ "Calculate" button disabled until all answered
+7. ✅ Clear counter showing "X / 28 respondidas"
+8. ✅ Auto-save after each answer (500ms debounce)
 
 ### 5.3 Results Dashboard
 

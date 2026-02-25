@@ -38,12 +38,12 @@
   - [x] 2.1.3 Add caching for config files
   - [x] 2.1.4 Add validation with Zod schemas
 
-- [ ] 2.2 SelectorSessionService
-  - [ ] 2.2.1 Implement `saveSession()` method
-  - [ ] 2.2.2 Implement `loadSession()` method
-  - [ ] 2.2.3 Implement `listSessions()` method
-  - [ ] 2.2.4 Add S3 integration for session storage
-  - [ ] 2.2.5 Add timestamp generation logic
+- [-] 2.2 SelectorSessionService
+  - [x] 2.2.1 Implement `saveSession()` method
+  - [x] 2.2.2 Implement `loadSession()` method
+  - [x] 2.2.3 Implement `listSessions()` method
+  - [-] 2.2.4 Add S3 integration for session storage
+  - [x] 2.2.5 Add timestamp generation logic
 
 - [ ] 2.3 SelectorCalculationService
   - [ ] 2.3.1 Implement `calculateScores()` method

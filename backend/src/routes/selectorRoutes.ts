@@ -14,6 +14,9 @@ router.get('/questions', SelectorController.getQuestions);
 
 // Session management
 router.post('/session', SelectorController.createSession);
+router.post('/session/save', SelectorController.saveSession);
+router.get('/session/:clientName/:sessionId', SelectorController.loadSession);
+router.get('/sessions/:clientName', SelectorController.listSessions);
 router.put('/session/:sessionId/answer', SelectorController.updateAnswer);
 
 // Calculation

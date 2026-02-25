@@ -14,9 +14,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Search, Network, Server, Database, AlertCircle, Download, FileText, FileUp, ChevronLeft, ChevronRight, Filter, ArrowUpDown } from 'lucide-react';
+import { Upload, Search, Network, Server, Database, AlertCircle, Download, FileText, FileUp, ChevronLeft, ChevronRight, Filter, ArrowUpDown, Layers } from 'lucide-react';
 import apiClient from '@/lib/api';
 import { toast } from 'sonner';
+import { MigrationPlanner } from './MigrationPlanner';
 
 interface DependencyNode {
   id: string;
@@ -86,6 +87,7 @@ export function DependencyMap() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const [showMigrationPlanner, setShowMigrationPlanner] = useState(false);
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -666,6 +668,22 @@ export function DependencyMap() {
                 </div>
                 <div className="text-sm text-gray-600">Puertos</div>
               </div>
+            </div>
+          )}
+
+          {allDependencies.length > 0 && (
+            <div className="pt-4 border-t mt-4">
+              <Button
+                onClick={() => setShowMigrationPlanner(true)}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                size="lg"
+              >
+                <Layers className="h-5 w-5 mr-2" />
+                Abrir Migration Planner
+              </Button>
+              <p className="text-xs text-gray-500 text-center mt-2">
+                Calcula automáticamente las waves de migración basadas en dependencias
+              </p>
             </div>
           )}
         </CardContent>
@@ -1299,11 +1317,20 @@ export function DependencyMap() {
                   <li>2. Visualiza el mapa completo de conexiones</li>
                   <li>3. Busca un servidor específico para ver sus dependencias</li>
                   <li>4. Explora conexiones entrantes y salientes</li>
+                  <li>5. Usa el Migration Planner para calcular waves de migración</li>
                 </ul>
               </div>
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Migration Planner Modal */}
+      {showMigrationPlanner && allDependencies.length > 0 && (
+        <MigrationPlanner
+          dependencies={allDependencies}
+          onClose={() => setShowMigrationPlanner(false)}
+        />
       )}
     </div>
   );

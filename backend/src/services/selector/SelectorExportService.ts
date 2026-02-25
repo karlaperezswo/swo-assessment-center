@@ -49,7 +49,41 @@ export class SelectorExportService {
           .text(result.recommendedTool);
         doc.fontSize(11).font('Helvetica').fillColor('#000000')
           .text(`Confianza: ${result.confidence} (${result.confidencePercentage.toFixed(1)}%)`);
-        doc.moveDown(1.5);
+        doc.moveDown(2);
+
+        // Visual Bar Chart
+        doc.fontSize(14).font('Helvetica-Bold').text('Comparación Visual de Scores');
+        doc.moveDown(1);
+
+        result.results.forEach((tool) => {
+          const barY = doc.y;
+          const barX = 150;
+          const barWidth = 350;
+          const barHeight = 18;
+          const fillWidth = (tool.percentageScore / 100) * barWidth;
+          
+          // Tool name (left aligned)
+          doc.fontSize(9).font('Helvetica').fillColor('#000000')
+            .text(tool.tool, 50, barY + 4, { width: 95, align: 'left' });
+          
+          // Background bar (light gray)
+          doc.rect(barX, barY, barWidth, barHeight)
+            .fillAndStroke('#e5e7eb', '#d1d5db');
+          
+          // Progress bar (blue)
+          if (fillWidth > 0) {
+            doc.rect(barX, barY, fillWidth, barHeight)
+              .fillAndStroke('#2563eb', '#1d4ed8');
+          }
+          
+          // Percentage text (right of bar)
+          doc.fontSize(9).font('Helvetica-Bold').fillColor('#000000')
+            .text(`${tool.percentageScore.toFixed(1)}%`, barX + barWidth + 10, barY + 4);
+          
+          doc.moveDown(1.3);
+        });
+
+        doc.moveDown(1);
 
         // Scores Table
         doc.fontSize(14).font('Helvetica-Bold').text('Scores de Herramientas');

@@ -38,7 +38,7 @@
   - [x] 2.1.3 Add caching for config files
   - [x] 2.1.4 Add validation with Zod schemas
 
-- [-] 2.2 SelectorSessionService
+- [x] 2.2 SelectorSessionService
   - [x] 2.2.1 Implement `saveSession()` method
   - [x] 2.2.2 Implement `loadSession()` method
   - [x] 2.2.3 Implement `listSessions()` method

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Loader2, CheckCircle2, CloudOff, History, Calendar, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface Question {
   id: string;
@@ -374,6 +375,12 @@ export function SelectorPhase() {
 
   // Results screen
   if (result) {
+    // Prepare data for radar chart
+    const radarData = result.results.map(tool => ({
+      tool: tool.tool,
+      score: tool.percentageScore
+    }));
+
     return (
       <div className="container mx-auto p-6 space-y-6">
         <Card>
@@ -390,6 +397,47 @@ export function SelectorPhase() {
               <Badge variant={result.confidence === 'high' ? 'default' : 'secondary'}>
                 Confianza: {result.confidence} ({result.confidencePercentage.toFixed(1)}%)
               </Badge>
+            </div>
+
+            {/* Radar Chart */}
+            <div>
+              <h4 className="font-semibold mb-4">Comparación Visual de Herramientas</h4>
+              <div className="bg-gray-50 rounded-lg p-6">
+                <ResponsiveContainer width="100%" height={400}>
+                  <RadarChart data={radarData}>
+                    <PolarGrid stroke="#cbd5e1" />
+                    <PolarAngleAxis 
+                      dataKey="tool" 
+                      tick={{ fill: '#475569', fontSize: 14, fontWeight: 500 }}
+                    />
+                    <PolarRadiusAxis 
+                      angle={90} 
+                      domain={[0, 100]}
+                      tick={{ fill: '#64748b', fontSize: 12 }}
+                    />
+                    <Radar
+                      name="Score (%)"
+                      dataKey="score"
+                      stroke="#2563eb"
+                      fill="#3b82f6"
+                      fillOpacity={0.6}
+                    />
+                    <Tooltip 
+                      formatter={(value: number) => [`${value.toFixed(1)}%`, 'Score']}
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        padding: '8px 12px'
+                      }}
+                    />
+                    <Legend 
+                      wrapperStyle={{ paddingTop: '20px' }}
+                      iconType="circle"
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
             <div>

@@ -136,6 +136,22 @@ export class SelectorController {
   }
 
   /**
+   * GET /api/selector/sessions
+   * List ALL sessions from all clients
+   */
+  static async listAllSessions(req: Request, res: Response) {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+
+      const sessions = await SelectorSessionService.listAllSessions(limit);
+      res.json({ success: true, data: sessions });
+    } catch (error) {
+      console.error('[SelectorController] Error listing all sessions:', error);
+      res.status(500).json({ success: false, error: 'Failed to list all sessions' });
+    }
+  }
+
+  /**
    * POST /api/selector/session/:sessionId/calculate
    * Calculate scores and recommendation
    */

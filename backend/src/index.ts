@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { reportRouter } from './routes/reportRoutes';
+import { selectorRouter } from './routes/selectorRoutes';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use('/downloads', express.static(path.join(__dirname, '../generated')));
 
 // Routes
 app.use('/api/report', reportRouter);
+app.use('/api/selector', selectorRouter);
 
 // Health check
 app.get('/health', (req, res) => {

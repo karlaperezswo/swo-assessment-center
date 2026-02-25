@@ -45,12 +45,12 @@
   - [x] 2.2.4 Add S3 integration for session storage
   - [x] 2.2.5 Add timestamp generation logic
 
-- [ ] 2.3 SelectorCalculationService
-  - [ ] 2.3.1 Implement `calculateScores()` method
-  - [ ] 2.3.2 Implement `calculateConfidence()` method
-  - [ ] 2.3.3 Implement `findDecisiveFactors()` method
-  - [ ] 2.3.4 Add percentage calculation logic
-  - [ ] 2.3.5 Add validation for complete answers
+- [x] 2.3 SelectorCalculationService
+  - [x] 2.3.1 Implement `calculateScores()` method
+  - [x] 2.3.2 Implement `calculateConfidence()` method
+  - [x] 2.3.3 Implement `findDecisiveFactors()` method
+  - [x] 2.3.4 Add percentage calculation logic
+  - [x] 2.3.5 Add validation for complete answers
 
 - [ ] 2.4 SelectorExportService
   - [ ] 2.4.1 Implement `generatePDF()` method
@@ -69,18 +69,18 @@
 
 ### 3. API Routes & Controllers
 
-- [ ] 3.1 Create selectorRoutes.ts
-  - [ ] 3.1.1 Define all route endpoints
+- [-] 3.1 Create selectorRoutes.ts
+  - [x] 3.1.1 Define all route endpoints
   - [ ] 3.1.2 Add route validation middleware
   - [ ] 3.1.3 Add error handling middleware
 
-- [ ] 3.2 Create SelectorController
-  - [ ] 3.2.1 Implement `getQuestions()` handler
+- [-] 3.2 Create SelectorController
+  - [x] 3.2.1 Implement `getQuestions()` handler
   - [ ] 3.2.2 Implement `getMatrix()` handler
   - [ ] 3.2.3 Implement `saveSession()` handler
   - [ ] 3.2.4 Implement `loadSession()` handler
   - [ ] 3.2.5 Implement `listSessions()` handler
-  - [ ] 3.2.6 Implement `calculate()` handler
+  - [x] 3.2.6 Implement `calculate()` handler
   - [ ] 3.2.7 Implement `getResult()` handler
   - [ ] 3.2.8 Implement `exportPDF()` handler
   - [ ] 3.2.9 Implement `exportCSV()` handler
@@ -92,8 +92,8 @@
 ### 4. Integration Points (⚠️ Modifications)
 
 - [ ] 4.1 Modify backend/src/index.ts
-  - [ ] 4.1.1 Import selectorRouter
-  - [ ] 4.1.2 Add route: `app.use('/api/selector', selectorRouter)`
+  - [x] 4.1.1 Import selectorRouter
+  - [x] 4.1.2 Add route: `app.use('/api/selector', selectorRouter)`
   - [ ] 4.1.3 Test that existing routes still work
 
 - [ ] 4.2 Add TypeScript types

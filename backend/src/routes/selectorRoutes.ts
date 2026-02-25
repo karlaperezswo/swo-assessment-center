@@ -1,0 +1,22 @@
+/**
+ * Selector Routes
+ * 
+ * API routes for the Selector module
+ */
+
+import { Router } from 'express';
+import { SelectorController } from '../controllers/selector/SelectorController';
+
+const router = Router();
+
+// Configuration
+router.get('/questions', SelectorController.getQuestions);
+
+// Session management
+router.post('/session', SelectorController.createSession);
+router.put('/session/:sessionId/answer', SelectorController.updateAnswer);
+
+// Calculation
+router.post('/session/:sessionId/calculate', SelectorController.calculate);
+
+export { router as selectorRouter };

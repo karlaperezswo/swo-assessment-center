@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Circle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, CheckCircle2, CloudOff } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Question {
   id: string;
@@ -47,13 +48,70 @@ export function SelectorPhase() {
   const [sessionId, setSessionId] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [answers, setAnswers] = useState<Answer[]>([]);
-  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CalculationResult | null>(null);
+  const [showValidation, setShowValidation] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const questionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     loadQuestions();
   }, []);
+
+  // Auto-save effect: saves session 500ms after last answer change
+  useEffect(() => {
+    if (!sessionId || answers.length === 0) return;
+
+    // Clear previous timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set saving status immediately
+    setSaveStatus('saving');
+
+    // Debounce: wait 500ms before saving
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        const session = {
+          sessionId,
+          clientName,
+          answers,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          completed: false
+        };
+
+        const response = await fetch('http://localhost:4000/api/selector/session/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          setSaveStatus('saved');
+          // Reset to idle after 2 seconds
+          setTimeout(() => setSaveStatus('idle'), 2000);
+        } else {
+          setSaveStatus('error');
+          console.error('Save failed:', data.error);
+        }
+      } catch (error) {
+        setSaveStatus('error');
+        console.error('Error auto-saving session:', error);
+      }
+    }, 500);
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [answers, sessionId, clientName]);
 
   const loadQuestions = async () => {
     try {
@@ -64,6 +122,7 @@ export function SelectorPhase() {
       }
     } catch (error) {
       console.error('Error loading questions:', error);
+      toast.error('Error al cargar las preguntas');
     }
   };
 
@@ -80,9 +139,11 @@ export function SelectorPhase() {
       const data = await response.json();
       if (data.success) {
         setSessionId(data.data.sessionId);
+        toast.success('Sesión creada exitosamente');
       }
     } catch (error) {
       console.error('Error creating session:', error);
+      toast.error('Error al crear la sesión');
     } finally {
       setLoading(false);
     }
@@ -96,9 +157,42 @@ export function SelectorPhase() {
       timestamp: new Date().toISOString()
     });
     setAnswers(newAnswers);
+    
+    // Clear validation state when user answers
+    if (showValidation) {
+      setShowValidation(false);
+    }
+  };
+
+  const getAllQuestions = () => {
+    return categories.flatMap(cat => cat.questions);
+  };
+
+  const getUnansweredQuestions = () => {
+    const allQuestions = getAllQuestions();
+    const answeredIds = new Set(answers.map(a => a.questionId));
+    return allQuestions.filter(q => !answeredIds.has(q.id));
   };
 
   const handleCalculate = async () => {
+    const totalQuestions = getAllQuestions().length;
+    const unanswered = getUnansweredQuestions();
+
+    // Validation: check if all questions are answered
+    if (unanswered.length > 0) {
+      setShowValidation(true);
+      toast.error(`Debes responder todas las preguntas (${unanswered.length} faltan)`);
+      
+      // Scroll to first unanswered question
+      const firstUnanswered = unanswered[0];
+      const element = questionRefs.current[firstUnanswered.id];
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    // All questions answered, proceed with calculation
     setLoading(true);
     try {
       const response = await fetch(`http://localhost:4000/api/selector/session/${sessionId}/calculate`, {
@@ -118,14 +212,21 @@ export function SelectorPhase() {
       const data = await response.json();
       if (data.success) {
         setResult(data.data);
+        toast.success('Recomendación calculada exitosamente');
       }
     } catch (error) {
       console.error('Error calculating:', error);
+      toast.error('Error al calcular la recomendación');
     } finally {
       setLoading(false);
     }
   };
 
+  const isQuestionAnswered = (questionId: string) => {
+    return answers.some(a => a.questionId === questionId);
+  };
+
+  // Start session screen
   if (!sessionId) {
     return (
       <div className="container mx-auto p-6">
@@ -156,6 +257,7 @@ export function SelectorPhase() {
     );
   }
 
+  // Results screen
   if (result) {
     return (
       <div className="container mx-auto p-6 space-y-6">
@@ -197,7 +299,7 @@ export function SelectorPhase() {
               </div>
             </div>
 
-            <Button onClick={() => { setResult(null); setSessionId(''); setAnswers([]); }}>
+            <Button onClick={() => { setResult(null); setSessionId(''); setAnswers([]); setShowValidation(false); }}>
               Nuevo Assessment
             </Button>
           </CardContent>
@@ -206,79 +308,143 @@ export function SelectorPhase() {
     );
   }
 
-  const currentCategory = categories[currentCategoryIndex];
-  const totalQuestions = categories.reduce((sum, cat) => sum + cat.questions.length, 0);
+  // Questionnaire screen (single page with all questions)
+  const totalQuestions = getAllQuestions().length;
+  const unansweredCount = getUnansweredQuestions().length;
   const progress = (answers.length / totalQuestions) * 100;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
+      {/* Sticky Progress Bar */}
+      <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex justify-between items-center mb-3">
             <div>
-              <CardTitle>Assessment: {clientName}</CardTitle>
-              <CardDescription>
-                Categoría {currentCategoryIndex + 1} de {categories.length}: {currentCategory?.name}
-              </CardDescription>
+              <h3 className="text-lg font-semibold">Assessment: {clientName}</h3>
+              <p className="text-sm text-gray-600">
+                Responde todas las preguntas para obtener tu recomendación
+              </p>
             </div>
-            <Badge>{answers.length} / {totalQuestions} respondidas</Badge>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
-            <div className="bg-blue-600 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {currentCategory?.questions.map((question) => {
-            const currentAnswer = answers.find(a => a.questionId === question.id);
-            return (
-              <div key={question.id} className="border-b pb-4">
-                <div className="flex items-start gap-2 mb-3">
-                  {currentAnswer ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-600 mt-1" />
-                  ) : (
-                    <Circle className="h-5 w-5 text-gray-400 mt-1" />
-                  )}
-                  <div className="flex-1">
-                    <Label className="text-base font-medium">{question.text}</Label>
-                    {question.helpText && (
-                      <p className="text-sm text-gray-600 mt-1">{question.helpText}</p>
-                    )}
-                  </div>
+            <div className="flex items-center gap-3">
+              {/* Save status indicator */}
+              {saveStatus === 'saving' && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Guardando...</span>
                 </div>
-                <div className="flex flex-wrap gap-2 ml-7">
-                  {question.options.map((option) => (
-                    <Button
-                      key={option}
-                      variant={currentAnswer?.answer === option ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => handleAnswer(question.id, option)}
-                    >
-                      {option}
-                    </Button>
-                  ))}
+              )}
+              {saveStatus === 'saved' && (
+                <div className="flex items-center gap-2 text-sm text-green-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span>Guardado</span>
+                </div>
+              )}
+              {saveStatus === 'error' && (
+                <div className="flex items-center gap-2 text-sm text-red-600">
+                  <CloudOff className="h-4 w-4" />
+                  <span>Error al guardar</span>
+                </div>
+              )}
+              <Badge variant={answers.length === totalQuestions ? 'default' : 'secondary'} className="text-base px-3 py-1">
+                {answers.length} / {totalQuestions} respondidas
+              </Badge>
+            </div>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className="bg-blue-600 h-3 rounded-full transition-all duration-300 ease-in-out" 
+              style={{ width: `${progress}%` }} 
+            />
+          </div>
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="space-y-8 pt-6">
+          {/* All categories and questions in single scrollable view */}
+          {categories.map((category) => (
+            <div key={category.id} className="space-y-4">
+              {/* Category header */}
+              <div className="border-l-4 border-blue-600 pl-4 py-2 bg-blue-50">
+                <h3 className="text-lg font-bold text-blue-900">{category.name}</h3>
+                <p className="text-sm text-blue-700">{category.description}</p>
+              </div>
+
+              {/* Questions in this category */}
+              {category.questions.map((question) => {
+                const currentAnswer = answers.find(a => a.questionId === question.id);
+                const isAnswered = isQuestionAnswered(question.id);
+                const showError = showValidation && !isAnswered;
+
+                return (
+                  <div
+                    key={question.id}
+                    ref={(el) => (questionRefs.current[question.id] = el)}
+                    className={`border rounded-lg p-4 transition-all ${
+                      showError ? 'border-red-500 bg-red-50' : 'border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      {showError && (
+                        <AlertCircle className="h-5 w-5 text-red-600 mt-1 flex-shrink-0" />
+                      )}
+                      <div className="flex-1">
+                        <Label className={`text-base font-medium ${showError ? 'text-red-900' : ''}`}>
+                          {question.text}
+                        </Label>
+                        {question.helpText && (
+                          <p className="text-sm text-gray-600 mt-1">{question.helpText}</p>
+                        )}
+                        {showError && (
+                          <p className="text-sm text-red-600 mt-1 font-medium">
+                             Esta pregunta es obligatoria
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 ml-8">
+                      {question.options.map((option) => (
+                        <Button
+                          key={option}
+                          variant={currentAnswer?.answer === option ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleAnswer(question.id, option)}
+                          className={showError && !isAnswered ? 'border-red-300' : ''}
+                        >
+                          {option}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+
+          {/* Calculate button at the bottom */}
+          <div className="pt-6 border-t">
+            {showValidation && unansweredCount > 0 && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-red-900">
+                    Debes responder todas las preguntas
+                  </p>
+                  <p className="text-sm text-red-700 mt-1">
+                    Faltan {unansweredCount} pregunta{unansweredCount !== 1 ? 's' : ''} por responder
+                  </p>
                 </div>
               </div>
-            );
-          })}
-
-          <div className="flex justify-between pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setCurrentCategoryIndex(Math.max(0, currentCategoryIndex - 1))}
-              disabled={currentCategoryIndex === 0}
-            >
-              Anterior
-            </Button>
-            {currentCategoryIndex < categories.length - 1 ? (
-              <Button onClick={() => setCurrentCategoryIndex(currentCategoryIndex + 1)}>
-                Siguiente Categoría
-              </Button>
-            ) : (
-              <Button onClick={handleCalculate} disabled={answers.length < totalQuestions || loading}>
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Calcular Recomendación
-              </Button>
             )}
+            <Button 
+              onClick={handleCalculate} 
+              disabled={loading}
+              className="w-full"
+              size="lg"
+            >
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Calcular Recomendación
+            </Button>
           </div>
         </CardContent>
       </Card>

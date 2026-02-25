@@ -47,9 +47,17 @@ export class DependencyService {
     const nodes = new Map<string, DependencyNode>();
     const edges: DependencyEdge[] = [];
 
+    // First, collect all nodes that have connections
+    const connectedNodes = new Set<string>();
+    
     for (const dep of dependencies) {
-      // Add source node
-      if (!nodes.has(dep.source)) {
+      connectedNodes.add(dep.source);
+      connectedNodes.add(dep.destination);
+    }
+
+    for (const dep of dependencies) {
+      // Add source node (only if it has connections)
+      if (!nodes.has(dep.source) && connectedNodes.has(dep.source)) {
         nodes.set(dep.source, {
           id: dep.source,
           label: dep.source,
@@ -58,8 +66,8 @@ export class DependencyService {
         });
       }
 
-      // Add destination node
-      if (!nodes.has(dep.destination)) {
+      // Add destination node (only if it has connections)
+      if (!nodes.has(dep.destination) && connectedNodes.has(dep.destination)) {
         nodes.set(dep.destination, {
           id: dep.destination,
           label: dep.destination,
@@ -78,6 +86,8 @@ export class DependencyService {
         serviceName: dep.serviceName,
       });
     }
+
+    console.log(`📊 Grafo construido: ${nodes.size} nodos conectados, ${edges.length} conexiones`);
 
     return {
       nodes: Array.from(nodes.values()),

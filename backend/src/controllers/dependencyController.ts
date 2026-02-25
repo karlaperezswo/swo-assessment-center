@@ -35,6 +35,8 @@ export const uploadDependencyFile = [
           servers: Array.from(data.servers),
           applications: Array.from(data.applications),
           allDependencies: data.dependencies,
+          databases: data.databases,
+          databasesWithoutDependencies: data.databasesWithoutDependencies,
         },
       });
     } catch (error) {

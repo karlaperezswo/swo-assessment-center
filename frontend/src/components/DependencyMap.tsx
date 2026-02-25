@@ -54,6 +54,7 @@ interface NetworkDependency {
   serviceName?: string;
   sourceApp?: string;
   destinationApp?: string;
+  targetProcessId?: string;
 }
 
 interface SearchResult {
@@ -78,6 +79,8 @@ export function DependencyMap() {
   const [allServers, setAllServers] = useState<string[]>([]);
   const [allApplications, setAllApplications] = useState<string[]>([]);
   const [allDependencies, setAllDependencies] = useState<NetworkDependency[]>([]);
+  const [databases, setDatabases] = useState<any[]>([]);
+  const [databasesWithoutDeps, setDatabasesWithoutDeps] = useState<any[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   const [filterText, setFilterText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -139,6 +142,8 @@ export function DependencyMap() {
         setAllServers(data.servers || []);
         setAllApplications(data.applications || []);
         setAllDependencies(data.allDependencies || []);
+        setDatabases(data.databases || []);
+        setDatabasesWithoutDeps(data.databasesWithoutDependencies || []);
 
         // Display initial full graph
         console.log('🎨 Generando visualización del grafo...');
@@ -232,6 +237,7 @@ export function DependencyMap() {
     setIsExporting(true);
 
     try {
+      console.log(`📄 Exportando a ${format}...`);
       const response = await apiClient.post('/api/dependencies/export', {
         sessionId,
         searchTerm: searchResult?.server || null,
@@ -240,10 +246,34 @@ export function DependencyMap() {
         responseType: 'blob', // Important for binary data
       });
 
-      // Create blob and download using React-friendly approach
-      const blob = new Blob([response.data], { 
-        type: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      console.log('✅ Respuesta recibida:', {
+        status: response.status,
+        contentType: response.headers['content-type'],
+        contentLength: response.headers['content-length'],
+        dataType: typeof response.data,
+        dataSize: response.data.size || response.data.length,
       });
+
+      // Verify we received blob data
+      if (!response.data) {
+        throw new Error('No se recibieron datos del servidor');
+      }
+
+      // Create blob with correct MIME type
+      const mimeType = format === 'pdf' 
+        ? 'application/pdf' 
+        : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      
+      const blob = new Blob([response.data], { type: mimeType });
+      
+      console.log('📦 Blob creado:', {
+        size: blob.size,
+        type: blob.type,
+      });
+
+      if (blob.size === 0) {
+        throw new Error('El archivo generado está vacío');
+      }
       
       const url = window.URL.createObjectURL(blob);
       
@@ -252,34 +282,45 @@ export function DependencyMap() {
       let filename = `dependencias_${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'pdf' : 'docx'}`;
       
       if (contentDisposition) {
-        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
-        if (filenameMatch) {
-          filename = filenameMatch[1];
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
         }
       }
       
-      // Use a temporary link without appending to body to avoid React DOM issues
+      console.log('💾 Descargando archivo:', filename);
+      
+      // Create download link
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
       a.download = filename;
       
-      // Trigger download and cleanup
+      // Append to body, click, and remove
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       
-      // Cleanup after a short delay to ensure download starts
+      // Cleanup after download starts
       setTimeout(() => {
         window.URL.revokeObjectURL(url);
+        console.log('🧹 URL limpiado');
       }, 100);
 
       toast.success(`Reporte ${format === 'pdf' ? 'PDF' : 'Word'} generado exitosamente`, {
         description: `El archivo ${filename} se ha descargado.`,
         duration: 5000,
       });
-    } catch (error) {
-      console.error('Export error:', error);
+    } catch (error: any) {
+      console.error('❌ Export error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+      
       toast.error('Error al exportar', {
-        description: error instanceof Error ? error.message : 'Error desconocido',
+        description: error.response?.data?.error || error.message || 'Error desconocido',
       });
     } finally {
       setIsExporting(false);
@@ -301,7 +342,16 @@ export function DependencyMap() {
     );
   });
 
-  const sortedDependencies = [...filteredDependencies].sort((a, b) => {
+  // Separate complete and incomplete dependencies
+  const completeDependencies = filteredDependencies.filter(
+    dep => dep.destination && dep.destination.trim() !== '' && dep.port !== null
+  );
+  
+  const incompleteDependencies = filteredDependencies.filter(
+    dep => !dep.destination || dep.destination.trim() === '' || dep.port === null
+  );
+
+  const sortedCompleteDependencies = [...completeDependencies].sort((a, b) => {
     if (!sortConfig) return 0;
     
     const aValue = a[sortConfig.key as keyof NetworkDependency] || '';
@@ -312,11 +362,28 @@ export function DependencyMap() {
     return 0;
   });
 
-  // Pagination
-  const totalPages = Math.ceil(sortedDependencies.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedDependencies = sortedDependencies.slice(startIndex, endIndex);
+  const sortedIncompleteDependencies = [...incompleteDependencies].sort((a, b) => {
+    if (!sortConfig) return 0;
+    
+    const aValue = a[sortConfig.key as keyof NetworkDependency] || '';
+    const bValue = b[sortConfig.key as keyof NetworkDependency] || '';
+    
+    if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  // Pagination for complete dependencies
+  const totalPagesComplete = Math.ceil(sortedCompleteDependencies.length / itemsPerPage);
+  const startIndexComplete = (currentPage - 1) * itemsPerPage;
+  const endIndexComplete = startIndexComplete + itemsPerPage;
+  const paginatedCompleteDependencies = sortedCompleteDependencies.slice(startIndexComplete, endIndexComplete);
+
+  // Pagination for incomplete dependencies
+  const totalPagesIncomplete = Math.ceil(sortedIncompleteDependencies.length / itemsPerPage);
+  const startIndexIncomplete = (currentPage - 1) * itemsPerPage;
+  const endIndexIncomplete = startIndexIncomplete + itemsPerPage;
+  const paginatedIncompleteDependencies = sortedIncompleteDependencies.slice(startIndexIncomplete, endIndexIncomplete);
 
   const handleSort = (key: string) => {
     setSortConfig(current => {
@@ -328,34 +395,7 @@ export function DependencyMap() {
   };
 
   const displayGraph = (graph: DependencyGraph) => {
-    // Analyze graph structure to create better layout
-    const nodesByType = new Map<string, DependencyNode[]>();
-    const nodesByGroup = new Map<string, DependencyNode[]>();
-    
-    // Group nodes by type and application
-    graph.nodes.forEach(node => {
-      // Group by type
-      if (!nodesByType.has(node.type)) {
-        nodesByType.set(node.type, []);
-      }
-      nodesByType.get(node.type)!.push(node);
-      
-      // Group by application
-      const group = node.group || 'Unknown';
-      if (!nodesByGroup.has(group)) {
-        nodesByGroup.set(group, []);
-      }
-      nodesByGroup.get(group)!.push(node);
-    });
-
-    // Calculate positions using hierarchical layout
-    const flowNodes: Node[] = [];
-    const groups = Array.from(nodesByGroup.entries());
-    const groupSpacing = 300;
-    const nodeSpacing = 150;
-    const layerHeight = 200;
-    
-    // Analyze connections to determine hierarchy levels
+    // Calculate node importance based on connections
     const incomingCount = new Map<string, number>();
     const outgoingCount = new Map<string, number>();
     
@@ -363,89 +403,137 @@ export function DependencyMap() {
       incomingCount.set(edge.to, (incomingCount.get(edge.to) || 0) + 1);
       outgoingCount.set(edge.from, (outgoingCount.get(edge.from) || 0) + 1);
     });
-    
-    // Assign nodes to layers based on their role
-    const layers = new Map<number, DependencyNode[]>();
+
+    // Classify nodes into layers based on their role
+    const sourceNodes: DependencyNode[] = []; // Nodes with only outgoing connections
+    const intermediateNodes: DependencyNode[] = []; // Nodes with both incoming and outgoing
+    const destinationNodes: DependencyNode[] = []; // Nodes with only incoming connections
+    const isolatedNodes: DependencyNode[] = []; // Nodes with no connections
     
     graph.nodes.forEach(node => {
       const incoming = incomingCount.get(node.id) || 0;
       const outgoing = outgoingCount.get(node.id) || 0;
       
-      let layer = 1; // Default middle layer
-      
-      // Top layer: nodes with many outgoing, few incoming (sources)
-      if (outgoing > incoming && incoming <= 2) {
-        layer = 0;
+      if (incoming === 0 && outgoing === 0) {
+        isolatedNodes.push(node);
+      } else if (incoming === 0 && outgoing > 0) {
+        sourceNodes.push(node);
+      } else if (incoming > 0 && outgoing === 0) {
+        destinationNodes.push(node);
+      } else {
+        intermediateNodes.push(node);
       }
-      // Bottom layer: nodes with many incoming, few outgoing (sinks)
-      else if (incoming > outgoing && outgoing <= 2) {
-        layer = 2;
-      }
-      // Middle layer: nodes with balanced connections
-      else {
-        layer = 1;
-      }
-      
-      if (!layers.has(layer)) {
-        layers.set(layer, []);
-      }
-      layers.get(layer)!.push(node);
     });
-    
-    // Position nodes in their layers
-    let nodeIndex = 0;
-    for (let layer = 0; layer <= 2; layer++) {
-      const nodesInLayer = layers.get(layer) || [];
-      const layerWidth = nodesInLayer.length * nodeSpacing;
-      const startX = (800 - layerWidth) / 2; // Center the layer
+
+    // Create hierarchical layout
+    const flowNodes: Node[] = [];
+    const layerSpacing = 300;
+    const nodeSpacing = 180;
+    let currentY = 100;
+
+    // Helper function to create nodes in a layer
+    const createLayerNodes = (nodes: DependencyNode[], layerName: string, color: string, y: number) => {
+      const layerWidth = nodes.length * nodeSpacing;
+      const startX = Math.max(100, (1200 - layerWidth) / 2);
       
-      nodesInLayer.forEach((node, index) => {
-        const x = startX + (index * nodeSpacing) + 100;
-        const y = 100 + (layer * layerHeight);
+      nodes.forEach((node, index) => {
+        const totalConnections = (incomingCount.get(node.id) || 0) + (outgoingCount.get(node.id) || 0);
+        const nodeSize = Math.min(120, 60 + (totalConnections * 5));
         
         flowNodes.push({
           id: node.id,
           type: 'default',
           data: {
             label: (
-              <div className="text-center">
-                <div className="font-semibold text-sm">{node.label}</div>
+              <div className="text-center p-2">
+                <div className="font-bold text-sm mb-1" style={{ wordBreak: 'break-word' }}>
+                  {node.label.length > 20 ? node.label.substring(0, 20) + '...' : node.label}
+                </div>
                 {node.group && (
-                  <div className="text-xs text-gray-500 mt-1">{node.group}</div>
+                  <div className="text-xs text-gray-300 mb-1">{node.group}</div>
                 )}
-                <div className="text-xs text-gray-400 mt-1">
-                  ↓{outgoingCount.get(node.id) || 0} ↑{incomingCount.get(node.id) || 0}
+                <div className="flex items-center justify-center gap-2 text-xs">
+                  {(incomingCount.get(node.id) || 0) > 0 && (
+                    <span className="bg-white/20 px-2 py-0.5 rounded">
+                      ↓ {incomingCount.get(node.id)}
+                    </span>
+                  )}
+                  {(outgoingCount.get(node.id) || 0) > 0 && (
+                    <span className="bg-white/20 px-2 py-0.5 rounded">
+                      ↑ {outgoingCount.get(node.id)}
+                    </span>
+                  )}
                 </div>
               </div>
             ),
           },
-          position: { x, y },
+          position: { x: startX + (index * nodeSpacing), y },
           style: {
-            background: node.type === 'server' ? '#3b82f6' : '#10b981',
+            background: `linear-gradient(135deg, ${color} 0%, ${color}dd 100%)`,
             color: 'white',
-            border: '2px solid #1e40af',
-            borderRadius: '8px',
-            padding: '12px',
-            minWidth: '140px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            border: '3px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '12px',
+            padding: '8px',
+            minWidth: `${nodeSize}px`,
+            minHeight: '80px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
+            fontSize: '12px',
           },
         });
-        nodeIndex++;
       });
+    };
+
+    // Layer 1: Source nodes (top)
+    if (sourceNodes.length > 0) {
+      createLayerNodes(sourceNodes, 'Origen', '#10b981', currentY);
+      currentY += layerSpacing;
     }
 
-    // Create edges with better styling
+    // Layer 2: Intermediate nodes (middle)
+    if (intermediateNodes.length > 0) {
+      createLayerNodes(intermediateNodes, 'Intermedios', '#3b82f6', currentY);
+      currentY += layerSpacing;
+    }
+
+    // Layer 3: Destination nodes (bottom)
+    if (destinationNodes.length > 0) {
+      createLayerNodes(destinationNodes, 'Destino', '#8b5cf6', currentY);
+      currentY += layerSpacing;
+    }
+
+    // Layer 4: Isolated nodes (if any)
+    if (isolatedNodes.length > 0) {
+      createLayerNodes(isolatedNodes, 'Aislados', '#6b7280', currentY);
+    }
+
+    // Create edges with clear visual hierarchy
     const flowEdges: Edge[] = graph.edges.map((edge, index) => {
-      // Determine edge color based on port/protocol
-      let edgeColor = '#6b7280';
+      // Determine edge properties based on connection type
+      let edgeColor = '#94a3b8';
+      let edgeWidth = 2;
+      let animated = false;
+      
+      // Color by protocol/port
       if (edge.port !== null) {
         if (edge.port === 80 || edge.port === 443 || edge.port === 8080) {
           edgeColor = '#3b82f6'; // Blue for HTTP/HTTPS
-        } else if (edge.port === 3306 || edge.port === 5432) {
+          animated = true;
+        } else if (edge.port === 3306 || edge.port === 5432 || edge.port === 1433) {
           edgeColor = '#10b981'; // Green for databases
         } else if (edge.port === 6379 || edge.port === 11211) {
           edgeColor = '#f59e0b'; // Orange for cache
+        } else if (edge.port === 22 || edge.port === 3389) {
+          edgeColor = '#ef4444'; // Red for remote access
         }
+      }
+      
+      // Thicker edges for high-traffic connections
+      const sourceConnections = (outgoingCount.get(edge.from) || 0);
+      if (sourceConnections > 5) {
+        edgeWidth = 3;
       }
       
       return {
@@ -454,7 +542,7 @@ export function DependencyMap() {
         target: edge.to,
         label: edge.label,
         type: 'smoothstep',
-        animated: true,
+        animated,
         markerEnd: {
           type: MarkerType.ArrowClosed,
           color: edgeColor,
@@ -463,12 +551,13 @@ export function DependencyMap() {
         },
         style: {
           stroke: edgeColor,
-          strokeWidth: 2,
+          strokeWidth: edgeWidth,
+          opacity: 0.7,
         },
         labelStyle: {
           fill: '#1f2937',
           fontWeight: 700,
-          fontSize: 12,
+          fontSize: 11,
           backgroundColor: 'white',
         },
         labelBgStyle: {
@@ -477,7 +566,7 @@ export function DependencyMap() {
           rx: 4,
           ry: 4,
         },
-        labelBgPadding: [8, 4] as [number, number],
+        labelBgPadding: [6, 3] as [number, number],
         labelBgBorderRadius: 4,
       };
     });
@@ -673,259 +762,404 @@ export function DependencyMap() {
         </Card>
       )}
 
-      {/* All Dependencies Table */}
+      {/* All Dependencies - Two Panels */}
       {allDependencies.length > 0 && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
+        <div className="space-y-6">
+          {/* Filters and Controls */}
+          <Card>
+            <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Database className="h-5 w-5" />
                 Todas las Dependencias
               </CardTitle>
-              <Badge variant="secondary" className="text-lg px-3 py-1">
-                {sortedDependencies.length} de {allDependencies.length}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Filters and Controls */}
-            <div className="flex gap-4 items-center flex-wrap">
-              <div className="flex-1 min-w-[300px]">
-                <div className="relative">
-                  <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Filtrar por servidor, puerto, protocolo, servicio..."
-                    value={filterText}
-                    onChange={(e) => {
-                      setFilterText(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Mostrar:</span>
-                <select
-                  value={itemsPerPage}
-                  onChange={(e) => {
-                    setItemsPerPage(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                  className="border rounded px-3 py-2 text-sm"
-                >
-                  <option value={10}>10</option>
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Table */}
-            <div className="border rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                    <tr>
-                      <th 
-                        className="px-4 py-3 text-left font-semibold cursor-pointer hover:bg-blue-800 transition-colors"
-                        onClick={() => handleSort('source')}
-                      >
-                        <div className="flex items-center gap-2">
-                          Servidor Origen
-                          <ArrowUpDown className="h-3 w-3" />
-                        </div>
-                      </th>
-                      <th 
-                        className="px-4 py-3 text-left font-semibold cursor-pointer hover:bg-blue-800 transition-colors"
-                        onClick={() => handleSort('destination')}
-                      >
-                        <div className="flex items-center gap-2">
-                          Servidor Destino
-                          <ArrowUpDown className="h-3 w-3" />
-                        </div>
-                      </th>
-                      <th 
-                        className="px-4 py-3 text-left font-semibold cursor-pointer hover:bg-blue-800 transition-colors"
-                        onClick={() => handleSort('port')}
-                      >
-                        <div className="flex items-center gap-2">
-                          Puerto
-                          <ArrowUpDown className="h-3 w-3" />
-                        </div>
-                      </th>
-                      <th 
-                        className="px-4 py-3 text-left font-semibold cursor-pointer hover:bg-blue-800 transition-colors"
-                        onClick={() => handleSort('protocol')}
-                      >
-                        <div className="flex items-center gap-2">
-                          Protocolo
-                          <ArrowUpDown className="h-3 w-3" />
-                        </div>
-                      </th>
-                      <th 
-                        className="px-4 py-3 text-left font-semibold cursor-pointer hover:bg-blue-800 transition-colors"
-                        onClick={() => handleSort('serviceName')}
-                      >
-                        <div className="flex items-center gap-2">
-                          Servicio
-                          <ArrowUpDown className="h-3 w-3" />
-                        </div>
-                      </th>
-                      <th 
-                        className="px-4 py-3 text-left font-semibold cursor-pointer hover:bg-blue-800 transition-colors"
-                        onClick={() => handleSort('sourceApp')}
-                      >
-                        <div className="flex items-center gap-2">
-                          App Origen
-                          <ArrowUpDown className="h-3 w-3" />
-                        </div>
-                      </th>
-                      <th 
-                        className="px-4 py-3 text-left font-semibold cursor-pointer hover:bg-blue-800 transition-colors"
-                        onClick={() => handleSort('destinationApp')}
-                      >
-                        <div className="flex items-center gap-2">
-                          App Destino
-                          <ArrowUpDown className="h-3 w-3" />
-                        </div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {paginatedDependencies.map((dep, idx) => (
-                      <tr 
-                        key={idx} 
-                        className="hover:bg-blue-50 transition-colors"
-                      >
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <Server className="h-4 w-4 text-blue-600" />
-                            <span className="font-medium text-gray-900">{dep.source || ''}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <Server className="h-4 w-4 text-green-600" />
-                            <span className="font-medium text-gray-900">{dep.destination || ''}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          {dep.port !== null && (
-                            <Badge variant="outline" className="font-mono">
-                              {dep.port}
-                            </Badge>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <Badge 
-                            variant="secondary"
-                            className={
-                              dep.protocol === 'TCP' ? 'bg-blue-100 text-blue-800' :
-                              dep.protocol === 'UDP' ? 'bg-green-100 text-green-800' :
-                              'bg-gray-100 text-gray-800'
-                            }
-                          >
-                            {dep.protocol || ''}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-3 text-gray-700">
-                          {dep.serviceName || ''}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600 text-xs">
-                          {dep.sourceApp || ''}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600 text-xs">
-                          {dep.destinationApp || ''}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="text-sm text-gray-600">
-                  Mostrando {startIndex + 1} a {Math.min(endIndex, sortedDependencies.length)} de {sortedDependencies.length} dependencias
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-4 items-center flex-wrap">
+                <div className="flex-1 min-w-[300px]">
+                  <div className="relative">
+                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Filtrar por servidor, puerto, protocolo, servicio..."
+                      value={filterText}
+                      onChange={(e) => {
+                        setFilterText(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
+                  <span className="text-sm text-gray-600">Mostrar:</span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="border rounded px-3 py-2 text-sm"
                   >
-                    <ChevronLeft className="h-4 w-4" />
-                    Anterior
-                  </Button>
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = currentPage - 2 + i;
-                      }
-                      
-                      return (
-                        <Button
-                          key={pageNum}
-                          variant={currentPage === pageNum ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setCurrentPage(pageNum)}
-                          className="w-10"
-                        >
-                          {pageNum}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Siguiente
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
                 </div>
               </div>
-            )}
+            </CardContent>
+          </Card>
 
-            {/* Stats */}
-            <div className="grid grid-cols-4 gap-4 pt-4 border-t">
-              <div className="bg-blue-50 rounded-lg p-4">
-                <div className="text-sm text-blue-600 font-medium">Total Dependencias</div>
-                <div className="text-2xl font-bold text-blue-900">{allDependencies.length}</div>
-              </div>
-              <div className="bg-green-50 rounded-lg p-4">
-                <div className="text-sm text-green-600 font-medium">Filtradas</div>
-                <div className="text-2xl font-bold text-green-900">{sortedDependencies.length}</div>
-              </div>
-              <div className="bg-purple-50 rounded-lg p-4">
-                <div className="text-sm text-purple-600 font-medium">Protocolos Únicos</div>
-                <div className="text-2xl font-bold text-purple-900">
-                  {new Set(allDependencies.map(d => d.protocol)).size}
+          {/* Two Panels Side by Side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* Panel 1: Complete Dependencies */}
+            <Card className="border-green-200">
+              <CardHeader className="bg-green-50">
+                <CardTitle className="flex items-center gap-2 text-green-900">
+                  <Server className="h-5 w-5" />
+                  Conexiones de Servidores con Puerto
+                  <Badge variant="secondary" className="ml-auto bg-green-600 text-white">
+                    {sortedCompleteDependencies.length}
+                  </Badge>
+                </CardTitle>
+                <p className="text-sm text-green-700 mt-1">
+                  Servidores con destino y puerto definidos
+                </p>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="border rounded-lg overflow-hidden m-4">
+                  <div className="overflow-x-auto max-h-[600px] overflow-y-auto relative">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gradient-to-r from-green-600 to-green-700 text-white sticky top-0 z-10 shadow-md">
+                        <tr>
+                          <th className="px-3 py-2 text-left font-semibold cursor-pointer hover:bg-green-800 transition-colors bg-green-600" onClick={() => handleSort('source')}>
+                            <div className="flex items-center gap-1 text-xs">
+                              Origen
+                              <ArrowUpDown className="h-3 w-3" />
+                            </div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold cursor-pointer hover:bg-green-800 transition-colors bg-green-600" onClick={() => handleSort('destination')}>
+                            <div className="flex items-center gap-1 text-xs">
+                              Destino
+                              <ArrowUpDown className="h-3 w-3" />
+                            </div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold cursor-pointer hover:bg-green-800 transition-colors bg-green-600" onClick={() => handleSort('port')}>
+                            <div className="flex items-center gap-1 text-xs">
+                              Puerto
+                              <ArrowUpDown className="h-3 w-3" />
+                            </div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold cursor-pointer hover:bg-green-800 transition-colors bg-green-600" onClick={() => handleSort('protocol')}>
+                            <div className="flex items-center gap-1 text-xs">
+                              Protocolo
+                              <ArrowUpDown className="h-3 w-3" />
+                            </div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold bg-green-600">
+                            <div className="text-xs">
+                              Proceso Destino
+                            </div>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {paginatedCompleteDependencies.map((dep, idx) => (
+                          <tr key={idx} className="hover:bg-green-50 transition-colors">
+                            <td className="px-3 py-2">
+                              <div className="flex items-center gap-1">
+                                <Server className="h-3 w-3 text-green-600 flex-shrink-0" />
+                                <span className="font-medium text-gray-900 text-xs truncate">{dep.source}</span>
+                              </div>
+                            </td>
+                            <td className="px-3 py-2">
+                              <div className="flex items-center gap-1">
+                                <Server className="h-3 w-3 text-blue-600 flex-shrink-0" />
+                                <span className="font-medium text-gray-900 text-xs truncate">{dep.destination}</span>
+                              </div>
+                            </td>
+                            <td className="px-3 py-2">
+                              <Badge variant="outline" className="font-mono text-xs">
+                                {dep.port}
+                              </Badge>
+                            </td>
+                            <td className="px-3 py-2">
+                              <Badge 
+                                variant="secondary"
+                                className={`text-xs ${
+                                  dep.protocol === 'TCP' ? 'bg-blue-100 text-blue-800' :
+                                  dep.protocol === 'UDP' ? 'bg-green-100 text-green-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}
+                              >
+                                {dep.protocol}
+                              </Badge>
+                            </td>
+                            <td className="px-3 py-2">
+                              <span className="text-gray-700 text-xs">
+                                {(dep as any).targetProcessId || dep.serviceName || '-'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                {/* Pagination for Complete */}
+                {totalPagesComplete > 1 && (
+                  <div className="flex items-center justify-between p-4 border-t">
+                    <div className="text-xs text-gray-600">
+                      {startIndexComplete + 1} - {Math.min(endIndexComplete, sortedCompleteDependencies.length)} de {sortedCompleteDependencies.length}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-3 w-3" />
+                      </Button>
+                      <span className="text-xs">{currentPage} / {totalPagesComplete}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.min(totalPagesComplete, p + 1))}
+                        disabled={currentPage === totalPagesComplete}
+                      >
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Panel 2: Incomplete Dependencies */}
+            <Card className="border-orange-200">
+              <CardHeader className="bg-orange-50">
+                <CardTitle className="flex items-center gap-2 text-orange-900">
+                  <AlertCircle className="h-5 w-5" />
+                  Conexiones de Servidores sin Puerto
+                  <Badge variant="secondary" className="ml-auto bg-orange-600 text-white">
+                    {sortedIncompleteDependencies.length}
+                  </Badge>
+                </CardTitle>
+                <p className="text-sm text-orange-700 mt-1">
+                  Servidores sin puerto o sin destino definido
+                </p>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="border rounded-lg overflow-hidden m-4">
+                  <div className="overflow-x-auto max-h-[600px] overflow-y-auto relative">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gradient-to-r from-orange-600 to-orange-700 text-white sticky top-0 z-10 shadow-md">
+                        <tr>
+                          <th className="px-3 py-2 text-left font-semibold cursor-pointer hover:bg-orange-800 transition-colors bg-orange-600" onClick={() => handleSort('source')}>
+                            <div className="flex items-center gap-1 text-xs">
+                              Origen
+                              <ArrowUpDown className="h-3 w-3" />
+                            </div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold cursor-pointer hover:bg-orange-800 transition-colors bg-orange-600" onClick={() => handleSort('destination')}>
+                            <div className="flex items-center gap-1 text-xs">
+                              Destino
+                              <ArrowUpDown className="h-3 w-3" />
+                            </div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold cursor-pointer hover:bg-orange-800 transition-colors bg-orange-600" onClick={() => handleSort('port')}>
+                            <div className="flex items-center gap-1 text-xs">
+                              Puerto
+                              <ArrowUpDown className="h-3 w-3" />
+                            </div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold cursor-pointer hover:bg-orange-800 transition-colors bg-orange-600" onClick={() => handleSort('protocol')}>
+                            <div className="flex items-center gap-1 text-xs">
+                              Protocolo
+                              <ArrowUpDown className="h-3 w-3" />
+                            </div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold bg-orange-600">
+                            <div className="text-xs">
+                              Proceso Destino
+                            </div>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {paginatedIncompleteDependencies.map((dep, idx) => (
+                          <tr key={idx} className="hover:bg-orange-50 transition-colors">
+                            <td className="px-3 py-2">
+                              <div className="flex items-center gap-1">
+                                <Server className="h-3 w-3 text-orange-600 flex-shrink-0" />
+                                <span className="font-medium text-gray-900 text-xs truncate">{dep.source}</span>
+                              </div>
+                            </td>
+                            <td className="px-3 py-2">
+                              <span className="text-gray-400 text-xs italic">
+                                {dep.destination || 'Sin destino'}
+                              </span>
+                            </td>
+                            <td className="px-3 py-2">
+                              {dep.port !== null ? (
+                                <Badge variant="outline" className="font-mono text-xs">
+                                  {dep.port}
+                                </Badge>
+                              ) : (
+                                <span className="text-gray-400 text-xs italic">Sin puerto</span>
+                              )}
+                            </td>
+                            <td className="px-3 py-2">
+                              <Badge 
+                                variant="secondary"
+                                className={`text-xs ${
+                                  dep.protocol === 'TCP' ? 'bg-blue-100 text-blue-800' :
+                                  dep.protocol === 'UDP' ? 'bg-green-100 text-green-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}
+                              >
+                                {dep.protocol || 'N/A'}
+                              </Badge>
+                            </td>
+                            <td className="px-3 py-2">
+                              <span className="text-gray-700 text-xs">
+                                {(dep as any).targetProcessId || dep.serviceName || '-'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                {/* Pagination for Incomplete */}
+                {totalPagesIncomplete > 1 && (
+                  <div className="flex items-center justify-between p-4 border-t">
+                    <div className="text-xs text-gray-600">
+                      {startIndexIncomplete + 1} - {Math.min(endIndexIncomplete, sortedIncompleteDependencies.length)} de {sortedIncompleteDependencies.length}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-3 w-3" />
+                      </Button>
+                      <span className="text-xs">{currentPage} / {totalPagesIncomplete}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.min(totalPagesIncomplete, p + 1))}
+                        disabled={currentPage === totalPagesIncomplete}
+                      >
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Stats */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="text-sm text-blue-600 font-medium">Total Conexiones</div>
+                  <div className="text-2xl font-bold text-blue-900">{allDependencies.length}</div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="text-sm text-green-600 font-medium">Con Puerto</div>
+                  <div className="text-2xl font-bold text-green-900">{completeDependencies.length}</div>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-4">
+                  <div className="text-sm text-orange-600 font-medium">Sin Puerto/Destino</div>
+                  <div className="text-2xl font-bold text-orange-900">{incompleteDependencies.length}</div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="text-sm text-purple-600 font-medium">Filtradas</div>
+                  <div className="text-2xl font-bold text-purple-900">{filteredDependencies.length}</div>
                 </div>
               </div>
-              <div className="bg-orange-50 rounded-lg p-4">
-                <div className="text-sm text-orange-600 font-medium">Puertos Únicos</div>
-                <div className="text-2xl font-bold text-orange-900">
-                  {new Set(allDependencies.filter(d => d.port !== null).map(d => d.port)).size}
+            </CardContent>
+          </Card>
+
+          {/* Databases Without Dependencies */}
+          {databasesWithoutDeps.length > 0 && (
+            <Card className="border-gray-300">
+              <CardHeader className="bg-gray-50">
+                <CardTitle className="flex items-center gap-2 text-gray-900">
+                  <Database className="h-5 w-5" />
+                  Bases de Datos sin Dependencias
+                  <Badge variant="secondary" className="ml-auto bg-gray-600 text-white">
+                    {databasesWithoutDeps.length}
+                  </Badge>
+                </CardTitle>
+                <p className="text-sm text-gray-700 mt-1">
+                  Bases de datos que no tienen conexiones con otros servidores
+                </p>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="border rounded-lg overflow-hidden m-4">
+                  <div className="overflow-x-auto max-h-[400px] overflow-y-auto relative">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gradient-to-r from-gray-600 to-gray-700 text-white sticky top-0 z-10 shadow-md">
+                        <tr>
+                          <th className="px-3 py-2 text-left font-semibold bg-gray-600">
+                            <div className="text-xs">Nombre Base de Datos</div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold bg-gray-600">
+                            <div className="text-xs">Servidor</div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold bg-gray-600">
+                            <div className="text-xs">Database ID</div>
+                          </th>
+                          <th className="px-3 py-2 text-left font-semibold bg-gray-600">
+                            <div className="text-xs">Edición</div>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {databasesWithoutDeps.map((db, idx) => (
+                          <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-3 py-2">
+                              <div className="flex items-center gap-1">
+                                <Database className="h-3 w-3 text-gray-600 flex-shrink-0" />
+                                <span className="font-medium text-gray-900 text-xs">{db.databaseName}</span>
+                              </div>
+                            </td>
+                            <td className="px-3 py-2">
+                              <div className="flex items-center gap-1">
+                                <Server className="h-3 w-3 text-blue-600 flex-shrink-0" />
+                                <span className="text-gray-700 text-xs">{db.serverId}</span>
+                              </div>
+                            </td>
+                            <td className="px-3 py-2">
+                              <span className="text-gray-600 text-xs font-mono">
+                                {db.databaseId || '-'}
+                              </span>
+                            </td>
+                            <td className="px-3 py-2">
+                              <span className="text-gray-600 text-xs">
+                                {db.edition || '-'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       )}
 
       {/* Graph Visualization */}
@@ -975,22 +1209,30 @@ export function DependencyMap() {
                 <Controls showInteractive={false} />
               </ReactFlow>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-4">
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Leyenda de Nodos:</h4>
+                <h4 className="font-semibold text-sm">Capas del Grafo:</h4>
                 <div className="flex flex-col gap-2 text-sm">
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                    <span>Servidores</span>
+                    <div className="w-4 h-4 bg-green-500 rounded"></div>
+                    <span>Servidores Origen (solo envían)</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-green-500 rounded"></div>
-                    <span>Aplicaciones</span>
+                    <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                    <span>Servidores Intermedios (envían y reciben)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-purple-500 rounded"></div>
+                    <span>Servidores Destino (solo reciben)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-gray-500 rounded"></div>
+                    <span>Servidores Aislados (sin conexiones)</span>
                   </div>
                 </div>
               </div>
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Leyenda de Conexiones:</h4>
+                <h4 className="font-semibold text-sm">Tipos de Conexión:</h4>
                 <div className="flex flex-col gap-2 text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-0.5 bg-blue-500"></div>
@@ -998,23 +1240,45 @@ export function DependencyMap() {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-0.5 bg-green-500"></div>
-                    <span>Bases de Datos (3306, 5432)</span>
+                    <span>Bases de Datos (3306, 5432, 1433)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-0.5 bg-orange-500"></div>
                     <span>Cache (6379, 11211)</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-0.5 bg-gray-500"></div>
+                    <div className="w-8 h-0.5 bg-red-500"></div>
+                    <span>Acceso Remoto (22, 3389)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-0.5 bg-gray-400"></div>
                     <span>Otros servicios</span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Indicadores:</h4>
+                <div className="flex flex-col gap-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs">↓ 5</span>
+                    <span>Conexiones entrantes</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs">↑ 3</span>
+                    <span>Conexiones salientes</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white rounded"></div>
+                    <span>Tamaño = número de conexiones</span>
                   </div>
                 </div>
               </div>
             </div>
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>💡 Tip:</strong> Los nodos están organizados en capas: arriba (fuentes), medio (procesamiento), abajo (almacenamiento). 
-                Los números ↓↑ indican conexiones salientes/entrantes.
+                <strong>💡 Organización:</strong> El grafo está organizado en capas jerárquicas de arriba hacia abajo: 
+                Servidores Origen (verde) → Intermedios (azul) → Destino (morado). 
+                Las conexiones animadas indican tráfico HTTP/HTTPS de alta prioridad.
               </p>
             </div>
           </CardContent>

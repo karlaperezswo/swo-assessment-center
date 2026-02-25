@@ -10,17 +10,35 @@ export interface NetworkDependency {
   destinationApp?: string;
   sourceIP?: string;
   destinationIP?: string;
+  targetProcessId?: string;
+}
+
+export interface DatabaseInfo {
+  databaseName: string;
+  serverId: string;
+  databaseId?: string;
+  edition?: string;
+  hasDependencies: boolean;
+  dependencies: {
+    asSource: NetworkDependency[];
+    asDestination: NetworkDependency[];
+  };
 }
 
 export interface DependencyData {
   dependencies: NetworkDependency[];
   servers: Set<string>;
   applications: Set<string>;
+  databases: DatabaseInfo[];
+  databasesWithoutDependencies: DatabaseInfo[];
   summary: {
     totalDependencies: number;
     uniqueServers: number;
     uniqueApplications: number;
     uniquePorts: number;
+    totalDatabases: number;
+    databasesWithDependencies: number;
+    databasesWithoutDependencies: number;
   };
 }
 
@@ -32,180 +50,199 @@ export class DependencyParser {
     const servers = new Set<string>();
     const applications = new Set<string>();
     const ports = new Set<number>();
+    const databases: DatabaseInfo[] = [];
 
-    // Try to read from ALL sheets to get complete data
     const sheetNames = workbook.SheetNames;
     console.log(`📊 Analizando ${sheetNames.length} pestañas: ${sheetNames.join(', ')}`);
 
-    for (const sheetName of sheetNames) {
-      try {
-        const sheet = workbook.Sheets[sheetName];
-        const rawData: any[] = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    // Find Server Communication sheet
+    const serverCommSheet = sheetNames.find(name => 
+      name.toLowerCase().includes('server') && name.toLowerCase().includes('communication')
+    ) || sheetNames.find(name => 
+      name.toLowerCase().includes('communication')
+    ) || sheetNames.find(name =>
+      name.toLowerCase().includes('dependenc')
+    );
 
-        if (rawData.length === 0) {
-          console.log(`⚠️  Pestaña "${sheetName}" está vacía, saltando...`);
-          continue;
-        }
+    if (!serverCommSheet) {
+      throw new Error('No se encontró la pestaña "Server Communication" o similar en el archivo Excel');
+    }
 
-        // Log column names for debugging
-        if (rawData.length > 0) {
-          const columns = Object.keys(rawData[0]);
-          console.log(`📋 Columnas en "${sheetName}": ${columns.slice(0, 10).join(', ')}${columns.length > 10 ? '...' : ''}`);
-        }
+    console.log(`🎯 Usando pestaña principal: "${serverCommSheet}"`);
 
-        console.log(`🔍 Procesando pestaña "${sheetName}" con ${rawData.length} filas`);
+    // Parse Server Communication sheet
+    try {
+      const sheet = workbook.Sheets[serverCommSheet];
+      const rawData: any[] = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
-        let foundDependencies = 0;
-        for (const row of rawData) {
-          const dep = this.parseDependencyRow(row);
-          if (dep) {
-            dependencies.push(dep);
-            servers.add(dep.source);
-            servers.add(dep.destination);
-            if (dep.port !== null) {
-              ports.add(dep.port);
-            }
-            
-            if (dep.sourceApp) applications.add(dep.sourceApp);
-            if (dep.destinationApp) applications.add(dep.destinationApp);
-            foundDependencies++;
+      if (rawData.length === 0) {
+        throw new Error(`La pestaña "${serverCommSheet}" está vacía`);
+      }
+
+      // Log column names for debugging
+      const columns = Object.keys(rawData[0]);
+      console.log(`📋 Columnas encontradas: ${columns.join(', ')}`);
+
+      console.log(`🔍 Procesando ${rawData.length} filas de dependencias...`);
+
+      for (const row of rawData) {
+        const dep = this.parseServerCommunicationRow(row);
+        if (dep) {
+          dependencies.push(dep);
+          servers.add(dep.source);
+          servers.add(dep.destination);
+          if (dep.port !== null) {
+            ports.add(dep.port);
           }
+          
+          if (dep.sourceApp) applications.add(dep.sourceApp);
+          if (dep.destinationApp) applications.add(dep.destinationApp);
         }
+      }
 
-        if (foundDependencies > 0) {
-          console.log(`✅ Encontradas ${foundDependencies} dependencias en "${sheetName}"`);
-        } else {
-          console.log(`⚠️  No se encontraron dependencias válidas en "${sheetName}"`);
-        }
+      console.log(`✅ Encontradas ${dependencies.length} dependencias válidas`);
+    } catch (error) {
+      console.error(`❌ Error procesando pestaña "${serverCommSheet}":`, error);
+      throw error;
+    }
+
+    // Parse Databases sheet if exists
+    const databaseSheet = sheetNames.find(name => 
+      name.toLowerCase().includes('database') || name.toLowerCase().includes('db')
+    );
+
+    if (databaseSheet) {
+      try {
+        console.log(`💾 Procesando pestaña de bases de datos: "${databaseSheet}"`);
+        const sheet = workbook.Sheets[databaseSheet];
+        const rawData: any[] = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        const parsedDatabases = this.parseDatabaseSheet(rawData);
+        databases.push(...parsedDatabases);
+        console.log(`✅ Encontradas ${parsedDatabases.length} bases de datos`);
       } catch (error) {
-        console.log(`⚠️  Error procesando pestaña "${sheetName}":`, error);
-        continue;
+        console.log(`⚠️  Error procesando bases de datos:`, error);
       }
     }
 
     if (dependencies.length === 0) {
-      throw new Error('No se encontraron dependencias válidas en ninguna pestaña del archivo Excel');
+      throw new Error('No se encontraron dependencias válidas en el archivo Excel');
     }
 
-    console.log(`✅ Total: ${dependencies.length} dependencias, ${servers.size} servidores, ${applications.size} aplicaciones`);
+    // Match databases with dependencies
+    if (databases.length > 0) {
+      console.log(`🔗 Relacionando ${databases.length} bases de datos con dependencias...`);
+      this.matchDatabaseDependencies(databases, dependencies);
+    }
+
+    // Separate databases with and without dependencies
+    const databasesWithDependencies = databases.filter(db => db.hasDependencies);
+    const databasesWithoutDependencies = databases.filter(db => !db.hasDependencies);
+
+    console.log(`✅ Resumen Final:`);
+    console.log(`   - ${dependencies.length} dependencias`);
+    console.log(`   - ${servers.size} servidores únicos`);
+    console.log(`   - ${applications.size} aplicaciones`);
+    console.log(`   - ${databases.length} bases de datos (${databasesWithDependencies.length} con deps, ${databasesWithoutDependencies.length} sin deps)`);
 
     return {
       dependencies,
       servers,
       applications,
+      databases,
+      databasesWithoutDependencies,
       summary: {
         totalDependencies: dependencies.length,
         uniqueServers: servers.size,
         uniqueApplications: applications.size,
         uniquePorts: ports.size,
+        totalDatabases: databases.length,
+        databasesWithDependencies: databasesWithDependencies.length,
+        databasesWithoutDependencies: databasesWithoutDependencies.length,
       },
     };
   }
 
-  private findDependencySheet(sheetNames: string[]): string | null {
-    const keywords = [
-      'dependenc',
-      'network',
-      'connection',
-      'flow',
-      'comunicacion',
-      'comunicación',
-      'red',
-      'flujo',
-      'traffic',
-      'tráfico'
-    ];
 
-    for (const name of sheetNames) {
-      const lowerName = name.toLowerCase();
-      if (keywords.some(keyword => lowerName.includes(keyword))) {
-        return name;
-      }
-    }
 
-    // If no match, try first sheet
-    return sheetNames[0] || null;
-  }
-
-  private parseDependencyRow(row: any): NetworkDependency | null {
-    // Try different column name variations
-    const source = this.extractValue(row, [
-      'source', 'origen', 'from', 'source_server', 'source_host',
-      'servidor_origen', 'host_origen', 'source hostname', 'source server',
-      'source name', 'sourcename', 'src', 'source vm', 'source device'
+  private parseServerCommunicationRow(row: any): NetworkDependency | null {
+    // Extract values using MPA-specific column names for Server Communication sheet
+    const sourceServerId = this.extractValue(row, [
+      'Source Server ID',
+      'source server id',
+      'source_server_id',
+      'sourceserverid',
+      'source server',
+      'source',
+      'origen',
+      'source hostname',
+      'source host'
     ]);
 
-    const destination = this.extractValue(row, [
-      'destination', 'destino', 'to', 'dest', 'destination_server',
-      'destination_host', 'servidor_destino', 'host_destino',
-      'destination hostname', 'destination server', 'destination name',
-      'destinationname', 'dst', 'destination vm', 'destination device', 'target'
+    const targetServerId = this.extractValue(row, [
+      'Target Server ID',
+      'target server id',
+      'target_server_id',
+      'targetserverid',
+      'target server',
+      'destination server',
+      'destination',
+      'destino',
+      'target hostname',
+      'target host'
     ]);
 
-    const portStr = this.extractValue(row, [
-      'port', 'puerto', 'destination_port', 'dest_port', 'puerto_destino',
-      'destination port', 'dst_port', 'target port', 'service port'
+    const communicationPort = this.extractValue(row, [
+      'Communication Port',
+      'communication port',
+      'communication_port',
+      'communicationport',
+      'port',
+      'puerto',
+      'destination port',
+      'target port',
+      'dest port'
+    ]);
+
+    const targetProcessId = this.extractValue(row, [
+      'Target Process ID',
+      'target process id',
+      'target_process_id',
+      'targetprocessid',
+      'process id',
+      'process',
+      'service',
+      'service name',
+      'application'
     ]);
 
     const protocol = this.extractValue(row, [
-      'protocol', 'protocolo', 'proto', 'ip protocol'
+      'protocol',
+      'protocolo',
+      'proto',
+      'ip protocol',
+      'transport protocol'
     ]) || 'TCP';
 
-    const serviceName = this.extractValue(row, [
-      'service', 'servicio', 'service_name', 'nombre_servicio',
-      'application', 'app name', 'process'
-    ]);
-
-    const sourceApp = this.extractValue(row, [
-      'source_app', 'source_application', 'app_origen', 'aplicacion_origen',
-      'source application name'
-    ]);
-
-    const destinationApp = this.extractValue(row, [
-      'destination_app', 'dest_app', 'app_destino', 'aplicacion_destino',
-      'destination application name'
-    ]);
-
-    const sourceIP = this.extractValue(row, [
-      'source_ip', 'ip_origen', 'source ip', 'source address', 'src ip'
-    ]);
-
-    const destinationIP = this.extractValue(row, [
-      'destination_ip', 'dest_ip', 'ip_destino', 'destination ip',
-      'destination address', 'dst ip', 'target ip'
-    ]);
-
-    // If we don't have source and destination, skip this row
-    if (!source || !destination) {
+    // CRITICAL: Only create dependency if we have both source and target
+    // This ensures we only include servers that have actual connections
+    if (!sourceServerId || !targetServerId) {
       return null;
     }
 
-    // Try to parse port - if not found, use null (unknown)
-    let port = this.parsePort(portStr);
-    if (port === null) {
-      // Try to extract port from service name or other fields
-      const allValues = Object.values(row).join(' ');
-      const portMatch = allValues.match(/\b(\d{1,5})\b/);
-      if (portMatch) {
-        const extractedPort = parseInt(portMatch[1], 10);
-        if (extractedPort >= 1 && extractedPort <= 65535) {
-          port = extractedPort;
-        }
-      }
-    }
+    // Parse port - can be null (connections without port are still valid)
+    const port = this.parsePort(communicationPort);
 
     return {
-      source: this.cleanString(source),
-      destination: this.cleanString(destination),
+      source: this.cleanString(sourceServerId),
+      destination: this.cleanString(targetServerId),
       port,
       protocol: this.cleanString(protocol).toUpperCase(),
-      serviceName: serviceName ? this.cleanString(serviceName) : undefined,
-      sourceApp: sourceApp ? this.cleanString(sourceApp) : undefined,
-      destinationApp: destinationApp ? this.cleanString(destinationApp) : undefined,
-      sourceIP: sourceIP ? this.cleanString(sourceIP) : undefined,
-      destinationIP: destinationIP ? this.cleanString(destinationIP) : undefined,
+      serviceName: targetProcessId ? this.cleanString(targetProcessId) : undefined,
+      targetProcessId: targetProcessId ? this.cleanString(targetProcessId) : undefined,
     };
   }
+
+
 
   private extractValue(row: any, possibleKeys: string[]): string | null {
     for (const key of possibleKeys) {
@@ -251,5 +288,66 @@ export class DependencyParser {
       return value.trim();
     }
     return String(value || '');
+  }
+
+  private parseDatabaseSheet(rows: any[]): DatabaseInfo[] {
+    const databases: DatabaseInfo[] = [];
+
+    for (const row of rows) {
+      const databaseName = this.extractValue(row, [
+        'database', 'database name', 'db name', 'nombre base de datos',
+        'database_name', 'db_name', 'nombre_bd', 'bd'
+      ]);
+
+      const serverId = this.extractValue(row, [
+        'server', 'server id', 'server name', 'host', 'servidor',
+        'server_id', 'server_name', 'host_name', 'hostname', 'vm name'
+      ]);
+
+      const databaseId = this.extractValue(row, [
+        'database id', 'db id', 'database_id', 'db_id', 'id'
+      ]);
+
+      const edition = this.extractValue(row, [
+        'edition', 'edicion', 'version', 'db edition', 'database edition',
+        'sql edition', 'engine'
+      ]);
+
+      // Only add if we have at least database name and server
+      if (databaseName && serverId) {
+        databases.push({
+          databaseName: this.cleanString(databaseName),
+          serverId: this.cleanString(serverId),
+          databaseId: databaseId ? this.cleanString(databaseId) : undefined,
+          edition: edition ? this.cleanString(edition) : undefined,
+          hasDependencies: false,
+          dependencies: {
+            asSource: [],
+            asDestination: [],
+          },
+        });
+      }
+    }
+
+    return databases;
+  }
+
+  private matchDatabaseDependencies(databases: DatabaseInfo[], dependencies: NetworkDependency[]): void {
+    for (const db of databases) {
+      // Find dependencies where the database server is involved
+      const asSource = dependencies.filter(dep => 
+        dep.source.toLowerCase().includes(db.serverId.toLowerCase()) ||
+        db.serverId.toLowerCase().includes(dep.source.toLowerCase())
+      );
+
+      const asDestination = dependencies.filter(dep =>
+        dep.destination.toLowerCase().includes(db.serverId.toLowerCase()) ||
+        db.serverId.toLowerCase().includes(dep.destination.toLowerCase())
+      );
+
+      db.dependencies.asSource = asSource;
+      db.dependencies.asDestination = asDestination;
+      db.hasDependencies = asSource.length > 0 || asDestination.length > 0;
+    }
   }
 }

@@ -1,0 +1,15 @@
+{
+  "watch": ["src"],
+  "ext": "ts,json",
+  "ignore": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "node_modules",
+    "dist",
+    "data",
+    "uploads",
+    "generated"
+  ],
+  "exec": "ts-node src/index.ts",
+  "delay": 2000
+}

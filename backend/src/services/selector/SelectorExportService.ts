@@ -91,21 +91,28 @@ export class SelectorExportService {
         if (result.decisiveFactors && result.decisiveFactors.length > 0) {
           if (doc.y > 600) doc.addPage();
           
-          doc.fontSize(14).font('Helvetica-Bold').text('Factores Decisivos');
+          doc.fontSize(14).font('Helvetica-Bold').text('Factores Decisivos', 50, doc.y, { width: 500, align: 'left' });
           doc.moveDown(0.5);
           doc.fontSize(10).font('Helvetica')
-            .text('Las siguientes preguntas tuvieron mayor impacto en la recomendación:');
-          doc.moveDown(0.5);
+            .text('Las siguientes preguntas tuvieron mayor impacto en la recomendación:', 50, doc.y, { width: 500, align: 'left' });
+          doc.moveDown(1.5);
 
           result.decisiveFactors.slice(0, 5).forEach((factor, index) => {
             if (doc.y > 700) doc.addPage();
             
+            // Número y pregunta
             doc.fontSize(10).font('Helvetica-Bold')
-              .text(`${index + 1}. ${factor.questionText || factor.questionId}`);
-            doc.font('Helvetica')
-              .text(`   Respuesta: ${factor.answer}`)
-              .text(`   Impacto: ${factor.impact.toFixed(1)} puntos`);
+              .text(`${index + 1}. ${factor.questionText || factor.questionId}`, 50, doc.y, { width: 500, align: 'left' });
             doc.moveDown(0.5);
+            
+            // Respuesta con indentación (70 puntos desde el borde izquierdo)
+            doc.font('Helvetica').fontSize(9)
+              .text(`Respuesta: ${factor.answer}`, 70, doc.y, { width: 480, align: 'left' });
+            doc.moveDown(0.3);
+            
+            // Impacto con indentación (70 puntos desde el borde izquierdo)
+            doc.text(`Impacto: ${factor.impact.toFixed(1)} puntos`, 70, doc.y, { width: 480, align: 'left' });
+            doc.moveDown(1.2);
           });
         }
 

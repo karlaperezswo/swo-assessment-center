@@ -151,4 +151,64 @@ export class SelectorSessionService {
       await fs.unlink(filePath);
     }
   }
+
+  static async listAllSessions(limit: number = 5): Promise<SelectorSession[]> {
+    const sessions: SelectorSession[] = [];
+    try {
+      if (USE_S3) {
+        const { S3Client, ListObjectsV2Command, GetObjectCommand } = await import('@aws-sdk/client-s3');
+        const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+        const prefix = S3_PREFIX + '/';
+        const listResponse = await s3Client.send(new ListObjectsV2Command({
+          Bucket: process.env.S3_BUCKET || 'map-central-data',
+          Prefix: prefix,
+        }));
+        if (listResponse.Contents) {
+          for (const obj of listResponse.Contents) {
+            try {
+              const getResponse = await s3Client.send(new GetObjectCommand({
+                Bucket: process.env.S3_BUCKET || 'map-central-data',
+                Key: obj.Key!,
+              }));
+              const content = await getResponse.Body!.transformToString();
+              const session = SessionSchema.parse(JSON.parse(content));
+              sessions.push(session);
+            } catch (error) {
+              continue;
+            }
+          }
+        }
+      } else {
+        const sessionsDir = LOCAL_STORAGE_PATH;
+        try {
+          const clientDirs = await fs.readdir(sessionsDir);
+          for (const clientDir of clientDirs) {
+            const clientPath = path.join(sessionsDir, clientDir);
+            const stat = await fs.stat(clientPath);
+            if (stat.isDirectory()) {
+              const files = await fs.readdir(clientPath);
+              const jsonFiles = files.filter(f => f.endsWith('.json'));
+              for (const file of jsonFiles) {
+                try {
+                  const filePath = path.join(clientPath, file);
+                  const content = await fs.readFile(filePath, 'utf-8');
+                  const session = SessionSchema.parse(JSON.parse(content));
+                  sessions.push(session);
+                } catch (error) {
+                  continue;
+                }
+              }
+            }
+          }
+        } catch (error) {
+          return [];
+        }
+      }
+      sessions.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      return sessions.slice(0, limit);
+    } catch (error) {
+      console.error('Error listing all sessions:', error);
+      return [];
+    }
+  }
 }

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Loader2, CheckCircle2, CloudOff, History, Calendar, Clock, FileDown, Lightbulb } from 'lucide-react';
+import { AlertCircle, Loader2, CheckCircle2, CloudOff, History, Calendar, Clock, FileDown, Lightbulb, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -53,15 +53,17 @@ export function SelectorPhase() {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [showValidation, setShowValidation] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [showHistory, setShowHistory] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<any[]>([]);
   const [exportLoading, setExportLoading] = useState<'pdf' | 'csv' | null>(null);
+  const [viewMode, setViewMode] = useState<'create' | 'view-results'>('create');
+  const [viewingSession, setViewingSession] = useState<any>(null);
   const questionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     loadQuestions();
+    loadAllHistory(); // Load history on mount
   }, []);
 
   // Auto-save effect: saves session 500ms after last answer change
@@ -154,43 +156,63 @@ export function SelectorPhase() {
     }
   };
 
-  const loadHistory = async () => {
-    if (!clientName) return;
-    
+  const loadAllHistory = async () => {
     setHistoryLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/api/selector/sessions/${encodeURIComponent(clientName)}?limit=5`);
+      const response = await fetch(`http://localhost:4000/api/selector/sessions?limit=5`);
       const data = await response.json();
       if (data.success) {
         setSessionHistory(data.data || []);
-        setShowHistory(true);
       }
     } catch (error) {
-      console.error('Error loading history:', error);
-      toast.error('Error al cargar el historial');
+      console.error('Error loading all history:', error);
+      // Don't show error toast on initial load
     } finally {
       setHistoryLoading(false);
     }
   };
 
-  const loadPreviousSession = async (session: any) => {
+  const handleViewResults = async (session: any) => {
     try {
       setLoading(true);
       const response = await fetch(`http://localhost:4000/api/selector/session/${encodeURIComponent(session.clientName)}/${session.sessionId}`);
       const data = await response.json();
       
       if (data.success && data.data) {
-        setSessionId(data.data.sessionId);
-        setAnswers(data.data.answers || []);
-        setShowHistory(false);
-        toast.success('Sesión cargada exitosamente');
+        // Load session data
+        setViewingSession(data.data);
+        
+        // Calculate results
+        const calcResponse = await fetch(`http://localhost:4000/api/selector/session/${session.sessionId}/calculate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session: data.data
+          })
+        });
+        const calcData = await calcResponse.json();
+        
+        if (calcData.success) {
+          setResult(calcData.data);
+          setViewMode('view-results');
+        }
       }
     } catch (error) {
-      console.error('Error loading session:', error);
-      toast.error('Error al cargar la sesión');
+      console.error('Error loading session results:', error);
+      toast.error('Error al cargar los resultados');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBackToHome = () => {
+    setViewMode('create');
+    setViewingSession(null);
+    setResult(null);
+    setSessionId('');
+    setAnswers([]);
+    setShowValidation(false);
+    setClientName('');
   };
 
   const handleExportPDF = async () => {
@@ -290,6 +312,22 @@ export function SelectorPhase() {
     if (showValidation) {
       setShowValidation(false);
     }
+
+    // Auto-scroll to next unanswered question
+    const allQuestions = getAllQuestions();
+    const currentIndex = allQuestions.findIndex(q => q.id === questionId);
+    const nextUnanswered = allQuestions
+      .slice(currentIndex + 1)
+      .find(q => !isQuestionAnswered(q.id));
+    
+    if (nextUnanswered) {
+      setTimeout(() => {
+        const element = questionRefs.current[nextUnanswered.id];
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    }
   };
 
   const getAllQuestions = () => {
@@ -303,7 +341,6 @@ export function SelectorPhase() {
   };
 
   const handleCalculate = async () => {
-    const totalQuestions = getAllQuestions().length;
     const unanswered = getUnansweredQuestions();
 
     // Validation: check if all questions are answered
@@ -341,6 +378,11 @@ export function SelectorPhase() {
       if (data.success) {
         setResult(data.data);
         toast.success('Recomendación calculada exitosamente');
+        
+        // Auto-scroll to top to show results
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 100);
       }
     } catch (error) {
       console.error('Error calculating:', error);
@@ -354,8 +396,8 @@ export function SelectorPhase() {
     return answers.some(a => a.questionId === questionId);
   };
 
-  // Start session screen
-  if (!sessionId) {
+  // Start session screen (only shown when viewMode is 'create' and no sessionId)
+  if (viewMode === 'create' && !sessionId) {
     return (
       <div className="container mx-auto p-6 space-y-6">
         <Card>
@@ -375,103 +417,112 @@ export function SelectorPhase() {
                 placeholder="Ej: Acme Corp"
               />
             </div>
-            <div className="flex gap-3">
-              <Button onClick={handleStartSession} disabled={!clientName || loading}>
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Comenzar Nuevo Assessment
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={loadHistory} 
-                disabled={!clientName || historyLoading}
-              >
-                {historyLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <History className="mr-2 h-4 w-4" />}
-                Ver Historial
-              </Button>
-            </div>
+            <Button onClick={handleStartSession} disabled={!clientName || loading}>
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Comenzar Selector
+            </Button>
           </CardContent>
         </Card>
 
-        {/* History Panel */}
-        {showHistory && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5" />
-                Historial de Assessments: {clientName}
-              </CardTitle>
-              <CardDescription>
-                Últimos 5 assessments realizados
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {sessionHistory.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>No hay assessments previos para este cliente</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {sessionHistory.map((session) => (
-                    <div 
-                      key={session.sessionId} 
-                      className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Badge variant={session.completed ? 'default' : 'secondary'}>
-                              {session.completed ? 'Completado' : 'En progreso'}
-                            </Badge>
-                            <span className="text-sm text-gray-600">
-                              {session.answers?.length || 0} / 28 preguntas
-                            </span>
+        {/* History Panel - Always visible */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Assessments Recientes
+            </CardTitle>
+            <CardDescription>
+              Últimos 5 assessments realizados (todos los clientes)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {historyLoading ? (
+              <div className="text-center py-8">
+                <Loader2 className="h-8 w-8 mx-auto animate-spin text-gray-400" />
+                <p className="text-sm text-gray-500 mt-2">Cargando historial...</p>
+              </div>
+            ) : sessionHistory.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>No hay assessments previos</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {sessionHistory.map((session) => (
+                  <div 
+                    key={session.sessionId} 
+                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="font-semibold text-gray-900">{session.clientName}</span>
+                          <Badge variant={session.completed ? 'default' : 'secondary'}>
+                            {session.completed ? 'Completado' : 'En progreso'}
+                          </Badge>
+                          <span className="text-sm text-gray-600">
+                            {session.answers?.length || 0} / 28 preguntas
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{new Date(session.createdAt).toLocaleDateString('es-ES')}</span>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              <span>{new Date(session.createdAt).toLocaleDateString('es-ES')}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              <span>{new Date(session.updatedAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
-                            </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{new Date(session.updatedAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
                         </div>
-                        <Button 
-                          size="sm" 
-                          onClick={() => loadPreviousSession(session)}
-                          disabled={loading}
-                        >
-                          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                          Cargar
-                        </Button>
                       </div>
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleViewResults(session)}
+                        disabled={loading || !session.completed}
+                      >
+                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Ver Resultados
+                      </Button>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // Results screen
+  // Results screen (both for completed assessments and view-only mode)
   if (result) {
-    // Prepare data for radar chart
+    // Prepare data for radar chart with absolute scores and winner flag
     const radarData = result.results.map(tool => ({
       tool: tool.tool,
-      score: tool.percentageScore
+      score: tool.percentageScore,
+      absoluteScore: tool.absoluteScore,
+      isWinner: tool.rank === 1
     }));
+
+    const isViewOnly = viewMode === 'view-results';
+    const displayClientName = isViewOnly ? viewingSession?.clientName : clientName;
 
     return (
       <div className="container mx-auto p-6 space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Resultado del Assessment</CardTitle>
-            <CardDescription>Cliente: {clientName}</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Resultado del Assessment</CardTitle>
+                <CardDescription>Cliente: {displayClientName}</CardDescription>
+              </div>
+              {isViewOnly && (
+                <Button variant="outline" onClick={handleBackToHome}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Volver
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="text-center p-6 bg-blue-50 rounded-lg">
@@ -501,24 +552,50 @@ export function SelectorPhase() {
                       tick={{ fill: '#64748b', fontSize: 12 }}
                     />
                     <Radar
-                      name="Score (%)"
+                      name="Score"
                       dataKey="score"
                       stroke="#2563eb"
                       fill="#3b82f6"
                       fillOpacity={0.6}
+                      label={(props: any) => {
+                        const { x, y, value, index } = props;
+                        const dataPoint = radarData[index];
+                        if (!dataPoint) return null;
+                        
+                        const isWinner = dataPoint.isWinner || false;
+                        const absoluteScore = dataPoint.absoluteScore || 0;
+                        
+                        return (
+                          <text
+                            x={x}
+                            y={y}
+                            fill={isWinner ? '#2563eb' : '#1e40af'}
+                            fontSize={isWinner ? 18 : 14}
+                            fontWeight={isWinner ? 700 : 600}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            {`${value.toFixed(1)}% (${absoluteScore} pts)`}
+                          </text>
+                        );
+                      }}
                     />
                     <Tooltip 
                       formatter={(value: number) => [`${value.toFixed(1)}%`, 'Score']}
+                      labelFormatter={(label: string) => `Herramienta: ${label}`}
                       contentStyle={{ 
                         backgroundColor: 'white', 
-                        border: '1px solid #e2e8f0',
+                        border: '2px solid #3b82f6',
                         borderRadius: '8px',
-                        padding: '8px 12px'
+                        padding: '12px 16px',
+                        fontSize: '14px',
+                        fontWeight: 500
                       }}
                     />
                     <Legend 
                       wrapperStyle={{ paddingTop: '20px' }}
                       iconType="circle"
+                      formatter={() => 'Score (%)'}
                     />
                   </RadarChart>
                 </ResponsiveContainer>
@@ -586,40 +663,44 @@ export function SelectorPhase() {
               </div>
             </div>
 
-            {/* Export Buttons */}
-            <div className="border-t pt-6">
-              <h4 className="font-semibold mb-4">Exportar Resultados</h4>
-              <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={handleExportPDF}
-                  disabled={exportLoading !== null}
-                >
-                  {exportLoading === 'pdf' ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <FileDown className="mr-2 h-4 w-4" />
-                  )}
-                  Exportar PDF
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={handleExportCSV}
-                  disabled={exportLoading !== null}
-                >
-                  {exportLoading === 'csv' ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <FileDown className="mr-2 h-4 w-4" />
-                  )}
-                  Exportar CSV
-                </Button>
+            {/* Export Buttons - Only show for completed assessments, not view-only */}
+            {!isViewOnly && (
+              <div className="border-t pt-6">
+                <h4 className="font-semibold mb-4">Exportar Resultados</h4>
+                <div className="flex gap-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleExportPDF}
+                    disabled={exportLoading !== null}
+                  >
+                    {exportLoading === 'pdf' ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <FileDown className="mr-2 h-4 w-4" />
+                    )}
+                    Exportar PDF
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleExportCSV}
+                    disabled={exportLoading !== null}
+                  >
+                    {exportLoading === 'csv' ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <FileDown className="mr-2 h-4 w-4" />
+                    )}
+                    Exportar CSV
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
 
-            <Button onClick={() => { setResult(null); setSessionId(''); setAnswers([]); setShowValidation(false); }}>
-              Nuevo Assessment
-            </Button>
+            {!isViewOnly && (
+              <Button onClick={handleBackToHome}>
+                Cerrar
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -683,9 +764,8 @@ export function SelectorPhase() {
           {categories.map((category) => (
             <div key={category.id} className="space-y-4">
               {/* Category header */}
-              <div className="border-l-4 border-blue-600 pl-4 py-2 bg-blue-50">
-                <h3 className="text-lg font-bold text-blue-900">{category.name}</h3>
-                <p className="text-sm text-blue-700">{category.description}</p>
+              <div className="border-l-2 border-gray-200 pl-4 py-2 bg-gray-50">
+                <h3 className="text-xs font-semibold text-gray-400">{category.name}</h3>
               </div>
 
               {/* Questions in this category */}
@@ -707,12 +787,9 @@ export function SelectorPhase() {
                         <AlertCircle className="h-5 w-5 text-red-600 mt-1 flex-shrink-0" />
                       )}
                       <div className="flex-1">
-                        <Label className={`text-base font-medium ${showError ? 'text-red-900' : ''}`}>
+                        <Label className={`text-base font-normal ${showError ? 'text-red-900' : ''}`}>
                           {question.text}
                         </Label>
-                        {question.helpText && (
-                          <p className="text-sm text-gray-600 mt-1">{question.helpText}</p>
-                        )}
                         {showError && (
                           <p className="text-sm text-red-600 mt-1 font-medium">
                              Esta pregunta es obligatoria

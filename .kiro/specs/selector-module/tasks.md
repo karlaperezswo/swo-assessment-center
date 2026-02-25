@@ -32,11 +32,11 @@
 
 ### 2. Backend Services
 
-- [ ] 2.1 SelectorConfigService
-  - [ ] 2.1.1 Implement `loadQuestions()` method
-  - [ ] 2.1.2 Implement `loadMatrix()` method
-  - [ ] 2.1.3 Add caching for config files
-  - [ ] 2.1.4 Add validation with Zod schemas
+- [x] 2.1 SelectorConfigService
+  - [x] 2.1.1 Implement `loadQuestions()` method
+  - [x] 2.1.2 Implement `loadMatrix()` method
+  - [x] 2.1.3 Add caching for config files
+  - [x] 2.1.4 Add validation with Zod schemas
 
 - [ ] 2.2 SelectorSessionService
   - [ ] 2.2.1 Implement `saveSession()` method
@@ -97,7 +97,7 @@
   - [ ] 4.1.3 Test that existing routes still work
 
 - [ ] 4.2 Add TypeScript types
-  - [ ] 4.2.1 Create `backend/src/types/selector.ts`
+  - [x] 4.2.1 Create `backend/src/types/selector.ts`
   - [ ] 4.2.2 Define all interfaces (Session, Result, etc.)
   - [ ] 4.2.3 Export types for frontend use
 

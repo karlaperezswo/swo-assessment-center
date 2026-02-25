@@ -22,4 +22,8 @@ router.put('/session/:sessionId/answer', SelectorController.updateAnswer);
 // Calculation
 router.post('/session/:sessionId/calculate', SelectorController.calculate);
 
+// Export
+router.post('/export/pdf', SelectorController.exportPDF);
+router.post('/export/csv', SelectorController.exportCSV);
+
 export { router as selectorRouter };

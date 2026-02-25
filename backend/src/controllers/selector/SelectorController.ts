@@ -8,6 +8,7 @@ import { Request, Response } from 'express';
 import { SelectorConfigService } from '../../services/selector/SelectorConfigService';
 import { SelectorSessionService } from '../../services/selector/SelectorSessionService';
 import { SelectorCalculationService } from '../../services/selector/SelectorCalculationService';
+import { SelectorExportService } from '../../services/selector/SelectorExportService';
 
 export class SelectorController {
   /**
@@ -152,6 +153,60 @@ export class SelectorController {
     } catch (error) {
       console.error('[SelectorController] Error calculating scores:', error);
       res.status(500).json({ success: false, error: 'Failed to calculate scores' });
+    }
+  }
+
+  /**
+   * POST /api/selector/export/pdf
+   * Export assessment as PDF
+   */
+  static async exportPDF(req: Request, res: Response) {
+    try {
+      const { session, result } = req.body;
+
+      if (!session || !result) {
+        return res.status(400).json({ success: false, error: 'session and result data are required' });
+      }
+
+      // Load questions for context
+      const questionsData = await SelectorConfigService.loadQuestions();
+      const allQuestions = questionsData.categories.flatMap(cat => cat.questions);
+
+      const pdfBuffer = await SelectorExportService.generatePDF(session, result, allQuestions);
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="selector-${session.clientName}-${session.sessionId}.pdf"`);
+      res.send(pdfBuffer);
+    } catch (error) {
+      console.error('[SelectorController] Error exporting PDF:', error);
+      res.status(500).json({ success: false, error: 'Failed to export PDF' });
+    }
+  }
+
+  /**
+   * POST /api/selector/export/csv
+   * Export assessment as CSV
+   */
+  static async exportCSV(req: Request, res: Response) {
+    try {
+      const { session, result } = req.body;
+
+      if (!session || !result) {
+        return res.status(400).json({ success: false, error: 'session and result data are required' });
+      }
+
+      // Load questions for context
+      const questionsData = await SelectorConfigService.loadQuestions();
+      const allQuestions = questionsData.categories.flatMap(cat => cat.questions);
+
+      const csvContent = SelectorExportService.generateCSV(session, result, allQuestions);
+
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="selector-${session.clientName}-${session.sessionId}.csv"`);
+      res.send('\uFEFF' + csvContent); // Add BOM for Excel UTF-8 support
+    } catch (error) {
+      console.error('[SelectorController] Error exporting CSV:', error);
+      res.status(500).json({ success: false, error: 'Failed to export CSV' });
     }
   }
 }

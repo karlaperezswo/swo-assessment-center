@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Loader2, CheckCircle2, CloudOff, History, Calendar, Clock } from 'lucide-react';
+import { AlertCircle, Loader2, CheckCircle2, CloudOff, History, Calendar, Clock, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -56,6 +56,7 @@ export function SelectorPhase() {
   const [showHistory, setShowHistory] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<any[]>([]);
+  const [exportLoading, setExportLoading] = useState<'pdf' | 'csv' | null>(null);
   const questionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -189,6 +190,90 @@ export function SelectorPhase() {
       toast.error('Error al cargar la sesión');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    if (!result) return;
+    
+    setExportLoading('pdf');
+    try {
+      const session = {
+        sessionId,
+        clientName,
+        answers,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        completed: true
+      };
+
+      const response = await fetch('http://localhost:4000/api/selector/export/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session, result })
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `selector-${clientName}-${sessionId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        toast.success('PDF descargado exitosamente');
+      } else {
+        toast.error('Error al generar PDF');
+      }
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error('Error al exportar PDF');
+    } finally {
+      setExportLoading(null);
+    }
+  };
+
+  const handleExportCSV = async () => {
+    if (!result) return;
+    
+    setExportLoading('csv');
+    try {
+      const session = {
+        sessionId,
+        clientName,
+        answers,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        completed: true
+      };
+
+      const response = await fetch('http://localhost:4000/api/selector/export/csv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session, result })
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `selector-${clientName}-${sessionId}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        toast.success('CSV descargado exitosamente');
+      } else {
+        toast.error('Error al generar CSV');
+      }
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      toast.error('Error al exportar CSV');
+    } finally {
+      setExportLoading(null);
     }
   };
 
@@ -459,6 +544,37 @@ export function SelectorPhase() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Export Buttons */}
+            <div className="border-t pt-6">
+              <h4 className="font-semibold mb-4">Exportar Resultados</h4>
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={handleExportPDF}
+                  disabled={exportLoading !== null}
+                >
+                  {exportLoading === 'pdf' ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileDown className="mr-2 h-4 w-4" />
+                  )}
+                  Exportar PDF
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleExportCSV}
+                  disabled={exportLoading !== null}
+                >
+                  {exportLoading === 'csv' ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileDown className="mr-2 h-4 w-4" />
+                  )}
+                  Exportar CSV
+                </Button>
               </div>
             </div>
 

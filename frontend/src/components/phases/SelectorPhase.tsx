@@ -213,6 +213,7 @@ export function SelectorPhase() {
     setAnswers([]);
     setShowValidation(false);
     setClientName('');
+    loadAllHistory(); // Refresh history to show newly completed assessment
   };
 
   const handleExportPDF = async () => {
@@ -697,9 +698,12 @@ export function SelectorPhase() {
             )}
 
             {!isViewOnly && (
-              <Button onClick={handleBackToHome}>
-                Cerrar
-              </Button>
+              <div className="border-t pt-6">
+                <Button variant="outline" onClick={handleBackToHome}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Volver
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>

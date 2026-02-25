@@ -478,7 +478,7 @@ export function SelectorPhase() {
                       <Button 
                         size="sm" 
                         onClick={() => handleViewResults(session)}
-                        disabled={loading || !session.completed}
+                        disabled={loading || (session.answers?.length !== 28 && !session.completed)}
                       >
                         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Ver Resultados

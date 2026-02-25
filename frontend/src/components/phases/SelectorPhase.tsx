@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Loader2, CheckCircle2, CloudOff, History, Calendar, Clock, FileDown } from 'lucide-react';
+import { AlertCircle, Loader2, CheckCircle2, CloudOff, History, Calendar, Clock, FileDown, Lightbulb } from 'lucide-react';
 import { toast } from 'sonner';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -524,6 +524,45 @@ export function SelectorPhase() {
                 </ResponsiveContainer>
               </div>
             </div>
+
+            {/* Decisive Factors */}
+            {result.decisiveFactors && result.decisiveFactors.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Lightbulb className="h-5 w-5 text-amber-600" />
+                  <h4 className="font-semibold">¿Por qué esta recomendación?</h4>
+                </div>
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <p className="text-sm text-amber-900 mb-4">
+                    Estas preguntas tuvieron mayor impacto en la recomendación de <span className="font-semibold">{result.recommendedTool}</span>:
+                  </p>
+                  <div className="space-y-3">
+                    {result.decisiveFactors.slice(0, 5).map((factor: any, index: number) => (
+                      <div key={index} className="bg-white rounded-lg p-3 border border-amber-100">
+                        <div className="flex items-start gap-3">
+                          <Badge variant="outline" className="mt-0.5 bg-amber-100 text-amber-900 border-amber-300">
+                            #{index + 1}
+                          </Badge>
+                          <div className="flex-1">
+                            <p className="font-medium text-sm text-gray-900 mb-1">
+                              {factor.questionText || factor.questionId}
+                            </p>
+                            <div className="flex items-center gap-4 text-sm">
+                              <span className="text-gray-600">
+                                Tu respuesta: <span className="font-medium text-gray-900">{factor.answer}</span>
+                              </span>
+                              <span className="text-amber-700">
+                                Impacto: <span className="font-semibold">+{factor.impact.toFixed(1)} pts</span>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div>
               <h4 className="font-semibold mb-4">Scores de Todas las Herramientas</h4>

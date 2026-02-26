@@ -1,0 +1,22 @@
+{
+  "specType": "feature",
+  "workflowType": "design-first",
+  "featureName": "selector-module",
+  "status": "ready",
+  "created": "2024-02-24",
+  "owner": "karla-dev",
+  "branch": "tool-selector-karla-dev",
+  "phases": {
+    "design": "completed",
+    "requirements": "completed",
+    "tasks": "ready"
+  },
+  "metadata": {
+    "estimatedDuration": "3 weeks",
+    "complexity": "medium",
+    "priority": "high",
+    "integrationPoints": 3,
+    "newFiles": 30,
+    "modifiedFiles": 3
+  }
+}

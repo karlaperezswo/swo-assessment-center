@@ -8,7 +8,7 @@ import apiClient from '@/lib/api';
 import { toast } from 'sonner';
 
 interface FileUploaderProps {
-  onDataLoaded: (data: ExcelData, summary: UploadSummary) => void;
+  onDataLoaded: (data: ExcelData, summary: UploadSummary, dependencyData?: any, migrationWaves?: any) => void;
 }
 
 // Helper function to get data source label
@@ -77,16 +77,24 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
       });
 
       if (response.data.success) {
-        const { excelData, summary } = response.data.data;
+        const { excelData, summary, dependencyData, migrationWaves } = response.data.data;
         setSummary(summary);
         setUploadState('success');
-        onDataLoaded(excelData, summary);
+        
+        // Pass all data including dependencies and waves
+        onDataLoaded(excelData, summary, dependencyData, migrationWaves);
 
         // Create success message with data source info
         const dataSourceLabel = getDataSourceLabel(summary.dataSource);
-        const successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos${
-          summary.communicationCount ? `, ${summary.communicationCount} conexiones` : ''
-        }`;
+        let successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos`;
+        
+        if (summary.communicationCount) {
+          successMsg += `, ${summary.communicationCount} conexiones`;
+        }
+        
+        if (migrationWaves) {
+          successMsg += `, ${migrationWaves.totalWaves} olas de migración calculadas`;
+        }
 
         toast.success(successMsg, {
           id: 'file-upload',

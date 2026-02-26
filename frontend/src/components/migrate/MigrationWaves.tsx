@@ -14,6 +14,7 @@ interface MigrationWavesProps {
   // totalServers and totalApplications are available for future use
   waves: MigrationWave[];
   onWavesChange: (waves: MigrationWave[]) => void;
+  dependencyData?: any;
   // totalServers: number;
   // totalApplications: number;
 }
@@ -25,7 +26,7 @@ const statusConfig = {
   blocked: { icon: AlertCircle, color: '#ef4444', label: 'Blocked', bg: 'bg-red-50 border-red-200' },
 };
 
-export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
+export function MigrationWaves({ waves, onWavesChange, dependencyData }: MigrationWavesProps) {
   const [showForm, setShowForm] = useState(false);
   const [showPlanner, setShowPlanner] = useState(false);
   const [newWave, setNewWave] = useState({
@@ -104,10 +105,10 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
         </Button>
         <Button 
           onClick={() => setShowPlanner(true)} 
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+          className="bg-gradient-to-r from-[#2563eb] to-[#1e3a8a] hover:from-[#1d4ed8] hover:to-[#1e40af] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
         >
           <Network className="h-4 w-4 mr-2" />
-          Abrir Planificador Visual
+          Migration Planner
         </Button>
       </div>
 
@@ -258,7 +259,8 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
       {/* Migration Planner Modal */}
       {showPlanner && (
         <MigrationPlanner
-          dependencies={[]}
+          dependencies={dependencyData?.dependencies || []}
+          existingWaves={waves}
           onClose={() => setShowPlanner(false)}
         />
       )}

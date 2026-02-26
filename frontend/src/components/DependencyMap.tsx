@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -7,15 +7,13 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   MarkerType,
-  Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Search, Network, Server, Database, AlertCircle, Download, FileText, FileUp, ChevronLeft, ChevronRight, Filter, ArrowUpDown } from 'lucide-react';
-import apiClient from '@/lib/api';
+import { Search, Network, Server, Database, AlertCircle, Download, FileText, ChevronLeft, ChevronRight, Filter, ArrowUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface DependencyNode {
@@ -68,18 +66,17 @@ interface SearchResult {
   graph: DependencyGraph;
 }
 
-export function DependencyMap() {
-  const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+interface DependencyMapProps {
+  dependencyData?: any;
+}
+
+export function DependencyMap({ dependencyData }: DependencyMapProps) {
   const [summary, setSummary] = useState<DependencySummary | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
   const [allServers, setAllServers] = useState<string[]>([]);
-  const [allApplications, setAllApplications] = useState<string[]>([]);
   const [allDependencies, setAllDependencies] = useState<NetworkDependency[]>([]);
-  const [databases, setDatabases] = useState<any[]>([]);
   const [databasesWithoutDeps, setDatabasesWithoutDeps] = useState<any[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   const [filterText, setFilterText] = useState('');
@@ -89,113 +86,72 @@ export function DependencyMap() {
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  
-  // Use ref instead of querySelector for React-controlled DOM manipulation
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      toast.success('Archivo seleccionado', {
-        description: e.target.files[0].name,
+  // Load dependency data automatically when provided
+  useEffect(() => {
+    if (dependencyData) {
+      console.log('✅ Cargando dependencias automáticamente desde archivo MPA');
+      setSummary(dependencyData.summary);
+      setAllServers(dependencyData.servers || []);
+      setAllDependencies(dependencyData.dependencies || []);
+      setDatabasesWithoutDeps(dependencyData.databasesWithoutDependencies || []);
+      
+      // Build and display graph
+      const graph = buildGraphFromDependencies(dependencyData.dependencies);
+      displayGraph(graph);
+      
+      toast.success('Dependencias cargadas automáticamente', {
+        description: `${dependencyData.summary.totalDependencies} dependencias, ${dependencyData.summary.uniqueServers} servidores`,
+        duration: 4000
       });
     }
-  };
+  }, [dependencyData]);
 
-  const handleSelectFile = () => {
-    // Use ref instead of querySelector to avoid DOM manipulation issues
-    fileInputRef.current?.click();
-  };
+  const buildGraphFromDependencies = (dependencies: NetworkDependency[]): DependencyGraph => {
+    const nodesMap = new Map<string, DependencyNode>();
+    const edgesArray: DependencyEdge[] = [];
 
-  const handleUpload = async () => {
-    if (!file) {
-      toast.error('Por favor selecciona un archivo Excel');
-      return;
-    }
-
-    console.log('📤 Iniciando carga de archivo:', file.name);
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      console.log('🔄 Enviando archivo al servidor...');
-      const response = await apiClient.post('/api/dependencies/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      console.log('📥 Respuesta del servidor:', response.data);
-
-      if (response.data.success) {
-        const data = response.data.data;
-        
-        console.log('✅ Datos recibidos:', {
-          sessionId: data.sessionId,
-          totalDependencies: data.summary.totalDependencies,
-          uniqueServers: data.summary.uniqueServers,
-          graphNodes: data.graph.nodes.length,
-          graphEdges: data.graph.edges.length,
-        });
-
-        setSessionId(data.sessionId);
-        setSummary(data.summary);
-        setAllServers(data.servers || []);
-        setAllApplications(data.applications || []);
-        setAllDependencies(data.allDependencies || []);
-        setDatabases(data.databases || []);
-        setDatabasesWithoutDeps(data.databasesWithoutDependencies || []);
-
-        // Display initial full graph
-        console.log('🎨 Generando visualización del grafo...');
-        displayGraph(data.graph);
-
-        toast.success('✅ Archivo cargado exitosamente', {
-          description: `${data.summary.totalDependencies} dependencias encontradas de ${data.summary.uniqueServers} servidores únicos`,
-          duration: 5000,
-        });
-        
-        console.log('✅ Carga completada exitosamente');
-      } else {
-        console.error('❌ Respuesta sin éxito:', response.data);
-        toast.error('Error al procesar archivo', {
-          description: 'El servidor no pudo procesar el archivo correctamente',
+    dependencies.forEach(dep => {
+      // Add source node
+      if (!nodesMap.has(dep.source)) {
+        nodesMap.set(dep.source, {
+          id: dep.source,
+          label: dep.source,
+          type: 'server',
+          group: dep.sourceApp,
         });
       }
-    } catch (error: any) {
-      console.error('❌ Error al cargar archivo:', error);
-      
-      let errorMessage = 'Error desconocido';
-      let errorDescription = '';
-      
-      if (error.response) {
-        // Error de respuesta del servidor
-        console.error('Error del servidor:', error.response.data);
-        errorMessage = 'Error del servidor';
-        errorDescription = error.response.data?.error || error.response.statusText || 'Error al procesar el archivo';
-      } else if (error.request) {
-        // Error de red
-        console.error('Error de red:', error.request);
-        errorMessage = 'Error de conexión';
-        errorDescription = 'No se pudo conectar con el servidor. Verifica que el backend esté ejecutándose.';
-      } else {
-        // Otro tipo de error
-        console.error('Error:', error.message);
-        errorMessage = 'Error al procesar archivo';
-        errorDescription = error.message;
+
+      // Add destination node
+      if (!nodesMap.has(dep.destination)) {
+        nodesMap.set(dep.destination, {
+          id: dep.destination,
+          label: dep.destination,
+          type: 'server',
+          group: dep.destinationApp,
+        });
       }
-      
-      toast.error(errorMessage, {
-        description: errorDescription,
-        duration: 7000,
+
+      // Add edge
+      edgesArray.push({
+        from: dep.source,
+        to: dep.destination,
+        label: dep.port !== null ? `${dep.protocol}:${dep.port}` : dep.protocol,
+        port: dep.port,
+        protocol: dep.protocol,
+        serviceName: dep.serviceName,
       });
-    } finally {
-      setIsUploading(false);
-      console.log('🏁 Proceso de carga finalizado');
-    }
+    });
+
+    return {
+      nodes: Array.from(nodesMap.values()),
+      edges: edgesArray,
+    };
   };
 
-  const handleSearch = async () => {
-    if (!sessionId || !searchTerm.trim()) {
+  // Nueva función de búsqueda local (sin necesidad de backend)
+  const handleLocalSearch = () => {
+    if (!searchTerm.trim() || allDependencies.length === 0) {
       toast.error('Ingresa un término de búsqueda');
       return;
     }
@@ -203,23 +159,61 @@ export function DependencyMap() {
     setIsSearching(true);
 
     try {
-      const response = await apiClient.post('/api/dependencies/search', {
-        sessionId,
-        searchTerm: searchTerm.trim(),
+      const normalizedSearch = searchTerm.toLowerCase().trim();
+      
+      // Buscar servidor que coincida (como origen o destino)
+      const matchingServer = allServers.find(
+        server => server.toLowerCase().includes(normalizedSearch)
+      );
+
+      if (!matchingServer) {
+        toast.warning('No se encontró ningún servidor con ese nombre');
+        setSearchResult(null);
+        setIsSearching(false);
+        return;
+      }
+
+      // Filtrar dependencias entrantes (donde el servidor es destino)
+      const incoming = allDependencies.filter(
+        dep => dep.destination.toLowerCase() === matchingServer.toLowerCase()
+      );
+
+      // Filtrar dependencias salientes (donde el servidor es origen)
+      const outgoing = allDependencies.filter(
+        dep => dep.source.toLowerCase() === matchingServer.toLowerCase()
+      );
+
+      // Obtener servidores relacionados
+      const relatedServers = new Set<string>();
+      incoming.forEach(dep => relatedServers.add(dep.source));
+      outgoing.forEach(dep => relatedServers.add(dep.destination));
+
+      // Obtener aplicaciones relacionadas
+      const relatedApplications = new Set<string>();
+      [...incoming, ...outgoing].forEach(dep => {
+        if (dep.sourceApp) relatedApplications.add(dep.sourceApp);
+        if (dep.destinationApp) relatedApplications.add(dep.destinationApp);
       });
 
-      if (response.data.success && response.data.data) {
-        const result: SearchResult = response.data.data;
-        setSearchResult(result);
-        displayGraph(result.graph);
+      // Construir grafo con dependencias relacionadas
+      const relatedDeps = [...incoming, ...outgoing];
+      const graph = buildGraphFromDependencies(relatedDeps);
 
-        toast.success(`Servidor encontrado: ${result.server}`, {
-          description: `${result.dependencies.incoming.length} entrantes, ${result.dependencies.outgoing.length} salientes`,
-        });
-      } else {
-        toast.warning('No se encontraron resultados');
-        setSearchResult(null);
-      }
+      const result: SearchResult = {
+        server: matchingServer,
+        dependencies: { incoming, outgoing },
+        relatedServers: Array.from(relatedServers),
+        relatedApplications: Array.from(relatedApplications),
+        graph,
+      };
+
+      setSearchResult(result);
+      displayGraph(graph);
+
+      toast.success(`Servidor encontrado: ${matchingServer}`, {
+        description: `${incoming.length} entrantes, ${outgoing.length} salientes`,
+        duration: 4000
+      });
     } catch (error) {
       console.error('Search error:', error);
       toast.error('Error en búsqueda');
@@ -229,8 +223,8 @@ export function DependencyMap() {
   };
 
   const handleExport = async (format: 'pdf' | 'word') => {
-    if (!sessionId) {
-      toast.error('Primero debes cargar un archivo');
+    if (!searchResult) {
+      toast.error('Primero debes buscar un servidor');
       return;
     }
 
@@ -238,89 +232,48 @@ export function DependencyMap() {
 
     try {
       console.log(`📄 Exportando a ${format}...`);
-      const response = await apiClient.post('/api/dependencies/export', {
-        sessionId,
-        searchTerm: searchResult?.server || null,
-        format,
-      }, {
-        responseType: 'blob', // Important for binary data
+      
+      toast.loading(`Generando archivo ${format.toUpperCase()}...`, { id: 'export' });
+      
+      // Llamar al backend para exportar
+      const response = await fetch('/api/dependencies/export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          searchResult,
+          summary,
+          format,
+        }),
       });
 
-      console.log('✅ Respuesta recibida:', {
-        status: response.status,
-        contentType: response.headers['content-type'],
-        contentLength: response.headers['content-length'],
-        dataType: typeof response.data,
-        dataSize: response.data.size || response.data.length,
-      });
-
-      // Verify we received blob data
-      if (!response.data) {
-        throw new Error('No se recibieron datos del servidor');
+      if (!response.ok) {
+        throw new Error(`Error al exportar: ${response.statusText}`);
       }
 
-      // Create blob with correct MIME type
-      const mimeType = format === 'pdf' 
-        ? 'application/pdf' 
-        : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-      
-      const blob = new Blob([response.data], { type: mimeType });
-      
-      console.log('📦 Blob creado:', {
-        size: blob.size,
-        type: blob.type,
-      });
-
-      if (blob.size === 0) {
-        throw new Error('El archivo generado está vacío');
-      }
-      
+      // Descargar el archivo
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      
-      // Extract filename from Content-Disposition header or use default
-      const contentDisposition = response.headers['content-disposition'];
-      let filename = `dependencias_${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'pdf' : 'docx'}`;
-      
-      if (contentDisposition) {
-        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (filenameMatch && filenameMatch[1]) {
-          filename = filenameMatch[1].replace(/['"]/g, '');
-        }
-      }
-      
-      console.log('💾 Descargando archivo:', filename);
-      
-      // Create download link
       const a = document.createElement('a');
-      a.style.display = 'none';
       a.href = url;
-      a.download = filename;
-      
-      // Append to body, click, and remove
+      a.download = `dependencias_${searchResult.server}_${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'pdf' : 'docx'}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      
-      // Cleanup after download starts
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        console.log('🧹 URL limpiado');
-      }, 100);
+      window.URL.revokeObjectURL(url);
 
-      toast.success(`Reporte ${format === 'pdf' ? 'PDF' : 'Word'} generado exitosamente`, {
-        description: `El archivo ${filename} se ha descargado.`,
-        duration: 5000,
+      toast.success(`Archivo ${format.toUpperCase()} generado`, {
+        id: 'export',
+        description: 'El archivo se ha descargado correctamente',
+        duration: 4000
       });
+      
     } catch (error: any) {
       console.error('❌ Export error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
-      
       toast.error('Error al exportar', {
-        description: error.response?.data?.error || error.message || 'Error desconocido',
+        id: 'export',
+        description: error.message || 'Error desconocido',
       });
     } finally {
       setIsExporting(false);
@@ -347,8 +300,11 @@ export function DependencyMap() {
     dep => dep.destination && dep.destination.trim() !== '' && dep.port !== null
   );
   
+  // Conexiones sin puerto: tienen origen Y destino pero NO tienen puerto
   const incompleteDependencies = filteredDependencies.filter(
-    dep => !dep.destination || dep.destination.trim() === '' || dep.port === null
+    dep => dep.source && dep.source.trim() !== '' && 
+           dep.destination && dep.destination.trim() !== '' && 
+           dep.port === null
   );
 
   const sortedCompleteDependencies = [...completeDependencies].sort((a, b) => {
@@ -588,71 +544,17 @@ export function DependencyMap() {
 
   return (
     <div className="space-y-6">
-      {/* Upload Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Network className="h-5 w-5" />
-            Mapa de Dependencias de Red
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-2">
-                Archivo Excel de Dependencias (MPA)
-              </label>
-              <Input
-                ref={fileInputRef}
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleFileChange}
-                disabled={isUploading}
-                className="hidden"
-                id="file-input"
-              />
-              {file && (
-                <div 
-                  className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md border"
-                >
-                  📄 {file.name}
-                </div>
-              )}
-              {!file && (
-                <div 
-                  className="text-sm text-gray-500 bg-gray-50 p-3 rounded-md border border-dashed"
-                  title="Use el botón 'Seleccionar Archivo' para elegir un archivo"
-                >
-                  No se ha seleccionado ningún archivo
-                </div>
-              )}
-              <p className="text-xs text-gray-500 mt-1">
-                Soporta archivos de Matilda, Cloudamize, Concierto
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={handleSelectFile}
-                disabled={isUploading}
-                variant="outline"
-                className="min-w-[140px]"
-              >
-                <FileUp className="h-4 w-4 mr-2" />
-                Seleccionar Archivo
-              </Button>
-              <Button
-                onClick={handleUpload}
-                disabled={!file || isUploading}
-                className="min-w-[120px]"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                {isUploading ? 'Procesando...' : 'Cargar'}
-              </Button>
-            </div>
-          </div>
-
-          {summary && (
-            <div className="grid grid-cols-4 gap-4 pt-4 border-t">
+      {/* Summary Section */}
+      {summary && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Network className="h-5 w-5" />
+              Resumen de Dependencias
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-4 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">
                   {summary.totalDependencies}
@@ -678,30 +580,30 @@ export function DependencyMap() {
                 <div className="text-sm text-gray-600">Puertos</div>
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Search Section */}
-      {sessionId && (
+      {allDependencies.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Search className="h-5 w-5" />
-              Buscar Dependencias
+              Buscar Servidor
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-4">
               <Input
-                placeholder="Buscar por nombre de servidor..."
+                placeholder="Buscar por nombre de servidor (origen o destino)..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyPress={(e) => e.key === 'Enter' && handleLocalSearch()}
                 disabled={isSearching}
               />
               <Button
-                onClick={handleSearch}
+                onClick={handleLocalSearch}
                 disabled={isSearching || !searchTerm.trim()}
                 className="min-w-[120px]"
               >
@@ -953,13 +855,13 @@ export function DependencyMap() {
               <CardHeader className="bg-orange-50">
                 <CardTitle className="flex items-center gap-2 text-orange-900">
                   <AlertCircle className="h-5 w-5" />
-                  Conexiones de Servidores sin Puerto
+                  Conexiones sin Puerto Identificado
                   <Badge variant="secondary" className="ml-auto bg-orange-600 text-white">
                     {sortedIncompleteDependencies.length}
                   </Badge>
                 </CardTitle>
                 <p className="text-sm text-orange-700 mt-1">
-                  Servidores sin puerto o sin destino definido
+                  Servidores con origen y destino definidos pero sin puerto identificado
                 </p>
               </CardHeader>
               <CardContent className="p-0">
@@ -1179,7 +1081,7 @@ export function DependencyMap() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Visualización de Dependencias</CardTitle>
-              {sessionId && (
+              {searchResult && (
                 <div className="flex gap-2">
                   <Button
                     onClick={() => handleExport('pdf')}
@@ -1300,7 +1202,7 @@ export function DependencyMap() {
         </Card>
       )}
 
-      {!sessionId && (
+      {!summary && (
         <Card className="border-blue-200 bg-blue-50">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">

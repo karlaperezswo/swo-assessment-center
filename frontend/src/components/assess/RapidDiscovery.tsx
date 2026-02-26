@@ -7,7 +7,7 @@ import { Upload, Building2, CheckCircle } from 'lucide-react';
 interface RapidDiscoveryProps {
   excelData: ExcelData | null;
   clientData: ClientFormData;
-  onDataLoaded: (data: ExcelData, summary: UploadSummary) => void;
+  onDataLoaded: (data: ExcelData, summary: UploadSummary, dependencyData?: any, migrationWaves?: any) => void;
   onFormChange: (data: ClientFormData) => void;
 }
 

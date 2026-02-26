@@ -19,7 +19,7 @@ interface AssessPhaseProps {
   uploadSummary: UploadSummary | null;
   clientData: ClientFormData;
   estimatedCosts: CostBreakdown | null;
-  onDataLoaded: (data: ExcelData, summary: UploadSummary) => void;
+  onDataLoaded: (data: ExcelData, summary: UploadSummary, dependencyData?: any, migrationWaves?: any) => void;
   onFormChange: (data: ClientFormData) => void;
   phaseStatus: PhaseStatus;
   onCompletePhase: () => void;
@@ -29,6 +29,7 @@ interface AssessPhaseProps {
   onImmersionDaysChange: (plans: ImmersionDayPlan[]) => void;
   migrationWaves: MigrationWave[];
   onMigrationWavesChange: (waves: MigrationWave[]) => void;
+  dependencyData?: any;
 }
 
 export function AssessPhase({
@@ -37,6 +38,7 @@ export function AssessPhase({
   briefingSessions, onBriefingSessionsChange,
   immersionDays, onImmersionDaysChange,
   migrationWaves, onMigrationWavesChange,
+  dependencyData,
 }: AssessPhaseProps) {
   const [activeTab, setActiveTab] = useState('rapid-discovery');
 
@@ -68,7 +70,7 @@ export function AssessPhase({
           />
         )}
         {activeTab === 'dependency-map' && (
-          <DependencyMap />
+          <DependencyMap dependencyData={dependencyData} />
         )}
         {activeTab === 'tco-report' && (
           <TCOReport
@@ -88,6 +90,7 @@ export function AssessPhase({
           <MigrationWaves
             waves={migrationWaves}
             onWavesChange={onMigrationWavesChange}
+            dependencyData={dependencyData}
           />
         )}
         {activeTab === 'briefings-workshops' && (

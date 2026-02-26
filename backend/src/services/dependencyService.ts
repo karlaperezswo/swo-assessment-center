@@ -32,6 +32,19 @@ export interface DependencySearchResult {
   graph: DependencyGraph;
 }
 
+export interface WaveGroup {
+  waveNumber: number;
+  servers: string[];
+  serverCount: number;
+}
+
+export interface MigrationWaveCalculation {
+  waves: WaveGroup[];
+  totalServers: number;
+  totalWaves: number;
+  serversWithoutDependencies: number;
+}
+
 export class DependencyService {
   private parser: DependencyParser;
 
@@ -409,5 +422,214 @@ export class DependencyService {
 `;
 
     return html;
+  }
+
+  /**
+   * Calculate migration waves based on dependencies with improved criticality logic
+   * Priority:
+   * 1. Test/Dev/Staging servers (lowest criticality) - Wave 1
+   * 2. Servers without dependencies (low criticality) - Wave 1-2
+   * 3. Servers with dependencies (medium criticality) - Wave 2-3
+   * 4. Critical servers (high criticality) - Last waves
+   */
+  calculateMigrationWaves(dependencies: NetworkDependency[]): MigrationWaveCalculation {
+    const graph = this.buildDependencyGraph(dependencies);
+    const waves: Map<string, number> = new Map();
+    const serverDependencies: Map<string, Set<string>> = new Map();
+    
+    // Build dependency map (server -> servers it depends on)
+    for (const edge of graph.edges) {
+      if (!serverDependencies.has(edge.from)) {
+        serverDependencies.set(edge.from, new Set());
+      }
+      serverDependencies.get(edge.from)!.add(edge.to);
+    }
+
+    // Initialize all servers
+    const allServers = new Set<string>();
+    graph.nodes.forEach(node => allServers.add(node.id));
+
+    // Calculate criticality for each server
+    const serverCriticality = new Map<string, number>();
+    allServers.forEach(server => {
+      const criticality = this.calculateServerCriticality(server, serverDependencies);
+      serverCriticality.set(server, criticality);
+      console.log(`🎯 ${server}: criticidad ${criticality}`);
+    });
+
+    // WAVE 1: Test/Dev/Staging servers (criticality <= 15) - ALWAYS first
+    const wave1Servers: string[] = [];
+    allServers.forEach(server => {
+      const criticality = serverCriticality.get(server) || 50;
+      if (criticality <= 15) {
+        wave1Servers.push(server);
+        waves.set(server, 1);
+      }
+    });
+
+    if (wave1Servers.length > 0) {
+      console.log(`✅ Wave 1 (Test/Dev): ${wave1Servers.length} servidores`);
+    }
+
+    // WAVE 2: Servers without dependencies and low criticality (16-40)
+    const wave2Servers: string[] = [];
+    allServers.forEach(server => {
+      if (waves.has(server)) return; // Already assigned
+      
+      const deps = serverDependencies.get(server);
+      const criticality = serverCriticality.get(server) || 50;
+      
+      if ((!deps || deps.size === 0) && criticality <= 40) {
+        wave2Servers.push(server);
+        waves.set(server, 2);
+      }
+    });
+
+    if (wave2Servers.length > 0) {
+      console.log(`✅ Wave 2 (Sin dependencias, baja criticidad): ${wave2Servers.length} servidores`);
+    }
+
+    // WAVES 3+: Remaining servers based on dependencies and criticality
+    let currentWave = 3;
+    let assigned = new Set(waves.keys());
+    let maxIterations = allServers.size + 10;
+    let iterations = 0;
+
+    while (assigned.size < allServers.size && iterations < maxIterations) {
+      iterations++;
+      const candidatesForWave: Array<{ server: string; criticality: number }> = [];
+
+      for (const server of allServers) {
+        if (assigned.has(server)) continue;
+
+        const deps = serverDependencies.get(server);
+        const criticality = serverCriticality.get(server) || 50;
+        
+        // If no dependencies, can go in current wave
+        if (!deps || deps.size === 0) {
+          candidatesForWave.push({ server, criticality });
+          continue;
+        }
+
+        // Check if all dependencies are assigned
+        const allDepsAssigned = Array.from(deps).every(dep => assigned.has(dep));
+        
+        if (allDepsAssigned) {
+          // Calculate wave: max(dependency waves) + 1
+          const depWaves = Array.from(deps).map(dep => waves.get(dep) || 1);
+          const maxDepWave = Math.max(...depWaves);
+          const calculatedWave = maxDepWave + 1;
+          
+          // SPECIAL RULE: Low criticality servers (< 40) can go earlier
+          if (criticality < 40 && calculatedWave > currentWave) {
+            // Skip for now, will be assigned in later iteration
+            continue;
+          }
+          
+          if (calculatedWave === currentWave) {
+            candidatesForWave.push({ server, criticality });
+          }
+        }
+      }
+
+      // Sort by criticality (less critical first)
+      candidatesForWave.sort((a, b) => a.criticality - b.criticality);
+      
+      if (candidatesForWave.length > 0) {
+        candidatesForWave.forEach(({ server }) => {
+          waves.set(server, currentWave);
+          assigned.add(server);
+        });
+        
+        const avgCriticality = candidatesForWave.reduce((sum, c) => sum + c.criticality, 0) / candidatesForWave.length;
+        console.log(`✅ Wave ${currentWave}: ${candidatesForWave.length} servidores (criticidad promedio: ${avgCriticality.toFixed(1)})`);
+        currentWave++;
+      } else {
+        // No candidates for this wave, move to next
+        currentWave++;
+      }
+    }
+
+    // Handle circular dependencies or unassigned servers
+    const unassignedServers = Array.from(allServers).filter(s => !assigned.has(s));
+    if (unassignedServers.length > 0) {
+      console.log(`⚠️  ${unassignedServers.length} servidores con dependencias circulares`);
+      
+      // Sort by criticality
+      const unassignedWithCriticality = unassignedServers.map(server => ({
+        server,
+        criticality: serverCriticality.get(server) || 50,
+      })).sort((a, b) => a.criticality - b.criticality);
+      
+      unassignedWithCriticality.forEach(({ server }) => {
+        waves.set(server, currentWave);
+        assigned.add(server);
+      });
+      
+      console.log(`✅ Wave ${currentWave} (Circular): ${unassignedServers.length} servidores`);
+    }
+
+    // Group servers by wave
+    const waveGroups: Map<number, string[]> = new Map();
+    waves.forEach((wave, server) => {
+      if (!waveGroups.has(wave)) {
+        waveGroups.set(wave, []);
+      }
+      waveGroups.get(wave)!.push(server);
+    });
+
+    // Convert to array format
+    const waveArray: WaveGroup[] = Array.from(waveGroups.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([waveNumber, servers]) => ({
+        waveNumber,
+        servers: servers.sort(),
+        serverCount: servers.length,
+      }));
+
+    console.log(`🌊 Calculadas ${waveArray.length} olas de migración para ${allServers.size} servidores`);
+
+    return {
+      waves: waveArray,
+      totalServers: allServers.size,
+      totalWaves: waveArray.length,
+      serversWithoutDependencies: waveGroups.get(1)?.length || 0,
+    };
+  }
+
+  /**
+   * Calculate server criticality based on name and dependencies
+   */
+  private calculateServerCriticality(serverName: string, dependencyMap: Map<string, Set<string>>): number {
+    const name = serverName.toLowerCase();
+    
+    // PRIORITY 1: Test/Dev/Staging - ALWAYS lowest criticality (10-15)
+    if (name.includes('test') || name.includes('dev') || name.includes('staging') || 
+        name.includes('qa') || name.includes('sandbox') || name.includes('demo')) {
+      return 10;
+    }
+    
+    // PRIORITY 2: High criticality - Production infrastructure (70-90)
+    if (name.includes('database') || name.includes('db') || name.includes('sql')) return 90;
+    if (name.includes('auth') || name.includes('ldap') || name.includes('ad')) return 85;
+    if (name.includes('storage') || name.includes('s3') || name.includes('blob')) return 80;
+    if (name.includes('cache') || name.includes('redis') || name.includes('memcache')) return 75;
+    if (name.includes('queue') || name.includes('kafka') || name.includes('rabbit')) return 70;
+    
+    // PRIORITY 3: Medium criticality - Production services (45-50)
+    if (name.includes('api') || name.includes('rest') || name.includes('graphql')) return 50;
+    if (name.includes('app')) return 45;
+    
+    // PRIORITY 4: Low criticality - Auxiliary services (20-30)
+    if (name.includes('analytics') || name.includes('bi') || name.includes('report')) return 30;
+    if (name.includes('web') || name.includes('nginx') || name.includes('apache')) return 25;
+    if (name.includes('cdn') || name.includes('cloudfront')) return 20;
+    
+    // Consider number of dependents (more dependents = more critical)
+    const dependents = Array.from(dependencyMap.entries())
+      .filter(([_, deps]) => deps.has(serverName))
+      .length;
+    
+    return 40 + (dependents * 5); // Base 40 + 5 per dependent
   }
 }

@@ -72,6 +72,7 @@ export function MigrationPlanner({ dependencies, onClose }: MigrationPlannerProp
   const [waves, setWaves] = useState<Wave[]>([]);
   const [selectedServer, setSelectedServer] = useState<string | null>(null);
   const [selectedWave, setSelectedWave] = useState<number | null>(null);
+  const [draggedServer, setDraggedServer] = useState<{ server: string; fromWave: number } | null>(null);
   const [stats, setStats] = useState({
     totalServers: 0,
     totalConnections: 0,

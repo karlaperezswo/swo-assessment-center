@@ -1,8 +1,32 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+// Configuración de AWS S3
+const AWS_REGION = process.env.AWS_REGION || 'us-east-1';
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'assessment-center-files';
+const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+
+// Validar configuración
+if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
+  console.warn('⚠️  AWS credentials not configured. S3 uploads will fail.');
+  console.warn('📝 Please configure AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in backend/.env');
+  console.warn('📖 See GUIA-CONFIGURACION-AWS-S3.md for setup instructions');
+}
+
+const s3Client = new S3Client({
+  region: AWS_REGION,
+  credentials: AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY ? {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  } : undefined,
+});
+
+// Log configuration on startup
+console.log(`📦 S3 Configuration:`);
+console.log(`   Region: ${AWS_REGION}`);
+console.log(`   Bucket: ${BUCKET_NAME}`);
+console.log(`   Credentials: ${AWS_ACCESS_KEY_ID ? '✅ Configured' : '❌ Not configured'}`);
 
 export class S3Service {
   /**

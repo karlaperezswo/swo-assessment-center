@@ -9,93 +9,113 @@ require('dotenv').config();
 
 console.log('\n🔍 Verificando configuración de AWS S3...\n');
 
-const checks = {
-  AWS_REGION: process.env.AWS_REGION,
-  S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
-  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-};
+const AWS_REGION = process.env.AWS_REGION || 'us-east-1';
+const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME || 'assessment-center-files';
+const AWS_PROFILE = process.env.AWS_PROFILE || 'default';
+const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 
-let allConfigured = true;
+console.log('📋 Configuración actual:\n');
+console.log(`   AWS_REGION: ${AWS_REGION}`);
+console.log(`   S3_BUCKET_NAME: ${S3_BUCKET_NAME}`);
+console.log(`   AWS_PROFILE: ${AWS_PROFILE}`);
 
-// Verificar cada variable
-Object.entries(checks).forEach(([key, value]) => {
-  if (value) {
-    if (key === 'AWS_SECRET_ACCESS_KEY') {
-      // No mostrar el secret completo
-      console.log(`✅ ${key}: ${value.substring(0, 4)}...${value.substring(value.length - 4)}`);
-    } else if (key === 'AWS_ACCESS_KEY_ID') {
-      console.log(`✅ ${key}: ${value.substring(0, 8)}...`);
-    } else {
-      console.log(`✅ ${key}: ${value}`);
-    }
-  } else {
-    console.log(`❌ ${key}: NO CONFIGURADO`);
-    allConfigured = false;
-  }
-});
+if (AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
+  console.log(`   Credenciales: ✅ Variables de entorno`);
+  console.log(`   AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID.substring(0, 8)}...`);
+} else {
+  console.log(`   Credenciales: 🔑 Perfil AWS CLI (${AWS_PROFILE})`);
+}
 
 console.log('\n' + '='.repeat(60) + '\n');
 
-if (allConfigured) {
-  console.log('🎉 ¡Configuración completa!');
-  console.log('\nPróximos pasos:');
-  console.log('1. Reinicia el servidor backend: npm start');
-  console.log('2. Prueba subir un archivo en el módulo Rapid Discovery');
-  console.log('3. Verifica que el archivo se suba correctamente a S3\n');
+// Intentar conectar a S3
+console.log('🔌 Probando conexión a S3...\n');
+
+const { S3Client, ListBucketsCommand, HeadBucketCommand } = require('@aws-sdk/client-s3');
+const { fromIni } = require('@aws-sdk/credential-providers');
+
+let credentials;
+if (AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
+  credentials = {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  };
 } else {
-  console.log('⚠️  Configuración incompleta');
-  console.log('\nPara configurar AWS S3:');
-  console.log('1. Crea el archivo backend/.env (si no existe)');
-  console.log('2. Agrega las siguientes variables:');
-  console.log('\n   AWS_REGION=us-east-1');
-  console.log('   S3_BUCKET_NAME=tu-bucket-name');
-  console.log('   AWS_ACCESS_KEY_ID=tu-access-key');
-  console.log('   AWS_SECRET_ACCESS_KEY=tu-secret-key');
-  console.log('\n3. Lee la guía completa: GUIA-CONFIGURACION-AWS-S3.md\n');
+  credentials = fromIni({ profile: AWS_PROFILE });
 }
 
-// Intentar conectar a S3 si está configurado
-if (allConfigured) {
-  console.log('🔌 Probando conexión a S3...\n');
-  
-  const { S3Client, ListBucketsCommand } = require('@aws-sdk/client-s3');
-  
-  const s3Client = new S3Client({
-    region: checks.AWS_REGION,
-    credentials: {
-      accessKeyId: checks.AWS_ACCESS_KEY_ID,
-      secretAccessKey: checks.AWS_SECRET_ACCESS_KEY,
-    },
-  });
+const s3Client = new S3Client({
+  region: AWS_REGION,
+  credentials,
+});
 
-  (async () => {
-    try {
-      const command = new ListBucketsCommand({});
-      const response = await s3Client.send(command);
+(async () => {
+  try {
+    // Listar buckets
+    const listCommand = new ListBucketsCommand({});
+    const listResponse = await s3Client.send(listCommand);
+    
+    console.log('✅ Conexión exitosa a AWS S3');
+    console.log(`📦 Buckets disponibles: ${listResponse.Buckets?.length || 0}\n`);
+    
+    // Verificar si el bucket configurado existe
+    const bucketExists = listResponse.Buckets?.some(b => b.Name === S3_BUCKET_NAME);
+    
+    if (bucketExists) {
+      console.log(`✅ Bucket "${S3_BUCKET_NAME}" encontrado`);
       
-      console.log('✅ Conexión exitosa a AWS S3');
-      console.log(`📦 Buckets disponibles: ${response.Buckets?.length || 0}`);
-      
-      // Verificar si el bucket configurado existe
-      const bucketExists = response.Buckets?.some(b => b.Name === checks.S3_BUCKET_NAME);
-      
-      if (bucketExists) {
-        console.log(`✅ Bucket "${checks.S3_BUCKET_NAME}" encontrado`);
-      } else {
-        console.log(`⚠️  Bucket "${checks.S3_BUCKET_NAME}" NO encontrado`);
-        console.log('   Verifica el nombre del bucket o créalo en AWS Console');
+      // Verificar acceso al bucket
+      try {
+        const headCommand = new HeadBucketCommand({ Bucket: S3_BUCKET_NAME });
+        await s3Client.send(headCommand);
+        console.log(`✅ Tienes acceso al bucket "${S3_BUCKET_NAME}"`);
+      } catch (error) {
+        console.log(`⚠️  No tienes acceso al bucket "${S3_BUCKET_NAME}"`);
+        console.log(`   Error: ${error.message}`);
       }
+    } else {
+      console.log(`⚠️  Bucket "${S3_BUCKET_NAME}" NO encontrado`);
+      console.log('\n💡 Opciones:');
+      console.log('   1. Crear el bucket en AWS Console');
+      console.log('   2. Usar un bucket existente (actualiza S3_BUCKET_NAME en .env)');
       
-      console.log('\n🎉 ¡Todo listo para usar S3!\n');
-    } catch (error) {
-      console.error('❌ Error al conectar con S3:');
-      console.error(`   ${error.message}`);
-      console.log('\n💡 Posibles causas:');
-      console.log('   - Credenciales incorrectas');
-      console.log('   - Permisos insuficientes');
-      console.log('   - Región incorrecta');
-      console.log('\n📖 Revisa la guía: GUIA-CONFIGURACION-AWS-S3.md\n');
+      if (listResponse.Buckets && listResponse.Buckets.length > 0) {
+        console.log('\n📦 Buckets disponibles:');
+        listResponse.Buckets.forEach((bucket, index) => {
+          console.log(`   ${index + 1}. ${bucket.Name}`);
+        });
+      }
     }
-  })();
-}
+    
+    console.log('\n🎉 ¡Configuración verificada!\n');
+    console.log('📋 Próximos pasos:');
+    console.log('   1. Si el bucket no existe, créalo en AWS Console');
+    console.log('   2. Actualiza S3_BUCKET_NAME en backend/.env si es necesario');
+    console.log('   3. Reinicia el servidor: npm start');
+    console.log('   4. Prueba subir un archivo en Rapid Discovery\n');
+    
+  } catch (error) {
+    console.error('❌ Error al conectar con S3:');
+    console.error(`   ${error.message}\n`);
+    
+    if (error.name === 'CredentialsProviderError') {
+      console.log('💡 Solución:');
+      console.log('   1. Ejecuta: aws configure');
+      console.log('   2. Ingresa tus credenciales de AWS');
+      console.log('   3. O configura variables de entorno en backend/.env\n');
+    } else if (error.name === 'AccessDenied') {
+      console.log('💡 Posibles causas:');
+      console.log('   - Credenciales incorrectas');
+      console.log('   - Permisos insuficientes (necesitas AmazonS3FullAccess)');
+      console.log('   - Usuario IAM sin permisos de S3\n');
+    } else {
+      console.log('💡 Verifica:');
+      console.log('   - Región correcta en .env');
+      console.log('   - Credenciales válidas');
+      console.log('   - Conexión a internet\n');
+    }
+    
+    console.log('📖 Para más ayuda, lee: GUIA-CONFIGURACION-AWS-S3.md\n');
+  }
+})();

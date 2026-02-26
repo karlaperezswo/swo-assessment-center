@@ -1,32 +1,52 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { fromIni } from '@aws-sdk/credential-providers';
 
 // Configuración de AWS S3
 const AWS_REGION = process.env.AWS_REGION || 'us-east-1';
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'assessment-center-files';
+const AWS_PROFILE = process.env.AWS_PROFILE || 'default';
+
+// Intentar usar credenciales en este orden:
+// 1. Variables de entorno (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+// 2. Perfil de AWS CLI (~/.aws/credentials)
+// 3. Credenciales de instancia EC2/Lambda (en producción)
+
+let credentials;
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 
-// Validar configuración
-if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
-  console.warn('⚠️  AWS credentials not configured. S3 uploads will fail.');
-  console.warn('📝 Please configure AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in backend/.env');
-  console.warn('📖 See GUIA-CONFIGURACION-AWS-S3.md for setup instructions');
+if (AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
+  // Usar credenciales de variables de entorno
+  credentials = {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  };
+  console.log('🔑 Using AWS credentials from environment variables');
+} else {
+  // Usar credenciales del perfil de AWS CLI
+  try {
+    credentials = fromIni({ profile: AWS_PROFILE });
+    console.log(`🔑 Using AWS credentials from profile: ${AWS_PROFILE}`);
+  } catch (error) {
+    console.warn('⚠️  No AWS credentials found in environment or AWS CLI profile');
+    console.warn('📝 Configure credentials using one of these methods:');
+    console.warn('   1. Run: aws configure');
+    console.warn('   2. Set environment variables in backend/.env');
+    console.warn('📖 See GUIA-CONFIGURACION-AWS-S3.md for details');
+  }
 }
 
 const s3Client = new S3Client({
   region: AWS_REGION,
-  credentials: AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY ? {
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  } : undefined,
+  credentials,
 });
 
 // Log configuration on startup
 console.log(`📦 S3 Configuration:`);
 console.log(`   Region: ${AWS_REGION}`);
 console.log(`   Bucket: ${BUCKET_NAME}`);
-console.log(`   Credentials: ${AWS_ACCESS_KEY_ID ? '✅ Configured' : '❌ Not configured'}`);
+console.log(`   Profile: ${AWS_PROFILE}`);
 
 export class S3Service {
   /**

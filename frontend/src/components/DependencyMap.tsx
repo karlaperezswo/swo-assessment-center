@@ -404,41 +404,77 @@ export function DependencyMap() {
       outgoingCount.set(edge.from, (outgoingCount.get(edge.from) || 0) + 1);
     });
 
-    // Classify nodes into layers based on their role
-    const sourceNodes: DependencyNode[] = []; // Nodes with only outgoing connections
-    const intermediateNodes: DependencyNode[] = []; // Nodes with both incoming and outgoing
-    const destinationNodes: DependencyNode[] = []; // Nodes with only incoming connections
-    const isolatedNodes: DependencyNode[] = []; // Nodes with no connections
-    
-    graph.nodes.forEach(node => {
-      const incoming = incomingCount.get(node.id) || 0;
-      const outgoing = outgoingCount.get(node.id) || 0;
+    // Calculate hierarchical levels using topological sort
+    const levels = new Map<string, number>();
+    const visited = new Set<string>();
+    const temp = new Set<string>();
+
+    const calculateLevel = (nodeId: string): number => {
+      if (levels.has(nodeId)) return levels.get(nodeId)!;
+      if (temp.has(nodeId)) return 0; // Circular dependency
+      if (visited.has(nodeId)) return levels.get(nodeId) || 0;
+
+      temp.add(nodeId);
       
-      if (incoming === 0 && outgoing === 0) {
-        isolatedNodes.push(node);
-      } else if (incoming === 0 && outgoing > 0) {
-        sourceNodes.push(node);
-      } else if (incoming > 0 && outgoing === 0) {
-        destinationNodes.push(node);
-      } else {
-        intermediateNodes.push(node);
+      // Find all nodes this node depends on (incoming edges)
+      const dependencies = graph.edges.filter(e => e.from === nodeId);
+      let maxLevel = 0;
+      
+      for (const dep of dependencies) {
+        const depLevel = calculateLevel(dep.to);
+        maxLevel = Math.max(maxLevel, depLevel + 1);
+      }
+      
+      temp.delete(nodeId);
+      visited.add(nodeId);
+      levels.set(nodeId, maxLevel);
+      
+      return maxLevel;
+    };
+
+    // Calculate levels for all nodes
+    graph.nodes.forEach(node => {
+      if (!levels.has(node.id)) {
+        calculateLevel(node.id);
       }
     });
 
-    // Create hierarchical layout
-    const flowNodes: Node[] = [];
-    const layerSpacing = 300;
-    const nodeSpacing = 180;
-    let currentY = 100;
+    // Group nodes by level
+    const nodesByLevel = new Map<number, DependencyNode[]>();
+    graph.nodes.forEach(node => {
+      const level = levels.get(node.id) || 0;
+      if (!nodesByLevel.has(level)) {
+        nodesByLevel.set(level, []);
+      }
+      nodesByLevel.get(level)!.push(node);
+    });
 
-    // Helper function to create nodes in a layer
-    const createLayerNodes = (nodes: DependencyNode[], layerName: string, color: string, y: number) => {
-      const layerWidth = nodes.length * nodeSpacing;
-      const startX = Math.max(100, (1200 - layerWidth) / 2);
-      
-      nodes.forEach((node, index) => {
+    // Sort levels
+    const sortedLevels = Array.from(nodesByLevel.keys()).sort((a, b) => a - b);
+    const maxLevel = sortedLevels[sortedLevels.length - 1] || 0;
+
+    // Create nodes with hierarchical positioning
+    const flowNodes: Node[] = [];
+    const levelHeight = 250;
+    const nodeSpacing = 200;
+    const startY = 100;
+
+    sortedLevels.forEach(level => {
+      const nodesInLevel = nodesByLevel.get(level)!;
+      const levelWidth = nodesInLevel.length * nodeSpacing;
+      const startX = Math.max(100, (1400 - levelWidth) / 2);
+      const y = startY + (maxLevel - level) * levelHeight; // Invert: level 0 at bottom
+
+      nodesInLevel.forEach((node, index) => {
         const totalConnections = (incomingCount.get(node.id) || 0) + (outgoingCount.get(node.id) || 0);
-        const nodeSize = Math.min(120, 60 + (totalConnections * 5));
+        const nodeSize = Math.min(100, 50 + (totalConnections * 3));
+        
+        // Determine color based on level
+        let color = '#3b82f6'; // Default blue
+        if (level === 0) color = '#10b981'; // Green for base level
+        else if (level === maxLevel) color = '#8b5cf6'; // Purple for top level
+        else if (level === 1) color = '#06b6d4'; // Cyan for level 1
+        else if (level === 2) color = '#f59e0b'; // Orange for level 2
         
         flowNodes.push({
           id: node.id,
@@ -446,21 +482,21 @@ export function DependencyMap() {
           data: {
             label: (
               <div className="text-center p-2">
-                <div className="font-bold text-sm mb-1" style={{ wordBreak: 'break-word' }}>
-                  {node.label.length > 20 ? node.label.substring(0, 20) + '...' : node.label}
+                <div className="font-bold text-xs mb-1" style={{ wordBreak: 'break-word' }}>
+                  {node.label.length > 18 ? node.label.substring(0, 18) + '...' : node.label}
                 </div>
                 {node.group && (
                   <div className="text-xs text-gray-300 mb-1">{node.group}</div>
                 )}
-                <div className="flex items-center justify-center gap-2 text-xs">
+                <div className="flex items-center justify-center gap-1 text-xs">
                   {(incomingCount.get(node.id) || 0) > 0 && (
-                    <span className="bg-white/20 px-2 py-0.5 rounded">
-                      ↓ {incomingCount.get(node.id)}
+                    <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs">
+                      ↓{incomingCount.get(node.id)}
                     </span>
                   )}
                   {(outgoingCount.get(node.id) || 0) > 0 && (
-                    <span className="bg-white/20 px-2 py-0.5 rounded">
-                      ↑ {outgoingCount.get(node.id)}
+                    <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs">
+                      ↑{outgoingCount.get(node.id)}
                     </span>
                   )}
                 </div>
@@ -471,69 +507,44 @@ export function DependencyMap() {
           style: {
             background: `linear-gradient(135deg, ${color} 0%, ${color}dd 100%)`,
             color: 'white',
-            border: '3px solid rgba(255, 255, 255, 0.3)',
-            borderRadius: '12px',
-            padding: '8px',
-            minWidth: `${nodeSize}px`,
-            minHeight: '80px',
+            border: '2px solid rgba(255, 255, 255, 0.4)',
+            borderRadius: '10px',
+            padding: '6px',
+            width: `${nodeSize}px`,
+            minHeight: '70px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
-            fontSize: '12px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            fontSize: '11px',
           },
         });
       });
-    };
+    });
 
-    // Layer 1: Source nodes (top)
-    if (sourceNodes.length > 0) {
-      createLayerNodes(sourceNodes, 'Origen', '#10b981', currentY);
-      currentY += layerSpacing;
-    }
-
-    // Layer 2: Intermediate nodes (middle)
-    if (intermediateNodes.length > 0) {
-      createLayerNodes(intermediateNodes, 'Intermedios', '#3b82f6', currentY);
-      currentY += layerSpacing;
-    }
-
-    // Layer 3: Destination nodes (bottom)
-    if (destinationNodes.length > 0) {
-      createLayerNodes(destinationNodes, 'Destino', '#8b5cf6', currentY);
-      currentY += layerSpacing;
-    }
-
-    // Layer 4: Isolated nodes (if any)
-    if (isolatedNodes.length > 0) {
-      createLayerNodes(isolatedNodes, 'Aislados', '#6b7280', currentY);
-    }
-
-    // Create edges with clear visual hierarchy
+    // Create edges with improved styling
     const flowEdges: Edge[] = graph.edges.map((edge, index) => {
-      // Determine edge properties based on connection type
       let edgeColor = '#94a3b8';
-      let edgeWidth = 2;
+      let edgeWidth = 1.5;
       let animated = false;
       
       // Color by protocol/port
       if (edge.port !== null) {
         if (edge.port === 80 || edge.port === 443 || edge.port === 8080) {
-          edgeColor = '#3b82f6'; // Blue for HTTP/HTTPS
+          edgeColor = '#3b82f6';
           animated = true;
         } else if (edge.port === 3306 || edge.port === 5432 || edge.port === 1433) {
-          edgeColor = '#10b981'; // Green for databases
+          edgeColor = '#10b981';
         } else if (edge.port === 6379 || edge.port === 11211) {
-          edgeColor = '#f59e0b'; // Orange for cache
+          edgeColor = '#f59e0b';
         } else if (edge.port === 22 || edge.port === 3389) {
-          edgeColor = '#ef4444'; // Red for remote access
+          edgeColor = '#ef4444';
         }
       }
       
-      // Thicker edges for high-traffic connections
       const sourceConnections = (outgoingCount.get(edge.from) || 0);
       if (sourceConnections > 5) {
-        edgeWidth = 3;
+        edgeWidth = 2.5;
       }
       
       return {
@@ -546,28 +557,28 @@ export function DependencyMap() {
         markerEnd: {
           type: MarkerType.ArrowClosed,
           color: edgeColor,
-          width: 20,
-          height: 20,
+          width: 18,
+          height: 18,
         },
         style: {
           stroke: edgeColor,
           strokeWidth: edgeWidth,
-          opacity: 0.7,
+          opacity: 0.6,
         },
         labelStyle: {
           fill: '#1f2937',
-          fontWeight: 700,
-          fontSize: 11,
+          fontWeight: 600,
+          fontSize: 10,
           backgroundColor: 'white',
         },
         labelBgStyle: {
           fill: 'white',
-          fillOpacity: 0.95,
-          rx: 4,
-          ry: 4,
+          fillOpacity: 0.9,
+          rx: 3,
+          ry: 3,
         },
-        labelBgPadding: [6, 3] as [number, number],
-        labelBgBorderRadius: 4,
+        labelBgPadding: [4, 2] as [number, number],
+        labelBgBorderRadius: 3,
       };
     });
 
@@ -1211,23 +1222,27 @@ export function DependencyMap() {
             </div>
             <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Capas del Grafo:</h4>
+                <h4 className="font-semibold text-sm">Niveles Jerárquicos:</h4>
                 <div className="flex flex-col gap-2 text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 bg-green-500 rounded"></div>
-                    <span>Servidores Origen (solo envían)</span>
+                    <span>Nivel 0 (Base - Sin dependencias)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-cyan-500 rounded"></div>
+                    <span>Nivel 1 (Depende de Nivel 0)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-orange-500 rounded"></div>
+                    <span>Nivel 2 (Depende de Nivel 1)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                    <span>Servidores Intermedios (envían y reciben)</span>
+                    <span>Niveles Intermedios</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 bg-purple-500 rounded"></div>
-                    <span>Servidores Destino (solo reciben)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-gray-500 rounded"></div>
-                    <span>Servidores Aislados (sin conexiones)</span>
+                    <span>Nivel Superior (Aplicaciones finales)</span>
                   </div>
                 </div>
               </div>
@@ -1276,8 +1291,8 @@ export function DependencyMap() {
             </div>
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>💡 Organización:</strong> El grafo está organizado en capas jerárquicas de arriba hacia abajo: 
-                Servidores Origen (verde) → Intermedios (azul) → Destino (morado). 
+                <strong>💡 Organización:</strong> El grafo está organizado en niveles jerárquicos de abajo hacia arriba usando ordenamiento topológico. 
+                Nivel 0 (verde) representa servicios base sin dependencias, y cada nivel superior depende de los niveles inferiores. 
                 Las conexiones animadas indican tráfico HTTP/HTTPS de alta prioridad.
               </p>
             </div>

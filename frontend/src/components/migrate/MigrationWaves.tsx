@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { MigrationPlanner } from '@/components/MigrationPlanner';
 
 import { MigrationWave } from '@/types/assessment';
-import { Waves, Plus, Trash2, Play, Pause, CheckCircle, AlertCircle } from 'lucide-react';
+import { Waves, Plus, Trash2, Play, Pause, CheckCircle, AlertCircle, Network } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -26,6 +27,7 @@ const statusConfig = {
 
 export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
   const [showForm, setShowForm] = useState(false);
+  const [showPlanner, setShowPlanner] = useState(false);
   const [newWave, setNewWave] = useState({
     name: '',
     startDate: '',
@@ -99,6 +101,13 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
       <div className="flex gap-3">
         <Button onClick={() => setShowForm(!showForm)} variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50">
           <Plus className="h-4 w-4 mr-1" /> {showForm ? 'Cancel' : 'Add Wave'}
+        </Button>
+        <Button 
+          onClick={() => setShowPlanner(true)} 
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+        >
+          <Network className="h-4 w-4 mr-2" />
+          Abrir Planificador Visual
         </Button>
       </div>
 
@@ -244,6 +253,14 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+      )}
+
+      {/* Migration Planner Modal */}
+      {showPlanner && (
+        <MigrationPlanner
+          dependencies={[]}
+          onClose={() => setShowPlanner(false)}
+        />
       )}
     </div>
   );

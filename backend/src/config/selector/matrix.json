@@ -1,0 +1,124 @@
+{
+  "version": "1.0",
+  "tools": ["migrationEvaluator", "cloudamize", "matilda", "concierto"],
+  "scoring": {
+    "q1": {
+      "Si": { "migrationEvaluator": 0, "cloudamize": 0, "matilda": 3, "concierto": 1 },
+      "No": { "migrationEvaluator": 1, "cloudamize": 2, "matilda": 1, "concierto": 2 }
+    },
+    "q2": {
+      "<30": { "migrationEvaluator": 2, "cloudamize": 3, "matilda": 3, "concierto": 2 },
+      "100–500": { "migrationEvaluator": 1, "cloudamize": 2, "matilda": 2, "concierto": 2 },
+      "500-999": { "migrationEvaluator": 0, "cloudamize": 3, "matilda": 3, "concierto": 2 },
+      ">1000": { "migrationEvaluator": 0, "cloudamize": 3, "matilda": 3, "concierto": 3 }
+    },
+    "q3": {
+      "VMware": { "migrationEvaluator": 3, "cloudamize": 1, "matilda": 1, "concierto": 1 },
+      "Hyper-V": { "migrationEvaluator": 1, "cloudamize": 2, "matilda": 1, "concierto": 1 },
+      "KVM/Xen/otros": { "migrationEvaluator": 1, "cloudamize": 1, "matilda": 2, "concierto": 1 }
+    },
+    "q4": {
+      "Si": { "migrationEvaluator": 1, "cloudamize": 3, "matilda": 3, "concierto": 3 },
+      "No": { "migrationEvaluator": 3, "cloudamize": 2, "matilda": 2, "concierto": 2 }
+    },
+    "q5": {
+      "Si": { "migrationEvaluator": 1, "cloudamize": 2, "matilda": 2, "concierto": 2 },
+      "No": { "migrationEvaluator": 0, "cloudamize": 1, "matilda": 2, "concierto": 2 }
+    },
+    "q6": {
+      "Si": { "migrationEvaluator": 3, "cloudamize": 1, "matilda": 1, "concierto": 2 },
+      "No": { "migrationEvaluator": 0, "cloudamize": 2, "matilda": 3, "concierto": 2 }
+    },
+    "q7": {
+      "Agent-based permitido": { "migrationEvaluator": 0, "cloudamize": 3, "matilda": 3, "concierto": 3 },
+      "Solo agentless": { "migrationEvaluator": 2, "cloudamize": 3, "matilda": 3, "concierto": 2 }
+    },
+    "q8": {
+      "Si": { "migrationEvaluator": 0, "cloudamize": 1, "matilda": 1, "concierto": 0 },
+      "No": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 2, "concierto": 2 }
+    },
+    "q9": {
+      "Windows": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 3, "concierto": 2 },
+      "Linux/mixto": { "migrationEvaluator": 0, "cloudamize": 2, "matilda": 2, "concierto": 2 }
+    },
+    "q10": {
+      "Base de datos críticas": { "migrationEvaluator": 1, "cloudamize": 3, "matilda": 2, "concierto": 2 },
+      "App/Web/File": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 3, "concierto": 2 }
+    }
+    ,
+    "q11": {
+      "Si": { "migrationEvaluator": 0, "cloudamize": 0, "matilda": 3, "concierto": 1 },
+      "No": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 2, "concierto": 2 }
+    },
+    "q12": {
+      "Si": { "migrationEvaluator": 2, "cloudamize": 3, "matilda": 3, "concierto": 2 },
+      "No": { "migrationEvaluator": 1, "cloudamize": 1, "matilda": 1, "concierto": 1 }
+    },
+    "q13": {
+      "Si": { "migrationEvaluator": 0, "cloudamize": 0, "matilda": 3, "concierto": 3 },
+      "No": { "migrationEvaluator": 1, "cloudamize": 1, "matilda": 1, "concierto": 1 }
+    },
+    "q14": {
+      "Si": { "migrationEvaluator": 0, "cloudamize": 0, "matilda": 3, "concierto": 2 },
+      "No": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 2, "concierto": 2 }
+    },
+    "q15": {
+      "Si": { "migrationEvaluator": 1, "cloudamize": 1, "matilda": 3, "concierto": 2 },
+      "No": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 2, "concierto": 2 }
+    },
+    "q16": {
+      "Si": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 1, "concierto": 2 },
+      "No": { "migrationEvaluator": 0, "cloudamize": 0, "matilda": 2, "concierto": 2 }
+    },
+    "q17": {
+      "Si": { "migrationEvaluator": 1, "cloudamize": 1, "matilda": 2, "concierto": 1 },
+      "No": { "migrationEvaluator": 0, "cloudamize": 0, "matilda": 0, "concierto": 0 }
+    },
+    "q18": {
+      "Si": { "migrationEvaluator": 1, "cloudamize": 2, "matilda": 2, "concierto": 2 },
+      "No": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 2, "concierto": 2 }
+    },
+    "q19": {
+      "TCO/ROI económico": { "migrationEvaluator": 3, "cloudamize": 3, "matilda": 3, "concierto": 3 },
+      "Seguridad/compliance": { "migrationEvaluator": 1, "cloudamize": 1, "matilda": 3, "concierto": 2 },
+      "Modernización tecnológica": { "migrationEvaluator": 1, "cloudamize": 1, "matilda": 3, "concierto": 3 }
+    },
+    "q20": {
+      "Consumo real (CPU/RAM/IOPS)": { "migrationEvaluator": 3, "cloudamize": 3, "matilda": 3, "concierto": 3 },
+      "Solo inventario estático": { "migrationEvaluator": 1, "cloudamize": 2, "matilda": 3, "concierto": 3 }
+    }
+    ,
+    "q21": {
+      "Si": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 2, "concierto": 3 },
+      "No": { "migrationEvaluator": 1, "cloudamize": 1, "matilda": 0, "concierto": 1 }
+    },
+    "q22": {
+      "Si": { "migrationEvaluator": 0, "cloudamize": 3, "matilda": 3, "concierto": 3 },
+      "No": { "migrationEvaluator": 3, "cloudamize": 2, "matilda": 1, "concierto": 2 }
+    },
+    "q23": {
+      "Si": { "migrationEvaluator": 1, "cloudamize": 2, "matilda": 3, "concierto": 3 },
+      "No": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 1, "concierto": 1 }
+    },
+    "q24": {
+      "Si": { "migrationEvaluator": 1, "cloudamize": 3, "matilda": 3, "concierto": 3 },
+      "No": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 0, "concierto": 0 }
+    },
+    "q25": {
+      "Si": { "migrationEvaluator": 1, "cloudamize": 3, "matilda": 1, "concierto": 2 },
+      "No": { "migrationEvaluator": 2, "cloudamize": 2, "matilda": 0, "concierto": 1 }
+    },
+    "q26": {
+      "Si": { "migrationEvaluator": 1, "cloudamize": 1, "matilda": 3, "concierto": 3 },
+      "No": { "migrationEvaluator": 2, "cloudamize": 3, "matilda": 0, "concierto": 1 }
+    },
+    "q27": {
+      "Si": { "migrationEvaluator": 1, "cloudamize": 3, "matilda": 2, "concierto": 2 },
+      "No": { "migrationEvaluator": 2, "cloudamize": 1, "matilda": 2, "concierto": 1 }
+    },
+    "q28": {
+      "Si": { "migrationEvaluator": 2, "cloudamize": 3, "matilda": 0, "concierto": 1 },
+      "No": { "migrationEvaluator": 1, "cloudamize": 1, "matilda": 2, "concierto": 2 }
+    }
+  }
+}

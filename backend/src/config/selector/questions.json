@@ -1,0 +1,283 @@
+{
+  "version": "1.0",
+  "totalQuestions": 28,
+  "categories": [
+    {
+      "id": "infrastructure",
+      "name": "Infraestructura Actual",
+      "description": "Preguntas sobre el estado actual de la infraestructura del cliente",
+      "questions": [
+        {
+          "id": "q1",
+          "text": "¿Se cuenta con un RVTools completo o inventario con el parque completo de servidores?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "RVTools es una herramienta de inventario para ambientes VMware"
+        },
+        {
+          "id": "q2",
+          "text": "¿Cuántos servidores físicos y virtuales tienen actualmente?",
+          "type": "multiple",
+          "options": ["<30", "100–500", "500-999", ">1000"],
+          "helpText": "Incluir tanto servidores físicos como virtuales en el conteo"
+        },
+        {
+          "id": "q3",
+          "text": "¿Cuál es el tipo de hypervisor principal en uso (VMware, Hyper-V, KVM, Xen, otro)?",
+          "type": "multiple",
+          "options": ["VMware", "Hyper-V", "KVM/Xen/otros"],
+          "helpText": "Seleccionar el hypervisor predominante en el ambiente"
+        },
+        {
+          "id": "q4",
+          "text": "¿Existen servidores físicos bare-metal (sin hypervisor)?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Servidores físicos que no están virtualizados"
+        },
+        {
+          "id": "q5",
+          "text": "¿Tienen múltiples data centers o solo uno?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Considerar data centers físicamente separados"
+        }
+      ]
+    },
+    {
+      "id": "connectivity",
+      "name": "Conectividad y Accesibilidad",
+      "description": "Preguntas sobre conectividad de red y acceso a la infraestructura",
+      "questions": [
+        {
+          "id": "q6",
+          "text": "¿Existe conectividad estable entre el sitio del cliente y AWS (VPN, Direct Connect)?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Conexión dedicada o VPN estable hacia AWS"
+        },
+        {
+          "id": "q7",
+          "text": "¿Permiten la instalación de agentes en servidores o solo se puede usar método agentless?",
+          "type": "multiple",
+          "options": ["Agent-based permitido", "Solo agentless"],
+          "helpText": "Agentes son software que se instala en cada servidor para recolectar datos"
+        },
+        {
+          "id": "q8",
+          "text": "¿Existen restricciones de puertos/firewall que puedan limitar la recolección de datos?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Restricciones que impidan comunicación con herramientas de discovery"
+        }
+      ]
+    }
+    ,
+    {
+      "id": "server_characteristics",
+      "name": "Características de los Servidores",
+      "description": "Preguntas sobre los sistemas operativos y roles de los servidores",
+      "questions": [
+        {
+          "id": "q9",
+          "text": "¿Qué sistemas operativos predominan (Windows, Linux, mezcla)?",
+          "type": "multiple",
+          "options": ["Windows", "Linux/mixto"],
+          "helpText": "Sistema operativo más común en el ambiente"
+        },
+        {
+          "id": "q10",
+          "text": "¿Cuáles son los roles principales de los servidores (DB, web, app, file servers, VDI, etc.)?",
+          "type": "multiple",
+          "options": ["Base de datos críticas", "App/Web/File"],
+          "helpText": "Tipo de workload predominante"
+        },
+        {
+          "id": "q11",
+          "text": "¿Hay servidores con software crítico o legacy que no pueden instalar agentes?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Sistemas legacy o críticos donde no se puede instalar software adicional"
+        }
+      ]
+    },
+    {
+      "id": "volume_complexity",
+      "name": "Volumen y Complejidad",
+      "description": "Preguntas sobre la complejidad del ambiente",
+      "questions": [
+        {
+          "id": "q12",
+          "text": "¿Existen bases de datos o middleware críticos que requieran métricas detalladas de performance?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Bases de datos o middleware que necesitan análisis profundo de rendimiento"
+        },
+        {
+          "id": "q13",
+          "text": "¿Tienen clústeres de Kubernetes u orquestadores de contenedores en producción?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Ambientes containerizados con Kubernetes, Docker Swarm, etc."
+        }
+      ]
+    }
+    ,
+    {
+      "id": "security_compliance",
+      "name": "Requisitos de Seguridad y Compliance",
+      "description": "Preguntas sobre requisitos de seguridad y cumplimiento normativo",
+      "questions": [
+        {
+          "id": "q14",
+          "text": "¿Tienen restricciones de compliance que prohíban sacar datos fuera del país/infraestructura?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Regulaciones como GDPR, HIPAA, etc. que restrinjan movimiento de datos"
+        },
+        {
+          "id": "q15",
+          "text": "¿Tienen políticas de auditoría que requieran reportes detallados de acceso y uso de datos?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Requisitos de auditoría y trazabilidad de acceso a datos"
+        }
+      ]
+    },
+    {
+      "id": "current_information",
+      "name": "Disponibilidad de Información Actual",
+      "description": "Preguntas sobre inventarios y herramientas existentes",
+      "questions": [
+        {
+          "id": "q16",
+          "text": "¿Cuentan con inventarios actualizados de servidores y aplicaciones?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "CMDB o inventario actualizado de la infraestructura"
+        },
+        {
+          "id": "q17",
+          "text": "¿Tienen herramientas internas de monitoreo (Zabbix, SolarWinds, Nagios, etc.) cuyos datos puedan aprovecharse?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Herramientas de monitoreo existentes que puedan proveer datos históricos"
+        },
+        {
+          "id": "q18",
+          "text": "¿Han hecho previamente algún assessment con otra herramienta?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Assessments previos con AWS MAP, Cloudamize, u otras herramientas"
+        }
+      ]
+    }
+    ,
+    {
+      "id": "assessment_objective",
+      "name": "Objetivo del Assessment",
+      "description": "Preguntas sobre los objetivos y alcance del assessment",
+      "questions": [
+        {
+          "id": "q19",
+          "text": "¿El objetivo principal es dimensionamiento económico (TCO, ROI), seguridad y cumplimiento, o modernización tecnológica?",
+          "type": "multiple",
+          "options": ["TCO/ROI económico", "Seguridad/compliance", "Modernización tecnológica"],
+          "helpText": "Objetivo primario del proyecto de migración"
+        },
+        {
+          "id": "q20",
+          "text": "¿Necesitan el baseline de consumo real (CPU/RAM/IOPS) o basta con datos estáticos de inventario?",
+          "type": "multiple",
+          "options": ["Consumo real (CPU/RAM/IOPS)", "Solo inventario estático"],
+          "helpText": "Nivel de detalle requerido para el dimensionamiento"
+        },
+        {
+          "id": "q21",
+          "text": "¿Se planea incluir aplicaciones y dependencias (Application Discovery) o solo servidores?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Mapeo de dependencias entre aplicaciones y servidores"
+        }
+      ]
+    },
+    {
+      "id": "multicloud_strategy",
+      "name": "Estrategia Multinube",
+      "description": "Preguntas sobre uso de múltiples proveedores cloud",
+      "questions": [
+        {
+          "id": "q22",
+          "text": "¿Actualmente el cliente utiliza más de una nube (Azure, GCP, Oracle Cloud, etc.) además de On-Premises?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Ambiente multi-cloud o híbrido"
+        }
+      ]
+    }
+    ,
+    {
+      "id": "applications_dependencies",
+      "name": "Aplicaciones y Dependencias",
+      "description": "Preguntas sobre aplicaciones críticas y sus dependencias",
+      "questions": [
+        {
+          "id": "q23",
+          "text": "¿Existen aplicaciones críticas con fuerte dependencia entre servidores (ej. SAP, Oracle, middleware complejo)?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Aplicaciones empresariales con arquitecturas complejas"
+        },
+        {
+          "id": "q24",
+          "text": "¿Necesitan descubrir automáticamente dependencias de red y aplicaciones?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Discovery automático de comunicaciones entre servidores"
+        }
+      ]
+    },
+    {
+      "id": "data_storage",
+      "name": "Datos y Almacenamiento",
+      "description": "Preguntas sobre volumen de datos y bases de datos",
+      "questions": [
+        {
+          "id": "q25",
+          "text": "¿El cliente tiene un gran volumen de datos (>100 TB) que requiere análisis detallado de almacenamiento?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Grandes volúmenes de datos que requieren análisis de storage"
+        },
+        {
+          "id": "q26",
+          "text": "¿Requieren evaluar bases de datos administradas (SQL, Oracle, NoSQL) para migrar a servicios PaaS de AWS?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Migración a RDS, Aurora, DynamoDB, etc."
+        }
+      ]
+    },
+    {
+      "id": "organizational_restrictions",
+      "name": "Restricciones Organizacionales",
+      "description": "Preguntas sobre requisitos organizacionales y de reporting",
+      "questions": [
+        {
+          "id": "q27",
+          "text": "¿El cliente requiere reportes ejecutivos muy detallados y personalizables para sponsors no técnicos?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Reportes ejecutivos con alto nivel de detalle y personalización"
+        },
+        {
+          "id": "q28",
+          "text": "¿Existen equipos internos de FinOps que quieren cruzar el assessment con su modelo financiero actual?",
+          "type": "boolean",
+          "options": ["Si", "No"],
+          "helpText": "Integración con modelos financieros y FinOps existentes"
+        }
+      ]
+    }
+  ]
+}

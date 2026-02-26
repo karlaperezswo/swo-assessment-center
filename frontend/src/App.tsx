@@ -66,6 +66,9 @@ function App() {
   // Assess phase state
   const [briefingSessions, setBriefingSessions] = useState<BriefingSession[]>([]);
   const [immersionDays, setImmersionDays] = useState<ImmersionDayPlan[]>([]);
+  const [opportunitySessionId, setOpportunitySessionId] = useState<string | null>(null);
+  const [mraFile, setMRAFile] = useState<File | null>(null);
+  const [questionnaireFile, setQuestionnaireFile] = useState<File | null>(null);
 
   // Mobilize phase state
   const [migrationWaves, setMigrationWaves] = useState<MigrationWave[]>([]);
@@ -210,7 +213,7 @@ function App() {
 
   const handleGenerateReport = async () => {
     if (!excelData || !clientData.clientName) {
-      const errorMsg = 'Please upload an Excel file and enter the client name';
+      const errorMsg = 'Por favor sube un archivo Excel e ingresa el nombre del cliente';
       setError(errorMsg);
       toast.error(errorMsg);
       return;
@@ -246,10 +249,10 @@ function App() {
           duration: 5000
         });
       } else {
-        throw new Error(response.data.error || 'Failed to generate report');
+        throw new Error(response.data.error || 'Error al generar reporte');
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to generate report';
+      const errorMsg = err instanceof Error ? err.message : 'Error al generar reporte';
       setError(errorMsg);
       toast.error('Error al generar reporte', {
         id: 'generate-report',
@@ -261,7 +264,62 @@ function App() {
     }
   };
 
-  const handlePhaseComplete = (phase: MigrationPhase) => {
+  const handlePhaseComplete = async (phase: MigrationPhase) => {
+    // If completing Assess phase and both MPA and MRA are available, analyze opportunities
+    if (phase === 'assess' && excelData && mraFile) {
+      // Show persistent loading toast
+      const loadingToastId = toast.loading(
+        'Analizando oportunidades con AWS Bedrock...',
+        { 
+          duration: Infinity, // Don't auto-dismiss
+          description: 'Esto puede tomar hasta 5 minutos para datasets grandes. El sistema está procesando los datos con IA. Si ocurre algún error, se te notificará automáticamente.'
+        }
+      );
+      
+      try {
+        const formData = new FormData();
+        
+        // Create a blob from excelData and append as file
+        const excelBlob = new Blob([JSON.stringify(excelData)], { type: 'application/json' });
+        formData.append('mpaFile', excelBlob, 'mpa-data.json');
+        formData.append('mraFile', mraFile);
+        
+        // Add questionnaire file if available (optional)
+        if (questionnaireFile) {
+          formData.append('questionnaireFile', questionnaireFile);
+        }
+
+        const response = await apiClient.post('/api/opportunities/analyze', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.data.success) {
+          setOpportunitySessionId(response.data.data.sessionId);
+          
+          // Dismiss loading toast and show success
+          toast.dismiss(loadingToastId);
+          toast.success(
+            `¡Análisis completado! ${response.data.data.opportunities.length} oportunidades identificadas`,
+            {
+              duration: 5000,
+              description: 'Ve a la pestaña "Oportunidades de Venta" para ver los detalles'
+            }
+          );
+        }
+      } catch (error: any) {
+        console.error('Error analyzing opportunities:', error);
+        
+        // Dismiss loading toast and show error
+        toast.dismiss(loadingToastId);
+        toast.error('Error al analizar oportunidades', {
+          description: error.response?.data?.error || 'Intenta de nuevo o contacta soporte',
+          duration: 7000
+        });
+      }
+    }
+
     const phaseOrder: MigrationPhase[] = ['assess', 'mobilize', 'migrate'];
     const currentIndex = phaseOrder.indexOf(phase);
 
@@ -371,6 +429,12 @@ function App() {
               onImmersionDaysChange={setImmersionDays}
               migrationWaves={migrationWaves}
               onMigrationWavesChange={setMigrationWaves}
+              opportunitySessionId={opportunitySessionId}
+              onOpportunitySessionIdChange={setOpportunitySessionId}
+              mraFile={mraFile}
+              onMRAFileChange={setMRAFile}
+              questionnaireFile={questionnaireFile}
+              onQuestionnaireFileChange={setQuestionnaireFile}
             />
           )}
 

@@ -17,7 +17,7 @@ export function DatabaseTable({ databases, recommendations }: DatabaseTableProps
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <DatabaseIcon className="h-5 w-5" />
-          Databases ({databases.length})
+          Bases de Datos ({databases.length})
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -25,15 +25,15 @@ export function DatabaseTable({ databases, recommendations }: DatabaseTableProps
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left p-2 font-medium">Database Name</th>
-                <th className="text-left p-2 font-medium">Engine</th>
-                <th className="text-left p-2 font-medium">Edition</th>
-                <th className="text-right p-2 font-medium">Size (GB)</th>
+                <th className="text-left p-2 font-medium">Nombre de Base de Datos</th>
+                <th className="text-left p-2 font-medium">Motor</th>
+                <th className="text-left p-2 font-medium">Edición</th>
+                <th className="text-right p-2 font-medium">Tamaño (GB)</th>
                 {recommendations && (
                   <>
-                    <th className="text-left p-2 font-medium">Target Service</th>
-                    <th className="text-left p-2 font-medium">Instance Class</th>
-                    <th className="text-right p-2 font-medium">Est. Cost</th>
+                    <th className="text-left p-2 font-medium">Servicio Objetivo</th>
+                    <th className="text-left p-2 font-medium">Clase de Instancia</th>
+                    <th className="text-right p-2 font-medium">Costo Est.</th>
                   </>
                 )}
               </tr>
@@ -72,7 +72,7 @@ export function DatabaseTable({ databases, recommendations }: DatabaseTableProps
           </table>
           {databases.length > 30 && (
             <p className="text-sm text-muted-foreground mt-2 text-center">
-              Showing 30 of {databases.length} databases
+              Mostrando 30 de {databases.length} bases de datos
             </p>
           )}
         </div>

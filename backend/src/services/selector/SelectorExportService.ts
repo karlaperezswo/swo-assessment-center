@@ -16,16 +16,35 @@ export class SelectorExportService {
     result: SelectorResult,
     questions: any[]
   ): Promise<Buffer> {
+    console.log('[PDF Export] Starting PDF generation');
+    console.log('[PDF Export] Session:', session.sessionId, 'Client:', session.clientName);
+    console.log('[PDF Export] Result tool:', result.recommendedTool);
+    console.log('[PDF Export] Number of results:', result.results.length);
+    
     return new Promise((resolve, reject) => {
       try {
+        console.log('[PDF Export] Creating PDFDocument');
         const doc = new PDFDocument({ margin: 50, size: 'LETTER' });
         const chunks: Buffer[] = [];
 
         // Collect PDF data
-        doc.on('data', (chunk) => chunks.push(chunk));
-        doc.on('end', () => resolve(Buffer.concat(chunks)));
-        doc.on('error', reject);
+        doc.on('data', (chunk) => {
+          chunks.push(chunk);
+          console.log('[PDF Export] Data chunk received:', chunk.length, 'bytes');
+        });
+        
+        doc.on('end', () => {
+          const buffer = Buffer.concat(chunks);
+          console.log('[PDF Export] PDF generation complete. Total size:', buffer.length, 'bytes');
+          resolve(buffer);
+        });
+        
+        doc.on('error', (err) => {
+          console.error('[PDF Export] PDF generation error:', err);
+          reject(err);
+        });
 
+        console.log('[PDF Export] Writing header');
         // Header
         doc.fontSize(24).font('Helvetica-Bold').text('Selector de Herramienta MAP', { align: 'center' });
         doc.moveDown(0.5);
@@ -33,6 +52,7 @@ export class SelectorExportService {
           .text('Reporte de Assessment', { align: 'center' });
         doc.moveDown(2);
 
+        console.log('[PDF Export] Writing client info');
         // Client Info
         doc.fontSize(14).font('Helvetica-Bold').fillColor('#000000').text('Información del Cliente');
         doc.moveDown(0.5);
@@ -42,6 +62,7 @@ export class SelectorExportService {
           .text(`Session ID: ${session.sessionId}`);
         doc.moveDown(1.5);
 
+        console.log('[PDF Export] Writing recommendation');
         // Recommendation
         doc.fontSize(14).font('Helvetica-Bold').text('Herramienta Recomendada');
         doc.moveDown(0.5);
@@ -51,6 +72,7 @@ export class SelectorExportService {
           .text(`Confianza: ${result.confidence} (${result.confidencePercentage.toFixed(1)}%)`);
         doc.moveDown(2);
 
+        console.log('[PDF Export] Writing visual chart');
         // Visual Bar Chart
         doc.fontSize(14).font('Helvetica-Bold').text('Comparación Visual de Scores');
         doc.moveDown(1);

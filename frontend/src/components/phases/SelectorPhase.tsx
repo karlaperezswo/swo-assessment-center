@@ -45,6 +45,9 @@ interface CalculationResult {
 }
 
 export function SelectorPhase() {
+  // API URL from environment variable, fallback to localhost for development
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+  
   const [clientName, setClientName] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
@@ -90,7 +93,7 @@ export function SelectorPhase() {
           completed: false
         };
 
-        const response = await fetch('http://localhost:4000/api/selector/session/save', {
+        const response = await fetch(`${API_URL}/api/selector/session/save`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ session })
@@ -122,7 +125,7 @@ export function SelectorPhase() {
 
   const loadQuestions = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/selector/questions');
+      const response = await fetch(`${API_URL}/api/selector/questions`);
       const data = await response.json();
       if (data.success) {
         setCategories(data.data.categories);
@@ -138,7 +141,7 @@ export function SelectorPhase() {
     
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/api/selector/session', {
+      const response = await fetch(`${API_URL}/api/selector/session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clientName })
@@ -159,7 +162,7 @@ export function SelectorPhase() {
   const loadAllHistory = async () => {
     setHistoryLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/api/selector/sessions?limit=5`);
+      const response = await fetch(`${API_URL}/api/selector/sessions?limit=5`);
       const data = await response.json();
       if (data.success) {
         setSessionHistory(data.data || []);
@@ -175,7 +178,7 @@ export function SelectorPhase() {
   const handleViewResults = async (session: any) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:4000/api/selector/session/${encodeURIComponent(session.clientName)}/${session.sessionId}`);
+      const response = await fetch(`${API_URL}/api/selector/session/${encodeURIComponent(session.clientName)}/${session.sessionId}`);
       const data = await response.json();
       
       if (data.success && data.data) {
@@ -183,7 +186,7 @@ export function SelectorPhase() {
         setViewingSession(data.data);
         
         // Calculate results
-        const calcResponse = await fetch(`http://localhost:4000/api/selector/session/${session.sessionId}/calculate`, {
+        const calcResponse = await fetch(`${API_URL}/api/selector/session/${session.sessionId}/calculate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -230,7 +233,7 @@ export function SelectorPhase() {
         completed: true
       };
 
-      const response = await fetch('http://localhost:4000/api/selector/export/pdf', {
+      const response = await fetch(`${API_URL}/api/selector/export/pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session, result })
@@ -272,7 +275,7 @@ export function SelectorPhase() {
         completed: true
       };
 
-      const response = await fetch('http://localhost:4000/api/selector/export/csv', {
+      const response = await fetch(`${API_URL}/api/selector/export/csv`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session, result })
@@ -361,7 +364,7 @@ export function SelectorPhase() {
     // All questions answered, proceed with calculation
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/api/selector/session/${sessionId}/calculate`, {
+      const response = await fetch(`${API_URL}/api/selector/session/${sessionId}/calculate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Loader2, CheckCircle2, CloudOff, History, Calendar, Clock, FileDown, Lightbulb, ArrowLeft } from 'lucide-react';
+import { AlertCircle, Loader2, CheckCircle2, FileDown, Lightbulb, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -55,73 +55,12 @@ export function SelectorPhase() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [showValidation, setShowValidation] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [sessionHistory, setSessionHistory] = useState<any[]>([]);
   const [exportLoading, setExportLoading] = useState<'pdf' | 'csv' | null>(null);
-  const [viewMode, setViewMode] = useState<'create' | 'view-results'>('create');
-  const [viewingSession, setViewingSession] = useState<any>(null);
   const questionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     loadQuestions();
-    loadAllHistory(); // Load history on mount
   }, []);
-
-  // Auto-save effect: saves session 500ms after last answer change
-  useEffect(() => {
-    if (!sessionId || answers.length === 0) return;
-
-    // Clear previous timeout
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-
-    // Set saving status immediately
-    setSaveStatus('saving');
-
-    // Debounce: wait 500ms before saving
-    saveTimeoutRef.current = setTimeout(async () => {
-      try {
-        const session = {
-          sessionId,
-          clientName,
-          answers,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          completed: false
-        };
-
-        const response = await fetch(`${API_URL}/api/selector/session/save`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ session })
-        });
-
-        const data = await response.json();
-        
-        if (data.success) {
-          setSaveStatus('saved');
-          // Reset to idle after 2 seconds
-          setTimeout(() => setSaveStatus('idle'), 2000);
-        } else {
-          setSaveStatus('error');
-          console.error('Save failed:', data.error);
-        }
-      } catch (error) {
-        setSaveStatus('error');
-        console.error('Error auto-saving session:', error);
-      }
-    }, 500);
-
-    // Cleanup timeout on unmount
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, [answers, sessionId, clientName]);
 
   const loadQuestions = async () => {
     try {
@@ -157,66 +96,6 @@ export function SelectorPhase() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const loadAllHistory = async () => {
-    setHistoryLoading(true);
-    try {
-      const response = await fetch(`${API_URL}/api/selector/sessions?limit=5`);
-      const data = await response.json();
-      if (data.success) {
-        setSessionHistory(data.data || []);
-      }
-    } catch (error) {
-      console.error('Error loading all history:', error);
-      // Don't show error toast on initial load
-    } finally {
-      setHistoryLoading(false);
-    }
-  };
-
-  const handleViewResults = async (session: any) => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${API_URL}/api/selector/session/${encodeURIComponent(session.clientName)}/${session.sessionId}`);
-      const data = await response.json();
-      
-      if (data.success && data.data) {
-        // Load session data
-        setViewingSession(data.data);
-        
-        // Calculate results
-        const calcResponse = await fetch(`${API_URL}/api/selector/session/${session.sessionId}/calculate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session: data.data
-          })
-        });
-        const calcData = await calcResponse.json();
-        
-        if (calcData.success) {
-          setResult(calcData.data);
-          setViewMode('view-results');
-        }
-      }
-    } catch (error) {
-      console.error('Error loading session results:', error);
-      toast.error('Error al cargar los resultados');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBackToHome = () => {
-    setViewMode('create');
-    setViewingSession(null);
-    setResult(null);
-    setSessionId('');
-    setAnswers([]);
-    setShowValidation(false);
-    setClientName('');
-    loadAllHistory(); // Refresh history to show newly completed assessment
   };
 
   const handleExportPDF = async () => {
@@ -427,73 +306,6 @@ export function SelectorPhase() {
             </Button>
           </CardContent>
         </Card>
-
-        {/* History Panel - Always visible */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <History className="h-5 w-5" />
-              Assessments Recientes
-            </CardTitle>
-            <CardDescription>
-              Últimos 5 assessments realizados (todos los clientes)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {historyLoading ? (
-              <div className="text-center py-8">
-                <Loader2 className="h-8 w-8 mx-auto animate-spin text-gray-400" />
-                <p className="text-sm text-gray-500 mt-2">Cargando historial...</p>
-              </div>
-            ) : sessionHistory.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>No hay assessments previos</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {sessionHistory.map((session) => (
-                  <div 
-                    key={session.sessionId} 
-                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="font-semibold text-gray-900">{session.clientName}</span>
-                          <Badge variant={session.completed ? 'default' : 'secondary'}>
-                            {session.completed ? 'Completado' : 'En progreso'}
-                          </Badge>
-                          <span className="text-sm text-gray-600">
-                            {session.answers?.length || 0} / 28 preguntas
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>{new Date(session.createdAt).toLocaleDateString('es-ES')}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            <span>{new Date(session.updatedAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Button 
-                        size="sm" 
-                        onClick={() => handleViewResults(session)}
-                        disabled={loading || (session.answers?.length !== 28 && !session.completed)}
-                      >
-                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        Ver Resultados
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     );
   }
@@ -508,9 +320,6 @@ export function SelectorPhase() {
       isWinner: tool.rank === 1
     }));
 
-    const isViewOnly = viewMode === 'view-results';
-    const displayClientName = isViewOnly ? viewingSession?.clientName : clientName;
-
     return (
       <div className="container mx-auto p-6 space-y-6">
         <Card>
@@ -518,14 +327,8 @@ export function SelectorPhase() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Resultado del Assessment</CardTitle>
-                <CardDescription>Cliente: {displayClientName}</CardDescription>
+                <CardDescription>Cliente: {clientName}</CardDescription>
               </div>
-              {isViewOnly && (
-                <Button variant="outline" onClick={handleBackToHome}>
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Volver
-                </Button>
-              )}
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -667,47 +470,36 @@ export function SelectorPhase() {
               </div>
             </div>
 
-            {/* Export Buttons - Only show for completed assessments, not view-only */}
-            {!isViewOnly && (
-              <div className="border-t pt-6">
-                <h4 className="font-semibold mb-4">Exportar Resultados</h4>
-                <div className="flex gap-3">
-                  <Button 
-                    variant="outline" 
-                    onClick={handleExportPDF}
-                    disabled={exportLoading !== null}
-                  >
-                    {exportLoading === 'pdf' ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <FileDown className="mr-2 h-4 w-4" />
-                    )}
-                    Exportar PDF
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleExportCSV}
-                    disabled={exportLoading !== null}
-                  >
-                    {exportLoading === 'csv' ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <FileDown className="mr-2 h-4 w-4" />
-                    )}
-                    Exportar CSV
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {!isViewOnly && (
-              <div className="border-t pt-6">
-                <Button variant="outline" onClick={handleBackToHome}>
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Volver
+            {/* Export Buttons */}
+            <div className="border-t pt-6">
+              <h4 className="font-semibold mb-4">Exportar Resultados</h4>
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={handleExportPDF}
+                  disabled={exportLoading !== null}
+                >
+                  {exportLoading === 'pdf' ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileDown className="mr-2 h-4 w-4" />
+                  )}
+                  Exportar PDF
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleExportCSV}
+                  disabled={exportLoading !== null}
+                >
+                  {exportLoading === 'csv' ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileDown className="mr-2 h-4 w-4" />
+                  )}
+                  Exportar CSV
                 </Button>
               </div>
-            )}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -732,25 +524,6 @@ export function SelectorPhase() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              {/* Save status indicator */}
-              {saveStatus === 'saving' && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Guardando...</span>
-                </div>
-              )}
-              {saveStatus === 'saved' && (
-                <div className="flex items-center gap-2 text-sm text-green-600">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span>Guardado</span>
-                </div>
-              )}
-              {saveStatus === 'error' && (
-                <div className="flex items-center gap-2 text-sm text-red-600">
-                  <CloudOff className="h-4 w-4" />
-                  <span>Error al guardar</span>
-                </div>
-              )}
               <Badge variant={answers.length === totalQuestions ? 'default' : 'secondary'} className="text-base px-3 py-1">
                 {answers.length} / {totalQuestions} respondidas
               </Badge>

@@ -6,6 +6,8 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 console.log('[ENV] Environment variables loaded');
 console.log('[ENV] BEDROCK_MODEL_ID:', process.env.BEDROCK_MODEL_ID);
 console.log('[ENV] BEDROCK_TIMEOUT_MS:', process.env.BEDROCK_TIMEOUT_MS);
+import { reportRouter } from './routes/reportRoutes';
+import { selectorRouter } from './routes/selectorRoutes';
 
 import express from 'express';
 import cors from 'cors';
@@ -26,6 +28,7 @@ app.use('/downloads', express.static(path.join(__dirname, '../generated')));
 // Routes
 app.use('/api/report', reportRouter);
 app.use('/api/opportunities', opportunityRouter);
+app.use('/api/selector', selectorRouter);
 
 // Health check
 app.get('/health', (req, res) => {

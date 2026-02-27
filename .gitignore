@@ -47,3 +47,15 @@ coverage/
 # Misc
 *.tsbuildinfo
 .eslintcache
+
+# Archivos de documentación local
+BIENVENIDA.txt
+EMPIEZA-AQUI.txt
+GUIA-VISUAL.html
+INICIAR-PROYECTO.bat
+INSTRUCCIONES-RAPIDAS.txt
+LEEME.md
+RESUMEN-ARCHIVOS.md
+detener-servidores.bat
+verificar-sistema.bat
+base_docs_selector/

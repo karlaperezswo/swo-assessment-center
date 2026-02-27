@@ -8,6 +8,7 @@ import { BriefingsWorkshops } from '@/components/assess/BriefingsWorkshops';
 import { ImmersionDay } from '@/components/assess/ImmersionDay';
 import { MigrationWaves } from '@/components/migrate/MigrationWaves';
 import { OpportunityDashboard } from '@/components/opportunities/OpportunityDashboard';
+import { SelectorPhase } from '@/components/phases/SelectorPhase';
 import {
   ExcelData, UploadSummary, ClientFormData, CostBreakdown,
   PhaseStatus, BriefingSession, ImmersionDayPlan, MigrationWave,
@@ -59,6 +60,7 @@ export function AssessPhase({
         { value: 'wave-planning', label: 'Planificación de Olas', icon: <Waves className="h-4 w-4" /> },
         { value: 'briefings-workshops', label: 'Briefings y Talleres', icon: <Presentation className="h-4 w-4" /> },
         { value: 'immersion-day', label: 'Día de Inmersión', icon: <GraduationCap className="h-4 w-4" /> },
+        { value: 'selector', label: 'Selector', icon: <Target className="h-4 w-4" /> },
       ],
     },
   ];
@@ -117,6 +119,9 @@ export function AssessPhase({
             plans={immersionDays}
             onPlansChange={onImmersionDaysChange}
           />
+        )}
+        {activeTab === 'selector' && (
+          <SelectorPhase />
         )}
       </SubTabLayout>
 

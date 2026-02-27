@@ -7,6 +7,9 @@ import { opportunityRouter } from './routes/opportunityRoutes';
 
 const app = express();
 
+// Disable automatic charset for binary responses
+app.set('etag', false);
+
 // Configure CORS to allow all origins and methods
 const corsOptions = {
   origin: '*',
@@ -63,5 +66,53 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   });
 });
 
-// Export handler for Lambda
-export const handler = serverless(app);
+// Export handler for Lambda with binary support
+const serverlessHandler = serverless(app, {
+  binary: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+});
+
+interface LambdaResponse {
+  statusCode: number;
+  headers?: Record<string, string>;
+  body: string;
+  isBase64Encoded?: boolean;
+}
+
+export const handler = async (event: any, context: any): Promise<LambdaResponse> => {
+  console.log('[Lambda Handler] Processing request:', event.path);
+  
+  const response = await serverlessHandler(event, context) as LambdaResponse;
+  
+  // List of binary content types
+  const binaryTypes = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  
+  const contentType = response.headers?.['content-type'] || response.headers?.['Content-Type'] || '';
+  const isBinary = binaryTypes.some(type => contentType.includes(type));
+  
+  console.log('[Lambda Handler] Response content-type:', contentType);
+  console.log('[Lambda Handler] Is binary:', isBinary);
+  console.log('[Lambda Handler] Body type:', typeof response.body);
+  console.log('[Lambda Handler] Body length:', response.body?.length);
+  console.log('[Lambda Handler] isBase64Encoded from serverless-http:', response.isBase64Encoded);
+  
+  // serverless-http with binary option already converts Buffer to Base64
+  // We just need to ensure isBase64Encoded flag is set
+  if (isBinary && response.body && !response.isBase64Encoded) {
+    // Only convert if serverless-http didn't already do it
+    const bodyBuffer = Buffer.isBuffer(response.body) 
+      ? response.body 
+      : Buffer.from(response.body, 'binary');
+    
+    response.body = bodyBuffer.toString('base64');
+    response.isBase64Encoded = true;
+    
+    console.log('[Lambda Handler] Converted to Base64, length:', response.body.length);
+  } else if (isBinary && response.isBase64Encoded) {
+    console.log('[Lambda Handler] Already Base64 encoded by serverless-http');
+  }
+  
+  return response;
+};

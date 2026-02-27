@@ -7,6 +7,9 @@ import { opportunityRouter } from './routes/opportunityRoutes';
 
 const app = express();
 
+// Disable automatic charset for binary responses
+app.set('etag', false);
+
 // Configure CORS to allow all origins and methods
 const corsOptions = {
   origin: '*',

@@ -95,11 +95,13 @@ export const handler = async (event: any, context: any): Promise<LambdaResponse>
   console.log('[Lambda Handler] Response content-type:', contentType);
   console.log('[Lambda Handler] Is binary:', isBinary);
   console.log('[Lambda Handler] Body type:', typeof response.body);
-  console.log('[Lambda Handler] Body length before conversion:', response.body?.length);
+  console.log('[Lambda Handler] Body length:', response.body?.length);
+  console.log('[Lambda Handler] isBase64Encoded from serverless-http:', response.isBase64Encoded);
   
-  // Convert Buffer to Base64 for API Gateway if it's a binary response
-  if (isBinary && response.body) {
-    // The body is a Buffer from Express - convert to Base64
+  // serverless-http with binary option already converts Buffer to Base64
+  // We just need to ensure isBase64Encoded flag is set
+  if (isBinary && response.body && !response.isBase64Encoded) {
+    // Only convert if serverless-http didn't already do it
     const bodyBuffer = Buffer.isBuffer(response.body) 
       ? response.body 
       : Buffer.from(response.body, 'binary');
@@ -108,7 +110,8 @@ export const handler = async (event: any, context: any): Promise<LambdaResponse>
     response.isBase64Encoded = true;
     
     console.log('[Lambda Handler] Converted to Base64, length:', response.body.length);
-    console.log('[Lambda Handler] Marked as Base64 encoded');
+  } else if (isBinary && response.isBase64Encoded) {
+    console.log('[Lambda Handler] Already Base64 encoded by serverless-http');
   }
   
   return response;

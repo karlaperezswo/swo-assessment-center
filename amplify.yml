@@ -3,16 +3,18 @@ frontend:
   phases:
     preBuild:
       commands:
+        - cd frontend
         - nvm install 18
         - nvm use 18
-        - npm ci
+        - rm -rf node_modules package-lock.json
+        - npm install
     build:
       commands:
-        - npm run build --workspace=frontend
+        - npm run build
   artifacts:
     baseDirectory: frontend/dist
     files:
       - '**/*'
   cache:
     paths:
-      - node_modules/**/*
+      - frontend/node_modules/**/*

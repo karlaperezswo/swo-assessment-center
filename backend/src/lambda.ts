@@ -68,10 +68,17 @@ const serverlessHandler = serverless(app, {
   binary: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
 });
 
-export const handler = async (event: any, context: any) => {
+interface LambdaResponse {
+  statusCode: number;
+  headers?: Record<string, string>;
+  body: string;
+  isBase64Encoded?: boolean;
+}
+
+export const handler = async (event: any, context: any): Promise<LambdaResponse> => {
   console.log('[Lambda Handler] Processing request:', event.path);
   
-  const response = await serverlessHandler(event, context);
+  const response = await serverlessHandler(event, context) as LambdaResponse;
   
   // List of binary content types
   const binaryTypes = [

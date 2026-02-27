@@ -108,7 +108,7 @@ export class SelectorExportService {
         doc.moveDown(1);
 
         // Scores Table
-        doc.fontSize(14).font('Helvetica-Bold').text('Scores de Herramientas');
+        doc.fontSize(14).font('Helvetica-Bold').text('Scores de Herramientas', 50, doc.y, { width: 500, align: 'left' });
         doc.moveDown(0.5);
 
         const tableTop = doc.y;

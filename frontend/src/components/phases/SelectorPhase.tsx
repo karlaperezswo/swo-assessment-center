@@ -123,17 +123,33 @@ export function SelectorPhase() {
       console.log('[PDF Export] Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (response.ok) {
-        // Get the response as blob (handles both binary and base64)
-        const blob = await response.blob();
-        console.log('[PDF Export] Blob size:', blob.size, 'type:', blob.type);
+        // Get response as text first to check if it's base64
+        const responseText = await response.text();
+        console.log('[PDF Export] Response length:', responseText.length);
+        console.log('[PDF Export] First 20 chars:', responseText.substring(0, 20));
         
-        // Verify it's a valid PDF by checking the blob type
-        if (blob.type !== 'application/pdf' && blob.size > 0) {
-          console.warn('[PDF Export] Blob type is not application/pdf, got:', blob.type);
+        let pdfBlob;
+        
+        // Check if it's base64 (starts with JVBERi which is %PDF in base64)
+        if (responseText.startsWith('JVBER') || responseText.match(/^[A-Za-z0-9+/=]+$/)) {
+          console.log('[PDF Export] Detected Base64, decoding...');
+          // Decode base64 to binary
+          const binaryString = atob(responseText);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          pdfBlob = new Blob([bytes], { type: 'application/pdf' });
+          console.log('[PDF Export] Decoded blob size:', pdfBlob.size);
+        } else {
+          console.log('[PDF Export] Binary response, using directly');
+          pdfBlob = new Blob([responseText], { type: 'application/pdf' });
         }
         
+        console.log('[PDF Export] Final blob size:', pdfBlob.size, 'type:', pdfBlob.type);
+        
         // Create download link
-        const url = window.URL.createObjectURL(blob);
+        const url = window.URL.createObjectURL(pdfBlob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `selector-${clientName}-${sessionId}.pdf`;

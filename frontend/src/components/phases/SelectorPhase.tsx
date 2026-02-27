@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Loader2, CheckCircle2, FileDown, Lightbulb, ArrowLeft } from 'lucide-react';
+import { AlertCircle, Loader2, FileDown, Lightbulb } from 'lucide-react';
 import { toast } from 'sonner';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -279,8 +279,8 @@ export function SelectorPhase() {
     return answers.some(a => a.questionId === questionId);
   };
 
-  // Start session screen (only shown when viewMode is 'create' and no sessionId)
-  if (viewMode === 'create' && !sessionId) {
+  // Start session screen (only shown when no sessionId)
+  if (!sessionId) {
     return (
       <div className="container mx-auto p-6 space-y-6">
         <Card>

@@ -2,6 +2,8 @@ import serverless from 'serverless-http';
 import express from 'express';
 import cors from 'cors';
 import { reportRouter } from './routes/reportRoutes';
+import { selectorRouter } from './routes/selectorRoutes';
+import { opportunityRouter } from './routes/opportunityRoutes';
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Routes
 app.use('/api/report', reportRouter);
+app.use('/api/opportunities', opportunityRouter);
+app.use('/api/selector', selectorRouter);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -70,7 +70,7 @@ export class SelectorController {
    * Export assessment as PDF
    */
   static async exportPDF(req: Request, res: Response) {
-    try {
+   try {
       console.log('[SelectorController] PDF export request received');
       const { session, result } = req.body;
 
@@ -88,14 +88,12 @@ export class SelectorController {
       const pdfBuffer = await SelectorExportService.generatePDF(session, result, allQuestions);
       console.log('[SelectorController] PDF buffer generated, size:', pdfBuffer.length, 'bytes');
 
-      // Set headers explicitly
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Length', pdfBuffer.length.toString());
+      console.log('[SelectorController] PDF Buffer size:', pdfBuffer.length);
+
+      // Send Buffer directly - Lambda handler will convert to Base64
+      res.type('application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="selector-${session.clientName}-${session.sessionId}.pdf"`);
-      
-      console.log('[SelectorController] Sending PDF buffer to client');
-      res.end(pdfBuffer, 'binary');
-      console.log('[SelectorController] PDF sent successfully');
+      res.send(pdfBuffer);
     } catch (error) {
       console.error('[SelectorController] Error exporting PDF:', error);
       res.status(500).json({ success: false, error: 'Failed to export PDF' });

@@ -112,28 +112,48 @@ export function SelectorPhase() {
         completed: true
       };
 
+      console.log('[PDF Export] Sending request to:', `${API_URL}/api/selector/export/pdf`);
       const response = await fetch(`${API_URL}/api/selector/export/pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session, result })
       });
 
+      console.log('[PDF Export] Response status:', response.status);
+      console.log('[PDF Export] Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (response.ok) {
+        // Get the response as blob (handles both binary and base64)
         const blob = await response.blob();
+        console.log('[PDF Export] Blob size:', blob.size, 'type:', blob.type);
+        
+        // Verify it's a valid PDF by checking the blob type
+        if (blob.type !== 'application/pdf' && blob.size > 0) {
+          console.warn('[PDF Export] Blob type is not application/pdf, got:', blob.type);
+        }
+        
+        // Create download link
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `selector-${clientName}-${sessionId}.pdf`;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        
+        // Cleanup
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        }, 100);
+        
         toast.success('PDF descargado exitosamente');
       } else {
+        const errorText = await response.text();
+        console.error('[PDF Export] Error response:', errorText);
         toast.error('Error al generar PDF');
       }
     } catch (error) {
-      console.error('Error exporting PDF:', error);
+      console.error('[PDF Export] Exception:', error);
       toast.error('Error al exportar PDF');
     } finally {
       setExportLoading(null);
@@ -473,7 +493,7 @@ export function SelectorPhase() {
             {/* Export Buttons */}
             <div className="border-t pt-6">
               <h4 className="font-semibold mb-4">Exportar Resultados</h4>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 <Button 
                   variant="outline" 
                   onClick={handleExportPDF}
@@ -499,6 +519,26 @@ export function SelectorPhase() {
                   Exportar CSV
                 </Button>
               </div>
+            </div>
+
+            {/* New Assessment Button */}
+            <div className="border-t pt-6">
+              <h4 className="font-semibold mb-4">¿Quieres hacer otro assessment?</h4>
+              <Button 
+                variant="default"
+                onClick={() => {
+                  // Reset all state to start a new assessment
+                  setSessionId('');
+                  setClientName('');
+                  setAnswers([]);
+                  setResult(null);
+                  setShowValidation(false);
+                  toast.success('Listo para un nuevo assessment');
+                }}
+                className="w-full"
+              >
+                Nuevo Cuestionario
+              </Button>
             </div>
           </CardContent>
         </Card>

@@ -7,6 +7,9 @@ import { opportunityRouter } from './routes/opportunityRoutes';
 
 const app = express();
 
+// Disable automatic charset for binary responses
+app.set('etag', false);
+
 // Configure CORS to allow all origins and methods
 const corsOptions = {
   origin: '*',
@@ -91,14 +94,24 @@ export const handler = async (event: any, context: any): Promise<LambdaResponse>
   
   console.log('[Lambda Handler] Response content-type:', contentType);
   console.log('[Lambda Handler] Is binary:', isBinary);
-  console.log('[Lambda Handler] Already Base64:', response.isBase64Encoded);
+  console.log('[Lambda Handler] Body type:', typeof response.body);
+  console.log('[Lambda Handler] Body length:', response.body?.length);
+  console.log('[Lambda Handler] isBase64Encoded from serverless-http:', response.isBase64Encoded);
   
-  // Force Base64 encoding for binary responses if not already encoded
+  // serverless-http with binary option already converts Buffer to Base64
+  // We just need to ensure isBase64Encoded flag is set
   if (isBinary && response.body && !response.isBase64Encoded) {
-    console.log('[Lambda Handler] Converting to Base64. Original size:', response.body.length);
-    response.body = Buffer.from(response.body, 'binary').toString('base64');
+    // Only convert if serverless-http didn't already do it
+    const bodyBuffer = Buffer.isBuffer(response.body) 
+      ? response.body 
+      : Buffer.from(response.body, 'binary');
+    
+    response.body = bodyBuffer.toString('base64');
     response.isBase64Encoded = true;
-    console.log('[Lambda Handler] Base64 size:', response.body.length);
+    
+    console.log('[Lambda Handler] Converted to Base64, length:', response.body.length);
+  } else if (isBinary && response.isBase64Encoded) {
+    console.log('[Lambda Handler] Already Base64 encoded by serverless-http');
   }
   
   return response;

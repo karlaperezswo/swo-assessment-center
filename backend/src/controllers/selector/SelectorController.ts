@@ -71,21 +71,31 @@ export class SelectorController {
    */
   static async exportPDF(req: Request, res: Response) {
     try {
+      console.log('[SelectorController] PDF export request received');
       const { session, result } = req.body;
 
       if (!session || !result) {
+        console.log('[SelectorController] Missing session or result data');
         return res.status(400).json({ success: false, error: 'session and result data are required' });
       }
 
+      console.log('[SelectorController] Loading questions for PDF generation');
       // Load questions for context
       const questionsData = await SelectorConfigService.loadQuestions();
       const allQuestions = questionsData.categories.flatMap(cat => cat.questions);
 
+      console.log('[SelectorController] Generating PDF buffer');
       const pdfBuffer = await SelectorExportService.generatePDF(session, result, allQuestions);
+      console.log('[SelectorController] PDF buffer generated, size:', pdfBuffer.length, 'bytes');
 
+      // Set headers explicitly
       res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Length', pdfBuffer.length.toString());
       res.setHeader('Content-Disposition', `attachment; filename="selector-${session.clientName}-${session.sessionId}.pdf"`);
-      res.send(pdfBuffer);
+      
+      console.log('[SelectorController] Sending PDF buffer to client');
+      res.end(pdfBuffer, 'binary');
+      console.log('[SelectorController] PDF sent successfully');
     } catch (error) {
       console.error('[SelectorController] Error exporting PDF:', error);
       res.status(500).json({ success: false, error: 'Failed to export PDF' });

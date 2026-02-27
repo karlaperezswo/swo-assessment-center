@@ -89,10 +89,12 @@ export class SelectorController {
       const base64Pdf = pdfBuffer.toString('base64');
       console.log('[SelectorController] Base64 size:', base64Pdf.length);
 
-      // CRITICAL: Set Content-Type WITHOUT charset to prevent serverless-http from treating it as text
-      res.setHeader('Content-Type', 'application/pdf');
+      // CRITICAL: Disable charset by setting type directly
+      res.type('application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="selector-${session.clientName}-${session.sessionId}.pdf"`);
-      res.send(base64Pdf);
+      
+      // Send as Buffer to prevent Express from adding charset
+      res.send(Buffer.from(base64Pdf, 'utf-8'));
     } catch (error) {
       console.error('[SelectorController] Error exporting PDF:', error);
       res.status(500).json({ success: false, error: 'Failed to export PDF' });

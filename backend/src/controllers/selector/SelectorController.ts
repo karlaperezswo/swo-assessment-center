@@ -70,7 +70,7 @@ export class SelectorController {
    * Export assessment as PDF
    */
   static async exportPDF(req: Request, res: Response) {
-    try {
+   try {
       console.log('[SelectorController] PDF export request received');
       const { session, result } = req.body;
 

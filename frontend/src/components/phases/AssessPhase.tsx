@@ -7,6 +7,7 @@ import { MigrationReadiness } from '@/components/assess/MigrationReadiness';
 import { BriefingsWorkshops } from '@/components/assess/BriefingsWorkshops';
 import { ImmersionDay } from '@/components/assess/ImmersionDay';
 import { MigrationWaves } from '@/components/migrate/MigrationWaves';
+import { OpportunityDashboard } from '@/components/opportunities/OpportunityDashboard';
 import { SelectorPhase } from '@/components/phases/SelectorPhase';
 import {
   ExcelData, UploadSummary, ClientFormData, CostBreakdown,
@@ -29,6 +30,12 @@ interface AssessPhaseProps {
   onImmersionDaysChange: (plans: ImmersionDayPlan[]) => void;
   migrationWaves: MigrationWave[];
   onMigrationWavesChange: (waves: MigrationWave[]) => void;
+  opportunitySessionId: string | null;
+  onOpportunitySessionIdChange: (sessionId: string | null) => void;
+  mraFile: File | null;
+  onMRAFileChange: (file: File | null) => void;
+  questionnaireFile: File | null;
+  onQuestionnaireFileChange: (file: File | null) => void;
 }
 
 export function AssessPhase({
@@ -37,6 +44,9 @@ export function AssessPhase({
   briefingSessions, onBriefingSessionsChange,
   immersionDays, onImmersionDaysChange,
   migrationWaves, onMigrationWavesChange,
+  opportunitySessionId, onOpportunitySessionIdChange,
+  mraFile, onMRAFileChange,
+  questionnaireFile, onQuestionnaireFileChange,
 }: AssessPhaseProps) {
   const [activeTab, setActiveTab] = useState('rapid-discovery');
 
@@ -46,6 +56,7 @@ export function AssessPhase({
         { value: 'rapid-discovery', label: 'Descubrimiento Rápido', icon: <Upload className="h-4 w-4" /> },
         { value: 'tco-report', label: 'Reporte TCO', icon: <DollarSign className="h-4 w-4" /> },
         { value: 'migration-readiness', label: 'Preparación para Migración', icon: <Gauge className="h-4 w-4" /> },
+        { value: 'opportunities', label: 'Oportunidades de Venta', icon: <Target className="h-4 w-4" /> },
         { value: 'wave-planning', label: 'Planificación de Olas', icon: <Waves className="h-4 w-4" /> },
         { value: 'briefings-workshops', label: 'Briefings y Talleres', icon: <Presentation className="h-4 w-4" /> },
         { value: 'immersion-day', label: 'Día de Inmersión', icon: <GraduationCap className="h-4 w-4" /> },
@@ -65,6 +76,10 @@ export function AssessPhase({
             clientData={clientData}
             onDataLoaded={onDataLoaded}
             onFormChange={onFormChange}
+            mraFile={mraFile}
+            onMRAFileChange={onMRAFileChange}
+            questionnaireFile={questionnaireFile}
+            onQuestionnaireFileChange={onQuestionnaireFileChange}
           />
         )}
         {activeTab === 'tco-report' && (
@@ -79,6 +94,12 @@ export function AssessPhase({
             excelData={excelData}
             uploadSummary={uploadSummary}
             migrationReadiness={clientData.migrationReadiness}
+          />
+        )}
+        {activeTab === 'opportunities' && (
+          <OpportunityDashboard 
+            sessionId={opportunitySessionId}
+            onSessionIdChange={onOpportunitySessionIdChange}
           />
         )}
         {activeTab === 'wave-planning' && (

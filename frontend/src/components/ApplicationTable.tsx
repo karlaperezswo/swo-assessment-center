@@ -42,14 +42,14 @@ export function ApplicationTable({ applications }: ApplicationTableProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <AppWindow className="h-5 w-5" />
-            Applications ({filteredApplications.length})
+            Aplicaciones ({filteredApplications.length})
           </CardTitle>
           <Select value={selectedEnvironment} onValueChange={setSelectedEnvironment}>
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filter by environment" />
+              <SelectValue placeholder="Filtrar por ambiente" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Environments</SelectItem>
+              <SelectItem value="all">Todos los Ambientes</SelectItem>
               {environments.map(env => (
                 <SelectItem key={env} value={env}>
                   {env}
@@ -64,12 +64,12 @@ export function ApplicationTable({ applications }: ApplicationTableProps) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left p-2 font-medium">Application Name</th>
-                <th className="text-left p-2 font-medium">Type</th>
-                <th className="text-right p-2 font-medium">Total Connections</th>
-                <th className="text-right p-2 font-medium">Inbound</th>
-                <th className="text-right p-2 font-medium">Outbound</th>
-                <th className="text-left p-2 font-medium">Environment</th>
+                <th className="text-left p-2 font-medium">Nombre de Aplicación</th>
+                <th className="text-left p-2 font-medium">Tipo</th>
+                <th className="text-right p-2 font-medium">Conexiones Totales</th>
+                <th className="text-right p-2 font-medium">Entrantes</th>
+                <th className="text-right p-2 font-medium">Salientes</th>
+                <th className="text-left p-2 font-medium">Ambiente</th>
               </tr>
             </thead>
             <tbody>
@@ -97,7 +97,7 @@ export function ApplicationTable({ applications }: ApplicationTableProps) {
           </table>
           {filteredApplications.length === 0 && (
             <p className="text-sm text-muted-foreground mt-2 text-center py-4">
-              No applications found for the selected environment
+              No se encontraron aplicaciones para el ambiente seleccionado
             </p>
           )}
         </div>

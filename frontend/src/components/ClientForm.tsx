@@ -34,12 +34,12 @@ interface ClientFormProps {
 }
 
 const PRIORITIES: { value: ClientPriority; label: string }[] = [
-  { value: 'reduced_costs', label: 'Reduced infrastructure costs' },
-  { value: 'operational_resilience', label: 'Improve operational resilience' },
-  { value: 'business_agility', label: 'Business agility' },
-  { value: 'environment_updated', label: 'Environment always updated' },
-  { value: 'modernize_databases', label: 'Modernize Database workloads' },
-  { value: 'security_compliance', label: 'Security compliance' },
+  { value: 'reduced_costs', label: 'Reducir costos de infraestructura' },
+  { value: 'operational_resilience', label: 'Mejorar resiliencia operacional' },
+  { value: 'business_agility', label: 'Agilidad de negocio' },
+  { value: 'environment_updated', label: 'Ambiente siempre actualizado' },
+  { value: 'modernize_databases', label: 'Modernizar cargas de trabajo de bases de datos' },
+  { value: 'security_compliance', label: 'Cumplimiento de seguridad' },
 ];
 
 const VERTICALS = [
@@ -68,9 +68,9 @@ const AWS_REGIONS = [
 ] as const;
 
 const READINESS_OPTIONS = [
-  { value: 'ready', label: 'Ready to migrate' },
-  { value: 'evaluating', label: 'Evaluating' },
-  { value: 'not_ready', label: 'Not ready yet' },
+  { value: 'ready', label: 'Listo para migrar' },
+  { value: 'evaluating', label: 'Evaluando' },
+  { value: 'not_ready', label: 'Aún no está listo' },
 ] as const;
 
 export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
@@ -124,7 +124,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
                 register('clientName').onChange(e);
                 handleChange();
               }}
-              placeholder="Enter client name"
+              placeholder="Ingrese el nombre del cliente"
             />
             {errors.clientName && (
               <p className="text-sm text-red-500">{errors.clientName.message}</p>
@@ -141,7 +141,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select industry" />
+                <SelectValue placeholder="Seleccione industria" />
               </SelectTrigger>
               <SelectContent>
                 {VERTICALS.map((vertical) => (
@@ -178,7 +178,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select region" />
+                <SelectValue placeholder="Seleccione región" />
               </SelectTrigger>
               <SelectContent>
                 {AWS_REGIONS.map((region) => (
@@ -193,7 +193,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="totalServers">Total Servers in Scope</Label>
+            <Label htmlFor="totalServers">Total de Servidores en Alcance</Label>
             <Input
               id="totalServers"
               type="number"
@@ -206,7 +206,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="onPremisesCost">On-Premises Cost (USD/year)</Label>
+            <Label htmlFor="onPremisesCost">Costo On-Premises (USD/año)</Label>
             <Input
               id="onPremisesCost"
               type="number"
@@ -215,7 +215,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
                 register('onPremisesCost', { valueAsNumber: true }).onChange(e);
                 handleChange();
               }}
-              placeholder="Annual cost"
+              placeholder="Costo anual"
             />
           </div>
         </div>
@@ -229,13 +229,13 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
               register('companyDescription').onChange(e);
               handleChange();
             }}
-            placeholder="Brief description of the company and their infrastructure..."
+            placeholder="Breve descripción de la empresa y su infraestructura..."
             rows={3}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Client Priorities</Label>
+          <Label>Prioridades del Cliente</Label>
           <div className="grid grid-cols-2 gap-2">
             {PRIORITIES.map((priority) => (
               <div key={priority.value} className="flex items-center space-x-2">
@@ -267,7 +267,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select readiness status" />
+              <SelectValue placeholder="Seleccione estado de preparación" />
             </SelectTrigger>
             <SelectContent>
               {READINESS_OPTIONS.map((option) => (

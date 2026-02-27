@@ -70,7 +70,7 @@ export function ExecutiveSummary({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-4xl font-bold mb-2">{clientName}</h1>
-            <p className="text-blue-100 text-lg">AWS Migration Business Case</p>
+            <p className="text-blue-100 text-lg">Caso de Negocio de Migración a AWS</p>
           </div>
           <div className={`px-6 py-3 rounded-lg border-2 ${getReadinessColor(migrationReadiness)}`}>
             <p className="text-sm font-semibold uppercase tracking-wide">
@@ -86,8 +86,8 @@ export function ExecutiveSummary({
               <ArrowDownCircle className="h-8 w-8 text-green-300" />
               <span className="text-3xl font-bold text-green-300">{savingsPercentage}%</span>
             </div>
-            <p className="text-sm text-blue-100 mb-1">Annual Cost Reduction</p>
-            <p className="text-2xl font-bold">{formatCurrency(totalSavings)}/year</p>
+            <p className="text-sm text-blue-100 mb-1">Reducción de Costo Anual</p>
+            <p className="text-2xl font-bold">{formatCurrency(totalSavings)}/año</p>
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
@@ -95,7 +95,7 @@ export function ExecutiveSummary({
               <Target className="h-8 w-8 text-purple-300" />
               <span className="text-3xl font-bold text-purple-300">{roi}%</span>
             </div>
-            <p className="text-sm text-blue-100 mb-1">3-Year ROI</p>
+            <p className="text-sm text-blue-100 mb-1">ROI a 3 Años</p>
             <p className="text-2xl font-bold">{formatCurrency(Number(roi) * awsCost / 100)}</p>
           </div>
 
@@ -104,8 +104,8 @@ export function ExecutiveSummary({
               <Calendar className="h-8 w-8 text-yellow-300" />
               <span className="text-3xl font-bold text-yellow-300">{paybackMonths}</span>
             </div>
-            <p className="text-sm text-blue-100 mb-1">Payback Period</p>
-            <p className="text-2xl font-bold">months</p>
+            <p className="text-sm text-blue-100 mb-1">Período de Recuperación</p>
+            <p className="text-2xl font-bold">meses</p>
           </div>
         </div>
       </div>
@@ -116,7 +116,7 @@ export function ExecutiveSummary({
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
-              3-Year TCO Savings
+              Ahorro TCO a 3 Años
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -125,7 +125,7 @@ export function ExecutiveSummary({
             </div>
             <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
               <TrendingDown className="h-3 w-3" />
-              vs. On-Premises Total Cost
+              vs. Costo Total On-Premises
             </p>
           </CardContent>
         </Card>
@@ -134,7 +134,7 @@ export function ExecutiveSummary({
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
               <Zap className="h-4 w-4" />
-              Infrastructure Scale
+              Escala de Infraestructura
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -142,7 +142,7 @@ export function ExecutiveSummary({
               {totalServers}
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Servers to Migrate
+              Servidores a Migrar
             </p>
           </CardContent>
         </Card>
@@ -151,7 +151,7 @@ export function ExecutiveSummary({
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              On-Premises Annual
+              Anual On-Premises
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -159,7 +159,7 @@ export function ExecutiveSummary({
               {formatCurrency(onPremisesCost)}
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Current Infrastructure Cost
+              Costo Actual de Infraestructura
             </p>
           </CardContent>
         </Card>
@@ -168,7 +168,7 @@ export function ExecutiveSummary({
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              AWS Annual (3Y NURI)
+              AWS Anual (3A NURI)
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -176,7 +176,7 @@ export function ExecutiveSummary({
               {formatCurrency(awsCost)}
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Optimized AWS Cost
+              Costo AWS Optimizado
             </p>
           </CardContent>
         </Card>

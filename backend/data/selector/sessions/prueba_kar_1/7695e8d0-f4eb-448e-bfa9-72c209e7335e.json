@@ -1,0 +1,39 @@
+{
+  "sessionId": "7695e8d0-f4eb-448e-bfa9-72c209e7335e",
+  "clientName": "Prueba Kar 1",
+  "answers": [
+    {
+      "questionId": "q1",
+      "answer": "No",
+      "timestamp": "2026-02-26T22:03:45.070Z"
+    },
+    {
+      "questionId": "q2",
+      "answer": "100–500",
+      "timestamp": "2026-02-26T22:03:46.437Z"
+    },
+    {
+      "questionId": "q3",
+      "answer": "Hyper-V",
+      "timestamp": "2026-02-26T22:03:47.476Z"
+    },
+    {
+      "questionId": "q4",
+      "answer": "No",
+      "timestamp": "2026-02-26T22:03:48.516Z"
+    },
+    {
+      "questionId": "q5",
+      "answer": "No",
+      "timestamp": "2026-02-26T22:03:49.260Z"
+    },
+    {
+      "questionId": "q6",
+      "answer": "No",
+      "timestamp": "2026-02-26T22:03:49.924Z"
+    }
+  ],
+  "createdAt": "2026-02-26T22:03:50.428Z",
+  "updatedAt": "2026-02-26T22:03:50.428Z",
+  "completed": false
+}

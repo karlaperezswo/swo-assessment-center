@@ -1,0 +1,149 @@
+{
+  "sessionId": "3c454f36-27a9-42a3-9957-26de5034153c",
+  "clientName": "Example",
+  "answers": [
+    {
+      "questionId": "q1",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:30.223Z"
+    },
+    {
+      "questionId": "q2",
+      "answer": "100–500",
+      "timestamp": "2026-02-25T20:14:31.477Z"
+    },
+    {
+      "questionId": "q3",
+      "answer": "Hyper-V",
+      "timestamp": "2026-02-25T20:14:32.295Z"
+    },
+    {
+      "questionId": "q4",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:33.405Z"
+    },
+    {
+      "questionId": "q5",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:34.173Z"
+    },
+    {
+      "questionId": "q6",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:34.895Z"
+    },
+    {
+      "questionId": "q7",
+      "answer": "Agent-based permitido",
+      "timestamp": "2026-02-25T20:14:35.684Z"
+    },
+    {
+      "questionId": "q8",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:36.421Z"
+    },
+    {
+      "questionId": "q9",
+      "answer": "Windows",
+      "timestamp": "2026-02-25T20:14:37.148Z"
+    },
+    {
+      "questionId": "q10",
+      "answer": "Base de datos críticas",
+      "timestamp": "2026-02-25T20:14:37.964Z"
+    },
+    {
+      "questionId": "q11",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:38.661Z"
+    },
+    {
+      "questionId": "q12",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:39.356Z"
+    },
+    {
+      "questionId": "q13",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:40.052Z"
+    },
+    {
+      "questionId": "q14",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:40.747Z"
+    },
+    {
+      "questionId": "q15",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:41.419Z"
+    },
+    {
+      "questionId": "q16",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:42.187Z"
+    },
+    {
+      "questionId": "q17",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:42.891Z"
+    },
+    {
+      "questionId": "q18",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:43.651Z"
+    },
+    {
+      "questionId": "q19",
+      "answer": "TCO/ROI económico",
+      "timestamp": "2026-02-25T20:14:44.355Z"
+    },
+    {
+      "questionId": "q20",
+      "answer": "Consumo real (CPU/RAM/IOPS)",
+      "timestamp": "2026-02-25T20:14:45.058Z"
+    },
+    {
+      "questionId": "q21",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:45.770Z"
+    },
+    {
+      "questionId": "q22",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:46.498Z"
+    },
+    {
+      "questionId": "q23",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:47.227Z"
+    },
+    {
+      "questionId": "q24",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:47.914Z"
+    },
+    {
+      "questionId": "q25",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:48.611Z"
+    },
+    {
+      "questionId": "q26",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:49.274Z"
+    },
+    {
+      "questionId": "q27",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:50.026Z"
+    },
+    {
+      "questionId": "q28",
+      "answer": "No",
+      "timestamp": "2026-02-25T20:14:50.769Z"
+    }
+  ],
+  "createdAt": "2026-02-25T20:14:51.274Z",
+  "updatedAt": "2026-02-25T20:14:51.274Z",
+  "completed": false
+}

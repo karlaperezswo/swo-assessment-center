@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { PdfParserService } from '../services/PdfParserService';
 import { ExcelService } from '../services/excelService';
 import { AnonymizationService } from '../services/AnonymizationService';
 import { BedrockService } from '../services/BedrockService';
@@ -22,7 +21,7 @@ const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' })
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'assessment-center-files-assessment-dashboard';
 
 export class OpportunityController {
-  private pdfParser: PdfParserService;
+  private pdfParser: any; // Lazy loaded
   private excelService: ExcelService;
   private anonymizationService: AnonymizationService;
   private bedrockService: BedrockService;
@@ -33,7 +32,7 @@ export class OpportunityController {
   private questionnaireParser: QuestionnaireParserService;
 
   constructor() {
-    this.pdfParser = new PdfParserService();
+    this.pdfParser = null; // Will be loaded on demand
     this.excelService = new ExcelService();
     this.anonymizationService = new AnonymizationService();
     this.bedrockService = new BedrockService();
@@ -42,6 +41,14 @@ export class OpportunityController {
     this.exportService = new ExportService();
     this.knowledgeBaseService = new KnowledgeBaseService();
     this.questionnaireParser = new QuestionnaireParserService();
+  }
+
+  private async getPdfParser() {
+    if (!this.pdfParser) {
+      const { PdfParserService } = await import('../services/PdfParserService');
+      this.pdfParser = new PdfParserService();
+    }
+    return this.pdfParser;
   }
 
   /**
@@ -113,7 +120,8 @@ export class OpportunityController {
 
       // Step 1: Parse PDF
       console.log('[ANALYZE] Parsing PDF...');
-      const mraData = await this.pdfParser.parsePdf(mraFile.buffer);
+      const pdfParser = await this.getPdfParser();
+      const mraData = await pdfParser.parsePdf(mraFile.buffer);
       console.log(`[ANALYZE] PDF parsed: maturity level ${mraData.maturityLevel}, ${mraData.securityGaps.length} security gaps`);
 
       // Step 2: Parse MPA (Excel or JSON)

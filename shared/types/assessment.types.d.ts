@@ -1,6 +1,8 @@
+export type DataSourceType = 'AWS_MPA' | 'CONCIERTO' | 'MATILDA' | 'UNKNOWN';
 export interface Server {
     serverId: string;
     hostname: string;
+    ipAddress?: string;
     isPhysical: boolean;
     osName: string;
     osVersion: string;
@@ -15,6 +17,9 @@ export interface Server {
     totalDiskSize: number;
     storageUtilization: number;
     uptime: number;
+    environment?: string;
+    vmFunctionality?: string;
+    sqlEdition?: string;
 }
 export interface Database {
     databaseId: string;
@@ -50,8 +55,44 @@ export interface ServerCommunication {
     targetServerId: string;
     sourceHostname: string;
     targetHostname: string;
-    port: number;
+    sourceIpAddress?: string;
+    targetIpAddress?: string;
+    sourcePort?: number;
+    destinationPort: number;
     protocol: string;
+    sourceEnvironment?: string;
+    targetEnvironment?: string;
+    connectionType?: 'Upstream' | 'Downstream' | 'Bidirectional';
+    category?: string;
+    sourceService?: string;
+    sourceAppName?: string;
+    targetAppName?: string;
+}
+export interface SecurityGroupRule {
+    ruleId: string;
+    direction: 'inbound' | 'outbound';
+    protocol: string;
+    port?: number;
+    portRange?: {
+        from: number;
+        to: number;
+    };
+    source?: string;
+    destination?: string;
+    description: string;
+    relatedApplications: string[];
+    relatedServers: string[];
+}
+export interface SecurityGroup {
+    groupId: string;
+    groupName: string;
+    description: string;
+    vpcId?: string;
+    inboundRules: SecurityGroupRule[];
+    outboundRules: SecurityGroupRule[];
+    associatedServers: string[];
+    associatedApplications: string[];
+    environment?: string;
 }
 export interface EC2Recommendation {
     hostname: string;
@@ -102,11 +143,13 @@ export type MigrationReadiness = 'ready' | 'evaluating' | 'not_ready';
 export type IndustryVertical = 'Energy' | 'Insurance' | 'Healthcare' | 'Financial' | 'Retail' | 'Manufacturing' | 'Technology' | 'Other';
 export type AWSRegion = 'us-east-1' | 'us-east-2' | 'us-west-1' | 'us-west-2' | 'eu-west-1' | 'eu-west-2' | 'eu-central-1' | 'ap-southeast-1' | 'ap-southeast-2' | 'ap-northeast-1' | 'sa-east-1';
 export interface ExcelData {
+    dataSource: DataSourceType;
     servers: Server[];
     databases: Database[];
     applications: Application[];
     serverApplicationMappings: ServerApplicationMapping[];
     serverCommunications: ServerCommunication[];
+    securityGroups?: SecurityGroup[];
 }
 export interface ReportInput {
     clientName: string;
@@ -151,14 +194,18 @@ export interface ApiResponse<T> {
     data?: T;
     error?: string;
 }
+export interface UploadSummary {
+    serverCount: number;
+    databaseCount: number;
+    applicationCount: number;
+    totalStorageGB: number;
+    communicationCount?: number;
+    securityGroupCount?: number;
+    dataSource: DataSourceType;
+}
 export interface UploadResponse {
     excelData: ExcelData;
-    summary: {
-        serverCount: number;
-        databaseCount: number;
-        applicationCount: number;
-        totalStorageGB: number;
-    };
+    summary: UploadSummary;
 }
 export interface GenerateReportResponse {
     downloadUrl: string;

@@ -521,23 +521,21 @@ export function SelectorPhase() {
               </div>
             </div>
 
-            {/* New Assessment Button */}
+            {/* Close Button */}
             <div className="border-t pt-6">
-              <h4 className="font-semibold mb-4">¿Quieres hacer otro assessment?</h4>
               <Button 
-                variant="default"
+                variant="outline"
                 onClick={() => {
-                  // Reset all state to start a new assessment
+                  // Reset all state to return to start
                   setSessionId('');
                   setClientName('');
                   setAnswers([]);
                   setResult(null);
                   setShowValidation(false);
-                  toast.success('Listo para un nuevo assessment');
                 }}
                 className="w-full"
               >
-                Nuevo Cuestionario
+                Cerrar
               </Button>
             </div>
           </CardContent>

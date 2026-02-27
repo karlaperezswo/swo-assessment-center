@@ -85,16 +85,10 @@ export class SelectorController {
 
       console.log('[SelectorController] PDF Buffer size:', pdfBuffer.length);
 
-      // Convert to Base64 for Lambda/API Gateway compatibility
-      const base64Pdf = pdfBuffer.toString('base64');
-      console.log('[SelectorController] Base64 size:', base64Pdf.length);
-
-      // CRITICAL: Disable charset by setting type directly
+      // Send Buffer directly - Lambda handler will convert to Base64
       res.type('application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="selector-${session.clientName}-${session.sessionId}.pdf"`);
-      
-      // Send as Buffer to prevent Express from adding charset
-      res.send(Buffer.from(base64Pdf, 'utf-8'));
+      res.send(pdfBuffer);
     } catch (error) {
       console.error('[SelectorController] Error exporting PDF:', error);
       res.status(500).json({ success: false, error: 'Failed to export PDF' });

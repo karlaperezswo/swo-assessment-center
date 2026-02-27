@@ -94,12 +94,20 @@ export const handler = async (event: any, context: any): Promise<LambdaResponse>
   
   console.log('[Lambda Handler] Response content-type:', contentType);
   console.log('[Lambda Handler] Is binary:', isBinary);
-  console.log('[Lambda Handler] Body length:', response.body?.length);
+  console.log('[Lambda Handler] Body type:', typeof response.body);
+  console.log('[Lambda Handler] Body length before conversion:', response.body?.length);
   
-  // Mark as Base64 encoded for API Gateway if it's a binary response
+  // Convert Buffer to Base64 for API Gateway if it's a binary response
   if (isBinary && response.body) {
-    // The body is already Base64 from the controller
+    // The body is a Buffer from Express - convert to Base64
+    const bodyBuffer = Buffer.isBuffer(response.body) 
+      ? response.body 
+      : Buffer.from(response.body, 'binary');
+    
+    response.body = bodyBuffer.toString('base64');
     response.isBase64Encoded = true;
+    
+    console.log('[Lambda Handler] Converted to Base64, length:', response.body.length);
     console.log('[Lambda Handler] Marked as Base64 encoded');
   }
   

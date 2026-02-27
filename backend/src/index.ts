@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { reportRouter } from './routes/reportRoutes';
 import { dependencyRouter } from './routes/dependencyRoutes';
+import { selectorRouter } from './routes/selectorRoutes';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use('/downloads', express.static(path.join(__dirname, '../generated')));
 // Routes
 app.use('/api/report', reportRouter);
 app.use('/api/dependencies', dependencyRouter);
+app.use('/api/selector', selectorRouter);
 
 // Health check
 app.get('/health', (req, res) => {

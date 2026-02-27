@@ -1,0 +1,49 @@
+{
+  "sessionId": "62194fba-762e-44c1-9143-10dbcb7d9451",
+  "clientName": "Prueba Kar 1",
+  "answers": [
+    {
+      "questionId": "q1",
+      "answer": "No",
+      "timestamp": "2026-02-26T22:07:10.026Z"
+    },
+    {
+      "questionId": "q2",
+      "answer": "100–500",
+      "timestamp": "2026-02-26T22:07:11.032Z"
+    },
+    {
+      "questionId": "q3",
+      "answer": "Hyper-V",
+      "timestamp": "2026-02-26T22:07:12.248Z"
+    },
+    {
+      "questionId": "q4",
+      "answer": "No",
+      "timestamp": "2026-02-26T22:07:13.184Z"
+    },
+    {
+      "questionId": "q5",
+      "answer": "No",
+      "timestamp": "2026-02-26T22:07:13.984Z"
+    },
+    {
+      "questionId": "q6",
+      "answer": "No",
+      "timestamp": "2026-02-26T22:07:16.239Z"
+    },
+    {
+      "questionId": "q7",
+      "answer": "Agent-based permitido",
+      "timestamp": "2026-02-26T22:07:16.983Z"
+    },
+    {
+      "questionId": "q8",
+      "answer": "No",
+      "timestamp": "2026-02-26T22:07:17.671Z"
+    }
+  ],
+  "createdAt": "2026-02-26T22:07:18.177Z",
+  "updatedAt": "2026-02-26T22:07:18.177Z",
+  "completed": false
+}

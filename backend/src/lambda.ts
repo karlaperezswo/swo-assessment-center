@@ -63,5 +63,36 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   });
 });
 
-// Export handler for Lambda
-export const handler = serverless(app);
+// Export handler for Lambda with binary support
+const serverlessHandler = serverless(app, {
+  binary: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+});
+
+export const handler = async (event: any, context: any) => {
+  console.log('[Lambda Handler] Processing request:', event.path);
+  
+  const response = await serverlessHandler(event, context);
+  
+  // List of binary content types
+  const binaryTypes = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  
+  const contentType = response.headers?.['content-type'] || response.headers?.['Content-Type'] || '';
+  const isBinary = binaryTypes.some(type => contentType.includes(type));
+  
+  console.log('[Lambda Handler] Response content-type:', contentType);
+  console.log('[Lambda Handler] Is binary:', isBinary);
+  console.log('[Lambda Handler] Already Base64:', response.isBase64Encoded);
+  
+  // Force Base64 encoding for binary responses if not already encoded
+  if (isBinary && response.body && !response.isBase64Encoded) {
+    console.log('[Lambda Handler] Converting to Base64. Original size:', response.body.length);
+    response.body = Buffer.from(response.body, 'binary').toString('base64');
+    response.isBase64Encoded = true;
+    console.log('[Lambda Handler] Base64 size:', response.body.length);
+  }
+  
+  return response;
+};

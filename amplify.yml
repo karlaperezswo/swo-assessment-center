@@ -3,10 +3,11 @@ frontend:
   phases:
     preBuild:
       commands:
-        - cd frontend
-        - npm ci --cache .npm --prefer-offline
+        - npm ci --workspace=frontend --cache .npm --prefer-offline
+        - npm ci --workspace=backend --cache .npm --prefer-offline
     build:
       commands:
+        - cd frontend
         - npm run build
   artifacts:
     baseDirectory: frontend/dist
@@ -15,3 +16,5 @@ frontend:
   cache:
     paths:
       - frontend/node_modules/**/*
+      - backend/node_modules/**/*
+      - node_modules/**/*

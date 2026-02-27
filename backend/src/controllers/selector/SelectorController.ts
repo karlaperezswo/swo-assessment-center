@@ -70,18 +70,23 @@ export class SelectorController {
    * Export assessment as PDF
    */
   static async exportPDF(req: Request, res: Response) {
-    try {
+   try {
+      console.log('[SelectorController] PDF export request received');
       const { session, result } = req.body;
 
       if (!session || !result) {
+        console.log('[SelectorController] Missing session or result data');
         return res.status(400).json({ success: false, error: 'session and result data are required' });
       }
 
+      console.log('[SelectorController] Loading questions for PDF generation');
       // Load questions for context
       const questionsData = await SelectorConfigService.loadQuestions();
       const allQuestions = questionsData.categories.flatMap(cat => cat.questions);
 
+      console.log('[SelectorController] Generating PDF buffer');
       const pdfBuffer = await SelectorExportService.generatePDF(session, result, allQuestions);
+      console.log('[SelectorController] PDF buffer generated, size:', pdfBuffer.length, 'bytes');
 
       console.log('[SelectorController] PDF Buffer size:', pdfBuffer.length);
 

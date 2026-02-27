@@ -18,7 +18,7 @@ const archiver = require('archiver');
 // Configuración
 const CONFIG = {
   functionName: process.env.LAMBDA_FUNCTION_NAME || 'assessment-center-api',
-  bucketName: process.env.S3_BUCKET_NAME || 'assessment-center-files',
+  bucketName: process.env.S3_BUCKET_NAME || 'assessment-center-files-assessment-dashboard',
   region: process.env.AWS_REGION || 'us-east-1',
   zipFileName: 'lambda-function.zip'
 };
@@ -67,6 +67,9 @@ archive.pipe(output);
 archive.directory(path.join(backendDir, 'dist'), 'dist');
 archive.directory(path.join(backendDir, 'node_modules'), 'node_modules');
 archive.file(path.join(backendDir, 'package.json'), { name: 'package.json' });
+
+// Agregar archivos de configuración JSON (no compilados por TypeScript)
+archive.directory(path.join(backendDir, 'src/config'), 'dist/backend/src/config');
 
 archive.finalize();
 

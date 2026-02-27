@@ -6,12 +6,11 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 console.log('[ENV] Environment variables loaded');
 console.log('[ENV] BEDROCK_MODEL_ID:', process.env.BEDROCK_MODEL_ID);
 console.log('[ENV] BEDROCK_TIMEOUT_MS:', process.env.BEDROCK_TIMEOUT_MS);
-import { reportRouter } from './routes/reportRoutes';
-import { selectorRouter } from './routes/selectorRoutes';
 
 import express from 'express';
 import cors from 'cors';
 import { reportRouter } from './routes/reportRoutes';
+import { selectorRouter } from './routes/selectorRoutes';
 import { opportunityRouter } from './routes/opportunityRoutes';
 
 const app = express();

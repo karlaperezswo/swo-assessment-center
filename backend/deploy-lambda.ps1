@@ -2,10 +2,10 @@
 # Asegurate de haber configurado AWS CLI: aws configure
 
 param(
-    [string]$BucketName = "assessment-center-files",
-    [string]$FunctionName = "AssessmentCenterAPI",
+    [string]$BucketName = "assessment-center-files-assessment-dashboard",
+    [string]$FunctionName = "assessment-center-api",
     [string]$Region = "us-east-1",
-    [string]$Profile = "sandbox-swo"
+    [string]$Profile = "karla"
 )
 
 Write-Host "=====================================" -ForegroundColor Cyan

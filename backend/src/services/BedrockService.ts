@@ -537,6 +537,294 @@ Example format:
   }
 
   /**
+   * Sanitize a string value to be JSON-safe
+   * @param str - String to sanitize
+   * @returns Sanitized string
+   */
+  private sanitizeJsonString(str: string): string {
+    return str
+      // Remove control characters
+      .replace(/[\x00-\x1F\x7F]/g, '')
+      // Escape backslashes first (must be done before other escapes)
+      .replace(/\\/g, '\\\\')
+      // Escape double quotes
+      .replace(/"/g, '\\"')
+      // Escape newlines
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      // Escape tabs
+      .replace(/\t/g, '\\t');
+  }
+
+  /**
+   * Complete truncated JSON by closing open brackets and braces
+   * Also removes incomplete objects that don't have all required fields
+   * @param jsonString - Potentially incomplete JSON string
+   * @returns Completed JSON string
+   */
+  private completeJson(jsonString: string): string {
+    let completed = jsonString.trim();
+    
+    // Count open and close brackets/braces
+    let openBraces = 0;
+    let closeBraces = 0;
+    let openBrackets = 0;
+    let closeBrackets = 0;
+    let inString = false;
+    let escaped = false;
+    
+    for (let i = 0; i < completed.length; i++) {
+      const char = completed[i];
+      
+      // Track if we're inside a string
+      if (char === '"' && !escaped) {
+        inString = !inString;
+      }
+      
+      // Only count brackets/braces outside of strings
+      if (!inString) {
+        if (char === '{') openBraces++;
+        else if (char === '}') closeBraces++;
+        else if (char === '[') openBrackets++;
+        else if (char === ']') closeBrackets++;
+      }
+      
+      // Track escape sequences
+      escaped = (char === '\\' && !escaped);
+    }
+    
+    // Check if JSON is incomplete
+    const missingBraces = openBraces - closeBraces;
+    const missingBrackets = openBrackets - closeBrackets;
+    
+    if (missingBraces > 0 || missingBrackets > 0) {
+      console.log('[BEDROCK] Detected incomplete JSON:');
+      console.log(`[BEDROCK] - Missing closing braces: ${missingBraces}`);
+      console.log(`[BEDROCK] - Missing closing brackets: ${missingBrackets}`);
+      
+      // Check if we're in the middle of a string value
+      if (inString) {
+        console.log('[BEDROCK] - Incomplete string detected, closing it');
+        completed += '"';
+      }
+      
+      // If we have an incomplete object (missing braces), we should remove it
+      // to avoid validation errors. Look for the last complete object.
+      if (missingBraces > 0) {
+        console.log('[BEDROCK] - Incomplete object detected, attempting to remove it');
+        
+        // Find the last complete object by looking for the pattern },
+        // This indicates the end of a complete object in an array
+        const lastCompleteObjectMatch = completed.lastIndexOf('},');
+        
+        if (lastCompleteObjectMatch > 0) {
+          // Truncate after the last complete object
+          completed = completed.substring(0, lastCompleteObjectMatch + 1);
+          console.log('[BEDROCK] - Removed incomplete object, new length:', completed.length);
+          
+          // Recalculate missing brackets after truncation
+          // We removed the incomplete object, so we only need to close the array
+          completed += '\n]';
+          console.log('[BEDROCK] - Closed array after removing incomplete object');
+          return completed;
+        } else {
+          // Fallback: close the incomplete object
+          console.log('[BEDROCK] - Could not find last complete object, closing incomplete one');
+          for (let i = 0; i < missingBraces; i++) {
+            completed += '\n}';
+          }
+        }
+      }
+      
+      // Close any remaining open brackets
+      for (let i = 0; i < missingBrackets; i++) {
+        completed += '\n]';
+      }
+      
+      console.log('[BEDROCK] JSON completion applied');
+    }
+    
+    return completed;
+  }
+
+  /**
+   * Repair common JSON syntax errors with robust character encoding handling
+   * @param jsonString - Potentially malformed JSON string
+   * @returns Repaired JSON string
+   */
+  private repairJson(jsonString: string): string {
+    let repaired = jsonString;
+
+    console.log('[BEDROCK] Starting JSON repair...');
+    console.log('[BEDROCK] Original length:', repaired.length);
+
+    // Step 1: Complete truncated JSON (close open brackets/braces)
+    repaired = this.completeJson(repaired);
+    console.log('[BEDROCK] After JSON completion:', repaired.length);
+
+    // Step 2: Remove control characters (except those we'll handle explicitly)
+    repaired = repaired.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
+    console.log('[BEDROCK] After control char removal:', repaired.length);
+
+    // Step 3: Fix common encoding issues with Spanish characters
+    // Ensure UTF-8 characters are preserved correctly
+    try {
+      // Normalize Unicode characters
+      repaired = repaired.normalize('NFC');
+      console.log('[BEDROCK] Unicode normalized');
+    } catch (error) {
+      console.log('[BEDROCK] Could not normalize Unicode');
+    }
+
+    // Step 4: Remove trailing commas before closing brackets/braces
+    repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
+    console.log('[BEDROCK] Trailing commas removed');
+
+    // Step 5: Fix unescaped newlines in string values
+    // Match string values and escape literal newlines
+    try {
+      let inString = false;
+      let escaped = false;
+      let result = '';
+      
+      for (let i = 0; i < repaired.length; i++) {
+        const char = repaired[i];
+        const prevChar = i > 0 ? repaired[i - 1] : '';
+        
+        // Track if we're inside a string
+        if (char === '"' && !escaped) {
+          inString = !inString;
+          result += char;
+        } else if (inString && (char === '\n' || char === '\r')) {
+          // Replace literal newlines with escaped version
+          if (char === '\n') {
+            result += '\\n';
+          } else if (char === '\r' && repaired[i + 1] !== '\n') {
+            result += '\\r';
+          }
+          // Skip \r if followed by \n (will be handled as \n)
+        } else {
+          result += char;
+        }
+        
+        // Track escape sequences
+        escaped = (char === '\\' && !escaped);
+      }
+      
+      repaired = result;
+      console.log('[BEDROCK] Newlines escaped in strings');
+    } catch (error) {
+      console.log('[BEDROCK] Could not escape newlines:', error);
+    }
+
+    // Step 6: Fix unescaped quotes - more conservative approach
+    // Only fix obvious cases where quotes appear in the middle of values
+    try {
+      // Pattern: "key": "value with unescaped " quote"
+      // We need to be very careful here to not break already-valid JSON
+      const lines = repaired.split('\n');
+      const fixedLines = lines.map(line => {
+        // Only process lines that look like JSON key-value pairs
+        if (line.includes('":') && line.includes('"')) {
+          // Find the colon that separates key from value
+          const colonIndex = line.indexOf('":');
+          if (colonIndex === -1) return line;
+          
+          // Get the value part (after the colon)
+          const beforeColon = line.substring(0, colonIndex + 2);
+          let afterColon = line.substring(colonIndex + 2).trim();
+          
+          // If value starts with a quote, process it
+          if (afterColon.startsWith('"')) {
+            // Find the closing quote (accounting for escaped quotes)
+            let valueEnd = -1;
+            let escaped = false;
+            
+            for (let i = 1; i < afterColon.length; i++) {
+              if (afterColon[i] === '\\' && !escaped) {
+                escaped = true;
+              } else if (afterColon[i] === '"' && !escaped) {
+                // Check if this is followed by comma or closing bracket (valid end)
+                const nextChar = afterColon[i + 1];
+                if (!nextChar || nextChar === ',' || nextChar === '}' || nextChar === ']' || /\s/.test(nextChar)) {
+                  valueEnd = i;
+                  break;
+                }
+              } else {
+                escaped = false;
+              }
+            }
+            
+            // If we found a proper end, extract and fix the value
+            if (valueEnd > 0) {
+              const value = afterColon.substring(1, valueEnd);
+              const rest = afterColon.substring(valueEnd + 1);
+              
+              // Escape any unescaped quotes in the value
+              let fixedValue = '';
+              let valueEscaped = false;
+              for (let i = 0; i < value.length; i++) {
+                const char = value[i];
+                if (char === '\\' && !valueEscaped) {
+                  fixedValue += char;
+                  valueEscaped = true;
+                } else if (char === '"' && !valueEscaped) {
+                  fixedValue += '\\"'; // Escape unescaped quote
+                } else {
+                  fixedValue += char;
+                  valueEscaped = false;
+                }
+              }
+              
+              return beforeColon + '"' + fixedValue + '"' + rest;
+            }
+          }
+        }
+        return line;
+      });
+      
+      repaired = fixedLines.join('\n');
+      console.log('[BEDROCK] Unescaped quotes fixed');
+    } catch (error) {
+      console.log('[BEDROCK] Could not fix unescaped quotes:', error);
+    }
+
+    console.log('[BEDROCK] JSON repair complete, final length:', repaired.length);
+    return repaired;
+  }
+
+  /**
+   * Extract JSON from content that may contain markdown or explanatory text
+   * @param content - Raw content from Bedrock response
+   * @returns Extracted JSON string
+   */
+  private extractJsonFromContent(content: string): string {
+    // Try to extract JSON from markdown code blocks
+    const codeBlockMatch = content.match(/```(?:json)?\s*(\[[\s\S]*?\]|\{[\s\S]*?\})\s*```/);
+    if (codeBlockMatch) {
+      console.log('[BEDROCK] Extracted JSON from markdown code block');
+      return codeBlockMatch[1].trim();
+    }
+
+    // Try to find JSON array or object in the content
+    const jsonArrayMatch = content.match(/(\[[\s\S]*\])/);
+    if (jsonArrayMatch) {
+      console.log('[BEDROCK] Extracted JSON array from content');
+      return jsonArrayMatch[1].trim();
+    }
+
+    const jsonObjectMatch = content.match(/(\{[\s\S]*\})/);
+    if (jsonObjectMatch) {
+      console.log('[BEDROCK] Extracted JSON object from content');
+      return jsonObjectMatch[1].trim();
+    }
+
+    // Return as-is if no pattern found (assume it's pure JSON)
+    console.log('[BEDROCK] No extraction pattern found, using content as-is');
+    return content.trim();
+  }
+
+  /**
    * Invoke Bedrock model with timeout
    */
   private async invokeModel(prompt: string): Promise<BedrockResponse> {
@@ -594,21 +882,92 @@ Example format:
       console.log('[BEDROCK] Output tokens:', responseBody.usage?.output_tokens || 0);
       
       // Extract content from Claude response format
-      const content = responseBody.content[0].text;
+      const rawContent = responseBody.content[0].text;
+      
+      console.log('[BEDROCK] Raw content length:', rawContent.length);
+      console.log('[BEDROCK] Raw content preview:', rawContent.substring(0, 200));
+      
+      // Extract JSON from content (handles markdown, mixed text, or pure JSON)
+      let content = this.extractJsonFromContent(rawContent);
+      
+      console.log('[BEDROCK] Extracted content length:', content.length);
       
       // Validate response is valid JSON
+      let parsedContent;
       try {
-        JSON.parse(content);
+        parsedContent = JSON.parse(content);
         console.log('[BEDROCK] Content is valid JSON');
       } catch (error) {
-        console.error('[BEDROCK] Content is NOT valid JSON');
-        console.error('[BEDROCK] FULL RESPONSE LENGTH:', content.length);
-        console.error('[BEDROCK] FULL RESPONSE CONTENT:');
-        console.error('='.repeat(80));
-        console.error(content);
-        console.error('='.repeat(80));
-        console.error('[BEDROCK] JSON parse error:', error);
-        throw new BedrockError('Bedrock response is not valid JSON', error as Error);
+        const parseError = error as SyntaxError;
+        console.error('[BEDROCK] First parse attempt failed, trying JSON repair...');
+        console.error('[BEDROCK] Parse error:', parseError.message);
+        
+        // Extract position from error message if available
+        const positionMatch = parseError.message.match(/position (\d+)/);
+        const errorPosition = positionMatch ? parseInt(positionMatch[1]) : -1;
+        
+        if (errorPosition > 0) {
+          console.error('[BEDROCK] Error at position:', errorPosition);
+          console.error('[BEDROCK] Context around error:');
+          console.error('='.repeat(80));
+          console.error(content.substring(Math.max(0, errorPosition - 100), Math.min(content.length, errorPosition + 100)));
+          console.error('='.repeat(80));
+        }
+        
+        // Try to repair the JSON
+        const repairedContent = this.repairJson(content);
+        
+        try {
+          parsedContent = JSON.parse(repairedContent);
+          console.log('[BEDROCK] ✅ JSON repair successful!');
+          content = repairedContent; // Use repaired version
+        } catch (repairError) {
+          const finalError = repairError as SyntaxError;
+          console.error('[BEDROCK] ❌ JSON repair failed');
+          console.error('[BEDROCK] Final parse error:', finalError.message);
+          console.error('[BEDROCK] Content is NOT valid JSON after repair');
+          console.error('[BEDROCK] EXTRACTED CONTENT LENGTH:', content.length);
+          console.error('[BEDROCK] REPAIRED CONTENT LENGTH:', repairedContent.length);
+          
+          // Show first 1000 chars of repaired content
+          console.error('[BEDROCK] REPAIRED CONTENT (first 1000 chars):');
+          console.error('='.repeat(80));
+          console.error(repairedContent.substring(0, 1000));
+          console.error('='.repeat(80));
+          
+          // Extract position from final error
+          const finalPositionMatch = finalError.message.match(/position (\d+)/);
+          const finalErrorPosition = finalPositionMatch ? parseInt(finalPositionMatch[1]) : -1;
+          
+          if (finalErrorPosition > 0) {
+            console.error('[BEDROCK] Final error at position:', finalErrorPosition);
+            console.error('[BEDROCK] Context around final error:');
+            console.error('='.repeat(80));
+            console.error(repairedContent.substring(
+              Math.max(0, finalErrorPosition - 200), 
+              Math.min(repairedContent.length, finalErrorPosition + 200)
+            ));
+            console.error('='.repeat(80));
+          }
+          
+          // Save failed content to file for debugging
+          try {
+            const fs = require('fs');
+            const path = require('path');
+            const debugDir = path.join(__dirname, '../../debug');
+            if (!fs.existsSync(debugDir)) {
+              fs.mkdirSync(debugDir, { recursive: true });
+            }
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const debugFile = path.join(debugDir, `bedrock-failed-${timestamp}.json`);
+            fs.writeFileSync(debugFile, repairedContent, 'utf8');
+            console.error('[BEDROCK] Failed content saved to:', debugFile);
+          } catch (saveError) {
+            console.error('[BEDROCK] Could not save debug file:', saveError);
+          }
+          
+          throw new BedrockError('Bedrock response is not valid JSON', finalError);
+        }
       }
 
       return {

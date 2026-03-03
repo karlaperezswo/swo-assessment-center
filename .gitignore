@@ -40,6 +40,9 @@ generated/
 *.docx
 *.xlsx
 
+# Debug files
+backend/debug/
+
 # Testing
 coverage/
 .nyc_output/

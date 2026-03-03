@@ -1,4 +1,4 @@
-import { PDFParse } from 'pdf-parse';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { MraData, ValidationResult } from '../../../shared/types/opportunity.types';
 
 export class PdfParseError extends Error {
@@ -17,10 +17,8 @@ export class PdfParserService {
    */
   async parsePdf(buffer: Buffer): Promise<MraData> {
     try {
-      // Parse PDF to extract text
-      const parser = new PDFParse({ data: buffer });
-      const textResult = await parser.getText();
-      const rawText = textResult.text;
+      // Parse PDF to extract text using pdfjs-dist
+      const rawText = await this.extractTextFromPdf(buffer);
 
       // Validate minimum content length
       if (rawText.length < 100) {
@@ -49,6 +47,38 @@ export class PdfParserService {
   }
 
   /**
+   * Extract text from PDF buffer using pdfjs-dist
+   * @param buffer - PDF file buffer
+   * @returns Extracted text content
+   */
+  private async extractTextFromPdf(buffer: Buffer): Promise<string> {
+    try {
+      // Load PDF document
+      const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buffer) });
+      const pdf = await loadingTask.promise;
+
+      let fullText = '';
+
+      // Extract text from each page
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        
+        // Combine text items with spaces
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        
+        fullText += pageText + '\n';
+      }
+
+      return fullText;
+    } catch (error) {
+      throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
    * Validate PDF structure and content
    * @param buffer - PDF file buffer
    * @returns Validation result with errors if any
@@ -71,24 +101,23 @@ export class PdfParserService {
         return { valid: false, errors, warnings };
       }
 
-      // Try to parse the PDF
-      const parser = new PDFParse({ data: buffer });
-      const textResult = await parser.getText();
+      // Try to parse the PDF and extract text
+      const text = await this.extractTextFromPdf(buffer);
       
       // Check if text was extracted
-      if (!textResult.text || textResult.text.length === 0) {
+      if (!text || text.length === 0) {
         errors.push('No text content could be extracted from PDF');
         return { valid: false, errors, warnings };
       }
 
       // Check minimum content length
-      if (textResult.text.length < 100) {
+      if (text.length < 100) {
         warnings.push('PDF content is very short (less than 100 characters)');
       }
 
       // Check for common MRA sections (warnings only)
-      const hasMaturitySection = /maturity|madurez/i.test(textResult.text);
-      const hasSecuritySection = /security|seguridad|gap|brecha/i.test(textResult.text);
+      const hasMaturitySection = /maturity|madurez/i.test(text);
+      const hasSecuritySection = /security|seguridad|gap|brecha/i.test(text);
       
       if (!hasMaturitySection) {
         warnings.push('No maturity level section detected');

@@ -1,4 +1,4 @@
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { extractText, getDocumentProxy } from 'unpdf';
 import { MraData, ValidationResult } from '../../../shared/types/opportunity.types';
 
 export class PdfParseError extends Error {
@@ -47,32 +47,21 @@ export class PdfParserService {
   }
 
   /**
-   * Extract text from PDF buffer using pdfjs-dist
+   * Extract text from PDF buffer using unpdf (serverless-optimized, no canvas required)
    * @param buffer - PDF file buffer
    * @returns Extracted text content
    */
   private async extractTextFromPdf(buffer: Buffer): Promise<string> {
     try {
-      // Load PDF document
-      const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buffer) });
-      const pdf = await loadingTask.promise;
-
-      let fullText = '';
-
-      // Extract text from each page
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const textContent = await page.getTextContent();
-        
-        // Combine text items with spaces
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
-        
-        fullText += pageText + '\n';
-      }
-
-      return fullText;
+      // Load PDF document using unpdf (designed for serverless environments)
+      const pdf = await getDocumentProxy(new Uint8Array(buffer));
+      
+      // Extract text from all pages (merged into single string)
+      const { totalPages, text } = await extractText(pdf, { mergePages: true });
+      
+      console.log(`[PDF Parser] Extracted text from ${totalPages} pages`);
+      
+      return text;
     } catch (error) {
       throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

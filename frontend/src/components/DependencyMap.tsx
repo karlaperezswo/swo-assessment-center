@@ -97,13 +97,16 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
       setDatabasesWithoutDeps(dependencyData.databasesWithoutDependencies || []);
       
       // Build and display graph
-      const graph = buildGraphFromDependencies(dependencyData.dependencies);
-      displayGraph(graph);
+      if (dependencyData.dependencies && dependencyData.dependencies.length > 0) {
+        const graph = buildGraphFromDependencies(dependencyData.dependencies);
+        displayGraph(graph);
+      }
       
-      toast.success('Dependencias cargadas automáticamente', {
-        description: `${dependencyData.summary.totalDependencies} dependencias, ${dependencyData.summary.uniqueServers} servidores`,
-        duration: 4000
-      });
+      // No mostrar toast aquí - ya se muestra en FileUploader
+      // toast.success('Dependencias cargadas automáticamente', {
+      //   description: `${dependencyData.summary.totalDependencies} dependencias, ${dependencyData.summary.uniqueServers} servidores`,
+      //   duration: 4000
+      // });
     }
   }, [dependencyData]);
 
@@ -351,6 +354,14 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
   };
 
   const displayGraph = (graph: DependencyGraph) => {
+    // Validar que haya nodos y edges
+    if (!graph || !graph.nodes || graph.nodes.length === 0) {
+      console.log('⚠️ No hay nodos para mostrar en el grafo');
+      setNodes([]);
+      setEdges([]);
+      return;
+    }
+
     // Calculate node importance based on connections
     const incomingCount = new Map<string, number>();
     const outgoingCount = new Map<string, number>();

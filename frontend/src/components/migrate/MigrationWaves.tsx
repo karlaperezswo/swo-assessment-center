@@ -3,9 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MigrationPlanner } from '@/components/MigrationPlanner';
+import { WavePlannerTool } from '@/components/migrate/WavePlannerTool';
 
 import { MigrationWave } from '@/types/assessment';
-import { Waves, Plus, Trash2, Play, Pause, CheckCircle, AlertCircle, Network } from 'lucide-react';
+import { Waves, Plus, Trash2, Play, Pause, CheckCircle, AlertCircle, Network, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -29,6 +30,7 @@ const statusConfig = {
 export function MigrationWaves({ waves, onWavesChange, dependencyData }: MigrationWavesProps) {
   const [showForm, setShowForm] = useState(false);
   const [showPlanner, setShowPlanner] = useState(false);
+  const [showWaveTool, setShowWaveTool] = useState(false);
   const [newWave, setNewWave] = useState({
     name: '',
     startDate: '',
@@ -109,6 +111,13 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
         >
           <Network className="h-4 w-4 mr-2" />
           Migration Planner
+        </Button>
+        <Button 
+          onClick={() => setShowWaveTool(true)} 
+          className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+        >
+          <Settings className="h-4 w-4 mr-2" />
+          Wave Planner Tool
         </Button>
       </div>
 
@@ -262,6 +271,15 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
           dependencies={dependencyData?.dependencies || []}
           existingWaves={waves}
           onClose={() => setShowPlanner(false)}
+        />
+      )}
+
+      {/* Wave Planner Tool Modal */}
+      {showWaveTool && dependencyData?.servers && (
+        <WavePlannerTool
+          servers={dependencyData.servers}
+          onClose={() => setShowWaveTool(false)}
+          onWavesUpdate={onWavesChange}
         />
       )}
     </div>

@@ -101,25 +101,47 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
       </Card>
 
       {/* Actions */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap">
         <Button onClick={() => setShowForm(!showForm)} variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50">
           <Plus className="h-4 w-4 mr-1" /> {showForm ? 'Cancel' : 'Add Wave'}
         </Button>
         <Button 
           onClick={() => setShowPlanner(true)} 
-          className="bg-gradient-to-r from-[#2563eb] to-[#1e3a8a] hover:from-[#1d4ed8] hover:to-[#1e40af] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          disabled={!dependencyData?.dependencies || dependencyData.dependencies.length === 0}
+          className="bg-gradient-to-r from-[#2563eb] to-[#1e3a8a] hover:from-[#1d4ed8] hover:to-[#1e40af] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          title={!dependencyData?.dependencies ? 'Carga un archivo MPA con dependencias primero' : ''}
         >
           <Network className="h-4 w-4 mr-2" />
           Migration Planner
         </Button>
         <Button 
           onClick={() => setShowWaveTool(true)} 
-          className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          disabled={!dependencyData?.servers || dependencyData.servers.length === 0}
+          className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          title={!dependencyData?.servers ? 'Carga un archivo MPA con servidores primero' : ''}
         >
           <Settings className="h-4 w-4 mr-2" />
           Wave Planner Tool
         </Button>
       </div>
+
+      {/* Info message when no dependency data */}
+      {(!dependencyData || !dependencyData.dependencies || dependencyData.dependencies.length === 0) && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-blue-800">
+                <p className="font-medium mb-1">Herramientas de planificación avanzada disponibles</p>
+                <p>
+                  Los botones "Migration Planner" y "Wave Planner Tool" se habilitarán automáticamente 
+                  cuando cargues un archivo MPA con datos de dependencias en la pestaña "Descubrimiento Rápido".
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Add Wave Form */}
       {showForm && (

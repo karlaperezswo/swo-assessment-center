@@ -542,6 +542,60 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
     setEdges(flowEdges);
   };
 
+  // Si no hay datos de dependencias, mostrar mensaje informativo
+  if (!dependencyData || !dependencyData.dependencies || dependencyData.dependencies.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <Network className="h-6 w-6 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-bold text-blue-900 text-lg">Mapa de Dependencias</h3>
+                <p className="text-sm text-blue-700 mt-1">
+                  Visualiza y analiza las dependencias de red entre servidores para planificar tu migración AWS.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-amber-900 mb-2">No hay datos de dependencias disponibles</h4>
+                <p className="text-sm text-amber-800 mb-3">
+                  Para visualizar el mapa de dependencias, necesitas cargar un archivo Excel MPA que contenga 
+                  la hoja "Server Communication" con información de conexiones de red.
+                </p>
+                <div className="space-y-2 text-sm text-amber-700">
+                  <p className="font-medium">Pasos para cargar dependencias:</p>
+                  <ol className="list-decimal list-inside space-y-1 ml-2">
+                    <li>Ve a la pestaña "Descubrimiento Rápido"</li>
+                    <li>Carga un archivo Excel MPA que incluya la hoja "Server Communication"</li>
+                    <li>Las dependencias se cargarán automáticamente</li>
+                    <li>Regresa a esta pestaña para visualizar el mapa</li>
+                  </ol>
+                </div>
+                <div className="mt-4 p-3 bg-white rounded-lg border border-amber-200">
+                  <p className="text-xs text-gray-600 font-medium mb-1">Formatos soportados:</p>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    <li>• AWS MPA (Migration Portfolio Assessment)</li>
+                    <li>• Concierto MPA</li>
+                    <li>• Matilda</li>
+                    <li>• Archivos personalizados con hoja "Server Communication"</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Summary Section */}

@@ -70,33 +70,76 @@ export class SelectorController {
    * Export assessment as PDF
    */
   static async exportPDF(req: Request, res: Response) {
-   try {
-      console.log('[SelectorController] PDF export request received');
+    try {
+      console.log('[SelectorController] ========== PDF EXPORT REQUEST ==========');
+      console.log('[SelectorController] Request body keys:', Object.keys(req.body));
+      
       const { session, result } = req.body;
+      
+      console.log('[SelectorController] Session data present:', !!session);
+      console.log('[SelectorController] Result data present:', !!result);
 
       if (!session || !result) {
-        console.log('[SelectorController] Missing session or result data');
+        console.error('[SelectorController] ERROR: Missing required data');
+        console.error('[SelectorController] Session:', !!session);
+        console.error('[SelectorController] Result:', !!result);
         return res.status(400).json({ success: false, error: 'session and result data are required' });
       }
 
-      console.log('[SelectorController] Loading questions for PDF generation');
-      // Load questions for context
+      console.log('[SelectorController] Session ID:', session.sessionId);
+      console.log('[SelectorController] Client name:', session.clientName);
+      console.log('[SelectorController] Number of answers:', session.answers?.length || 0);
+      console.log('[SelectorController] Recommended tool:', result.recommendedTool);
+      console.log('[SelectorController] Confidence:', result.confidence);
+      console.log('[SelectorController] Number of results:', result.results?.length || 0);
+
+      console.log('[SelectorController] Loading questions configuration...');
       const questionsData = await SelectorConfigService.loadQuestions();
       const allQuestions = questionsData.categories.flatMap(cat => cat.questions);
+      console.log('[SelectorController] Questions loaded:', questionsData.categories.length, 'categories,', allQuestions.length, 'total questions');
 
-      console.log('[SelectorController] Generating PDF buffer');
+      console.log('[SelectorController] Calling SelectorExportService.generatePDF()...');
       const pdfBuffer = await SelectorExportService.generatePDF(session, result, allQuestions);
-      console.log('[SelectorController] PDF buffer generated, size:', pdfBuffer.length, 'bytes');
+      console.log('[SelectorController] PDF generation returned');
+      
+      console.log('[SelectorController] PDF buffer size:', pdfBuffer.length, 'bytes');
+      console.log('[SelectorController] PDF buffer is empty:', pdfBuffer.length === 0);
+      
+      if (pdfBuffer.length === 0) {
+        console.error('[SelectorController] ERROR: PDF buffer is empty!');
+        throw new Error('Generated PDF buffer is empty');
+      }
 
-      console.log('[SelectorController] PDF Buffer size:', pdfBuffer.length);
+      // Validate PDF header
+      const pdfHeader = pdfBuffer.subarray(0, 5).toString('ascii');
+      console.log('[SelectorController] PDF header validation:', pdfHeader);
+      if (pdfHeader !== '%PDF-') {
+        console.error('[SelectorController] ERROR: Invalid PDF header! Expected "%PDF-", got:', pdfHeader);
+        throw new Error('Generated buffer is not a valid PDF');
+      }
 
-      // Send Buffer directly - Lambda handler will convert to Base64
+      console.log('[SelectorController] Setting response headers...');
+      const filename = `selector-${session.clientName}-${session.sessionId}.pdf`;
+      console.log('[SelectorController] Response Content-Type: application/pdf');
+      console.log('[SelectorController] Response Content-Disposition: attachment; filename="' + filename + '"');
+      
       res.type('application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="selector-${session.clientName}-${session.sessionId}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      
+      console.log('[SelectorController] Sending PDF buffer...');
       res.send(pdfBuffer);
+      console.log('[SelectorController] ========== PDF EXPORT COMPLETE ==========');
     } catch (error) {
-      console.error('[SelectorController] Error exporting PDF:', error);
-      res.status(500).json({ success: false, error: 'Failed to export PDF' });
+      console.error('[SelectorController] ========== PDF EXPORT ERROR ==========');
+      console.error('[SelectorController] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+      console.error('[SelectorController] Error message:', error instanceof Error ? error.message : String(error));
+      console.error('[SelectorController] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('[SelectorController] ========== ERROR END ==========');
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to export PDF',
+        details: error instanceof Error ? error.message : String(error)
+      });
     }
   }
 

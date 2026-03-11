@@ -123,29 +123,22 @@ export function SelectorPhase() {
       console.log('[PDF Export] Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (response.ok) {
-        // Get response as text first to check if it's base64
-        const responseText = await response.text();
-        console.log('[PDF Export] Response length:', responseText.length);
-        console.log('[PDF Export] First 20 chars:', responseText.substring(0, 20));
+        // Get response as ArrayBuffer to handle binary data correctly
+        const arrayBuffer = await response.arrayBuffer();
+        console.log('[PDF Export] Response ArrayBuffer size:', arrayBuffer.byteLength, 'bytes');
         
-        let pdfBlob;
+        // Validate PDF header
+        const headerBytes = new Uint8Array(arrayBuffer.slice(0, 5));
+        const headerString = String.fromCharCode(...headerBytes);
+        console.log('[PDF Export] PDF header:', headerString);
         
-        // Check if it's base64 (starts with JVBERi which is %PDF in base64)
-        if (responseText.startsWith('JVBER') || responseText.match(/^[A-Za-z0-9+/=]+$/)) {
-          console.log('[PDF Export] Detected Base64, decoding...');
-          // Decode base64 to binary
-          const binaryString = atob(responseText);
-          const bytes = new Uint8Array(binaryString.length);
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-          pdfBlob = new Blob([bytes], { type: 'application/pdf' });
-          console.log('[PDF Export] Decoded blob size:', pdfBlob.size);
-        } else {
-          console.log('[PDF Export] Binary response, using directly');
-          pdfBlob = new Blob([responseText], { type: 'application/pdf' });
+        if (headerString !== '%PDF-') {
+          console.error('[PDF Export] ERROR: Invalid PDF header! Expected "%PDF-", got:', headerString);
+          throw new Error('Invalid PDF format received from server');
         }
         
+        // Create blob directly from ArrayBuffer
+        const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
         console.log('[PDF Export] Final blob size:', pdfBlob.size, 'type:', pdfBlob.type);
         
         // Create download link

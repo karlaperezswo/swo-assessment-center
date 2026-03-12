@@ -38,7 +38,7 @@ export class BedrockService {
     console.log('[BEDROCK] BEDROCK_TIMEOUT_MS from env:', process.env.BEDROCK_TIMEOUT_MS);
     console.log('[BEDROCK] BEDROCK_MAX_RETRIES from env:', process.env.BEDROCK_MAX_RETRIES);
     
-    this.modelId = process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-5-sonnet-20241022-v2:0';
+    this.modelId = process.env.BEDROCK_MODEL_ID || 'us.anthropic.claude-3-5-sonnet-20241022-v2:0';
     this.maxRetries = parseInt(process.env.BEDROCK_MAX_RETRIES || '3', 10);
     this.timeoutMs = parseInt(process.env.BEDROCK_TIMEOUT_MS || '30000', 10);
     

@@ -5,7 +5,17 @@ echo   Starting Development Environment
 echo ==========================================
 echo.
 
-echo [1/4] Installing backend dependencies...
+echo [0/5] Stopping existing Node processes...
+taskkill /F /IM node.exe >nul 2>&1
+if errorlevel 1 (
+    echo No existing Node processes found
+) else (
+    echo Existing Node processes stopped
+)
+timeout /t 2 /nobreak > nul
+echo.
+
+echo [1/5] Installing backend dependencies...
 cd backend
 call npm install
 if errorlevel 1 (
@@ -15,7 +25,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/4] Installing frontend dependencies...
+echo [2/5] Installing frontend dependencies...
 cd ..\frontend
 call npm install
 if errorlevel 1 (
@@ -25,15 +35,17 @@ if errorlevel 1 (
 )
 
 echo.
-echo [3/4] Starting Backend Server...
+echo [3/5] Starting Backend Server...
 cd ..\backend
 start "Backend Server" cmd /k "npm run dev"
 
 echo.
-echo [4/4] Starting Frontend Server...
+echo [4/5] Starting Frontend Server...
 cd ..\frontend
 start "Frontend Server" cmd /k "npm run dev"
 
+echo.
+echo [5/5] Opening browser...
 echo.
 echo ==========================================
 echo   Servers are starting...

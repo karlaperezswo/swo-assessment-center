@@ -123,22 +123,41 @@ export function SelectorPhase() {
       console.log('[PDF Export] Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (response.ok) {
-        // Get response as ArrayBuffer to handle binary data correctly
-        const arrayBuffer = await response.arrayBuffer();
-        console.log('[PDF Export] Response ArrayBuffer size:', arrayBuffer.byteLength, 'bytes');
+        // Lambda + API Gateway returns Base64 encoded binary data as text
+        const responseText = await response.text();
+        console.log('[PDF Export] Response text length:', responseText.length);
+        console.log('[PDF Export] First 20 chars:', responseText.substring(0, 20));
         
-        // Validate PDF header
-        const headerBytes = new Uint8Array(arrayBuffer.slice(0, 5));
-        const headerString = String.fromCharCode(...headerBytes);
-        console.log('[PDF Export] PDF header:', headerString);
+        // Check if it's Base64 (starts with JVBERi which is %PDF in base64)
+        const isBase64 = responseText.startsWith('JVBER') || responseText.match(/^[A-Za-z0-9+/=]+$/);
+        console.log('[PDF Export] Is Base64:', isBase64);
         
-        if (headerString !== '%PDF-') {
-          console.error('[PDF Export] ERROR: Invalid PDF header! Expected "%PDF-", got:', headerString);
-          throw new Error('Invalid PDF format received from server');
+        let pdfBlob;
+        
+        if (isBase64) {
+          console.log('[PDF Export] Decoding Base64 to binary...');
+          // Decode base64 to binary
+          const binaryString = atob(responseText);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          pdfBlob = new Blob([bytes], { type: 'application/pdf' });
+          console.log('[PDF Export] Decoded blob size:', pdfBlob.size, 'bytes');
+          
+          // Validate PDF header from decoded binary
+          const headerString = String.fromCharCode(...bytes.slice(0, 5));
+          console.log('[PDF Export] Decoded PDF header:', headerString);
+          
+          if (headerString !== '%PDF-') {
+            console.error('[PDF Export] ERROR: Invalid PDF header after decoding! Expected "%PDF-", got:', headerString);
+            throw new Error('Invalid PDF format after Base64 decoding');
+          }
+        } else {
+          console.log('[PDF Export] Binary response, using directly');
+          pdfBlob = new Blob([responseText], { type: 'application/pdf' });
         }
         
-        // Create blob directly from ArrayBuffer
-        const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
         console.log('[PDF Export] Final blob size:', pdfBlob.size, 'type:', pdfBlob.type);
         
         // Create download link

@@ -1,91 +1,43 @@
 import { Router } from 'express';
-import multer from 'multer';
 import { OpportunityController } from '../controllers/OpportunityController';
 
 const router = Router();
 const controller = new OpportunityController();
 
-// Use memory storage for file uploads
-const storage = multer.memoryStorage();
-
-// Configure multer for MPA Excel, MRA PDF, and optional Questionnaire Word files
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    // Accept Excel files or JSON for mpaFile
-    if (file.fieldname === 'mpaFile') {
-      const allowedTypes = [
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-excel',
-        'application/json',
-      ];
-      if (allowedTypes.includes(file.mimetype) || file.originalname.endsWith('.xlsx') || file.originalname.endsWith('.json')) {
-        cb(null, true);
-      } else {
-        cb(new Error('MPA file must be an Excel file (.xlsx) or JSON file (.json)'));
-      }
-    }
-    // Accept PDF files for mraFile
-    else if (file.fieldname === 'mraFile') {
-      if (file.mimetype === 'application/pdf' || file.originalname.endsWith('.pdf')) {
-        cb(null, true);
-      } else {
-        cb(new Error('MRA file must be a PDF file (.pdf)'));
-      }
-    }
-    // Accept Word files for questionnaireFile (optional)
-    else if (file.fieldname === 'questionnaireFile') {
-      const allowedTypes = [
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/msword',
-      ];
-      if (allowedTypes.includes(file.mimetype) || file.originalname.endsWith('.docx') || file.originalname.endsWith('.doc')) {
-        cb(null, true);
-      } else {
-        cb(new Error('Questionnaire file must be a Word file (.docx or .doc)'));
-      }
-    } else {
-      cb(new Error('Unexpected field name'));
-    }
-  },
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit per file
-  },
-});
+/**
+ * POST /api/opportunities/get-upload-urls
+ * Generate presigned URLs for direct S3 upload
+ * 
+ * Request body:
+ *   - files: Array<{ filename: string, contentType: string }> (required, min 2 files)
+ * 
+ * Response:
+ *   - sessionId: string
+ *   - mpaUrl: string (presigned URL)
+ *   - mpaKey: string (S3 key)
+ *   - mraUrl: string (presigned URL)
+ *   - mraKey: string (S3 key)
+ *   - questionnaireUrl?: string (presigned URL, optional)
+ *   - questionnaireKey?: string (S3 key, optional)
+ */
+router.post('/get-upload-urls', controller.getUploadUrls);
 
 /**
  * POST /api/opportunities/analyze
  * Analyze MPA Excel, MRA PDF, and optional Questionnaire Word files to generate opportunities
+ * Files must be uploaded to S3 first using /get-upload-urls
  * 
- * Request: multipart/form-data
- *   - mpaFile: Excel file (MPA data) - REQUIRED
- *   - mraFile: PDF file (MRA document) - REQUIRED
- *   - questionnaireFile: Word file (Infrastructure questionnaire) - OPTIONAL
+ * Request body (JSON):
+ *   - mpaKey: string (S3 key from get-upload-urls) - REQUIRED
+ *   - mraKey: string (S3 key from get-upload-urls) - REQUIRED
+ *   - questionnaireKey: string (S3 key from get-upload-urls) - OPTIONAL
  * 
  * Response: AnalyzeResponseBody
  *   - sessionId: string
  *   - opportunities: Opportunity[]
  *   - summary: { totalOpportunities, totalEstimatedARR, highPriorityCount }
  */
-router.post(
-  '/analyze',
-  (req, res, next) => {
-    upload.fields([
-      { name: 'mpaFile', maxCount: 1 },
-      { name: 'mraFile', maxCount: 1 },
-      { name: 'questionnaireFile', maxCount: 1 },
-    ])(req, res, (err) => {
-      if (err) {
-        return res.status(400).json({
-          success: false,
-          error: err.message || 'File upload error',
-        });
-      }
-      next();
-    });
-  },
-  controller.analyze
-);
+router.post('/analyze', controller.analyze);
 
 /**
  * GET /api/opportunities/list

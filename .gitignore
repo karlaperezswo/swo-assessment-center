@@ -131,3 +131,10 @@ backend/test-bedrock-permissions.ps1
 backend/test-upload.sh
 backend/translate-doc.bat
 backend/verify-anonymization.ts
+
+# Scripts de deployment temporales
+EJECUTAR-DEPLOYMENT.bat
+verificar-deployment.bat
+
+# Specs y documentación de desarrollo
+.kiro/specs/

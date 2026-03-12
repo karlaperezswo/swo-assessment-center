@@ -95,8 +95,7 @@ export class OpportunityController {
         const command = new PutObjectCommand({
           Bucket: BUCKET_NAME,
           Key: key,
-          ContentType: file.contentType,
-          ServerSideEncryption: 'AES256',
+          ContentType: file.contentType
         });
 
         const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 900 });

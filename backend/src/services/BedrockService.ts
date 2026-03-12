@@ -613,18 +613,27 @@ Example format:
       if (missingBraces > 0) {
         console.log('[BEDROCK] - Incomplete object detected, attempting to remove it');
         
-        // Find the last complete object by looking for the pattern },
+        // Strategy 1: Find the last complete object by looking for the pattern },
         // This indicates the end of a complete object in an array
         const lastCompleteObjectMatch = completed.lastIndexOf('},');
         
-        if (lastCompleteObjectMatch > 0) {
+        // Strategy 2: Also check for }] pattern (last object in array)
+        const lastObjectInArrayMatch = completed.lastIndexOf('}]');
+        
+        // Use whichever is later in the string
+        const truncateAt = Math.max(lastCompleteObjectMatch, lastObjectInArrayMatch);
+        
+        if (truncateAt > 0) {
           // Truncate after the last complete object
-          completed = completed.substring(0, lastCompleteObjectMatch + 1);
-          console.log('[BEDROCK] - Removed incomplete object, new length:', completed.length);
-          
-          // Recalculate missing brackets after truncation
-          // We removed the incomplete object, so we only need to close the array
-          completed += '\n]';
+          if (lastCompleteObjectMatch > lastObjectInArrayMatch) {
+            completed = completed.substring(0, lastCompleteObjectMatch + 1);
+            console.log('[BEDROCK] - Removed incomplete object (found },), new length:', completed.length);
+            // Close the array
+            completed += '\n]';
+          } else {
+            completed = completed.substring(0, lastObjectInArrayMatch + 2);
+            console.log('[BEDROCK] - Removed incomplete object (found }]), new length:', completed.length);
+          }
           console.log('[BEDROCK] - Closed array after removing incomplete object');
           return completed;
         } else {
@@ -679,6 +688,15 @@ Example format:
     // Step 4: Remove trailing commas before closing brackets/braces
     repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
     console.log('[BEDROCK] Trailing commas removed');
+
+    // Step 4.5: Fix missing commas between array elements
+    // Pattern: "]" followed by whitespace and then "[" or "{" without a comma
+    repaired = repaired.replace(/\](\s*)(\[|\{)/g, '],$1$2');
+    // Pattern: "}" followed by whitespace and then "[" or "{" without a comma
+    repaired = repaired.replace(/\}(\s*)(\[|\{)/g, '},$1$2');
+    // Pattern: string followed by whitespace and then "[" or "{" without a comma
+    repaired = repaired.replace(/"(\s*)(\[|\{)/g, '",$1$2');
+    console.log('[BEDROCK] Missing commas between array/object elements added');
 
     // Step 5: Fix unescaped newlines in string values
     // Match string values and escape literal newlines

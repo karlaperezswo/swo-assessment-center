@@ -118,16 +118,18 @@ export class SelectorController {
         throw new Error('Generated buffer is not a valid PDF');
       }
 
-      console.log('[SelectorController] Setting response headers...');
+      console.log('[SelectorController] Converting PDF to Base64 for JSON response...');
       const filename = `selector-${session.clientName}-${session.sessionId}.pdf`;
-      console.log('[SelectorController] Response Content-Type: application/pdf');
-      console.log('[SelectorController] Response Content-Disposition: attachment; filename="' + filename + '"');
+      const base64Pdf = pdfBuffer.toString('base64');
+      console.log('[SelectorController] Base64 length:', base64Pdf.length, 'characters');
       
-      res.type('application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      
-      console.log('[SelectorController] Sending PDF buffer...');
-      res.send(pdfBuffer);
+      console.log('[SelectorController] Sending JSON response with Base64 PDF...');
+      res.json({
+        success: true,
+        pdf: base64Pdf,
+        filename: filename,
+        size: pdfBuffer.length
+      });
       console.log('[SelectorController] ========== PDF EXPORT COMPLETE ==========');
     } catch (error) {
       console.error('[SelectorController] ========== PDF EXPORT ERROR ==========');

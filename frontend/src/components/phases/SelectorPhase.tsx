@@ -123,15 +123,47 @@ export function SelectorPhase() {
       console.log('[PDF Export] Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (response.ok) {
-        // Get response as blob directly - works for both binary and base64
-        const pdfBlob = await response.blob();
-        console.log('[PDF Export] Blob size:', pdfBlob.size, 'type:', pdfBlob.type);
+        // Get JSON response with Base64 PDF
+        const data = await response.json();
+        console.log('[PDF Export] Received JSON response');
+        console.log('[PDF Export] Base64 length:', data.pdf?.length || 0);
+        console.log('[PDF Export] Filename:', data.filename);
+        console.log('[PDF Export] Original size:', data.size, 'bytes');
+        
+        if (!data.success || !data.pdf) {
+          console.error('[PDF Export] Invalid response format:', data);
+          toast.error('Error: Respuesta inválida del servidor');
+          return;
+        }
+        
+        // Decode Base64 to binary
+        console.log('[PDF Export] Decoding Base64 to binary...');
+        const binaryString = atob(data.pdf);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        // Create PDF blob
+        const pdfBlob = new Blob([bytes], { type: 'application/pdf' });
+        console.log('[PDF Export] Created blob, size:', pdfBlob.size, 'bytes');
+        
+        // Validate PDF header
+        const headerBytes = bytes.slice(0, 5);
+        const headerString = String.fromCharCode(...headerBytes);
+        console.log('[PDF Export] PDF header validation:', headerString);
+        
+        if (headerString !== '%PDF-') {
+          console.error('[PDF Export] ERROR: Invalid PDF header! Expected "%PDF-", got:', headerString);
+          toast.error('Error: PDF inválido generado');
+          return;
+        }
         
         // Create download link
         const url = window.URL.createObjectURL(pdfBlob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `selector-${clientName}-${sessionId}.pdf`;
+        a.download = data.filename || `selector-${clientName}-${sessionId}.pdf`;
         document.body.appendChild(a);
         a.click();
         

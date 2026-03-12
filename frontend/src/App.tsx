@@ -277,23 +277,62 @@ function App() {
       );
       
       try {
-        const formData = new FormData();
+        // Step 1: Get presigned URLs from backend
+        const files = [
+          { filename: 'mpa-data.json', contentType: 'application/json' },
+          { filename: mraFile.name, contentType: 'application/pdf' },
+        ];
         
-        // Create a blob from excelData and append as file
-        const excelBlob = new Blob([JSON.stringify(excelData)], { type: 'application/json' });
-        formData.append('mpaFile', excelBlob, 'mpa-data.json');
-        formData.append('mraFile', mraFile);
-        
-        // Add questionnaire file if available (optional)
         if (questionnaireFile) {
-          formData.append('questionnaireFile', questionnaireFile);
+          files.push({ 
+            filename: questionnaireFile.name, 
+            contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+          });
         }
 
-        const response = await apiClient.post('/api/opportunities/analyze', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        const urlResponse = await apiClient.post('/api/opportunities/get-upload-urls', { files });
+        
+        if (!urlResponse.data.success) {
+          throw new Error(urlResponse.data.error || 'Failed to get upload URLs');
+        }
+
+        const { mpaUrl, mpaKey, mraUrl, mraKey, questionnaireUrl, questionnaireKey } = urlResponse.data.data;
+
+        // Step 2: Upload files directly to S3 in parallel
+        const excelBlob = new Blob([JSON.stringify(excelData)], { type: 'application/json' });
+        
+        const uploadPromises = [
+          fetch(mpaUrl, { 
+            method: 'PUT', 
+            body: excelBlob,
+            headers: { 'Content-Type': 'application/json' }
+          }),
+          fetch(mraUrl, { 
+            method: 'PUT', 
+            body: mraFile,
+            headers: { 'Content-Type': 'application/pdf' }
+          }),
+        ];
+
+        if (questionnaireFile && questionnaireUrl) {
+          uploadPromises.push(
+            fetch(questionnaireUrl, { 
+              method: 'PUT', 
+              body: questionnaireFile,
+              headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
+            })
+          );
+        }
+
+        await Promise.all(uploadPromises);
+
+        // Step 3: Analyze with S3 keys
+        const analyzeBody: any = { mpaKey, mraKey };
+        if (questionnaireKey) {
+          analyzeBody.questionnaireKey = questionnaireKey;
+        }
+
+        const response = await apiClient.post('/api/opportunities/analyze', analyzeBody);
 
         if (response.data.success) {
           setOpportunitySessionId(response.data.data.sessionId);

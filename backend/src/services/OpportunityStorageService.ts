@@ -62,6 +62,8 @@ export interface OpportunityStorageService {
  *    - Add DynamoDB permissions to IAM role
  */
 export class InMemoryOpportunityStorage implements OpportunityStorageService {
+  private static instance: InMemoryOpportunityStorage;
+
   // Map: sessionId -> Opportunity[]
   private storage: Map<string, Opportunity[]> = new Map();
 
@@ -69,9 +71,27 @@ export class InMemoryOpportunityStorage implements OpportunityStorageService {
   private opportunityIndex: Map<string, string> = new Map();
 
   /**
+   * Private constructor to enforce singleton pattern
+   */
+  private constructor() {}
+
+  /**
+   * Get singleton instance
+   */
+  static getInstance(): InMemoryOpportunityStorage {
+    if (!InMemoryOpportunityStorage.instance) {
+      InMemoryOpportunityStorage.instance = new InMemoryOpportunityStorage();
+      console.log('[InMemoryOpportunityStorage] Singleton instance created');
+    }
+    return InMemoryOpportunityStorage.instance;
+  }
+
+  /**
    * Store opportunities from analysis
    */
   async storeOpportunities(opportunities: Opportunity[], sessionId: string): Promise<void> {
+    console.log(`[InMemoryOpportunityStorage] Storing ${opportunities.length} opportunities for session ${sessionId}`);
+    
     // Store opportunities for this session
     this.storage.set(sessionId, opportunities);
 
@@ -79,6 +99,8 @@ export class InMemoryOpportunityStorage implements OpportunityStorageService {
     opportunities.forEach(opp => {
       this.opportunityIndex.set(opp.id, sessionId);
     });
+    
+    console.log(`[InMemoryOpportunityStorage] Storage complete. Total sessions: ${this.storage.size}, Total opportunities indexed: ${this.opportunityIndex.size}`);
   }
 
   /**
@@ -88,7 +110,11 @@ export class InMemoryOpportunityStorage implements OpportunityStorageService {
     sessionId: string,
     filters?: OpportunityFilters
   ): Promise<Opportunity[]> {
+    console.log(`[InMemoryOpportunityStorage] Retrieving opportunities for session ${sessionId}`);
+    console.log(`[InMemoryOpportunityStorage] Available sessions: ${Array.from(this.storage.keys()).join(', ')}`);
+    
     const opportunities = this.storage.get(sessionId) || [];
+    console.log(`[InMemoryOpportunityStorage] Found ${opportunities.length} opportunities for session ${sessionId}`);
 
     if (!filters) {
       return opportunities;

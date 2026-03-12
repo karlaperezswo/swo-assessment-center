@@ -334,10 +334,100 @@ function App() {
 
         const response = await apiClient.post('/api/opportunities/analyze', analyzeBody);
 
-        if (response.data.success) {
+        // Check if response is 202 Accepted (async processing)
+        if (response.status === 202 && response.data.jobId) {
+          const { jobId } = response.data;
+          
+          // Update toast to show polling status
+          toast.loading(
+            'Análisis en progreso...',
+            { 
+              id: loadingToastId,
+              duration: Infinity,
+              description: 'Verificando estado cada 5 segundos. Puedes cerrar esta ventana y volver después.'
+            }
+          );
+          
+          // Start polling for job status
+          let consecutiveFailures = 0;
+          const maxFailures = 3;
+          const pollingInterval = 5000; // 5 seconds
+          
+          const pollJobStatus = async (): Promise<void> => {
+            try {
+              const statusResponse = await apiClient.get(`/api/opportunities/status/${jobId}`);
+              
+              // Reset failure counter on successful request
+              consecutiveFailures = 0;
+              
+              const { status, progress } = statusResponse.data;
+              
+              if (status === 'completed') {
+                // Job completed, fetch result
+                const resultResponse = await apiClient.get(`/api/opportunities/result/${jobId}`);
+                
+                if (resultResponse.data.success && resultResponse.data.result) {
+                  const { sessionId, opportunities } = resultResponse.data.result;
+                  setOpportunitySessionId(sessionId);
+                  
+                  // Dismiss loading toast and show success
+                  toast.dismiss(loadingToastId);
+                  toast.success(
+                    `¡Análisis completado! ${opportunities.length} oportunidades identificadas`,
+                    {
+                      duration: 5000,
+                      description: 'Ve a la pestaña "Oportunidades de Venta" para ver los detalles'
+                    }
+                  );
+                }
+              } else if (status === 'failed') {
+                // Job failed
+                const errorMsg = statusResponse.data.error || 'El análisis falló';
+                toast.dismiss(loadingToastId);
+                toast.error('Error al analizar oportunidades', {
+                  description: errorMsg,
+                  duration: 7000
+                });
+              } else if (status === 'processing' || status === 'pending') {
+                // Still processing, update toast with progress
+                const progressText = progress ? `${progress}%` : 'en progreso';
+                toast.loading(
+                  `Análisis ${progressText}...`,
+                  { 
+                    id: loadingToastId,
+                    duration: Infinity,
+                    description: 'AWS Bedrock está analizando los datos. Esto puede tomar varios minutos.'
+                  }
+                );
+                
+                // Continue polling
+                setTimeout(pollJobStatus, pollingInterval);
+              }
+            } catch (pollError: any) {
+              console.error('Error polling job status:', pollError);
+              consecutiveFailures++;
+              
+              if (consecutiveFailures >= maxFailures) {
+                // Too many failures, stop polling and notify user
+                toast.dismiss(loadingToastId);
+                toast.error('Error al verificar estado del análisis', {
+                  description: `Falló ${maxFailures} veces consecutivas. Por favor recarga la página e intenta de nuevo.`,
+                  duration: 10000
+                });
+              } else {
+                // Retry after interval
+                setTimeout(pollJobStatus, pollingInterval);
+              }
+            }
+          };
+          
+          // Start polling
+          setTimeout(pollJobStatus, pollingInterval);
+          
+        } else if (response.data.success) {
+          // Old synchronous response (backward compatibility)
           setOpportunitySessionId(response.data.data.sessionId);
           
-          // Dismiss loading toast and show success
           toast.dismiss(loadingToastId);
           toast.success(
             `¡Análisis completado! ${response.data.data.opportunities.length} oportunidades identificadas`,
@@ -347,7 +437,7 @@ function App() {
             }
           );
         }
-      } catch (error: any) {
+            } catch (error: any) {
         console.error('Error analyzing opportunities:', error);
         
         // Dismiss loading toast and show error

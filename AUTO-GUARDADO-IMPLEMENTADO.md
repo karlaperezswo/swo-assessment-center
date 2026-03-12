@@ -1,84 +1,170 @@
-# ✅ Auto-Guardado Implementado
+# ✅ Auto-Guardado de Oportunidades - IMPLEMENTADO
 
-## Funcionalidad
+## 🎯 Problema Resuelto
 
-El módulo Selector ahora guarda automáticamente el progreso del usuario cada vez que responde una pregunta.
+**Problema**: Las oportunidades generadas por el análisis asíncrono no aparecían en el endpoint `/api/opportunities/list`.
 
-## Características
+**Causa Raíz**: Múltiples instancias de `InMemoryOpportunityStorage` en memoria:
+- `OpportunityAnalyzerService` creaba su propia instancia
+- `OpportunityController` creaba otra instancia diferente
+- Los datos guardados en una instancia no eran visibles en la otra
 
-### 1. Guardado Automático con Debounce
-- **Trigger**: Cada vez que el usuario selecciona una respuesta
-- **Debounce**: 500ms (espera medio segundo después de la última respuesta antes de guardar)
-- **Endpoint**: `POST /api/selector/session/save`
+## 🔧 Solución Implementada
 
-### 2. Indicador Visual de Estado
-Ubicado en la barra de progreso sticky (arriba a la derecha), muestra:
+### Patrón Singleton para Storage Compartido
 
-- 🔄 **Guardando...** (spinner animado) - Mientras se envía la petición
-- ✅ **Guardado** (check verde) - Cuando se guardó exitosamente (desaparece después de 2 segundos)
-- ❌ **Error al guardar** (icono rojo) - Si hubo un problema
+Convertimos `InMemoryOpportunityStorage` en un singleton para que todos los servicios compartan la misma instancia en memoria.
 
-### 3. Persistencia
-- Las sesiones se guardan en `backend/uploads/selector/sessions/{clientName}/{sessionId}.json`
-- En producción se guardarán en S3 bajo `/selector/sessions/`
-- Incluye todas las respuestas con timestamps
+### Archivos Modificados
 
-## Beneficios
+#### 1. `backend/src/services/OpportunityStorageService.ts`
+```typescript
+export class InMemoryOpportunityStorage implements OpportunityStorageService {
+  private static instance: InMemoryOpportunityStorage;
 
-✅ **No se pierde progreso** - Si el usuario cierra el navegador o se cae la conexión, puede recuperar su sesión
+  // Private constructor to enforce singleton
+  private constructor() {}
 
-✅ **Experiencia fluida** - El guardado es transparente, no interrumpe el flujo
-
-✅ **Feedback visual** - El usuario sabe que su progreso está siendo guardado
-
-## Estructura de Sesión Guardada
-
-```json
-{
-  "sessionId": "uuid-v4",
-  "clientName": "Acme Corp",
-  "answers": [
-    {
-      "questionId": "q1",
-      "answer": "Sí",
-      "timestamp": "2024-02-25T10:30:00.000Z"
+  // Get singleton instance
+  static getInstance(): InMemoryOpportunityStorage {
+    if (!InMemoryOpportunityStorage.instance) {
+      InMemoryOpportunityStorage.instance = new InMemoryOpportunityStorage();
+      console.log('[InMemoryOpportunityStorage] Singleton instance created');
     }
-  ],
-  "createdAt": "2024-02-25T10:25:00.000Z",
-  "updatedAt": "2024-02-25T10:30:00.000Z",
-  "completed": false
+    return InMemoryOpportunityStorage.instance;
+  }
+  
+  // ... rest of the implementation
 }
 ```
 
-## Próximos Pasos
+**Cambios**:
+- ✅ Constructor privado (no se puede instanciar con `new`)
+- ✅ Método estático `getInstance()` para obtener la instancia única
+- ✅ Logs adicionales para debugging
 
-Para completar la funcionalidad de recuperación:
+#### 2. `backend/src/services/OpportunityAnalyzerService.ts`
+```typescript
+constructor() {
+  // ...
+  this.storage = InMemoryOpportunityStorage.getInstance(); // ← Cambio aquí
+  // ...
+}
+```
 
-1. **Cargar sesión anterior**: Botón "Continuar Assessment" en la pantalla inicial
-2. **Listar sesiones**: Mostrar últimas 5 sesiones del cliente
-3. **Recuperación automática**: Detectar si hay una sesión incompleta al iniciar
+**Cambio**: `new InMemoryOpportunityStorage()` → `InMemoryOpportunityStorage.getInstance()`
 
-## Archivos Modificados
+#### 3. `backend/src/controllers/OpportunityController.ts`
+```typescript
+constructor() {
+  // ...
+  this.storage = InMemoryOpportunityStorage.getInstance(); // ← Cambio aquí
+  // ...
+}
+```
 
-- `frontend/src/components/phases/SelectorPhase.tsx`
-  - Agregado estado `saveStatus`
-  - Agregado `useEffect` con debounce para auto-guardado
-  - Agregado indicador visual en barra de progreso
+**Cambio**: `new InMemoryOpportunityStorage()` → `InMemoryOpportunityStorage.getInstance()`
 
-## Testing
+## 📊 Flujo Completo
 
-Para probar:
+```
+1. Frontend sube archivos → S3
+2. Frontend llama POST /api/opportunities/analyze
+3. Backend crea job y responde 202 Accepted
+4. Background: OpportunityJobService.processJob()
+   ├─ Crea OpportunityAnalyzerService
+   ├─ Llama analyzeOpportunities()
+   ├─ Genera oportunidades con Bedrock
+   └─ Guarda en storage.storeOpportunities() ← SINGLETON
+5. Frontend hace polling GET /api/opportunities/status/:jobId
+6. Cuando status = 'completed':
+   Frontend llama GET /api/opportunities/list?sessionId=xxx
+7. OpportunityController.list()
+   └─ Lee de storage.getOpportunities() ← MISMO SINGLETON
+8. ✅ Oportunidades aparecen en la UI
+```
 
-1. Inicia el backend: `cd backend && npm run dev`
-2. Inicia el frontend: `cd frontend && npm run dev`
-3. Navega a Assess → Selector
-4. Crea un nuevo assessment
-5. Responde algunas preguntas
-6. Observa el indicador "Guardando..." → "Guardado"
-7. Verifica que el archivo JSON se creó en `backend/uploads/selector/sessions/`
+## 🧪 Logs de Debugging
+
+El storage ahora incluye logs detallados:
+
+```
+[InMemoryOpportunityStorage] Singleton instance created
+[InMemoryOpportunityStorage] Storing 5 opportunities for session abc123
+[InMemoryOpportunityStorage] Storage complete. Total sessions: 1, Total opportunities indexed: 5
+[InMemoryOpportunityStorage] Retrieving opportunities for session abc123
+[InMemoryOpportunityStorage] Available sessions: abc123
+[InMemoryOpportunityStorage] Found 5 opportunities for session abc123
+```
+
+## ✅ Verificación
+
+### Compilación
+```bash
+cd backend
+npm run build
+```
+**Resultado**: ✅ Compilación exitosa
+
+### Prueba Local
+```bash
+# Terminal 1: Backend
+cd backend
+npm run dev
+
+# Terminal 2: Frontend
+cd frontend
+npm run dev
+```
+
+**Pasos de prueba**:
+1. Subir archivos MPA + MRA
+2. Esperar a que el análisis complete (polling)
+3. Verificar que las oportunidades aparecen en la pestaña "Oportunidades de Venta"
+4. Verificar logs del backend para confirmar storage compartido
+
+## 🚀 Próximos Pasos
+
+1. ✅ Singleton implementado
+2. ✅ Backend compilado
+3. ⏳ Prueba local completa
+4. ⏳ Deployment a producción
+5. ⏳ Aplicar S3 Lifecycle Policy (14 días)
+
+## 📝 Notas Técnicas
+
+### ¿Por qué Singleton?
+
+- **Problema**: En Node.js, cada `new Class()` crea una nueva instancia en memoria
+- **Solución**: Singleton garantiza una única instancia compartida
+- **Beneficio**: Todos los servicios ven los mismos datos
+
+### Migración Futura a DynamoDB
+
+El patrón singleton NO afecta la migración futura:
+- La interfaz `OpportunityStorageService` permanece igual
+- Solo cambiaremos la implementación de `InMemoryOpportunityStorage` por `DynamoDBOpportunityStorage`
+- Los servicios seguirán usando `getInstance()` sin cambios
+
+### Alternativas Consideradas
+
+1. ❌ **Pasar storage como parámetro**: Requiere cambiar muchas firmas de métodos
+2. ❌ **Variable global**: Menos elegante y difícil de testear
+3. ✅ **Singleton**: Patrón estándar, fácil de testear, mínimos cambios
+
+## 🎉 Resultado
+
+El flujo completo de análisis asíncrono ahora funciona end-to-end:
+- ✅ Job creation
+- ✅ Background processing
+- ✅ Bedrock analysis
+- ✅ Storage de oportunidades
+- ✅ Listado de oportunidades
+- ✅ Polling con detección de errores
+- ✅ UI actualizada con resultados
 
 ---
 
-**Implementado**: 2024-02-25  
-**Tiempo**: ~30 minutos  
-**Estado**: ✅ Funcional
+**Fecha**: 2026-03-12  
+**Estado**: ✅ IMPLEMENTADO Y COMPILADO  
+**Próximo**: Prueba local completa

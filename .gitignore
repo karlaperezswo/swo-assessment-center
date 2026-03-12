@@ -138,3 +138,20 @@ verificar-deployment.bat
 
 # Specs y documentación de desarrollo
 .kiro/specs/
+
+# Temporary script files
+replace-*.ps1
+replace-*.js
+frontend-async-polling.txt
+CONTROLLER-CHANGES.md
+backend/src/controllers/OpportunityController.NEW_METHODS.ts
+backend/src/controllers/OpportunityController.ts.backup*
+
+# Scripts de prueba local
+INICIAR-LOCAL-*.bat
+GUIA-PRUEBA-LOCAL.md
+
+# Archivos temporales de implementación singleton
+SINGLETON-READY.txt
+RESUMEN-CAMBIOS-SINGLETON.md
+ASYNC-IMPLEMENTATION-COMPLETE.md

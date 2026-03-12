@@ -24,20 +24,51 @@ router.post('/get-upload-urls', controller.getUploadUrls);
 
 /**
  * POST /api/opportunities/analyze
- * Analyze MPA Excel, MRA PDF, and optional Questionnaire Word files to generate opportunities
+ * Start asynchronous analysis of MPA Excel, MRA PDF, and optional Questionnaire Word files
  * Files must be uploaded to S3 first using /get-upload-urls
+ * Returns immediately with a jobId for polling
  * 
  * Request body (JSON):
  *   - mpaKey: string (S3 key from get-upload-urls) - REQUIRED
  *   - mraKey: string (S3 key from get-upload-urls) - REQUIRED
  *   - questionnaireKey: string (S3 key from get-upload-urls) - OPTIONAL
  * 
- * Response: AnalyzeResponseBody
- *   - sessionId: string
- *   - opportunities: Opportunity[]
- *   - summary: { totalOpportunities, totalEstimatedARR, highPriorityCount }
+ * Response: CreateJobResponse (202 Accepted)
+ *   - jobId: string
+ *   - message: string
+ *   - statusUrl: string
+ *   - resultUrl: string
  */
 router.post('/analyze', controller.analyze);
+
+/**
+ * GET /api/opportunities/status/:jobId
+ * Get the status of an analysis job
+ * 
+ * Path parameters:
+ *   - jobId: string (job ID from /analyze)
+ * 
+ * Response: JobStatusResponse
+ *   - jobId: string
+ *   - status: 'pending' | 'processing' | 'completed' | 'failed'
+ *   - createdAt: string
+ *   - updatedAt: string
+ *   - progress: number (0-100)
+ *   - error?: string (if failed)
+ */
+router.get('/status/:jobId', controller.getJobStatus);
+
+/**
+ * GET /api/opportunities/result/:jobId
+ * Get the result of a completed analysis job
+ * 
+ * Path parameters:
+ *   - jobId: string (job ID from /analyze)
+ * 
+ * Response: JobResultResponse
+ *   - result: { sessionId, opportunities, summary }
+ */
+router.get('/result/:jobId', controller.getJobResult);
 
 /**
  * GET /api/opportunities/list

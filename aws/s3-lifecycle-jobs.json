@@ -1,0 +1,14 @@
+{
+  "Rules": [
+    {
+      "Id": "DeleteOldOpportunityJobs",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "jobs/"
+      },
+      "Expiration": {
+        "Days": 14
+      }
+    }
+  ]
+}

@@ -6,6 +6,13 @@ import {
   AnonymizationMapping,
   OpportunityPriority,
 } from '../../../shared/types/opportunity.types';
+import { S3Service } from './s3Service';
+import { ExcelService } from './excelService';
+import { AnonymizationService } from './AnonymizationService';
+import { BedrockService } from './BedrockService';
+import { KnowledgeBaseService } from './KnowledgeBaseService';
+import { QuestionnaireParserService } from './QuestionnaireParserService';
+import { InMemoryOpportunityStorage } from './OpportunityStorageService';
 
 export class OpportunityAnalyzerError extends Error {
   constructor(message: string, public readonly cause?: Error) {
@@ -15,6 +22,168 @@ export class OpportunityAnalyzerError extends Error {
 }
 
 export class OpportunityAnalyzerService {
+  private excelService: ExcelService;
+  private anonymizationService: AnonymizationService;
+  private bedrockService: BedrockService;
+  private knowledgeBaseService: KnowledgeBaseService;
+  private questionnaireParser: QuestionnaireParserService;
+  private storage: InMemoryOpportunityStorage;
+  private pdfParser: any; // Lazy loaded
+
+  constructor() {
+    this.excelService = new ExcelService();
+    this.anonymizationService = new AnonymizationService();
+    this.bedrockService = new BedrockService();
+    this.knowledgeBaseService = new KnowledgeBaseService();
+    this.questionnaireParser = new QuestionnaireParserService();
+    this.storage = InMemoryOpportunityStorage.getInstance();
+    this.pdfParser = null;
+  }
+
+  private async getPdfParser() {
+    if (!this.pdfParser) {
+      const { PdfParserService } = await import('./PdfParserService');
+      this.pdfParser = new PdfParserService();
+    }
+    return this.pdfParser;
+  }
+
+  /**
+   * Analyze opportunities from S3 files (for async processing)
+   * @param files - Array of file metadata with S3 keys
+   * @param clientInfo - Optional client information
+   * @returns Analysis result with sessionId, opportunities, and summary
+   */
+  async analyzeOpportunities(
+    files: Array<{ filename: string; s3Key: string; contentType: string }>,
+    clientInfo?: any
+  ): Promise<{ sessionId: string; opportunities: Opportunity[]; summary: any }> {
+    console.log('[OpportunityAnalyzerService] ========== STARTING ANALYSIS ==========');
+    console.log('[OpportunityAnalyzerService] Files:', files.length);
+
+    // Extract file keys
+    const mpaFile = files.find(f => f.filename === 'mpa');
+    const mraFile = files.find(f => f.filename === 'mra');
+    const questionnaireFile = files.find(f => f.filename === 'questionnaire');
+
+    if (!mpaFile || !mraFile) {
+      throw new Error('MPA and MRA files are required');
+    }
+
+    const mpaKey = mpaFile.s3Key;
+    const mraKey = mraFile.s3Key;
+    const questionnaireKey = questionnaireFile?.s3Key;
+
+    // Extract session ID from keys (format: opportunities/mpa-{sessionId}.json)
+    const sessionId = mpaKey.split('/')[1].split('-')[1].split('.')[0];
+    console.log(`[OpportunityAnalyzerService] Session ID: ${sessionId}`);
+
+    // Step 1: Read files from S3
+    console.log('[OpportunityAnalyzerService] Reading files from S3...');
+    const mpaBuffer = await S3Service.getFile(mpaKey);
+    const mraBuffer = await S3Service.getFile(mraKey);
+    console.log(`[OpportunityAnalyzerService] MPA file size: ${(mpaBuffer.length / 1024).toFixed(2)}KB`);
+    console.log(`[OpportunityAnalyzerService] MRA file size: ${(mraBuffer.length / 1024).toFixed(2)}KB`);
+
+    let questionnaireBuffer: Buffer | undefined;
+    if (questionnaireKey) {
+      questionnaireBuffer = await S3Service.getFile(questionnaireKey);
+      console.log(`[OpportunityAnalyzerService] Questionnaire file size: ${(questionnaireBuffer.length / 1024).toFixed(2)}KB`);
+    }
+
+    // Step 2: Parse PDF
+    console.log('[OpportunityAnalyzerService] Parsing PDF...');
+    const pdfParser = await this.getPdfParser();
+    const mraData = await pdfParser.parsePdf(mraBuffer);
+    console.log(`[OpportunityAnalyzerService] PDF parsed: maturity level ${mraData.maturityLevel}, ${mraData.securityGaps.length} security gaps`);
+
+    // Step 3: Parse MPA (Excel or JSON)
+    console.log('[OpportunityAnalyzerService] Parsing MPA data...');
+    let mpaData;
+
+    try {
+      // Check if MPA file is JSON or Excel based on key
+      if (mpaKey.endsWith('.json')) {
+        // Parse JSON directly
+        console.log('[OpportunityAnalyzerService] Detected JSON format');
+        const jsonString = mpaBuffer.toString('utf-8');
+        console.log(`[OpportunityAnalyzerService] JSON string length: ${jsonString.length} characters`);
+        mpaData = JSON.parse(jsonString);
+        console.log(`[OpportunityAnalyzerService] MPA JSON parsed: ${mpaData.servers?.length || 0} servers, ${mpaData.databases?.length || 0} databases`);
+      } else {
+        // Parse Excel file
+        console.log('[OpportunityAnalyzerService] Detected Excel format');
+        mpaData = this.excelService.parseExcelFromBuffer(mpaBuffer);
+        console.log(`[OpportunityAnalyzerService] Excel parsed: ${mpaData.servers?.length || 0} servers, ${mpaData.databases?.length || 0} databases`);
+      }
+
+      // Validate parsed data
+      if (!mpaData || !mpaData.servers || !mpaData.databases) {
+        throw new Error('Invalid MPA data structure: missing servers or databases arrays');
+      }
+
+      console.log(`[OpportunityAnalyzerService] MPA validation passed: ${mpaData.servers.length} servers, ${mpaData.databases.length} databases, ${mpaData.applications?.length || 0} applications`);
+    } catch (parseError) {
+      console.error('[OpportunityAnalyzerService] Error parsing MPA:', parseError);
+      throw new Error(`Failed to parse MPA file: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+    }
+
+    // Step 4: Parse Questionnaire (if provided)
+    let questionnaireData;
+    if (questionnaireBuffer) {
+      console.log('[OpportunityAnalyzerService] Parsing Questionnaire...');
+      questionnaireData = await this.questionnaireParser.parseQuestionnaire(questionnaireBuffer);
+      console.log(`[OpportunityAnalyzerService] Questionnaire parsed: ${questionnaireData.priorities?.length || 0} priorities identified`);
+    }
+
+    // Step 5: Anonymize data
+    console.log('[OpportunityAnalyzerService] Anonymizing data...');
+    const anonymizedData = this.anonymizationService.anonymize(mpaData, mraData, questionnaireData);
+    console.log(`[OpportunityAnalyzerService] Anonymized: ${anonymizedData.mapping.ipAddresses.size} IPs, ${anonymizedData.mapping.hostnames.size} hostnames`);
+    if (questionnaireData) {
+      console.log(`[OpportunityAnalyzerService] Questionnaire anonymized: ${anonymizedData.mapping.companyNames.size} companies, ${anonymizedData.mapping.locations.size} locations`);
+    }
+
+    // Step 6: Add knowledge base for Microsoft cost optimization
+    console.log('[OpportunityAnalyzerService] Loading knowledge base...');
+    const knowledgeBase = this.knowledgeBaseService.getMicrosoftCostOptimizationKnowledgeBase();
+    anonymizedData.knowledgeBase = knowledgeBase;
+    console.log(`[OpportunityAnalyzerService] Knowledge base loaded: ${knowledgeBase.title}`);
+
+    // Step 7: Call Bedrock
+    console.log('[OpportunityAnalyzerService] Calling Bedrock AI...');
+    const bedrockResponse = await this.bedrockService.analyzeOpportunities(anonymizedData);
+    console.log(`[OpportunityAnalyzerService] Bedrock response: ${bedrockResponse.usage.inputTokens} input tokens, ${bedrockResponse.usage.outputTokens} output tokens`);
+
+    // Step 8: Parse opportunities
+    console.log('[OpportunityAnalyzerService] Parsing opportunities...');
+    const opportunities = this.parseOpportunities(
+      bedrockResponse,
+      anonymizedData.mapping
+    );
+    console.log(`[OpportunityAnalyzerService] Generated ${opportunities.length} opportunities`);
+
+    // Step 9: Store opportunities
+    await this.storage.storeOpportunities(opportunities, sessionId);
+
+    // Step 10: Calculate summary
+    const summary = {
+      totalOpportunities: opportunities.length,
+      totalEstimatedARR: opportunities.reduce((sum, opp) => sum + opp.estimatedARR, 0),
+      highPriorityCount: opportunities.filter(opp => opp.priority === 'High').length,
+    };
+
+    console.log('[OpportunityAnalyzerService] Analysis complete');
+    console.log(`[OpportunityAnalyzerService] Summary: ${summary.totalOpportunities} opportunities, ${summary.totalEstimatedARR.toLocaleString()} total ARR`);
+    console.log('[OpportunityAnalyzerService] ========== ANALYSIS COMPLETE ==========');
+
+    return {
+      sessionId,
+      opportunities,
+      summary,
+    };
+  }
+
   /**
    * Parse Bedrock response into structured opportunities
    * @param response - Raw Bedrock response

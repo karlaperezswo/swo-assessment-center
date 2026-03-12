@@ -79,4 +79,21 @@ export class S3Service {
       return false;
     }
   }
+
+  /**
+   * Upload JSON object to S3
+   */
+  static async uploadJSON(key: string, data: any): Promise<string> {
+    const body = Buffer.from(JSON.stringify(data), 'utf-8');
+    return this.uploadFile(key, body, 'application/json');
+  }
+
+  /**
+   * Download and parse JSON from S3
+   */
+  static async downloadJSON(key: string): Promise<any> {
+    const buffer = await this.getFile(key);
+    const jsonString = buffer.toString('utf-8');
+    return JSON.parse(jsonString);
+  }
 }

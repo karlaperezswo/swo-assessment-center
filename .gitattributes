@@ -1,0 +1,9 @@
+# Git Attributes for SWO Assessment Center
+
+# Selector Module - PROTECTED FILES
+# These files are in stable production and should not be modified
+backend/src/controllers/selector/** linguist-generated=false
+backend/src/services/selector/** linguist-generated=false
+backend/src/config/selector/** linguist-generated=false
+backend/src/types/selector.ts linguist-generated=false
+frontend/src/components/phases/SelectorPhase.tsx linguist-generated=false

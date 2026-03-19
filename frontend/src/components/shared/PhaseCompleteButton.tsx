@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface PhaseCompleteButtonProps {
   phaseLabel: string;
@@ -27,12 +28,14 @@ export function PhaseCompleteButton({
   completionRequirements,
   accentColor,
 }: PhaseCompleteButtonProps) {
+  const { t } = useTranslation();
+
   if (isCompleted) {
     return (
       <div className="flex items-center justify-center gap-3 py-6">
         <div className="flex items-center gap-2 bg-green-100 text-green-800 px-6 py-3 rounded-lg border border-green-300">
           <CheckCircle className="h-5 w-5" />
-          <span className="font-semibold">{phaseLabel} Phase Completard</span>
+          <span className="font-semibold">{phaseLabel} Phase {t('phaseComplete.completed', { phase: phaseLabel })}</span>
         </div>
       </div>
     );
@@ -54,19 +57,19 @@ export function PhaseCompleteButton({
         >
           {canComplete ? (
             <>
-              Completar {phaseLabel} Phase
+              {t('phaseComplete.button', { phase: phaseLabel })}
               {nextPhaseLabel && <ArrowRight className="h-5 w-5 ml-2" />}
             </>
           ) : (
             <>
               <Lock className="h-5 w-5 mr-2" />
-              Completar {phaseLabel} Phase
+              {t('phaseComplete.button', { phase: phaseLabel })}
             </>
           )}
         </Button>
         {!canComplete && (
           <div className="text-center">
-            <p className="text-sm text-gray-500 mb-2">Requisitos para completar esta fase:</p>
+            <p className="text-sm text-gray-500 mb-2">{t('phaseComplete.requirements')}</p>
             <ul className="text-sm text-gray-400 space-y-1">
               {completionRequirements.map((req, i) => (
                 <li key={i} className="flex items-center gap-2 justify-center">

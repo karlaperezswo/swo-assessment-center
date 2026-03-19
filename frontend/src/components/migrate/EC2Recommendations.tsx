@@ -1,3 +1,4 @@
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ServerTable } from '@/components/ServerTable';
 import { Server, EC2Recommendation } from '@/types/assessment';
@@ -9,12 +10,14 @@ interface EC2RecommendationsProps {
 }
 
 export function EC2Recommendations({ servers, recommendations }: EC2RecommendationsProps) {
+  const { t } = useTranslation();
+
   if (!servers || servers.length === 0) {
     return (
       <div className="text-center py-12 text-gray-400">
         <ServerIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
-        <p className="font-medium">No server data available</p>
-        <p className="text-sm mt-1">Upload your MPA Excel file in the Assess phase</p>
+        <p className="font-medium">{t('ec2.noServers')}</p>
+        <p className="text-sm mt-1">{t('ec2.noServersDescription')}</p>
       </div>
     );
   }
@@ -27,9 +30,9 @@ export function EC2Recommendations({ servers, recommendations }: EC2Recommendati
           <div className="flex items-start gap-3">
             <ServerIcon className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-bold text-amber-900 text-lg">EC2 Instance Recommendations</h3>
+              <h3 className="font-bold text-amber-900 text-lg">{t('ec2.title')}</h3>
               <p className="text-sm text-amber-700 mt-1">
-                Optimized EC2 instance recommendations based on your current server specifications, utilization patterns, and workload requirements.
+                {t('ec2.description')}
               </p>
             </div>
           </div>
@@ -39,7 +42,7 @@ export function EC2Recommendations({ servers, recommendations }: EC2Recommendati
       {/* Server Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Server Migration Recommendations ({servers.length} servers)</CardTitle>
+          <CardTitle>{t('ec2.recommendationTitle', { count: servers.length })}</CardTitle>
         </CardHeader>
         <CardContent>
           <ServerTable servers={servers} recommendations={recommendations} />

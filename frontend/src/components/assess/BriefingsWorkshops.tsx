@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,12 +12,6 @@ interface BriefingsWorkshopsProps {
   onSessionsChange: (sessions: BriefingSession[]) => void;
 }
 
-const sessionTypeLabels = {
-  briefing: { label: 'Briefing', color: 'bg-blue-100 text-blue-700' },
-  workshop: { label: 'Workshop', color: 'bg-purple-100 text-purple-700' },
-  'deep-dive': { label: 'Deep Dive', color: 'bg-orange-100 text-orange-700' },
-};
-
 const statusIcons = {
   planned: { icon: Clock, color: 'text-yellow-500' },
   completed: { icon: CheckCircle, color: 'text-green-500' },
@@ -24,6 +19,13 @@ const statusIcons = {
 };
 
 export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWorkshopsProps) {
+  const { t } = useTranslation();
+
+  const sessionTypeLabels = {
+    briefing: { label: t('briefings.types.briefing'), color: 'bg-blue-100 text-blue-700' },
+    workshop: { label: t('briefings.types.workshop'), color: 'bg-purple-100 text-purple-700' },
+    'deep-dive': { label: t('briefings.types.deepDive'), color: 'bg-orange-100 text-orange-700' },
+  };
   const [showForm, setShowForm] = useState(false);
   const [newSession, setNewSession] = useState<Partial<BriefingSession>>({
     title: '',
@@ -72,10 +74,9 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
           <div className="flex items-start gap-3">
             <Presentation className="h-6 w-6 text-fuchsia-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-bold text-fuchsia-900 text-lg">Briefings & Workshops</h3>
+              <h3 className="font-bold text-fuchsia-900 text-lg">{t('briefings.title')}</h3>
               <p className="text-sm text-fuchsia-700 mt-1">
-                Track executive briefings, technical workshops, and deep-dive sessions to build organizational
-                alignment and understanding of the migration journey.
+                {t('briefings.description')}
               </p>
             </div>
           </div>
@@ -87,19 +88,19 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
         <Card>
           <CardContent className="pt-4 text-center">
             <p className="text-3xl font-bold text-fuchsia-600">{sessions.length}</p>
-            <p className="text-xs text-gray-500">Total Sessions</p>
+            <p className="text-xs text-gray-500">{t('briefings.stats.totalSessions')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 text-center">
             <p className="text-3xl font-bold text-green-600">{completedCount}</p>
-            <p className="text-xs text-gray-500">Completed</p>
+            <p className="text-xs text-gray-500">{t('briefings.stats.completed')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 text-center">
             <p className="text-3xl font-bold text-yellow-600">{sessions.filter(s => s.status === 'planned').length}</p>
-            <p className="text-xs text-gray-500">Planned</p>
+            <p className="text-xs text-gray-500">{t('briefings.stats.planned')}</p>
           </CardContent>
         </Card>
       </div>
@@ -107,9 +108,9 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
       {/* Session list */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Sessions</CardTitle>
+          <CardTitle className="text-lg">{t('briefings.sessions')}</CardTitle>
           <Button onClick={() => setShowForm(!showForm)} size="sm" className="bg-fuchsia-600 hover:bg-fuchsia-700">
-            <Plus className="h-4 w-4 mr-1" /> Add Session
+            <Plus className="h-4 w-4 mr-1" /> {t('briefings.addSession')}
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -117,7 +118,7 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
           {showForm && (
             <div className="bg-fuchsia-50 border border-fuchsia-200 rounded-lg p-4 space-y-3">
               <Input
-                placeholder="Session title"
+                placeholder={t('briefings.form.sessionTitle')}
                 value={newSession.title}
                 onChange={(e) => setNewSession({ ...newSession, title: e.target.value })}
               />
@@ -127,9 +128,9 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
                   value={newSession.type}
                   onChange={(e) => setNewSession({ ...newSession, type: e.target.value as BriefingSession['type'] })}
                 >
-                  <option value="briefing">Briefing</option>
-                  <option value="workshop">Workshop</option>
-                  <option value="deep-dive">Deep Dive</option>
+                  <option value="briefing">{t('briefings.types.briefing')}</option>
+                  <option value="workshop">{t('briefings.types.workshop')}</option>
+                  <option value="deep-dive">{t('briefings.types.deepDive')}</option>
                 </select>
                 <Input
                   type="date"
@@ -138,21 +139,21 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
                 />
                 <Input
                   type="number"
-                  placeholder="Attendees"
+                  placeholder={t('briefings.form.attendees')}
                   value={newSession.attendees || ''}
                   onChange={(e) => setNewSession({ ...newSession, attendees: parseInt(e.target.value) || 0 })}
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" size="sm" onClick={() => setShowForm(false)}>Cancel</Button>
-                <Button size="sm" onClick={handleAdd} className="bg-fuchsia-600 hover:bg-fuchsia-700">Add</Button>
+                <Button variant="outline" size="sm" onClick={() => setShowForm(false)}>{t('common.cancel')}</Button>
+                <Button size="sm" onClick={handleAdd} className="bg-fuchsia-600 hover:bg-fuchsia-700">{t('common.add')}</Button>
               </div>
             </div>
           )}
 
           {/* Sessions */}
           {sessions.length === 0 && !showForm && (
-            <p className="text-sm text-gray-400 text-center py-8">No sessions scheduled yet. Click "Add Session" to start tracking.</p>
+            <p className="text-sm text-gray-400 text-center py-8">{t('briefings.noSessions')}</p>
           )}
 
           {sessions.map((session) => {

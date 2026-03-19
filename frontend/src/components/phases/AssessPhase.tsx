@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { SubTabLayout, SubTabGroup } from '@/components/layout/SubTabLayout';
 import { PhaseCompleteButton } from '@/components/shared/PhaseCompleteButton';
 import { RapidDiscovery } from '@/components/assess/RapidDiscovery';
@@ -48,19 +49,20 @@ export function AssessPhase({
   mraFile, onMRAFileChange,
   questionnaireFile, onQuestionnaireFileChange,
 }: AssessPhaseProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('rapid-discovery');
 
   const groups: SubTabGroup[] = [
     {
       tabs: [
-        { value: 'rapid-discovery', label: 'Descubrimiento Rápido', icon: <Upload className="h-4 w-4" /> },
-        { value: 'tco-report', label: 'Reporte TCO', icon: <DollarSign className="h-4 w-4" /> },
-        { value: 'migration-readiness', label: 'Preparación para Migración', icon: <Gauge className="h-4 w-4" /> },
-        { value: 'opportunities', label: 'Oportunidades de Venta', icon: <Target className="h-4 w-4" /> },
-        { value: 'wave-planning', label: 'Planificación de Olas', icon: <Waves className="h-4 w-4" /> },
-        { value: 'briefings-workshops', label: 'Briefings y Talleres', icon: <Presentation className="h-4 w-4" /> },
-        { value: 'immersion-day', label: 'Día de Inmersión', icon: <GraduationCap className="h-4 w-4" /> },
-        { value: 'selector', label: 'Selector', icon: <Target className="h-4 w-4" /> },
+        { value: 'rapid-discovery', label: t('assess.tabs.rapidDiscovery'), icon: <Upload className="h-4 w-4" /> },
+        { value: 'tco-report', label: t('assess.tabs.tcoReport'), icon: <DollarSign className="h-4 w-4" /> },
+        { value: 'migration-readiness', label: t('assess.tabs.migrationReadiness'), icon: <Gauge className="h-4 w-4" /> },
+        { value: 'opportunities', label: t('assess.tabs.opportunities'), icon: <Target className="h-4 w-4" /> },
+        { value: 'wave-planning', label: t('assess.tabs.migrationWaves'), icon: <Waves className="h-4 w-4" /> },
+        { value: 'briefings-workshops', label: t('assess.tabs.briefings'), icon: <Presentation className="h-4 w-4" /> },
+        { value: 'immersion-day', label: t('assess.tabs.immersionDay'), icon: <GraduationCap className="h-4 w-4" /> },
+        { value: 'selector', label: t('assess.tabs.selector'), icon: <Target className="h-4 w-4" /> },
       ],
     },
   ];
@@ -132,9 +134,9 @@ export function AssessPhase({
         isCompleted={phaseStatus.assess === 'completed'}
         onComplete={onCompletePhase}
         completionRequirements={[
-          'Cargar archivo Excel MPA',
-          'Ingresar nombre del cliente',
-          'Ingresar costo anual on-premises',
+          t('assess.requirements.excelFile'),
+          t('assess.requirements.clientName'),
+          t('assess.requirements.onPremisesCost'),
         ]}
         accentColor="fuchsia"
       />

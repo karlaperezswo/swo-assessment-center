@@ -1,17 +1,12 @@
 import { PhaseStatus, MigrationPhase } from '@/types/assessment';
 import { CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface PhaseProgressBarProps {
   phaseStatus: PhaseStatus;
   currentPhase: MigrationPhase;
 }
-
-const phases: { key: MigrationPhase; label: string; subtitle: string }[] = [
-  { key: 'assess', label: 'Evaluar', subtitle: 'Crear un caso de cambio' },
-  { key: 'mobilize', label: 'Movilizar', subtitle: 'Construir preparación' },
-  { key: 'migrate', label: 'Migrar y Modernizar', subtitle: 'Acelerar la transformación' },
-];
 
 const phaseColors = {
   assess: { circle: 'bg-fuchsia-600', ring: 'ring-fuchsia-300', text: 'text-fuchsia-700' },
@@ -20,6 +15,13 @@ const phaseColors = {
 };
 
 export function PhaseProgressBar({ phaseStatus, currentPhase }: PhaseProgressBarProps) {
+  const { t } = useTranslation();
+
+  const phases: { key: MigrationPhase; label: string; subtitle: string }[] = [
+    { key: 'assess', label: t('phases.assess.name').split(' ')[0], subtitle: t('phases.assess.subtitle') },
+    { key: 'mobilize', label: t('phases.mobilize.name').split(' ')[0], subtitle: t('phases.mobilize.subtitle') },
+    { key: 'migrate', label: t('phases.migrate.name').split(' ')[0], subtitle: t('phases.migrate.subtitle') },
+  ];
   return (
     <div className="flex items-center justify-between w-full max-w-3xl mx-auto py-4">
       {phases.map((phase, index) => {

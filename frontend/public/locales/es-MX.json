@@ -1,0 +1,450 @@
+{
+  "common": {
+    "reset": "Reiniciar Todo",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "download": "Descargar",
+    "upload": "Subir",
+    "generate": "Generar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "complete": "Completar",
+    "add": "Agregar",
+    "remove": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "optional": "Opcional",
+    "required": "Requerido",
+    "developedBy": "Desarrollado por"
+  },
+  "header": {
+    "title": "Centro de Evaluación de Migración AWS",
+    "subtitle": "Evaluar → Movilizar → Migrar y Modernizar",
+    "brand": "SoftwareOne"
+  },
+  "footer": {
+    "copyright": "AWS Assessment Report Generator"
+  },
+  "phases": {
+    "assess": {
+      "name": "EVALUAR",
+      "subtitle": "Crear un caso de cambio",
+      "description": "Evaluar el estado actual de la infraestructura"
+    },
+    "mobilize": {
+      "name": "MOVILIZAR",
+      "subtitle": "Preparar para migrar",
+      "description": "Preparar el equipo y la infraestructura para la migración"
+    },
+    "migrate": {
+      "name": "MIGRAR Y MODERNIZAR",
+      "subtitle": "Ejecutar la migración",
+      "description": "Ejecutar la migración y modernización a AWS"
+    },
+    "status": {
+      "not_started": "No iniciado",
+      "in_progress": "En progreso",
+      "completed": "Completado"
+    }
+  },
+  "upload": {
+    "title": "Cargar Datos MPA",
+    "description": "Sube el archivo Excel exportado de Migration Portfolio Assessment",
+    "dragDrop": "Arrastra y suelta tu archivo aquí, o haz clic para seleccionar",
+    "fileTypes": "Archivos Excel (.xlsx, .xls)",
+    "uploading": "Cargando archivo...",
+    "success": "Archivo cargado exitosamente",
+    "error": "Error al cargar el archivo"
+  },
+  "report": {
+    "generate": "Generar Reporte Word",
+    "generating": "Generando reporte Word...",
+    "generated": "Reporte generado exitosamente",
+    "download": "Descargar Reporte",
+    "error": "Error al generar reporte",
+    "clientName": "Nombre del Cliente",
+    "clientNamePlaceholder": "Ingresa el nombre del cliente",
+    "vertical": "Vertical",
+    "reportDate": "Fecha del Reporte",
+    "awsRegion": "Región AWS",
+    "totalServers": "Total de Servidores",
+    "onPremisesCost": "Costo On-Premises",
+    "companyDescription": "Descripción de la Empresa",
+    "migrationReadiness": "Preparación para Migración"
+  },
+  "opportunities": {
+    "title": "Oportunidades de Venta",
+    "analyzing": "Analizando oportunidades con AWS Bedrock...",
+    "analyzing_description": "Esto puede tomar hasta 5 minutos para datasets grandes. El sistema está procesando los datos con IA.",
+    "completed": "¡Análisis completado!",
+    "identified": "oportunidades identificadas",
+    "viewDetails": "Ve a la pestaña \"Oportunidades de Venta\" para ver los detalles",
+    "error": "Error al analizar oportunidades",
+    "retry": "Intenta de nuevo o contacta soporte",
+    "polling": "Análisis en progreso...",
+    "polling_description": "Verificando estado cada 5 segundos. Puedes cerrar esta ventana y volver después.",
+    "failed": "El análisis falló",
+    "polling_error": "Error al verificar estado del análisis",
+    "polling_error_description": "Falló {{count}} veces consecutivas. Por favor recarga la página e intenta de nuevo."
+  },
+  "costs": {
+    "title": "Estimación de Costos AWS",
+    "onDemand": "On-Demand",
+    "oneYearRI": "1 Año Reserved",
+    "threeYearRI": "3 Años Reserved",
+    "monthly": "Mensual",
+    "annual": "Anual",
+    "threeYear": "3 Años",
+    "savings": "Ahorro",
+    "total": "Total"
+  },
+  "servers": {
+    "title": "Servidores",
+    "count": "{{count}} servidores",
+    "hostname": "Hostname",
+    "os": "Sistema Operativo",
+    "vcpus": "vCPUs",
+    "ram": "RAM (GB)",
+    "storage": "Almacenamiento (GB)",
+    "recommendation": "Instancia Recomendada"
+  },
+  "databases": {
+    "title": "Bases de Datos",
+    "count": "{{count}} bases de datos",
+    "name": "Nombre",
+    "engine": "Motor",
+    "size": "Tamaño (GB)",
+    "recommendation": "Instancia RDS Recomendada"
+  },
+  "errors": {
+    "uploadFirst": "Por favor sube un archivo Excel e ingresa el nombre del cliente",
+    "generic": "Ocurrió un error inesperado",
+    "network": "Error de conexión. Verifica tu conexión a internet."
+  },
+  "language": {
+    "selector": "Idioma",
+    "changing": "Cambiando idioma..."
+  },
+  "nav": {
+    "assess": {
+      "label": "EVALUAR",
+      "subtitle": "Crear un caso de cambio"
+    },
+    "mobilize": {
+      "label": "MOVILIZAR",
+      "subtitle": "Construir preparación a través de experiencias"
+    },
+    "migrate": {
+      "label": "MIGRAR Y MODERNIZAR",
+      "subtitle": "Acelerar la transformación a escala"
+    }
+  },
+  "assess": {
+    "title": "Fase de Evaluación",
+    "tabs": {
+      "rapidDiscovery": "Descubrimiento Rápido",
+      "tcoReport": "Reporte TCO",
+      "migrationReadiness": "Preparación para Migración",
+      "opportunities": "Oportunidades de Venta",
+      "migrationWaves": "Planificación de Olas",
+      "briefings": "Briefings y Talleres",
+      "immersionDay": "Día de Inmersión",
+      "selector": "Selector"
+    },
+    "requirements": {
+      "excelFile": "Cargar archivo Excel MPA",
+      "clientName": "Ingresar nombre del cliente",
+      "onPremisesCost": "Ingresar costo anual on-premises"
+    }
+  },
+  "mobilize": {
+    "title": "Fase de Movilización",
+    "groups": {
+      "portfolio": "Portafolio",
+      "people": "Personas",
+      "platform": "Plataforma"
+    },
+    "tabs": {
+      "discoveryPlanning": "Descubrimiento y Planificación",
+      "migrationPlan": "Plan de Migración",
+      "businessCase": "Caso de Negocio",
+      "skills": "Habilidades y CoE",
+      "landingZone": "Landing Zone",
+      "security": "Seguridad y Cumplimiento",
+      "architecture": "Diagrama de Arquitectura"
+    },
+    "requirements": {
+      "assessPhase": "Completar fase de Evaluación",
+      "migrationWaves": "Definir al menos 1 ola de migración",
+      "landingZoneItems": "Iniciar configuración de Landing Zone (marcar al menos 1 item)"
+    }
+  },
+  "migrate": {
+    "title": "Fase de Migración y Modernización",
+    "groups": {
+      "migrate": "Migrar",
+      "optimize": "Optimizar",
+      "modernize": "Modernizar"
+    },
+    "tabs": {
+      "ec2": "Recomendaciones EC2",
+      "rds": "Recomendaciones RDS",
+      "waves": "Olas de Migración",
+      "costOptimization": "Optimización de Costos",
+      "modernizationRoadmap": "Hoja de Ruta de Modernización"
+    },
+    "report": {
+      "title": "Reporte de Evaluación Final",
+      "description": "Generar un documento Word completo con todas las recomendaciones de migración",
+      "buttonGenerate": "Generar Reporte",
+      "buttonGenerating": "Generando...",
+      "buttonDownload": "Descargar Reporte",
+      "successMessage": "Reporte generado exitosamente!",
+      "successDescription": "Haz clic en descargar para obtener tu documento Word"
+    },
+    "requirements": {
+      "mobilizePhase": "Completar fase de Movilización",
+      "reportGeneration": "Generar reporte de evaluación final"
+    }
+  },
+  "phaseComplete": {
+    "button": "Completar {{phase}}",
+    "completed": "{{phaseLabel}} Completada",
+    "requirements": "Requisitos para completar esta fase:"
+  },
+  "clientForm": {
+    "title": "Información del Cliente",
+    "labels": {
+      "clientName": "Nombre del Cliente *",
+      "vertical": "Vertical/Industria",
+      "reportDate": "Fecha del Reporte",
+      "awsRegion": "Región AWS",
+      "totalServers": "Total de Servidores en Alcance",
+      "onPremisesCost": "Costo On-Premises (USD/año)",
+      "companyDescription": "Descripción de la Empresa",
+      "priorities": "Prioridades del Cliente",
+      "migrationReadiness": "Preparación para Migración"
+    },
+    "placeholders": {
+      "clientName": "Ingrese el nombre del cliente",
+      "vertical": "Seleccione industria",
+      "companyDescription": "Describe brevemente la empresa"
+    },
+    "priorities": {
+      "reduceCosts": "Reducir costos de infraestructura",
+      "improveResiliency": "Mejorar resiliencia operacional",
+      "businessAgility": "Agilidad de negocio",
+      "innovationAcceleration": "Aceleración de innovación",
+      "legacyModernization": "Modernización de sistemas heredados"
+    },
+    "readiness": {
+      "ready": "Listo para migrar",
+      "evaluating": "Evaluando",
+      "notReady": "Aún no está listo"
+    }
+  },
+  "fileUploader": {
+    "title": "Cargar Excel MPA",
+    "dragDrop": "Arrastra y suelta el archivo Excel aquí",
+    "dragDropActive": "Suelta el archivo Excel aquí",
+    "uploadingMessage": "Subiendo a S3...",
+    "analyzingMessage": "Analizando datos...",
+    "summary": {
+      "servers": "Servidores",
+      "databases": "Bases de Datos",
+      "applications": "Aplicaciones",
+      "totalGb": "GB Totales",
+      "connections": "Conexiones",
+      "securityGroups": "Grupos Seg."
+    },
+    "error": "Carga Fallida",
+    "errorRetry": "Haz clic para intentar de nuevo"
+  },
+  "rapidDiscovery": {
+    "title": "Rapid Discovery",
+    "mpaUpload": "MPA Excel Upload",
+    "mraUpload": "MRA PDF Upload (Opcional)",
+    "mraDescription": "Para análisis de oportunidades con IA",
+    "questionnaireUpload": "Cuestionario de Infraestructura (Opcional)",
+    "clientInfo": "Información del Cliente",
+    "dataLoaded": "Datos Excel cargados",
+    "pdfLoaded": "PDF MRA cargado",
+    "questionnaireLoaded": "Cuestionario cargado",
+    "client": "Cliente:"
+  },
+  "tcoReport": {
+    "title": "Reporte TCO",
+    "empty": "TCO Report Not Available",
+    "emptyDescription": "Upload your MPA data in the Rapid Discovery tab to generate TCO analysis.",
+    "totalCostOfOwnership": "Total Cost of Ownership Analysis",
+    "currentOnPremises": "Current On-Premises",
+    "perYear": "per year",
+    "migration": "Migration",
+    "awsPrice": "AWS (3Y NURI)",
+    "annualSavings": "Annual Savings",
+    "percentReduction": "% reduction",
+    "threeYearSavings": "3-Year Savings",
+    "vsOnPremises": "vs On-Premises",
+    "monthlyAwsCost": "Monthly AWS Cost",
+    "threeYearPricing": "3-Year NURI pricing",
+    "infrastructureScope": "Infrastructure Scope",
+    "awsPricingOptions": "AWS Pricing Options",
+    "onDemand": "On-Demand",
+    "onDemandDesc": "No commitment",
+    "oneYear": "1-Year NURI",
+    "oneYearSavings": "~36% savings",
+    "bestOption": "BEST",
+    "threeYear": "3-Year NURI",
+    "threeYearSavings": "~60% savings"
+  },
+  "mra": {
+    "title": "Migration Readiness Assessment",
+    "emptyTitle": "Migration Readiness Assessment",
+    "emptyDescription": "Upload your MPA data first to assess migration readiness.",
+    "description": "The MRA evaluates your organization's readiness across infrastructure complexity, team capabilities, and operational requirements to determine the optimal migration approach and timeline."
+  },
+  "briefings": {
+    "title": "Briefings & Workshops",
+    "description": "Track executive briefings, technical workshops...",
+    "totalSessions": "Total Sessions",
+    "completed": "Completed",
+    "planned": "Planned",
+    "sessions": "Sessions",
+    "addSession": "Add Session",
+    "sessionTitle": "Session title",
+    "attendees": "Attendees",
+    "cancel": "Cancel",
+    "add": "Add",
+    "noSessions": "No sessions scheduled yet. Click \"Add Session\" to start tracking."
+  },
+  "migrationWaves": {
+    "title": "Migration Waves Planning",
+    "description": "Plan your migration in phases",
+    "waveName": "Wave Name",
+    "strategy": "Strategy",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "serverCount": "Server Count",
+    "applicationCount": "Application Count",
+    "createWave": "Create Wave",
+    "addWave": "Add Wave",
+    "cancel": "Cancel",
+    "createNew": "Create New Migration Wave",
+    "noWaves": "No migration waves defined yet...",
+    "capacityDistribution": "Wave Capacity Distribution",
+    "statuses": {
+      "planned": "Planned",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "blocked": "Blocked"
+    }
+  },
+  "ec2": {
+    "title": "EC2 Instance Recommendations",
+    "description": "Server migration recommendations",
+    "noServers": "No server data available",
+    "noServersDescription": "Upload your MPA Excel file in the Assess phase",
+    "recommendationTitle": "Server Migration Recommendations ({{count}} servers)"
+  },
+  "rds": {
+    "title": "RDS Recommendations",
+    "description": "Database migration recommendations"
+  },
+  "opportunitiesDashboard": {
+    "title": "Oportunidades de Venta",
+    "aiAnalysis": "Análisis de Oportunidades con IA",
+    "description": "Para generar oportunidades de venta, completa los siguientes pasos:",
+    "step1": "1. Cargar archivo Excel con datos MPA en la pestaña 'Descubrimiento Rápido'",
+    "step2": "2. Ingresar información del cliente (nombre, costo on-premises)",
+    "step3": "3. Opcionalmente, cargar archivo PDF MRA y/o Cuestionario",
+    "step4": "4. Haz clic en 'Completar Evaluación' para iniciar el análisis con AWS Bedrock",
+    "step5": "5. Las oportunidades aparecerán aquí cuando el análisis termine",
+    "loading": "Cargando oportunidades...",
+    "error": "Error al cargar oportunidades",
+    "errorUpdate": "Error al actualizar estado"
+  },
+  "opportunitiesFilters": {
+    "search": "Buscar en oportunidades...",
+    "filters": "Filtros",
+    "priority": "Prioridad",
+    "status": "Estado",
+    "arrRange": "Rango de ARR",
+    "minimum": "Mínimo",
+    "maximum": "Máximo",
+    "unlimited": "Sin límite",
+    "showingCount": "Mostrando {{count}} oportunidades",
+    "clearFilters": "Limpiar filtros"
+  },
+  "opportunitiesCard": {
+    "relatedService": "servicio AWS relacionado",
+    "relatedServices": "servicios AWS relacionados",
+    "statuses": {
+      "new": "Nueva",
+      "inProgress": "En Progreso",
+      "won": "Ganada",
+      "lost": "Perdida",
+      "discarded": "Descartada"
+    },
+    "categories": {
+      "workshop": "Workshop",
+      "security": "Seguridad",
+      "costOptimization": "Optimización de Costos",
+      "reliability": "Confiabilidad",
+      "performance": "Performance"
+    }
+  },
+  "selector": {
+    "title": "Selector de Herramienta MAP",
+    "description": "Responde 28 preguntas para obtener la recomendación de herramienta ideal",
+    "clientName": "Nombre del Cliente",
+    "clientNamePlaceholder": "Ej: Acme Corp",
+    "startSelector": "Comenzar Selector",
+    "assessmentResult": "Resultado del Assessment",
+    "clientLabel": "Cliente: {{name}}",
+    "recommendedTool": "Herramienta Recomendada",
+    "confidence": "Confianza: {{confidence}} ({{percentage}}%)",
+    "toolComparison": "Comparación Visual de Herramientas",
+    "score": "Score",
+    "scorePercent": "Score (%)",
+    "whyRecommendation": "Por qué esta recomendación?",
+    "impactfulQuestions": "Estas preguntas tuvieron mayor impacto en la recomendación de {{tool}}:",
+    "yourAnswer": "Tu respuesta:",
+    "impact": "Impacto:",
+    "allScores": "Scores de Todas las Herramientas",
+    "exportResults": "Exportar Resultados",
+    "exportPdf": "Exportar PDF",
+    "exportCsv": "Exportar CSV",
+    "close": "Cerrar",
+    "stickyAssessment": "Assessment: {{name}}",
+    "stickyDescription": "Responde todas las preguntas para obtener tu recomendación",
+    "answeredProgress": "{{answered}} / {{total}} respondidas",
+    "validationRequired": "Debes responder todas las preguntas",
+    "validationMissing": "Faltan {{count}} pregunta{{count}} por responder",
+    "calculateRecommendation": "Calcular Recomendación",
+    "questionRequired": "Esta pregunta es obligatoria",
+    "errors": {
+      "loadingQuestions": "Error al cargar las preguntas",
+      "creatingSession": "Error al crear la sesión",
+      "invalidResponse": "Error: Respuesta inválida del servidor",
+      "invalidPdf": "Error: PDF inválido generado",
+      "generatingPdf": "Error al generar PDF",
+      "exportingPdf": "Error al exportar PDF",
+      "generatingCsv": "Error al generar CSV",
+      "exportingCsv": "Error al exportar CSV",
+      "calculatingRecommendation": "Error al calcular la recomendación"
+    },
+    "toasts": {
+      "sessionCreated": "Sesión creada exitosamente",
+      "pdfDownloaded": "PDF descargado exitosamente",
+      "csvDownloaded": "CSV descargado exitosamente",
+      "recommendationCalculated": "Recomendacion calculada exitosamente"
+    }
+  }
+}

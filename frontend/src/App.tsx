@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import apiClient from '@/lib/api';
 import { PhaseNavigator } from '@/components/layout/PhaseNavigator';
 import { PhaseProgressBar } from '@/components/layout/PhaseProgressBar';
@@ -31,8 +32,10 @@ import {
 } from '@/types/assessment';
 import { RefreshCw, Cloud } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
+import { LanguageSelector } from '@/i18n/LanguageSelector';
 
 function App() {
+  const { t } = useTranslation();
   const [excelData, setExcelData] = useState<ExcelData | null>(null);
   const [uploadSummary, setUploadSummary] = useState<UploadSummary | null>(null);
   const [clientData, setClientData] = useState<ClientFormData>({
@@ -213,7 +216,7 @@ function App() {
 
   const handleGenerateReport = async () => {
     if (!excelData || !clientData.clientName) {
-      const errorMsg = 'Por favor sube un archivo Excel e ingresa el nombre del cliente';
+      const errorMsg = t('errors.uploadFirst');
       setError(errorMsg);
       toast.error(errorMsg);
       return;
@@ -222,7 +225,7 @@ function App() {
     setIsGenerating(true);
     setError(null);
 
-    toast.loading('Generando reporte Word...', { id: 'generate-report' });
+    toast.loading(t('report.generating'), { id: 'generate-report' });
 
     try {
       const response = await apiClient.post('/api/report/generate', {
@@ -243,18 +246,17 @@ function App() {
         if (response.data.data.summary.databaseRecommendations) {
           setDbRecommendations(response.data.data.summary.databaseRecommendations);
         }
-        toast.success('Reporte generado exitosamente', {
+        toast.success(t('report.generated'), {
           id: 'generate-report',
-          description: 'El reporte está listo para descargar',
           duration: 5000
         });
       } else {
-        throw new Error(response.data.error || 'Error al generar reporte');
+        throw new Error(response.data.error || t('report.error'));
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Error al generar reporte';
+      const errorMsg = err instanceof Error ? err.message : t('report.error');
       setError(errorMsg);
-      toast.error('Error al generar reporte', {
+      toast.error(t('report.error'), {
         id: 'generate-report',
         description: errorMsg,
         duration: 7000
@@ -269,10 +271,10 @@ function App() {
     if (phase === 'assess' && excelData && mraFile) {
       // Show persistent loading toast
       const loadingToastId = toast.loading(
-        'Analizando oportunidades con AWS Bedrock...',
-        { 
+        t('opportunities.analyzing'),
+        {
           duration: Infinity, // Don't auto-dismiss
-          description: 'Esto puede tomar hasta 5 minutos para datasets grandes. El sistema está procesando los datos con IA. Si ocurre algún error, se te notificará automáticamente.'
+          description: t('opportunities.analyzing_description')
         }
       );
       
@@ -340,11 +342,11 @@ function App() {
           
           // Update toast to show polling status
           toast.loading(
-            'Análisis en progreso...',
-            { 
+            t('opportunities.polling'),
+            {
               id: loadingToastId,
               duration: Infinity,
-              description: 'Verificando estado cada 5 segundos. Puedes cerrar esta ventana y volver después.'
+              description: t('opportunities.polling_description')
             }
           );
           
@@ -373,30 +375,30 @@ function App() {
                   // Dismiss loading toast and show success
                   toast.dismiss(loadingToastId);
                   toast.success(
-                    `¡Análisis completado! ${opportunities.length} oportunidades identificadas`,
+                    `${t('opportunities.completed')} ${opportunities.length} ${t('opportunities.identified')}`,
                     {
                       duration: 5000,
-                      description: 'Ve a la pestaña "Oportunidades de Venta" para ver los detalles'
+                      description: t('opportunities.viewDetails')
                     }
                   );
                 }
               } else if (status === 'failed') {
                 // Job failed
-                const errorMsg = statusResponse.data.error || 'El análisis falló';
+                const errorMsg = statusResponse.data.error || t('opportunities.failed');
                 toast.dismiss(loadingToastId);
-                toast.error('Error al analizar oportunidades', {
+                toast.error(t('opportunities.error'), {
                   description: errorMsg,
                   duration: 7000
                 });
               } else if (status === 'processing' || status === 'pending') {
                 // Still processing, update toast with progress
-                const progressText = progress ? `${progress}%` : 'en progreso';
+                const progressText = progress ? `${progress}%` : t('opportunities.polling');
                 toast.loading(
-                  `Análisis ${progressText}...`,
-                  { 
+                  `${t('opportunities.polling')} ${progressText}...`,
+                  {
                     id: loadingToastId,
                     duration: Infinity,
-                    description: 'AWS Bedrock está analizando los datos. Esto puede tomar varios minutos.'
+                    description: t('opportunities.analyzing_description')
                   }
                 );
                 
@@ -410,8 +412,8 @@ function App() {
               if (consecutiveFailures >= maxFailures) {
                 // Too many failures, stop polling and notify user
                 toast.dismiss(loadingToastId);
-                toast.error('Error al verificar estado del análisis', {
-                  description: `Falló ${maxFailures} veces consecutivas. Por favor recarga la página e intenta de nuevo.`,
+                toast.error(t('opportunities.polling_error'), {
+                  description: t('opportunities.polling_error_description', { count: maxFailures }),
                   duration: 10000
                 });
               } else {
@@ -439,11 +441,11 @@ function App() {
         }
             } catch (error: any) {
         console.error('Error analyzing opportunities:', error);
-        
+
         // Dismiss loading toast and show error
         toast.dismiss(loadingToastId);
-        toast.error('Error al analizar oportunidades', {
-          description: error.response?.data?.error || 'Intenta de nuevo o contacta soporte',
+        toast.error(t('opportunities.error'), {
+          description: error.response?.data?.error || t('opportunities.retry'),
           duration: 7000
         });
       }
@@ -517,16 +519,17 @@ function App() {
             <Cloud className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-xl font-bold text-gray-900">
-                Centro de Evaluación de Migración AWS
+                {t('header.title')}
               </h1>
               <p className="text-sm text-gray-500">
-                Evaluar → Movilizar → Migrar y Modernizar
+                {t('header.subtitle')}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Desarrollado por</span>
-            <span className="font-bold text-orange-500">SoftwareOne</span>
+            <span className="text-sm text-gray-500">{t('common.developedBy')}</span>
+            <span className="font-bold text-orange-500">{t('header.brand')}</span>
+            <LanguageSelector />
           </div>
         </div>
       </header>
@@ -621,7 +624,7 @@ function App() {
         <div className="flex justify-center">
           <Button variant="outline" onClick={handleReset}>
             <RefreshCw className="h-4 w-4 mr-2" />
-            Reiniciar Todo
+            {t('common.reset')}
           </Button>
         </div>
       </main>
@@ -629,7 +632,7 @@ function App() {
       {/* Footer */}
       <footer className="bg-white border-t mt-12">
         <div className="max-w-7xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
-          AWS Assessment Report Generator &copy; {new Date().getFullYear()} SoftwareOne
+          {t('footer.copyright')} &copy; {new Date().getFullYear()} {t('header.brand')}
         </div>
       </footer>
     </div>

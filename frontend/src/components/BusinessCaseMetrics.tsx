@@ -80,6 +80,40 @@ export function BusinessCaseMetrics({
 
   const readiness = getReadinessScore();
 
+  // Calculate optimization potential (opportunities based on infrastructure)
+  // Factors: servers with low utilization, underutilized DBs, redundant apps
+  const optimizationPotential = Math.round(
+    (serverCount * 0.8) +  // 80% of servers could be optimized
+    (databaseCount * 1.2) +  // DBs tend to have more optimization potential
+    (applicationCount * 0.5)  // Apps consolidation opportunities
+  );
+
+  // Calculate potential cost reduction (percentage)
+  // Based on current infrastructure complexity
+  const costReductionPercentage = Math.min(
+    60,  // Cap at 60% reduction
+    Math.round(
+      15 +  // Base reduction with cloud
+      (serverCount * 0.3) +  // More servers = more savings potential
+      (databaseCount * 0.4) +  // DB licensing savings
+      (totalStorageGB / 5000) * 10  // Storage optimization
+    )
+  );
+
+  // Estimated annual cost savings (rough calculation)
+  const estimatedAnnualSavings = Math.round(
+    (serverCount * 8000) *  // ~$8k per server annual savings
+    (costReductionPercentage / 100)
+  );
+
+  // Risk adjustment based on readiness
+  const adjustedReadiness = () => {
+    const baseReadiness = readiness.score;
+    if (readiness.score >= 70) return baseReadiness;  // Ready = no adjustment
+    if (readiness.score >= 50) return baseReadiness - 10;  // Evaluating = reduce by 10%
+    return baseReadiness - 20;  // Not ready = reduce by 20%
+  };
+
   return (
     <div className="space-y-6">
       {/* Migration Readiness Assessment */}
@@ -200,20 +234,62 @@ export function BusinessCaseMetrics({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-green-600" />
-              Modernization Impact
+              Cost Reduction Potential
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold text-green-600 mb-2">
-              High
+              {costReductionPercentage}%
             </div>
-            <p className="text-sm text-gray-600">Opportunity</p>
+            <p className="text-sm text-gray-600">Annual Savings</p>
             <p className="text-xs text-gray-500 mt-2">
-              Cloud-native capabilities
+              ${(estimatedAnnualSavings / 1000).toFixed(0)}k per year
             </p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Strategic Recommendations */}
+      <Card className="border-2 border-blue-100 bg-gradient-to-br from-blue-50 to-white">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-blue-900">
+            <Zap className="h-6 w-6" />
+            Strategic Recommendations
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Quick Wins - Optimization Potential */}
+            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <p className="text-sm text-gray-600 font-medium mb-2">Optimization Potential</p>
+              <p className="text-3xl font-bold text-blue-600 mb-1">{optimizationPotential}</p>
+              <p className="text-xs text-gray-500">
+                Quick win opportunities across infrastructure
+              </p>
+            </div>
+
+            {/* Cost Reduction */}
+            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+              <p className="text-sm text-gray-600 font-medium mb-2">Cost Reduction</p>
+              <p className="text-3xl font-bold text-green-600 mb-1">{costReductionPercentage}%</p>
+              <p className="text-xs text-gray-500">
+                Potential annual savings vs on-premises
+              </p>
+            </div>
+
+            {/* ROI Timeline */}
+            <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+              <p className="text-sm text-gray-600 font-medium mb-2">Estimated ROI</p>
+              <p className="text-3xl font-bold text-purple-600 mb-1">
+                {Math.ceil(estimatedAnnualSavings / 1000) > 0 ? Math.ceil((serverCount * 50000) / estimatedAnnualSavings) : 'N/A'}
+              </p>
+              <p className="text-xs text-gray-500">
+                months to break even
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Infrastructure Overview */}
       <Card>

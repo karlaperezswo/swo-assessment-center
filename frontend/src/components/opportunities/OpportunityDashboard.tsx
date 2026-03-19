@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card } from '@/components/ui/card';
 import { OpportunityList } from './OpportunityList';
 import { OpportunityFilters } from './OpportunityFilters';
@@ -14,6 +15,7 @@ interface OpportunityDashboardProps {
 }
 
 export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
+  const { t } = useTranslation();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [filteredOpportunities, setFilteredOpportunities] = useState<Opportunity[]>([]);
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
@@ -47,11 +49,11 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
       if (response.data.success) {
         setOpportunities(response.data.data.opportunities);
       } else {
-        setError(response.data.error || 'Error al cargar oportunidades');
+        setError(response.data.error || t('opportunitiesDashboard.error'));
       }
     } catch (err: any) {
       console.error('Error loading opportunities:', err);
-      setError(err.response?.data?.error || 'Error al cargar oportunidades');
+      setError(err.response?.data?.error || t('opportunitiesDashboard.error'));
     } finally {
       setLoading(false);
     }
@@ -128,10 +130,10 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
               </div>
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-3">
-              Análisis de Oportunidades con IA
+              {t('opportunitiesDashboard.aiAnalysis')}
             </h3>
             <p className="text-lg text-gray-700 mb-6">
-              Para generar oportunidades de venta, completa los siguientes pasos:
+              {t('opportunitiesDashboard.description')}
             </p>
             <div className="bg-white rounded-lg p-6 shadow-sm text-left space-y-4">
               <div className="flex items-start gap-3">
@@ -139,8 +141,8 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
                   1
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Sube el archivo MPA Excel</p>
-                  <p className="text-sm text-gray-600">En la pestaña "Descubrimiento Rápido"</p>
+                  <p className="font-medium text-gray-900">{t('opportunitiesDashboard.step1.title')}</p>
+                  <p className="text-sm text-gray-600">{t('opportunitiesDashboard.step1.description')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -148,8 +150,8 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
                   2
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Sube el archivo MRA PDF (opcional)</p>
-                  <p className="text-sm text-gray-600">Debajo del MPA en "Descubrimiento Rápido"</p>
+                  <p className="font-medium text-gray-900">{t('opportunitiesDashboard.step2.title')}</p>
+                  <p className="text-sm text-gray-600">{t('opportunitiesDashboard.step2.description')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -157,8 +159,8 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
                   2.5
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Sube el Cuestionario de Infraestructura (opcional)</p>
-                  <p className="text-sm text-gray-600">Debajo del MRA en "Descubrimiento Rápido" - Mejora el análisis</p>
+                  <p className="font-medium text-gray-900">{t('opportunitiesDashboard.step2dot5.title')}</p>
+                  <p className="text-sm text-gray-600">{t('opportunitiesDashboard.step2dot5.description')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -166,8 +168,8 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
                   3
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Completa el formulario de cliente</p>
-                  <p className="text-sm text-gray-600">Información básica del cliente</p>
+                  <p className="font-medium text-gray-900">{t('opportunitiesDashboard.step3.title')}</p>
+                  <p className="text-sm text-gray-600">{t('opportunitiesDashboard.step3.description')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -175,14 +177,14 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
                   4
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Haz clic en "Completar Assess Phase"</p>
-                  <p className="text-sm text-gray-600">El análisis con AWS Bedrock se ejecutará automáticamente</p>
+                  <p className="font-medium text-gray-900">{t('opportunitiesDashboard.step4.title')}</p>
+                  <p className="text-sm text-gray-600">{t('opportunitiesDashboard.step4.description')}</p>
                 </div>
               </div>
             </div>
             <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-800">
-                💡 <strong>Tip:</strong> Si no subes el archivo MRA, el sistema funcionará normalmente pero no generará oportunidades de venta con IA.
+                💡 <strong>{t('common.tip')}:</strong> {t('opportunitiesDashboard.tipMessage')}
               </p>
             </div>
           </div>
@@ -196,7 +198,7 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
       <Card className="p-8">
         <div className="flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-3 text-lg">Cargando oportunidades...</span>
+          <span className="ml-3 text-lg">{t('opportunitiesDashboard.loading')}</span>
         </div>
       </Card>
     );
@@ -207,7 +209,7 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
       <Card className="p-8">
         <div className="text-center text-destructive">
           <AlertCircle className="h-12 w-12 mx-auto mb-4" />
-          <p className="text-lg font-medium mb-2">Error</p>
+          <p className="text-lg font-medium mb-2">{t('common.error')}</p>
           <p>{error}</p>
         </div>
       </Card>
@@ -219,9 +221,9 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
       {/* Header with export button */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Oportunidades de Venta</h2>
+          <h2 className="text-2xl font-bold">{t('opportunitiesDashboard.title')}</h2>
           <p className="text-muted-foreground">
-            {filteredOpportunities.length} de {opportunities.length} oportunidades
+            {filteredOpportunities.length} {t('opportunitiesDashboard.of')} {opportunities.length} {t('opportunitiesDashboard.opportunities')}
           </p>
         </div>
         <ExportButton sessionId={sessionId} />

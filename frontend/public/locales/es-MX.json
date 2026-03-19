@@ -1,0 +1,135 @@
+{
+  "common": {
+    "reset": "Reiniciar Todo",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "download": "Descargar",
+    "upload": "Subir",
+    "generate": "Generar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "complete": "Completar",
+    "add": "Agregar",
+    "remove": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "optional": "Opcional",
+    "required": "Requerido",
+    "developedBy": "Desarrollado por"
+  },
+  "header": {
+    "title": "Centro de Evaluación de Migración AWS",
+    "subtitle": "Evaluar → Movilizar → Migrar y Modernizar",
+    "brand": "SoftwareOne"
+  },
+  "footer": {
+    "copyright": "AWS Assessment Report Generator"
+  },
+  "phases": {
+    "assess": {
+      "name": "EVALUAR",
+      "subtitle": "Crear un caso de cambio",
+      "description": "Evaluar el estado actual de la infraestructura"
+    },
+    "mobilize": {
+      "name": "MOVILIZAR",
+      "subtitle": "Preparar para migrar",
+      "description": "Preparar el equipo y la infraestructura para la migración"
+    },
+    "migrate": {
+      "name": "MIGRAR Y MODERNIZAR",
+      "subtitle": "Ejecutar la migración",
+      "description": "Ejecutar la migración y modernización a AWS"
+    },
+    "status": {
+      "not_started": "No iniciado",
+      "in_progress": "En progreso",
+      "completed": "Completado"
+    }
+  },
+  "upload": {
+    "title": "Cargar Datos MPA",
+    "description": "Sube el archivo Excel exportado de Migration Portfolio Assessment",
+    "dragDrop": "Arrastra y suelta tu archivo aquí, o haz clic para seleccionar",
+    "fileTypes": "Archivos Excel (.xlsx, .xls)",
+    "uploading": "Cargando archivo...",
+    "success": "Archivo cargado exitosamente",
+    "error": "Error al cargar el archivo"
+  },
+  "report": {
+    "generate": "Generar Reporte Word",
+    "generating": "Generando reporte Word...",
+    "generated": "Reporte generado exitosamente",
+    "download": "Descargar Reporte",
+    "error": "Error al generar reporte",
+    "clientName": "Nombre del Cliente",
+    "clientNamePlaceholder": "Ingresa el nombre del cliente",
+    "vertical": "Vertical",
+    "reportDate": "Fecha del Reporte",
+    "awsRegion": "Región AWS",
+    "totalServers": "Total de Servidores",
+    "onPremisesCost": "Costo On-Premises",
+    "companyDescription": "Descripción de la Empresa",
+    "migrationReadiness": "Preparación para Migración"
+  },
+  "opportunities": {
+    "title": "Oportunidades de Venta",
+    "analyzing": "Analizando oportunidades con AWS Bedrock...",
+    "analyzing_description": "Esto puede tomar hasta 5 minutos para datasets grandes. El sistema está procesando los datos con IA.",
+    "completed": "¡Análisis completado!",
+    "identified": "oportunidades identificadas",
+    "viewDetails": "Ve a la pestaña \"Oportunidades de Venta\" para ver los detalles",
+    "error": "Error al analizar oportunidades",
+    "retry": "Intenta de nuevo o contacta soporte",
+    "polling": "Análisis en progreso...",
+    "polling_description": "Verificando estado cada 5 segundos. Puedes cerrar esta ventana y volver después.",
+    "failed": "El análisis falló",
+    "polling_error": "Error al verificar estado del análisis",
+    "polling_error_description": "Falló {{count}} veces consecutivas. Por favor recarga la página e intenta de nuevo."
+  },
+  "costs": {
+    "title": "Estimación de Costos AWS",
+    "onDemand": "On-Demand",
+    "oneYearRI": "1 Año Reserved",
+    "threeYearRI": "3 Años Reserved",
+    "monthly": "Mensual",
+    "annual": "Anual",
+    "threeYear": "3 Años",
+    "savings": "Ahorro",
+    "total": "Total"
+  },
+  "servers": {
+    "title": "Servidores",
+    "count": "{{count}} servidores",
+    "hostname": "Hostname",
+    "os": "Sistema Operativo",
+    "vcpus": "vCPUs",
+    "ram": "RAM (GB)",
+    "storage": "Almacenamiento (GB)",
+    "recommendation": "Instancia Recomendada"
+  },
+  "databases": {
+    "title": "Bases de Datos",
+    "count": "{{count}} bases de datos",
+    "name": "Nombre",
+    "engine": "Motor",
+    "size": "Tamaño (GB)",
+    "recommendation": "Instancia RDS Recomendada"
+  },
+  "errors": {
+    "uploadFirst": "Por favor sube un archivo Excel e ingresa el nombre del cliente",
+    "generic": "Ocurrió un error inesperado",
+    "network": "Error de conexión. Verifica tu conexión a internet."
+  },
+  "language": {
+    "selector": "Idioma",
+    "changing": "Cambiando idioma..."
+  }
+}

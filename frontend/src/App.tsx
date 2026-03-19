@@ -31,6 +31,7 @@ import {
 } from '@/types/assessment';
 import { RefreshCw, Cloud } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
+import { LanguageSelector } from '@/i18n/LanguageSelector';
 
 function App() {
   const [excelData, setExcelData] = useState<ExcelData | null>(null);
@@ -527,6 +528,7 @@ function App() {
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">Desarrollado por</span>
             <span className="font-bold text-orange-500">SoftwareOne</span>
+            <LanguageSelector />
           </div>
         </div>
       </header>

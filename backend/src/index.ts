@@ -12,6 +12,7 @@ import cors from 'cors';
 import { reportRouter } from './routes/reportRoutes';
 import { selectorRouter } from './routes/selectorRoutes';
 import { opportunityRouter } from './routes/opportunityRoutes';
+import { i18nRouter } from './routes/i18nRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -28,6 +29,7 @@ app.use('/downloads', express.static(path.join(__dirname, '../generated')));
 app.use('/api/report', reportRouter);
 app.use('/api/opportunities', opportunityRouter);
 app.use('/api/selector', selectorRouter);
+app.use('/api/i18n', i18nRouter);
 
 // Health check
 app.get('/health', (req, res) => {

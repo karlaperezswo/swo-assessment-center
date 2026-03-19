@@ -1,0 +1,135 @@
+{
+  "common": {
+    "reset": "Reset All",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "download": "Download",
+    "upload": "Upload",
+    "generate": "Generate",
+    "back": "Back",
+    "next": "Next",
+    "complete": "Complete",
+    "add": "Add",
+    "remove": "Remove",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "optional": "Optional",
+    "required": "Required",
+    "developedBy": "Developed by"
+  },
+  "header": {
+    "title": "AWS Migration Assessment Center",
+    "subtitle": "Assess → Mobilize → Migrate and Modernize",
+    "brand": "SoftwareOne"
+  },
+  "footer": {
+    "copyright": "AWS Assessment Report Generator"
+  },
+  "phases": {
+    "assess": {
+      "name": "ASSESS",
+      "subtitle": "Build a business case",
+      "description": "Assess the current state of the infrastructure"
+    },
+    "mobilize": {
+      "name": "MOBILIZE",
+      "subtitle": "Prepare to migrate",
+      "description": "Prepare the team and infrastructure for migration"
+    },
+    "migrate": {
+      "name": "MIGRATE AND MODERNIZE",
+      "subtitle": "Execute the migration",
+      "description": "Execute the migration and modernization to AWS"
+    },
+    "status": {
+      "not_started": "Not started",
+      "in_progress": "In progress",
+      "completed": "Completed"
+    }
+  },
+  "upload": {
+    "title": "Load MPA Data",
+    "description": "Upload the Excel file exported from Migration Portfolio Assessment",
+    "dragDrop": "Drag and drop your file here, or click to select",
+    "fileTypes": "Excel files (.xlsx, .xls)",
+    "uploading": "Uploading file...",
+    "success": "File uploaded successfully",
+    "error": "Error uploading file"
+  },
+  "report": {
+    "generate": "Generate Word Report",
+    "generating": "Generating Word report...",
+    "generated": "Report generated successfully",
+    "download": "Download Report",
+    "error": "Error generating report",
+    "clientName": "Client Name",
+    "clientNamePlaceholder": "Enter client name",
+    "vertical": "Vertical",
+    "reportDate": "Report Date",
+    "awsRegion": "AWS Region",
+    "totalServers": "Total Servers",
+    "onPremisesCost": "On-Premises Cost",
+    "companyDescription": "Company Description",
+    "migrationReadiness": "Migration Readiness"
+  },
+  "opportunities": {
+    "title": "Sales Opportunities",
+    "analyzing": "Analyzing opportunities with AWS Bedrock...",
+    "analyzing_description": "This may take up to 5 minutes for large datasets. The system is processing data with AI.",
+    "completed": "Analysis completed!",
+    "identified": "opportunities identified",
+    "viewDetails": "Go to the \"Sales Opportunities\" tab to see the details",
+    "error": "Error analyzing opportunities",
+    "retry": "Try again or contact support",
+    "polling": "Analysis in progress...",
+    "polling_description": "Checking status every 5 seconds. You can close this window and come back later.",
+    "failed": "The analysis failed",
+    "polling_error": "Error checking analysis status",
+    "polling_error_description": "Failed {{count}} consecutive times. Please reload the page and try again."
+  },
+  "costs": {
+    "title": "AWS Cost Estimation",
+    "onDemand": "On-Demand",
+    "oneYearRI": "1-Year Reserved",
+    "threeYearRI": "3-Year Reserved",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "threeYear": "3 Years",
+    "savings": "Savings",
+    "total": "Total"
+  },
+  "servers": {
+    "title": "Servers",
+    "count": "{{count}} servers",
+    "hostname": "Hostname",
+    "os": "Operating System",
+    "vcpus": "vCPUs",
+    "ram": "RAM (GB)",
+    "storage": "Storage (GB)",
+    "recommendation": "Recommended Instance"
+  },
+  "databases": {
+    "title": "Databases",
+    "count": "{{count}} databases",
+    "name": "Name",
+    "engine": "Engine",
+    "size": "Size (GB)",
+    "recommendation": "Recommended RDS Instance"
+  },
+  "errors": {
+    "uploadFirst": "Please upload an Excel file and enter the client name",
+    "generic": "An unexpected error occurred",
+    "network": "Connection error. Check your internet connection."
+  },
+  "language": {
+    "selector": "Language",
+    "changing": "Changing language..."
+  }
+}

@@ -5,7 +5,7 @@
  * modifying existing layout logic.
  */
 
-import React, { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from './useTranslation'
 
 interface LanguageSelectorProps {

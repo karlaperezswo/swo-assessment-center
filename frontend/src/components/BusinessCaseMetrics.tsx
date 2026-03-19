@@ -106,13 +106,6 @@ export function BusinessCaseMetrics({
     (costReductionPercentage / 100)
   );
 
-  // Risk adjustment based on readiness
-  const adjustedReadiness = () => {
-    const baseReadiness = readiness.score;
-    if (readiness.score >= 70) return baseReadiness;  // Ready = no adjustment
-    if (readiness.score >= 50) return baseReadiness - 10;  // Evaluating = reduce by 10%
-    return baseReadiness - 20;  // Not ready = reduce by 20%
-  };
 
   return (
     <div className="space-y-6">

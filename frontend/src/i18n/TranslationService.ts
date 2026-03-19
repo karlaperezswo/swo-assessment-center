@@ -19,9 +19,27 @@ export interface TranslateOptions {
   defaultValue?: string
   interpolation?: Record<string, string | number>
   namespace?: string
+  // Allow interpolation variables to be passed directly for i18next compatibility
+  [key: string]: any
 }
 
 const LLM_ENDPOINT = '/api/i18n/translate'
+
+/**
+ * Extract interpolation variables from options
+ * Handles both direct properties and nested interpolation object
+ */
+function extractInterpolationVars(options?: TranslateOptions): Record<string, any> {
+  if (!options) return {}
+
+  const { defaultValue, interpolation, namespace, ...rest } = options
+
+  // Merge nested interpolation object with direct properties for i18next
+  return {
+    ...(interpolation ?? {}),
+    ...rest,
+  }
+}
 
 async function callLLM(text: string, targetLanguage: string): Promise<string> {
   const response = await fetch(LLM_ENDPOINT, {
@@ -52,22 +70,24 @@ export async function translate(
 
   // Step 1: Default language — no LLM needed
   if (targetLang === DEFAULT_LANGUAGE) {
-    const result = i18next.t(keyOrText, {
+    const i18nOptions = {
       lng: DEFAULT_LANGUAGE,
       defaultValue: options?.defaultValue ?? keyOrText,
-      ...(options?.interpolation ?? {}),
       ns: options?.namespace,
-    })
+      ...extractInterpolationVars(options),
+    }
+    const result = i18next.t(keyOrText, i18nOptions)
     return (result as string) || keyOrText
   }
 
   // Step 2: Static locale file via i18next
-  const i18nResult = i18next.t(keyOrText, {
+  const i18nOptions = {
     lng: targetLang,
     defaultValue: keyOrText, // i18next returns the key when not found
-    ...(options?.interpolation ?? {}),
     ns: options?.namespace,
-  }) as string
+    ...extractInterpolationVars(options),
+  }
+  const i18nResult = i18next.t(keyOrText, i18nOptions) as string
 
   if (i18nResult && i18nResult !== keyOrText) {
     return i18nResult

@@ -131,5 +131,320 @@
   "language": {
     "selector": "Language",
     "changing": "Changing language..."
+  },
+  "nav": {
+    "assess": {
+      "label": "ASSESS",
+      "subtitle": "Build a business case"
+    },
+    "mobilize": {
+      "label": "MOBILIZE",
+      "subtitle": "Prepare to migrate"
+    },
+    "migrate": {
+      "label": "MIGRATE AND MODERNIZE",
+      "subtitle": "Execute the migration"
+    }
+  },
+  "assess": {
+    "title": "Assess Phase",
+    "tabs": {
+      "rapidDiscovery": "Rapid Discovery",
+      "tcoReport": "TCO Report",
+      "migrationReadiness": "Migration Readiness",
+      "opportunities": "Sales Opportunities",
+      "migrationWaves": "Migration Waves Planning",
+      "briefings": "Briefings & Workshops",
+      "immersionDay": "Immersion Day",
+      "selector": "Tool Selector"
+    },
+    "requirements": {
+      "excelFile": "Upload MPA Excel file",
+      "clientName": "Enter client name",
+      "onPremisesCost": "Enter annual on-premises cost"
+    }
+  },
+  "mobilize": {
+    "title": "Mobilize Phase",
+    "groups": {
+      "portfolio": "Portfolio",
+      "people": "People",
+      "platform": "Platform"
+    },
+    "tabs": {
+      "discoveryPlanning": "Discovery & Planning",
+      "migrationPlan": "Migration Plan",
+      "businessCase": "Business Case",
+      "skills": "Skills & CoE",
+      "landingZone": "Landing Zone",
+      "security": "Security & Compliance",
+      "architecture": "Architecture Diagram"
+    },
+    "requirements": {
+      "assessPhase": "Complete Assessment Phase",
+      "migrationWaves": "Define at least 1 migration wave",
+      "landingZoneItems": "Initialize Landing Zone configuration (check at least 1 item)"
+    }
+  },
+  "migrate": {
+    "title": "Migrate & Modernize Phase",
+    "groups": {
+      "migrate": "Migrate",
+      "optimize": "Optimize",
+      "modernize": "Modernize"
+    },
+    "tabs": {
+      "ec2": "EC2 Recommendations",
+      "rds": "RDS Recommendations",
+      "waves": "Migration Waves",
+      "costOptimization": "Cost Optimization",
+      "modernizationRoadmap": "Modernization Roadmap"
+    },
+    "report": {
+      "title": "Final Assessment Report",
+      "description": "Generate a complete Word document with all migration recommendations",
+      "buttonGenerate": "Generate Report",
+      "buttonGenerating": "Generating...",
+      "buttonDownload": "Download Report",
+      "successMessage": "Report generated successfully!",
+      "successDescription": "Click download to get your Word document"
+    },
+    "requirements": {
+      "mobilizePhase": "Complete Mobilize Phase",
+      "reportGeneration": "Generate final assessment report"
+    }
+  },
+  "phaseComplete": {
+    "button": "Complete {{phase}}",
+    "completed": "{{phaseLabel}} Completed",
+    "requirements": "Requirements to complete this phase:"
+  },
+  "clientForm": {
+    "title": "Client Information",
+    "labels": {
+      "clientName": "Client Name *",
+      "vertical": "Vertical/Industry",
+      "reportDate": "Report Date",
+      "awsRegion": "AWS Region",
+      "totalServers": "Total Servers in Scope",
+      "onPremisesCost": "On-Premises Cost (USD/year)",
+      "companyDescription": "Company Description",
+      "priorities": "Client Priorities",
+      "migrationReadiness": "Migration Readiness"
+    },
+    "placeholders": {
+      "clientName": "Enter client name",
+      "vertical": "Select industry",
+      "companyDescription": "Briefly describe the company"
+    },
+    "priorities": {
+      "reduceCosts": "Reduce infrastructure costs",
+      "improveResiliency": "Improve operational resilience",
+      "businessAgility": "Business agility",
+      "innovationAcceleration": "Accelerate innovation",
+      "legacyModernization": "Legacy system modernization"
+    },
+    "readiness": {
+      "ready": "Ready to migrate",
+      "evaluating": "Evaluating",
+      "notReady": "Not yet ready"
+    }
+  },
+  "fileUploader": {
+    "title": "Upload MPA Excel",
+    "dragDrop": "Drag and drop Excel file here",
+    "dragDropActive": "Drop the Excel file here",
+    "uploadingMessage": "Uploading to S3...",
+    "analyzingMessage": "Analyzing data...",
+    "summary": {
+      "servers": "Servers",
+      "databases": "Databases",
+      "applications": "Applications",
+      "totalGb": "Total GB",
+      "connections": "Connections",
+      "securityGroups": "Security Groups"
+    },
+    "error": "Upload Failed",
+    "errorRetry": "Click to try again"
+  },
+  "rapidDiscovery": {
+    "title": "Rapid Discovery",
+    "mpaUpload": "MPA Excel Upload",
+    "mraUpload": "MRA PDF Upload (Optional)",
+    "mraDescription": "For AI-powered opportunity analysis",
+    "questionnaireUpload": "Infrastructure Questionnaire (Optional)",
+    "clientInfo": "Client Information",
+    "dataLoaded": "Excel data loaded",
+    "pdfLoaded": "MRA PDF loaded",
+    "questionnaireLoaded": "Questionnaire loaded",
+    "client": "Client:"
+  },
+  "tcoReport": {
+    "title": "TCO Report",
+    "empty": "TCO Report Not Available",
+    "emptyDescription": "Upload your MPA data in the Rapid Discovery tab to generate TCO analysis.",
+    "totalCostOfOwnership": "Total Cost of Ownership Analysis",
+    "currentOnPremises": "Current On-Premises",
+    "perYear": "per year",
+    "migration": "Migration",
+    "awsPrice": "AWS (3Y NURI)",
+    "annualSavings": "Annual Savings",
+    "percentReduction": "% reduction",
+    "threeYearSavings": "3-Year Savings",
+    "vsOnPremises": "vs On-Premises",
+    "monthlyAwsCost": "Monthly AWS Cost",
+    "threeYearPricing": "3-Year NURI pricing",
+    "infrastructureScope": "Infrastructure Scope",
+    "awsPricingOptions": "AWS Pricing Options",
+    "onDemand": "On-Demand",
+    "onDemandDesc": "No commitment",
+    "oneYear": "1-Year NURI",
+    "oneYearSavings": "~36% savings",
+    "bestOption": "BEST",
+    "threeYear": "3-Year NURI",
+    "threeYearSavings": "~60% savings"
+  },
+  "mra": {
+    "title": "Migration Readiness Assessment",
+    "emptyTitle": "Migration Readiness Assessment",
+    "emptyDescription": "Upload your MPA data first to assess migration readiness.",
+    "description": "The MRA evaluates your organization's readiness across infrastructure complexity, team capabilities, and operational requirements to determine the optimal migration approach and timeline."
+  },
+  "briefings": {
+    "title": "Briefings & Workshops",
+    "description": "Track executive briefings, technical workshops...",
+    "totalSessions": "Total Sessions",
+    "completed": "Completed",
+    "planned": "Planned",
+    "sessions": "Sessions",
+    "addSession": "Add Session",
+    "sessionTitle": "Session title",
+    "attendees": "Attendees",
+    "cancel": "Cancel",
+    "add": "Add",
+    "noSessions": "No sessions scheduled yet. Click \"Add Session\" to start tracking."
+  },
+  "migrationWaves": {
+    "title": "Migration Waves Planning",
+    "description": "Plan your migration in phases",
+    "waveName": "Wave Name",
+    "strategy": "Strategy",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "serverCount": "Server Count",
+    "applicationCount": "Application Count",
+    "createWave": "Create Wave",
+    "addWave": "Add Wave",
+    "cancel": "Cancel",
+    "createNew": "Create New Migration Wave",
+    "noWaves": "No migration waves defined yet...",
+    "capacityDistribution": "Wave Capacity Distribution",
+    "statuses": {
+      "planned": "Planned",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "blocked": "Blocked"
+    }
+  },
+  "ec2": {
+    "title": "EC2 Instance Recommendations",
+    "description": "Server migration recommendations",
+    "noServers": "No server data available",
+    "noServersDescription": "Upload your MPA Excel file in the Assess phase",
+    "recommendationTitle": "Server Migration Recommendations ({{count}} servers)"
+  },
+  "rds": {
+    "title": "RDS Recommendations",
+    "description": "Database migration recommendations"
+  },
+  "opportunitiesDashboard": {
+    "title": "Sales Opportunities",
+    "aiAnalysis": "AI-Powered Opportunity Analysis",
+    "description": "To generate sales opportunities, complete the following steps:",
+    "step1": "1. Upload MPA Excel file with data in the 'Rapid Discovery' tab",
+    "step2": "2. Enter client information (name, on-premises cost)",
+    "step3": "3. Optionally, upload MRA PDF file and/or Questionnaire",
+    "step4": "4. Click 'Complete Assessment' to start AWS Bedrock analysis",
+    "step5": "5. Opportunities will appear here when analysis is complete",
+    "loading": "Loading opportunities...",
+    "error": "Error loading opportunities",
+    "errorUpdate": "Error updating status"
+  },
+  "opportunitiesFilters": {
+    "search": "Search opportunities...",
+    "filters": "Filters",
+    "priority": "Priority",
+    "status": "Status",
+    "arrRange": "ARR Range",
+    "minimum": "Minimum",
+    "maximum": "Maximum",
+    "unlimited": "Unlimited",
+    "showingCount": "Showing {{count}} opportunities",
+    "clearFilters": "Clear filters"
+  },
+  "opportunitiesCard": {
+    "relatedService": "related AWS service",
+    "relatedServices": "related AWS services",
+    "statuses": {
+      "new": "New",
+      "inProgress": "In Progress",
+      "won": "Won",
+      "lost": "Lost",
+      "discarded": "Discarded"
+    },
+    "categories": {
+      "workshop": "Workshop",
+      "security": "Security",
+      "costOptimization": "Cost Optimization",
+      "reliability": "Reliability",
+      "performance": "Performance"
+    }
+  },
+  "selector": {
+    "title": "MAP Tool Selector",
+    "description": "Answer 28 questions to get the ideal tool recommendation",
+    "clientName": "Client Name",
+    "clientNamePlaceholder": "E.g.: Acme Corp",
+    "startSelector": "Start Selector",
+    "assessmentResult": "Assessment Result",
+    "clientLabel": "Client: {{name}}",
+    "recommendedTool": "Recommended Tool",
+    "confidence": "Confidence: {{confidence}} ({{percentage}}%)",
+    "toolComparison": "Visual Tool Comparison",
+    "score": "Score",
+    "scorePercent": "Score (%)",
+    "whyRecommendation": "Why this recommendation?",
+    "impactfulQuestions": "These questions had the most impact on the {{tool}} recommendation:",
+    "yourAnswer": "Your answer:",
+    "impact": "Impact:",
+    "allScores": "All Tools Scores",
+    "exportResults": "Export Results",
+    "exportPdf": "Export PDF",
+    "exportCsv": "Export CSV",
+    "close": "Close",
+    "stickyAssessment": "Assessment: {{name}}",
+    "stickyDescription": "Answer all questions to get your recommendation",
+    "answeredProgress": "{{answered}} / {{total}} answered",
+    "validationRequired": "You must answer all questions",
+    "validationMissing": "Missing {{count}} question{{count}} to answer",
+    "calculateRecommendation": "Calculate Recommendation",
+    "questionRequired": "This question is required",
+    "errors": {
+      "loadingQuestions": "Error loading questions",
+      "creatingSession": "Error creating session",
+      "invalidResponse": "Error: Invalid server response",
+      "invalidPdf": "Error: Invalid PDF generated",
+      "generatingPdf": "Error generating PDF",
+      "exportingPdf": "Error exporting PDF",
+      "generatingCsv": "Error generating CSV",
+      "exportingCsv": "Error exporting CSV",
+      "calculatingRecommendation": "Error calculating recommendation"
+    },
+    "toasts": {
+      "sessionCreated": "Session created successfully",
+      "pdfDownloaded": "PDF downloaded successfully",
+      "csvDownloaded": "CSV downloaded successfully",
+      "recommendationCalculated": "Recommendation calculated successfully"
+    }
   }
 }

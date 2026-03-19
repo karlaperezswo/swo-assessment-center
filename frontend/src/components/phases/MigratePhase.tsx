@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { SubTabLayout, SubTabGroup } from '@/components/layout/SubTabLayout';
 import { PhaseCompleteButton } from '@/components/shared/PhaseCompleteButton';
 import { EC2Recommendations } from '@/components/migrate/EC2Recommendations';
@@ -40,27 +41,28 @@ export function MigratePhase({
   phaseStatus, onCompletePhase,
   reportResult, onGenerateReport, onDownloadReport, isGenerating,
 }: MigratePhaseProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('ec2-recommendations');
 
   const groups: SubTabGroup[] = [
     {
-      groupLabel: 'Migrar',
+      groupLabel: t('migrate.groups.migrate'),
       tabs: [
-        { value: 'ec2-recommendations', label: 'Recomendaciones EC2', icon: <Server className="h-4 w-4" /> },
-        { value: 'rds-recommendations', label: 'Recomendaciones RDS', icon: <Database className="h-4 w-4" /> },
-        { value: 'migration-waves', label: 'Olas de Migración', icon: <Waves className="h-4 w-4" /> },
+        { value: 'ec2-recommendations', label: t('migrate.tabs.ec2'), icon: <Server className="h-4 w-4" /> },
+        { value: 'rds-recommendations', label: t('migrate.tabs.rds'), icon: <Database className="h-4 w-4" /> },
+        { value: 'migration-waves', label: t('migrate.tabs.waves'), icon: <Waves className="h-4 w-4" /> },
       ],
     },
     {
-      groupLabel: 'Optimizar',
+      groupLabel: t('migrate.groups.optimize'),
       tabs: [
-        { value: 'cost-optimization', label: 'Optimización de Costos', icon: <TrendingDown className="h-4 w-4" /> },
+        { value: 'cost-optimization', label: t('migrate.tabs.costOptimization'), icon: <TrendingDown className="h-4 w-4" /> },
       ],
     },
     {
-      groupLabel: 'Modernizar',
+      groupLabel: t('migrate.groups.modernize'),
       tabs: [
-        { value: 'modernization-roadmap', label: 'Hoja de Ruta de Modernización', icon: <Rocket className="h-4 w-4" /> },
+        { value: 'modernization-roadmap', label: t('migrate.tabs.modernizationRoadmap'), icon: <Rocket className="h-4 w-4" /> },
       ],
     },
   ];
@@ -106,9 +108,9 @@ export function MigratePhase({
               <div className="flex items-center gap-3">
                 <FileText className="h-8 w-8 text-amber-600" />
                 <div>
-                  <h3 className="font-bold text-amber-900">Reporte de Evaluación Final</h3>
+                  <h3 className="font-bold text-amber-900">{t('migrate.report.title')}</h3>
                   <p className="text-sm text-amber-700 mt-0.5">
-                    Generar un documento Word completo con todas las recomendaciones de migración
+                    {t('migrate.report.description')}
                   </p>
                 </div>
               </div>
@@ -121,12 +123,12 @@ export function MigratePhase({
                 {isGenerating ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generando...
+                    {t('migrate.report.buttonGenerating')}
                   </>
                 ) : (
                   <>
                     <FileText className="h-4 w-4 mr-2" />
-                    Generar Reporte
+                    {t('migrate.report.buttonGenerate')}
                   </>
                 )}
               </Button>
@@ -139,12 +141,12 @@ export function MigratePhase({
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-700 font-medium">¡Reporte generado exitosamente!</p>
-                  <p className="text-sm text-green-600 mt-1">Haz clic en descargar para obtener tu documento Word</p>
+                  <p className="text-green-700 font-medium">{t('migrate.report.successMessage')}</p>
+                  <p className="text-sm text-green-600 mt-1">{t('migrate.report.successDescription')}</p>
                 </div>
                 <Button onClick={onDownloadReport} className="bg-green-600 hover:bg-green-700">
                   <Download className="h-4 w-4 mr-2" />
-                  Descargar Reporte
+                  {t('migrate.report.buttonDownload')}
                 </Button>
               </div>
             </CardContent>
@@ -158,8 +160,8 @@ export function MigratePhase({
         isCompleted={phaseStatus.migrate === 'completed'}
         onComplete={onCompletePhase}
         completionRequirements={[
-          'Completar fase de Movilización',
-          'Generar reporte de evaluación final',
+          t('migrate.requirements.mobilizePhase'),
+          t('migrate.requirements.reportGeneration'),
         ]}
         accentColor="amber"
       />

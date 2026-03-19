@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { SubTabLayout, SubTabGroup } from '@/components/layout/SubTabLayout';
 import { PhaseCompleteButton } from '@/components/shared/PhaseCompleteButton';
 import { DiscoveryPlanning } from '@/components/mobilize/DiscoveryPlanning';
@@ -46,29 +47,30 @@ export function MobilizePhase({
   securityChecklist, onSecurityChecklistChange,
   phaseStatus, onCompletePhase,
 }: MobilizePhaseProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('business-case');
 
   const groups: SubTabGroup[] = [
     {
-      groupLabel: 'Portafolio',
+      groupLabel: t('mobilize.groups.portfolio'),
       tabs: [
-        { value: 'discovery-planning', label: 'Descubrimiento y Planificación', icon: <AppWindow className="h-4 w-4" /> },
-        { value: 'migration-plan', label: 'Plan de Migración', icon: <Waves className="h-4 w-4" /> },
-        { value: 'business-case', label: 'Caso de Negocio', icon: <Sparkles className="h-4 w-4" /> },
+        { value: 'discovery-planning', label: t('mobilize.tabs.discoveryPlanning'), icon: <AppWindow className="h-4 w-4" /> },
+        { value: 'migration-plan', label: t('mobilize.tabs.migrationPlan'), icon: <Waves className="h-4 w-4" /> },
+        { value: 'business-case', label: t('mobilize.tabs.businessCase'), icon: <Sparkles className="h-4 w-4" /> },
       ],
     },
     {
-      groupLabel: 'Personas',
+      groupLabel: t('mobilize.groups.people'),
       tabs: [
-        { value: 'skills-coe', label: 'Habilidades y CoE', icon: <GraduationCap className="h-4 w-4" /> },
+        { value: 'skills-coe', label: t('mobilize.tabs.skills'), icon: <GraduationCap className="h-4 w-4" /> },
       ],
     },
     {
-      groupLabel: 'Plataforma',
+      groupLabel: t('mobilize.groups.platform'),
       tabs: [
-        { value: 'landing-zone', label: 'Landing Zone', icon: <Cloud className="h-4 w-4" /> },
-        { value: 'security-compliance', label: 'Seguridad y Cumplimiento', icon: <Shield className="h-4 w-4" /> },
-        { value: 'architecture-diagram', label: 'Diagrama de Arquitectura', icon: <Network className="h-4 w-4" /> },
+        { value: 'landing-zone', label: t('mobilize.tabs.landingZone'), icon: <Cloud className="h-4 w-4" /> },
+        { value: 'security-compliance', label: t('mobilize.tabs.security'), icon: <Shield className="h-4 w-4" /> },
+        { value: 'architecture-diagram', label: t('mobilize.tabs.architecture'), icon: <Network className="h-4 w-4" /> },
       ],
     },
   ];
@@ -138,9 +140,9 @@ export function MobilizePhase({
         isCompleted={phaseStatus.mobilize === 'completed'}
         onComplete={onCompletePhase}
         completionRequirements={[
-          'Completar fase de Evaluación',
-          'Definir al menos 1 ola de migración',
-          'Iniciar configuración de Landing Zone (marcar al menos 1 item)',
+          t('mobilize.requirements.assessPhase'),
+          t('mobilize.requirements.migrationWaves'),
+          t('mobilize.requirements.landingZoneItems'),
         ]}
         accentColor="violet"
       />

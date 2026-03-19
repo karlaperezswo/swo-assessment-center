@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,64 +17,65 @@ import {
 import { Building2 } from 'lucide-react';
 import { ClientFormData, ClientPriority } from '@/types/assessment';
 
-const formSchema = z.object({
-  clientName: z.string().min(1, 'Client name is required'),
-  vertical: z.enum(['Energy', 'Insurance', 'Healthcare', 'Financial', 'Retail', 'Manufacturing', 'Technology', 'Other']),
-  reportDate: z.string().min(1, 'Report date is required'),
-  awsRegion: z.enum(['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2', 'eu-west-1', 'eu-west-2', 'eu-central-1', 'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'sa-east-1']),
-  totalServers: z.number().min(1, 'Total servers must be at least 1'),
-  onPremisesCost: z.number().min(0, 'Cost must be positive'),
-  companyDescription: z.string(),
-  priorities: z.array(z.string()),
-  migrationReadiness: z.enum(['ready', 'evaluating', 'not_ready']),
-});
-
 interface ClientFormProps {
   onFormChange: (data: ClientFormData) => void;
   initialData?: Partial<ClientFormData>;
 }
 
-const PRIORITIES: { value: ClientPriority; label: string }[] = [
-  { value: 'reduced_costs', label: 'Reducir costos de infraestructura' },
-  { value: 'operational_resilience', label: 'Mejorar resiliencia operacional' },
-  { value: 'business_agility', label: 'Agilidad de negocio' },
-  { value: 'environment_updated', label: 'Ambiente siempre actualizado' },
-  { value: 'modernize_databases', label: 'Modernizar cargas de trabajo de bases de datos' },
-  { value: 'security_compliance', label: 'Cumplimiento de seguridad' },
-];
-
-const VERTICALS = [
-  'Energy',
-  'Insurance',
-  'Healthcare',
-  'Financial',
-  'Retail',
-  'Manufacturing',
-  'Technology',
-  'Other',
-] as const;
-
-const AWS_REGIONS = [
-  { value: 'us-east-1', label: 'US East (N. Virginia)' },
-  { value: 'us-east-2', label: 'US East (Ohio)' },
-  { value: 'us-west-1', label: 'US West (N. California)' },
-  { value: 'us-west-2', label: 'US West (Oregon)' },
-  { value: 'eu-west-1', label: 'EU (Ireland)' },
-  { value: 'eu-west-2', label: 'EU (London)' },
-  { value: 'eu-central-1', label: 'EU (Frankfurt)' },
-  { value: 'ap-southeast-1', label: 'Asia Pacific (Singapore)' },
-  { value: 'ap-southeast-2', label: 'Asia Pacific (Sydney)' },
-  { value: 'ap-northeast-1', label: 'Asia Pacific (Tokyo)' },
-  { value: 'sa-east-1', label: 'South America (Sao Paulo)' },
-] as const;
-
-const READINESS_OPTIONS = [
-  { value: 'ready', label: 'Listo para migrar' },
-  { value: 'evaluating', label: 'Evaluando' },
-  { value: 'not_ready', label: 'Aún no está listo' },
-] as const;
-
 export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
+  const { t } = useTranslation();
+
+  const formSchema = z.object({
+    clientName: z.string().min(1, t('clientForm.validation.clientNameRequired')),
+    vertical: z.enum(['Energy', 'Insurance', 'Healthcare', 'Financial', 'Retail', 'Manufacturing', 'Technology', 'Other']),
+    reportDate: z.string().min(1, t('clientForm.validation.reportDateRequired')),
+    awsRegion: z.enum(['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2', 'eu-west-1', 'eu-west-2', 'eu-central-1', 'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'sa-east-1']),
+    totalServers: z.number().min(1, t('clientForm.validation.totalServersRequired')),
+    onPremisesCost: z.number().min(0, t('clientForm.validation.costPositive')),
+    companyDescription: z.string(),
+    priorities: z.array(z.string()),
+    migrationReadiness: z.enum(['ready', 'evaluating', 'not_ready']),
+  });
+
+  const PRIORITIES: { value: ClientPriority; label: string }[] = [
+    { value: 'reduced_costs', label: t('clientForm.priorities.reducedCosts') },
+    { value: 'operational_resilience', label: t('clientForm.priorities.operationalResilience') },
+    { value: 'business_agility', label: t('clientForm.priorities.businessAgility') },
+    { value: 'environment_updated', label: t('clientForm.priorities.environmentUpdated') },
+    { value: 'modernize_databases', label: t('clientForm.priorities.modernizeDatabases') },
+    { value: 'security_compliance', label: t('clientForm.priorities.securityCompliance') },
+  ];
+
+  const VERTICALS = [
+    'Energy',
+    'Insurance',
+    'Healthcare',
+    'Financial',
+    'Retail',
+    'Manufacturing',
+    'Technology',
+    'Other',
+  ] as const;
+
+  const AWS_REGIONS = [
+    { value: 'us-east-1', label: t('clientForm.awsRegions.usEast1') },
+    { value: 'us-east-2', label: t('clientForm.awsRegions.usEast2') },
+    { value: 'us-west-1', label: t('clientForm.awsRegions.usWest1') },
+    { value: 'us-west-2', label: t('clientForm.awsRegions.usWest2') },
+    { value: 'eu-west-1', label: t('clientForm.awsRegions.euWest1') },
+    { value: 'eu-west-2', label: t('clientForm.awsRegions.euWest2') },
+    { value: 'eu-central-1', label: t('clientForm.awsRegions.euCentral1') },
+    { value: 'ap-southeast-1', label: t('clientForm.awsRegions.apSoutheast1') },
+    { value: 'ap-southeast-2', label: t('clientForm.awsRegions.apSoutheast2') },
+    { value: 'ap-northeast-1', label: t('clientForm.awsRegions.apNortheast1') },
+    { value: 'sa-east-1', label: t('clientForm.awsRegions.saEast1') },
+  ] as const;
+
+  const READINESS_OPTIONS = [
+    { value: 'ready', label: t('clientForm.readiness.ready') },
+    { value: 'evaluating', label: t('clientForm.readiness.evaluating') },
+    { value: 'not_ready', label: t('clientForm.readiness.notReady') },
+  ] as const;
   const { register, watch, setValue, formState: { errors } } = useForm<ClientFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -110,13 +112,13 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Building2 className="h-5 w-5" />
-          Información del Cliente
+          {t('clientForm.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="clientName">Nombre del Cliente *</Label>
+            <Label htmlFor="clientName">{t('clientForm.clientName')}</Label>
             <Input
               id="clientName"
               {...register('clientName')}
@@ -124,7 +126,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
                 register('clientName').onChange(e);
                 handleChange();
               }}
-              placeholder="Ingrese el nombre del cliente"
+              placeholder={t('clientForm.clientNamePlaceholder')}
             />
             {errors.clientName && (
               <p className="text-sm text-red-500">{errors.clientName.message}</p>
@@ -132,7 +134,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="vertical">Vertical/Industry</Label>
+            <Label htmlFor="vertical">{t('clientForm.vertical')}</Label>
             <Select
               value={watchedValues.vertical}
               onValueChange={(value) => {
@@ -141,7 +143,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Seleccione industria" />
+                <SelectValue placeholder={t('clientForm.selectVertical')} />
               </SelectTrigger>
               <SelectContent>
                 {VERTICALS.map((vertical) => (
@@ -156,7 +158,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="reportDate">Fecha del Reporte</Label>
+            <Label htmlFor="reportDate">{t('clientForm.reportDate')}</Label>
             <Input
               id="reportDate"
               type="date"
@@ -169,7 +171,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="awsRegion">Región AWS</Label>
+            <Label htmlFor="awsRegion">{t('clientForm.awsRegion')}</Label>
             <Select
               value={watchedValues.awsRegion}
               onValueChange={(value) => {
@@ -178,7 +180,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Seleccione región" />
+                <SelectValue placeholder={t('clientForm.selectRegion')} />
               </SelectTrigger>
               <SelectContent>
                 {AWS_REGIONS.map((region) => (
@@ -193,7 +195,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="totalServers">Total de Servidores en Alcance</Label>
+            <Label htmlFor="totalServers">{t('clientForm.totalServers')}</Label>
             <Input
               id="totalServers"
               type="number"
@@ -206,7 +208,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="onPremisesCost">Costo On-Premises (USD/año)</Label>
+            <Label htmlFor="onPremisesCost">{t('clientForm.onPremisesCost')}</Label>
             <Input
               id="onPremisesCost"
               type="number"
@@ -215,13 +217,13 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
                 register('onPremisesCost', { valueAsNumber: true }).onChange(e);
                 handleChange();
               }}
-              placeholder="Costo anual"
+              placeholder={t('clientForm.onPremisesCostPlaceholder')}
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="companyDescription">Descripción de la Empresa</Label>
+          <Label htmlFor="companyDescription">{t('clientForm.companyDescription')}</Label>
           <Textarea
             id="companyDescription"
             {...register('companyDescription')}
@@ -229,13 +231,13 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
               register('companyDescription').onChange(e);
               handleChange();
             }}
-            placeholder="Breve descripción de la empresa y su infraestructura..."
+            placeholder={t('clientForm.companyDescriptionPlaceholder')}
             rows={3}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Prioridades del Cliente</Label>
+          <Label>{t('clientForm.clientPriorities')}</Label>
           <div className="grid grid-cols-2 gap-2">
             {PRIORITIES.map((priority) => (
               <div key={priority.value} className="flex items-center space-x-2">
@@ -258,7 +260,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="migrationReadiness">Preparación para Migración</Label>
+          <Label htmlFor="migrationReadiness">{t('clientForm.migrationReadiness')}</Label>
           <Select
             value={watchedValues.migrationReadiness}
             onValueChange={(value) => {
@@ -267,7 +269,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Seleccione estado de preparación" />
+              <SelectValue placeholder={t('clientForm.selectReadiness')} />
             </SelectTrigger>
             <SelectContent>
               {READINESS_OPTIONS.map((option) => (

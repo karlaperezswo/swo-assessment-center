@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,9 +46,11 @@ interface CalculationResult {
 }
 
 export function SelectorPhase() {
+  const { t } = useTranslation();
+
   // API URL from environment variable, fallback to localhost for development
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-  
+
   const [clientName, setClientName] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
@@ -71,13 +74,13 @@ export function SelectorPhase() {
       }
     } catch (error) {
       console.error('Error loading questions:', error);
-      toast.error('Error al cargar las preguntas');
+      toast.error(t('selector.errors.loadingQuestions'));
     }
   };
 
   const handleStartSession = async () => {
     if (!clientName) return;
-    
+
     setLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/selector/session`, {
@@ -88,11 +91,11 @@ export function SelectorPhase() {
       const data = await response.json();
       if (data.success) {
         setSessionId(data.data.sessionId);
-        toast.success('Sesión creada exitosamente');
+        toast.success(t('selector.messages.sessionCreated'));
       }
     } catch (error) {
       console.error('Error creating session:', error);
-      toast.error('Error al crear la sesión');
+      toast.error(t('selector.errors.creatingSession'));
     } finally {
       setLoading(false);
     }
@@ -132,7 +135,7 @@ export function SelectorPhase() {
         
         if (!data.success || !data.pdf) {
           console.error('[PDF Export] Invalid response format:', data);
-          toast.error('Error: Respuesta inválida del servidor');
+          toast.error(t('selector.errors.invalidServerResponse'));
           return;
         }
         
@@ -155,7 +158,7 @@ export function SelectorPhase() {
         
         if (headerString !== '%PDF-') {
           console.error('[PDF Export] ERROR: Invalid PDF header! Expected "%PDF-", got:', headerString);
-          toast.error('Error: PDF inválido generado');
+          toast.error(t('selector.errors.invalidPdf'));
           return;
         }
         
@@ -173,15 +176,15 @@ export function SelectorPhase() {
           document.body.removeChild(a);
         }, 100);
         
-        toast.success('PDF descargado exitosamente');
+        toast.success(t('selector.messages.pdfDownloadSuccess'));
       } else {
         const errorText = await response.text();
         console.error('[PDF Export] Error response:', errorText);
-        toast.error('Error al generar PDF');
+        toast.error(t('selector.errors.generatingPdf'));
       }
     } catch (error) {
       console.error('[PDF Export] Exception:', error);
-      toast.error('Error al exportar PDF');
+      toast.error(t('selector.errors.exportingPdf'));
     } finally {
       setExportLoading(null);
     }
@@ -217,13 +220,13 @@ export function SelectorPhase() {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        toast.success('CSV descargado exitosamente');
+        toast.success(t('selector.messages.csvDownloadSuccess'));
       } else {
-        toast.error('Error al generar CSV');
+        toast.error(t('selector.errors.generatingCsv'));
       }
     } catch (error) {
       console.error('Error exporting CSV:', error);
-      toast.error('Error al exportar CSV');
+      toast.error(t('selector.errors.exportingCsv'));
     } finally {
       setExportLoading(null);
     }
@@ -276,7 +279,7 @@ export function SelectorPhase() {
     // Validation: check if all questions are answered
     if (unanswered.length > 0) {
       setShowValidation(true);
-      toast.error(`Debes responder todas las preguntas (${unanswered.length} faltan)`);
+      toast.error(t('selector.errors.unansweredQuestions', { count: unanswered.length }));
       
       // Scroll to first unanswered question
       const firstUnanswered = unanswered[0];
@@ -307,7 +310,7 @@ export function SelectorPhase() {
       const data = await response.json();
       if (data.success) {
         setResult(data.data);
-        toast.success('Recomendación calculada exitosamente');
+        toast.success(t('selector.messages.calculationSuccess'));
         
         // Auto-scroll to top to show results
         setTimeout(() => {
@@ -316,7 +319,7 @@ export function SelectorPhase() {
       }
     } catch (error) {
       console.error('Error calculating:', error);
-      toast.error('Error al calcular la recomendación');
+      toast.error(t('selector.errors.calculating'));
     } finally {
       setLoading(false);
     }
@@ -332,24 +335,24 @@ export function SelectorPhase() {
       <div className="container mx-auto p-6 space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Selector de Herramienta MAP</CardTitle>
+            <CardTitle>{t('selector.title')}</CardTitle>
             <CardDescription>
-              Responde 28 preguntas para obtener la recomendación de herramienta ideal
+              {t('selector.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="clientName">Nombre del Cliente</Label>
+              <Label htmlFor="clientName">{t('selector.clientNameLabel')}</Label>
               <Input
                 id="clientName"
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
-                placeholder="Ej: Acme Corp"
+                placeholder={t('selector.clientNamePlaceholder')}
               />
             </div>
             <Button onClick={handleStartSession} disabled={!clientName || loading}>
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Comenzar Selector
+              {t('selector.startButton')}
             </Button>
           </CardContent>
         </Card>
@@ -373,25 +376,25 @@ export function SelectorPhase() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Resultado del Assessment</CardTitle>
-                <CardDescription>Cliente: {clientName}</CardDescription>
+                <CardTitle>{t('selector.results.title')}</CardTitle>
+                <CardDescription>{t('selector.results.client', { name: clientName })}</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="text-center p-6 bg-blue-50 rounded-lg">
-              <h3 className="text-2xl font-bold mb-2">Herramienta Recomendada</h3>
+              <h3 className="text-2xl font-bold mb-2">{t('selector.results.recommendedTool')}</h3>
               <p className="text-4xl font-bold text-blue-600 mb-2">
                 {result.recommendedTool}
               </p>
               <Badge variant={result.confidence === 'high' ? 'default' : 'secondary'}>
-                Confianza: {result.confidence} ({result.confidencePercentage.toFixed(1)}%)
+                {t('selector.results.confidence', { confidence: result.confidence, percentage: result.confidencePercentage.toFixed(1) })}
               </Badge>
             </div>
 
             {/* Radar Chart */}
             <div>
-              <h4 className="font-semibold mb-4">Comparación Visual de Herramientas</h4>
+              <h4 className="font-semibold mb-4">{t('selector.results.toolComparison')}</h4>
               <div className="bg-gray-50 rounded-lg p-6">
                 <ResponsiveContainer width="100%" height={400}>
                   <RadarChart data={radarData}>
@@ -435,8 +438,8 @@ export function SelectorPhase() {
                       }}
                     />
                     <Tooltip 
-                      formatter={(value: number) => [`${value.toFixed(1)}%`, 'Score']}
-                      labelFormatter={(label: string) => `Herramienta: ${label}`}
+                      formatter={(value: number) => [`${value.toFixed(1)}%`, t('selector.results.score')]}
+                      labelFormatter={(label: string) => `${t('selector.results.tool')}: ${label}`}
                       contentStyle={{ 
                         backgroundColor: 'white', 
                         border: '2px solid #3b82f6',
@@ -449,7 +452,7 @@ export function SelectorPhase() {
                     <Legend 
                       wrapperStyle={{ paddingTop: '20px' }}
                       iconType="circle"
-                      formatter={() => 'Score (%)'}
+                      formatter={() => t('selector.results.scorePercentage')}
                     />
                   </RadarChart>
                 </ResponsiveContainer>
@@ -461,11 +464,11 @@ export function SelectorPhase() {
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <Lightbulb className="h-5 w-5 text-amber-600" />
-                  <h4 className="font-semibold">¿Por qué esta recomendación?</h4>
+                  <h4 className="font-semibold">{t('selector.results.whyRecommendation')}</h4>
                 </div>
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                   <p className="text-sm text-amber-900 mb-4">
-                    Estas preguntas tuvieron mayor impacto en la recomendación de <span className="font-semibold">{result.recommendedTool}</span>:
+                    {t('selector.results.decisiveFactorsText', { tool: result.recommendedTool })}
                   </p>
                   <div className="space-y-3">
                     {result.decisiveFactors.slice(0, 5).map((factor: any, index: number) => (
@@ -480,10 +483,10 @@ export function SelectorPhase() {
                             </p>
                             <div className="flex items-center gap-4 text-sm">
                               <span className="text-gray-600">
-                                Tu respuesta: <span className="font-medium text-gray-900">{factor.answer}</span>
+                                {t('selector.results.yourAnswer')}: <span className="font-medium text-gray-900">{factor.answer}</span>
                               </span>
                               <span className="text-amber-700">
-                                Impacto: <span className="font-semibold">+{factor.impact.toFixed(1)} pts</span>
+                                {t('selector.results.impact')}: <span className="font-semibold">+{factor.impact.toFixed(1)} pts</span>
                               </span>
                             </div>
                           </div>
@@ -496,7 +499,7 @@ export function SelectorPhase() {
             )}
 
             <div>
-              <h4 className="font-semibold mb-4">Scores de Todas las Herramientas</h4>
+              <h4 className="font-semibold mb-4">{t('selector.results.allToolScores')}</h4>
               <div className="space-y-2">
                 {result.results.map((tool) => (
                   <div key={tool.tool} className="flex items-center justify-between p-3 border rounded">
@@ -519,7 +522,7 @@ export function SelectorPhase() {
 
             {/* Export Buttons */}
             <div className="border-t pt-6">
-              <h4 className="font-semibold mb-4">Exportar Resultados</h4>
+              <h4 className="font-semibold mb-4">{t('selector.results.exportResults')}</h4>
               <div className="flex gap-3 flex-wrap">
                 <Button 
                   variant="outline" 
@@ -531,7 +534,7 @@ export function SelectorPhase() {
                   ) : (
                     <FileDown className="mr-2 h-4 w-4" />
                   )}
-                  Exportar PDF
+                  {t('selector.results.exportPdf')}
                 </Button>
                 <Button 
                   variant="outline" 
@@ -543,7 +546,7 @@ export function SelectorPhase() {
                   ) : (
                     <FileDown className="mr-2 h-4 w-4" />
                   )}
-                  Exportar CSV
+                  {t('selector.results.exportCsv')}
                 </Button>
               </div>
             </div>
@@ -562,7 +565,7 @@ export function SelectorPhase() {
                 }}
                 className="w-full"
               >
-                Cerrar
+                {t('common.close')}
               </Button>
             </div>
           </CardContent>
@@ -583,14 +586,14 @@ export function SelectorPhase() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center mb-3">
             <div>
-              <h3 className="text-lg font-semibold">Assessment: {clientName}</h3>
+              <h3 className="text-lg font-semibold">{t('selector.questionnaire.title', { name: clientName })}</h3>
               <p className="text-sm text-gray-600">
-                Responde todas las preguntas para obtener tu recomendación
+                {t('selector.questionnaire.description')}
               </p>
             </div>
             <div className="flex items-center gap-3">
               <Badge variant={answers.length === totalQuestions ? 'default' : 'secondary'} className="text-base px-3 py-1">
-                {answers.length} / {totalQuestions} respondidas
+                {t('selector.questionnaire.answered', { answered: answers.length, total: totalQuestions })}
               </Badge>
             </div>
           </div>
@@ -637,7 +640,7 @@ export function SelectorPhase() {
                         </Label>
                         {showError && (
                           <p className="text-sm text-red-600 mt-1 font-medium">
-                             Esta pregunta es obligatoria
+                             {t('selector.questionnaire.requiredQuestion')}
                           </p>
                         )}
                       </div>
@@ -668,10 +671,10 @@ export function SelectorPhase() {
                 <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="font-medium text-red-900">
-                    Debes responder todas las preguntas
+                    {t('selector.questionnaire.mustAnswerAll')}
                   </p>
                   <p className="text-sm text-red-700 mt-1">
-                    Faltan {unansweredCount} pregunta{unansweredCount !== 1 ? 's' : ''} por responder
+                    {t('selector.questionnaire.unansweredCount', { count: unansweredCount })}
                   </p>
                 </div>
               </div>
@@ -683,7 +686,7 @@ export function SelectorPhase() {
               size="lg"
             >
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Calcular Recomendación
+              {t('selector.questionnaire.calculateButton')}
             </Button>
           </div>
         </CardContent>

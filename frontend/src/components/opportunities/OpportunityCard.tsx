@@ -1,4 +1,5 @@
 import { Opportunity, OpportunityPriority, OpportunityStatus, OpportunityCategory } from '@shared/types/opportunity.types';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, DollarSign } from 'lucide-react';
@@ -9,7 +10,39 @@ interface OpportunityCardProps {
 }
 
 export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) {
+  const { t } = useTranslation();
   const isHighValue = opportunity.estimatedARR > 200000;
+
+  const getPriorityLabel = (priority: OpportunityPriority) => {
+    return t(`opportunitiesFilters.priority.${priority.toLowerCase()}`);
+  };
+
+  const getStatusLabel = (status: OpportunityStatus) => {
+    const statusKeyMap: Record<string, string> = {
+      'Nueva': 'new',
+      'En Progreso': 'inProgress',
+      'Ganada': 'won',
+      'Perdida': 'lost',
+      'Descartada': 'discarded'
+    };
+    return t(`opportunitiesCard.status.${statusKeyMap[status] || 'new'}`);
+  };
+
+  const getCategoryLabel = (category: OpportunityCategory) => {
+    const categoryKeyMap: Record<string, string> = {
+      'Workshop': 'workshop',
+      'Seguridad': 'security',
+      'Optimización de Costos': 'costOptimization',
+      'Confiabilidad': 'reliability',
+      'Excelencia Operacional': 'operationalExcellence',
+      'Eficiencia de Rendimiento': 'performanceEfficiency',
+      'Sostenibilidad': 'sustainability',
+      'Migración': 'migration',
+      'Modernización': 'modernization',
+      'Otro': 'other'
+    };
+    return t(`opportunitiesCard.category.${categoryKeyMap[category] || 'other'}`);
+  };
 
   const priorityColors: Record<OpportunityPriority, string> = {
     High: 'bg-red-100 text-red-800 border-red-300',
@@ -53,7 +86,7 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
       {/* Category badge */}
       <div className="mb-2">
         <Badge className={categoryColors[opportunity.category] || categoryColors['Otro']}>
-          {opportunity.category}
+          {getCategoryLabel(opportunity.category)}
         </Badge>
       </div>
 
@@ -63,10 +96,10 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
       {/* Priority and Status badges */}
       <div className="flex gap-2 mb-3">
         <Badge className={priorityColors[opportunity.priority]}>
-          {opportunity.priority}
+          {getPriorityLabel(opportunity.priority)}
         </Badge>
         <Badge className={statusColors[opportunity.status]}>
-          {opportunity.status}
+          {getStatusLabel(opportunity.status)}
         </Badge>
       </div>
 
@@ -84,7 +117,7 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
 
       {/* Related services count */}
       <div className="mt-3 text-xs text-muted-foreground">
-        {opportunity.relatedServices.length} {opportunity.relatedServices.length === 1 ? 'servicio AWS relacionado' : 'servicios AWS relacionados'}
+        {t('opportunitiesCard.relatedServices', { count: opportunity.relatedServices.length })}
       </div>
     </Card>
   );

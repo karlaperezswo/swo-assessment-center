@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +15,7 @@ interface OpportunityFiltersProps {
 }
 
 export function OpportunityFilters({ filters, onFiltersChange, opportunityCount }: OpportunityFiltersProps) {
+  const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
 
   const handlePriorityChange = (priority: string, checked: boolean) => {
@@ -58,7 +60,7 @@ export function OpportunityFilters({ filters, onFiltersChange, opportunityCount 
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar en oportunidades..."
+            placeholder={t('opportunitiesFilters.searchPlaceholder')}
             value={filters.searchTerm || ''}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-10"
@@ -70,7 +72,7 @@ export function OpportunityFilters({ filters, onFiltersChange, opportunityCount 
           className="flex items-center gap-2"
         >
           <Filter className="h-4 w-4" />
-          Filtros
+          {t('opportunitiesFilters.filters')}
           {hasActiveFilters && (
             <span className="ml-1 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
               {[
@@ -89,7 +91,7 @@ export function OpportunityFilters({ filters, onFiltersChange, opportunityCount 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t">
           {/* Priority filters */}
           <div>
-            <Label className="text-sm font-semibold mb-3 block">Prioridad</Label>
+            <Label className="text-sm font-semibold mb-3 block">{t('opportunitiesFilters.priority')}</Label>
             <div className="space-y-2">
               {['High', 'Medium', 'Low'].map(priority => (
                 <div key={priority} className="flex items-center space-x-2">
@@ -102,7 +104,7 @@ export function OpportunityFilters({ filters, onFiltersChange, opportunityCount 
                     htmlFor={`priority-${priority}`}
                     className="text-sm cursor-pointer"
                   >
-                    {priority}
+                    {t(`opportunitiesFilters.priority.${priority.toLowerCase()}`)}
                   </label>
                 </div>
               ))}
@@ -111,32 +113,41 @@ export function OpportunityFilters({ filters, onFiltersChange, opportunityCount 
 
           {/* Status filters */}
           <div>
-            <Label className="text-sm font-semibold mb-3 block">Estado</Label>
+            <Label className="text-sm font-semibold mb-3 block">{t('opportunitiesFilters.status')}</Label>
             <div className="space-y-2">
-              {(['Nueva', 'En Progreso', 'Ganada', 'Perdida', 'Descartada'] as OpportunityStatus[]).map(status => (
-                <div key={status} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`status-${status}`}
-                    checked={filters.status?.includes(status) || false}
-                    onCheckedChange={(checked) => handleStatusChange(status, checked as boolean)}
-                  />
-                  <label
-                    htmlFor={`status-${status}`}
-                    className="text-sm cursor-pointer"
-                  >
-                    {status}
-                  </label>
-                </div>
-              ))}
+              {(['Nueva', 'En Progreso', 'Ganada', 'Perdida', 'Descartada'] as OpportunityStatus[]).map(status => {
+                const statusKeyMap: Record<string, string> = {
+                  'Nueva': 'new',
+                  'En Progreso': 'inProgress',
+                  'Ganada': 'won',
+                  'Perdida': 'lost',
+                  'Descartada': 'discarded'
+                };
+                return (
+                  <div key={status} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`status-${status}`}
+                      checked={filters.status?.includes(status) || false}
+                      onCheckedChange={(checked) => handleStatusChange(status, checked as boolean)}
+                    />
+                    <label
+                      htmlFor={`status-${status}`}
+                      className="text-sm cursor-pointer"
+                    >
+                      {t(`opportunitiesCard.status.${statusKeyMap[status]}`)}
+                    </label>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           {/* ARR range filters */}
           <div>
-            <Label className="text-sm font-semibold mb-3 block">Rango de ARR</Label>
+            <Label className="text-sm font-semibold mb-3 block">{t('opportunitiesFilters.arrRange')}</Label>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="minARR" className="text-xs text-muted-foreground">Mínimo</Label>
+                <Label htmlFor="minARR" className="text-xs text-muted-foreground">{t('opportunitiesFilters.minimum')}</Label>
                 <Input
                   id="minARR"
                   type="number"
@@ -147,11 +158,11 @@ export function OpportunityFilters({ filters, onFiltersChange, opportunityCount 
                 />
               </div>
               <div>
-                <Label htmlFor="maxARR" className="text-xs text-muted-foreground">Máximo</Label>
+                <Label htmlFor="maxARR" className="text-xs text-muted-foreground">{t('opportunitiesFilters.maximum')}</Label>
                 <Input
                   id="maxARR"
                   type="number"
-                  placeholder="Sin límite"
+                  placeholder={t('opportunitiesFilters.noLimit')}
                   value={filters.maxARR || ''}
                   onChange={(e) => handleARRChange('maxARR', e.target.value)}
                   className="mt-1"
@@ -166,10 +177,10 @@ export function OpportunityFilters({ filters, onFiltersChange, opportunityCount 
       {hasActiveFilters && (
         <div className="mt-4 pt-4 border-t flex justify-between items-center">
           <span className="text-sm text-muted-foreground">
-            Mostrando {opportunityCount} oportunidades
+            {t('opportunitiesFilters.showing', { count: opportunityCount })}
           </span>
           <Button variant="ghost" size="sm" onClick={clearFilters}>
-            Limpiar filtros
+            {t('opportunitiesFilters.clearFilters')}
           </Button>
         </div>
       )}

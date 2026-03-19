@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileSpreadsheet, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +29,7 @@ const getDataSourceLabel = (dataSource?: string): string => {
 };
 
 export function FileUploader({ onDataLoaded }: FileUploaderProps) {
+  const { t } = useTranslation();
   const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [fileName, setFileName] = useState<string>('');
   const [fileSize, setFileSize] = useState<string>('');
@@ -44,11 +46,11 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
     setUploadState('uploading');
     setErrorMessage('');
 
-    toast.loading(`Cargando ${file.name}...`, { id: 'file-upload' });
+    toast.loading(`${t('fileUploader.uploadingMessage')}...`, { id: 'file-upload' });
 
     try {
       // Step 1: Get pre-signed URL for S3 upload
-      setUploadProgress('Preparando carga...');
+      setUploadProgress(t('common.loading'));
       const urlResponse = await apiClient.post('/api/report/get-upload-url', {
         filename: file.name,
         contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -61,7 +63,7 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
       const { uploadUrl, key } = urlResponse.data.data;
 
       // Step 2: Upload file directly to S3
-      setUploadProgress('Subiendo a S3...');
+      setUploadProgress(t('fileUploader.uploadingMessage'));
       await fetch(uploadUrl, {
         method: 'PUT',
         body: file,
@@ -71,7 +73,7 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
       });
 
       // Step 3: Process file from S3
-      setUploadProgress('Analizando datos...');
+      setUploadProgress(t('fileUploader.analyzingMessage'));
       const response = await apiClient.post('/api/report/upload-from-s3', {
         key
       });
@@ -99,12 +101,13 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
       setUploadState('error');
       const message = error instanceof Error ? error.message : 'Failed to upload file';
       setErrorMessage(message);
-      toast.error(`Error al cargar archivo: ${message}`, {
+      toast.error(t('upload.error'), {
         id: 'file-upload',
-        duration: 7000
+        duration: 7000,
+        description: message
       });
     }
-  }, [onDataLoaded]);
+  }, [onDataLoaded, t]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -119,7 +122,7 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileSpreadsheet className="h-5 w-5" />
-          Cargar Excel MPA
+          {t('fileUploader.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -139,10 +142,10 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
             <>
               <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
               <p className="text-lg font-medium">
-                {isDragActive ? 'Suelta el archivo Excel aquí' : 'Arrastra y suelta el archivo Excel aquí'}
+                {isDragActive ? t('fileUploader.dragDropActive') : t('fileUploader.dragDrop')}
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                o haz clic para seleccionar archivo (.xlsx)
+                {t('common.loading')}
               </p>
             </>
           )}
@@ -198,30 +201,30 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
               <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.serverCount}</span>
-                  <p className="text-gray-600">Servidores</p>
+                  <p className="text-gray-600">{t('fileUploader.summary.servers')}</p>
                 </div>
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.databaseCount}</span>
-                  <p className="text-gray-600">Bases de Datos</p>
+                  <p className="text-gray-600">{t('fileUploader.summary.databases')}</p>
                 </div>
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.applicationCount}</span>
-                  <p className="text-gray-600">Aplicaciones</p>
+                  <p className="text-gray-600">{t('fileUploader.summary.applications')}</p>
                 </div>
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.totalStorageGB.toFixed(0)}</span>
-                  <p className="text-gray-600">GB Totales</p>
+                  <p className="text-gray-600">{t('fileUploader.summary.totalGb')}</p>
                 </div>
                 {summary.communicationCount !== undefined && summary.communicationCount > 0 && (
                   <div className="bg-white rounded p-2">
                     <span className="font-bold text-2xl text-primary">{summary.communicationCount}</span>
-                    <p className="text-gray-600">Conexiones</p>
+                    <p className="text-gray-600">{t('fileUploader.summary.connections')}</p>
                   </div>
                 )}
                 {summary.securityGroupCount !== undefined && summary.securityGroupCount > 0 && (
                   <div className="bg-white rounded p-2">
                     <span className="font-bold text-2xl text-primary">{summary.securityGroupCount}</span>
-                    <p className="text-gray-600">Grupos Seg.</p>
+                    <p className="text-gray-600">{t('fileUploader.summary.securityGroups')}</p>
                   </div>
                 )}
               </div>
@@ -231,9 +234,9 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
           {uploadState === 'error' && (
             <>
               <XCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
-              <p className="text-lg font-medium text-red-700">Carga Fallida</p>
+              <p className="text-lg font-medium text-red-700">{t('fileUploader.error')}</p>
               <p className="text-sm text-red-600 mt-2">{errorMessage}</p>
-              <p className="text-sm text-gray-500 mt-2">Haz clic para intentar de nuevo</p>
+              <p className="text-sm text-gray-500 mt-2">{t('fileUploader.errorRetry')}</p>
             </>
           )}
         </div>

@@ -12,7 +12,9 @@
       "Bash(powershell.exe -Command \"Test-Path ''$env:APPDATA\\\\npm\\\\npm.cmd''\")",
       "Bash(\"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" install)",
       "Bash(\"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" run dev)",
-      "Bash(\"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" run dev:portforward)"
+      "Bash(\"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" run dev:portforward)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"feat: add i18n support to additional components:*)"
     ]
   }
 }

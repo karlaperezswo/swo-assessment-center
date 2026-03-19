@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,14 +18,15 @@ interface MigrationWavesProps {
   // totalApplications: number;
 }
 
-const statusConfig = {
-  planned: { icon: Pause, color: '#eab308', label: 'Planned', bg: 'bg-yellow-50 border-yellow-200' },
-  in_progress: { icon: Play, color: '#3b82f6', label: 'In Progress', bg: 'bg-blue-50 border-blue-200' },
-  completed: { icon: CheckCircle, color: '#22c55e', label: 'Completed', bg: 'bg-green-50 border-green-200' },
-  blocked: { icon: AlertCircle, color: '#ef4444', label: 'Blocked', bg: 'bg-red-50 border-red-200' },
-};
-
 export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
+  const { t } = useTranslation();
+
+  const statusConfig = {
+    planned: { icon: Pause, color: '#eab308', label: t('migrationWaves.statuses.planned'), bg: 'bg-yellow-50 border-yellow-200' },
+    in_progress: { icon: Play, color: '#3b82f6', label: t('migrationWaves.statuses.inProgress'), bg: 'bg-blue-50 border-blue-200' },
+    completed: { icon: CheckCircle, color: '#22c55e', label: t('migrationWaves.statuses.completed'), bg: 'bg-green-50 border-green-200' },
+    blocked: { icon: AlertCircle, color: '#ef4444', label: t('migrationWaves.statuses.blocked'), bg: 'bg-red-50 border-red-200' },
+  };
   const [showForm, setShowForm] = useState(false);
   const [newWave, setNewWave] = useState({
     name: '',
@@ -85,10 +87,9 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
           <div className="flex items-start gap-3">
             <Waves className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-bold text-amber-900 text-lg">Migration Waves Planning</h3>
+              <h3 className="font-bold text-amber-900 text-lg">{t('migrationWaves.title')}</h3>
               <p className="text-sm text-amber-700 mt-1">
-                Organize your migration into manageable waves based on dependencies, business priority, and technical complexity.
-                Track wave status and progress throughout the migration journey.
+                {t('migrationWaves.description')}
               </p>
             </div>
           </div>
@@ -98,7 +99,7 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
       {/* Actions */}
       <div className="flex gap-3">
         <Button onClick={() => setShowForm(!showForm)} variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50">
-          <Plus className="h-4 w-4 mr-1" /> {showForm ? 'Cancel' : 'Add Wave'}
+          <Plus className="h-4 w-4 mr-1" /> {showForm ? t('common.cancel') : t('migrationWaves.addWave')}
         </Button>
       </div>
 
@@ -106,12 +107,12 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
       {showForm && (
         <Card className="border-amber-200">
           <CardHeader>
-            <CardTitle className="text-sm text-amber-700">Create New Migration Wave</CardTitle>
+            <CardTitle className="text-sm text-amber-700">{t('migrationWaves.createNew')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">Wave Name</label>
+                <label className="text-xs text-gray-600 mb-1 block">{t('migrationWaves.waveName')}</label>
                 <Input
                   value={newWave.name}
                   onChange={(e) => setNewWave({ ...newWave, name: e.target.value })}
@@ -120,7 +121,7 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">Strategy</label>
+                <label className="text-xs text-gray-600 mb-1 block">{t('migrationWaves.strategy')}</label>
                 <select
                   value={newWave.strategy}
                   onChange={(e) => setNewWave({ ...newWave, strategy: e.target.value })}

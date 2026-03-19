@@ -18,7 +18,8 @@
       "Bash(git commit -m \"feat: add i18n support to MigrationWaves and EC2Recommendations:*)",
       "Bash(git commit:*)",
       "Bash(npx tsc:*)",
-      "Bash(./node_modules/.bin/tsc --noEmit)"
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(npm run:*)"
     ]
   }
 }

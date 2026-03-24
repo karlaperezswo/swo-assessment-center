@@ -18,7 +18,7 @@ import { SupportRiskAnalysis } from './SupportRiskAnalysis';
 import { TCOCostInput } from './TCOCostInput';
 import { TCOChart } from './TCOChart';
 import { BusinessCaseUploadResponse, BusinessCaseClientData, TCO1YearUploadResponse, CarbonReportUploadResponse } from '@/types/assessment';
-import { Briefcase, TrendingUp, Upload, Building2, ChevronDown, ChevronUp, FileDown, Loader2 } from 'lucide-react';
+import { Briefcase, TrendingUp, Upload, Building2, ChevronDown, ChevronUp } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
@@ -37,7 +37,6 @@ export function BusinessCase() {
   const [showSupportRisk, setShowSupportRisk] = useState<boolean>(false); // Accordion state for Support Risk - CLOSED by default
   const [showMigrationStrategy, setShowMigrationStrategy] = useState<boolean>(true); // Accordion state for Migration Strategy
   const [enableRDSScenario, setEnableRDSScenario] = useState<boolean>(false); // Enable RDS scenario
-  const [exportingPPTX, setExportingPPTX] = useState<boolean>(false);
   
   // TCO Cost states - EC2 Scenario
   const [onDemandAsIs, setOnDemandAsIs] = useState<number>(0);
@@ -85,47 +84,6 @@ export function BusinessCase() {
     setClientData(prev => ({ ...prev, assessmentTool: tool as any }));
   };
 
-  const handleExportPPTX = async () => {
-    setExportingPPTX(true);
-    try {
-      const payload = {
-        clientName: clientData.clientName,
-        reportDate: clientData.reportDate,
-        assessmentTool: clientData.assessmentTool,
-        vertical: clientData.vertical,
-        awsRegion: clientData.awsRegion,
-        onPremisesCost: clientData.onPremisesCost,
-        businessCaseData: businessCaseData?.businessCaseData ?? null,
-        tco1YearData: tco1YearData?.tco1YearData ?? null,
-        carbonData: carbonReportData?.carbonData ?? null,
-        onDemandAsIs,
-        oneYearOptimized,
-        threeYearOptimized,
-        enableRDSScenario,
-        onDemandAsIsRDS,
-        oneYearOptimizedRDS,
-        threeYearOptimizedRDS,
-      };
-      const res = await fetch(`${API_URL}/api/business-case/export-pptx`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`Error ${res.status}`);
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `BusinessCase_${(clientData.clientName || 'Cliente').replace(/\s+/g, '_')}_${clientData.reportDate}.pptx`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      alert(`Error al exportar: ${(err as Error).message}`);
-    } finally {
-      setExportingPPTX(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -164,18 +122,6 @@ export function BusinessCase() {
               Cliente: {clientData.clientName}
             </div>
           )}
-          <button
-            onClick={handleExportPPTX}
-            disabled={exportingPPTX}
-            className="ml-auto flex items-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-          >
-            {exportingPPTX ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <FileDown className="h-4 w-4" />
-            )}
-            {exportingPPTX ? 'Generando...' : 'Exportar a PowerPoint'}
-          </button>
         </div>
       )}
 

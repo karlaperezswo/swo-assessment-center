@@ -61,7 +61,7 @@ router.post('/upload-carbon-report', (req, res, next) => {
 }, controller.uploadCarbonReport);
 
 // Export Business Case to PowerPoint
-router.post('/export-pptx', controller.exportPPTX);
+// router.post('/export-pptx', controller.exportPPTX); // REMOVED: PPTX export functionality removed
 
 // EOL & pricing data status + manual refresh
 router.get('/eol-status', controller.getEolStatus);

@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { BusinessCaseFormatDetector } from '../services/parsers/BusinessCaseFormatDetector';
 import { getCacheStatus, refreshProduct, PRODUCT_SLUGS } from '../services/eolApiService';
 import { getSQLPricingStatus } from '../services/sqlPricingService';
-import { generateBusinessCasePPTX, PPTXExportInput } from '../services/pptxService';
 import * as XLSX from 'xlsx';
 
 /**
@@ -306,24 +305,6 @@ export class BusinessCaseController {
         note: 'EOL data fetched from endoflife.date (cached 24h). SQL pricing scraped from Microsoft (cached 24h).'
       }
     });
-  };
-
-  /**
-   * POST /api/business-case/export-pptx
-   * Generates and returns a PowerPoint file with all Business Case data.
-   */
-  exportPPTX = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const input: PPTXExportInput = req.body;
-      const buffer = await generateBusinessCasePPTX(input);
-      const filename = `BusinessCase_${(input.clientName || 'Cliente').replace(/\s+/g, '_')}_${input.reportDate || new Date().toISOString().split('T')[0]}.pptx`;
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      res.send(buffer);
-    } catch (err) {
-      console.error('[EXPORT-PPTX] Error:', err);
-      res.status(500).json({ success: false, error: (err as Error).message });
-    }
   };
 
   /**

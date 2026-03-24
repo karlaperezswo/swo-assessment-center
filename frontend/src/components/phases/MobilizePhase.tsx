@@ -99,13 +99,7 @@ export function MobilizePhase({
           />
         )}
         {activeTab === 'business-case' && (
-          <BusinessCase
-            clientData={clientData}
-            estimatedCosts={estimatedCosts}
-            totalServers={excelData?.servers.length || 0}
-            migrationReadiness={clientData.migrationReadiness}
-            calculatorLinks={reportResult?.calculatorLinks}
-          />
+          <BusinessCase />
         )}
         {activeTab === 'skills-coe' && (
           <SkillsCoE

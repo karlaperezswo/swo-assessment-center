@@ -168,3 +168,13 @@ BASELINE-V2.md
 # Scripts de análisis temporales
 analyze-all-inputs.js
 analyze-mpa-structure.js
+
+# Archivos temporales identificados - 2026-03-24
+CHANGELOG-LOCAL-DEV.md
+DYNAMIC_METRICS.md
+start-dev.bat
+start-portforward.bat
+TEMP-DAVE/
+test-data/
+backend/lambda-function.zip
+backend/start-portforward.bat

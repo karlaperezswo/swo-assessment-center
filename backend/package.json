@@ -4,8 +4,8 @@
   "description": "AWS Assessment Report Generator - Backend API",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts",
-    "build": "tsc && xcopy /E /I /Y src\\config dist\\backend\\src\\config",
+    "dev": "nodemon --exec \"ts-node --transpile-only\" src/index.ts",
+    "build": "tsc",
     "start": "node dist/index.js",
     "deploy": "npm run build && node ../aws/deploy-backend.js",
     "test": "jest",
@@ -24,6 +24,7 @@
     "mammoth": "^1.11.0",
     "multer": "^1.4.5-lts.1",
     "pdfkit": "^0.17.2",
+    "pptxgenjs": "^4.0.1",
     "serverless-http": "^3.2.0",
     "unpdf": "^1.4.0",
     "uuid": "^9.0.1",

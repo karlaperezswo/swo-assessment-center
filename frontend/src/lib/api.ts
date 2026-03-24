@@ -20,7 +20,7 @@ apiClient.interceptors.request.use(
     console.log(`📡 API Request: ${config.method?.toUpperCase()} ${url}`);
     
     // Log adicional para multipart/form-data
-    if (config.headers['Content-Type']?.includes('multipart/form-data')) {
+    if (String(config.headers['Content-Type'] ?? '').includes('multipart/form-data')) {
       console.log('📎 Enviando archivo...');
     }
     

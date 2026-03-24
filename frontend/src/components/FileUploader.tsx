@@ -47,62 +47,97 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
     toast.loading(`Cargando ${file.name}...`, { id: 'file-upload' });
 
     try {
-      // Step 1: Get pre-signed URL for S3 upload
-      setUploadProgress('Preparando carga...');
-      const urlResponse = await apiClient.post('/api/report/get-upload-url', {
-        filename: file.name,
-        contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      });
+      // Intentar primero con S3, si falla usar upload directo local
+      let excelData: any, summary: any, dependencyData: any, migrationWaves: any;
 
-      if (!urlResponse.data.success) {
-        throw new Error(urlResponse.data.error || 'Failed to get upload URL');
-      }
-
-      const { uploadUrl, key } = urlResponse.data.data;
-
-      // Step 2: Upload file directly to S3
-      setUploadProgress('Subiendo a S3...');
-      await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        }
-      });
-
-      // Step 3: Process file from S3
-      setUploadProgress('Analizando datos...');
-      const response = await apiClient.post('/api/report/upload-from-s3', {
-        key
-      });
-
-      if (response.data.success) {
-        const { excelData, summary, dependencyData, migrationWaves } = response.data.data;
-        setSummary(summary);
-        setUploadState('success');
-        
-        // Pass all data including dependencies and waves
-        onDataLoaded(excelData, summary, dependencyData, migrationWaves);
-
-        // Create success message with data source info
-        const dataSourceLabel = getDataSourceLabel(summary.dataSource);
-        let successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos`;
-        
-        if (summary.communicationCount) {
-          successMsg += `, ${summary.communicationCount} conexiones`;
-        }
-        
-        if (migrationWaves) {
-          successMsg += `, ${migrationWaves.totalWaves} olas de migración calculadas`;
-        }
-
-        toast.success(successMsg, {
-          id: 'file-upload',
-          duration: 5000
+      try {
+        // Step 1: Get pre-signed URL for S3 upload
+        setUploadProgress('Preparando carga...');
+        const urlResponse = await apiClient.post('/api/report/get-upload-url', {
+          filename: file.name,
+          contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         });
-      } else {
-        throw new Error(response.data.error || 'Upload failed');
+
+        if (!urlResponse.data.success) throw new Error('S3 URL failed');
+
+        const { uploadUrl, key } = urlResponse.data.data;
+
+        // Step 2: Upload file directly to S3
+        setUploadProgress('Subiendo a S3...');
+        await fetch(uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          }
+        });
+
+        // Step 3: Process file from S3
+        setUploadProgress('Analizando datos...');
+        const response = await apiClient.post('/api/report/upload-from-s3', { key });
+        if (!response.data.success) throw new Error(response.data.error || 'S3 processing failed');
+
+        ({ excelData, summary, dependencyData, migrationWaves } = response.data.data);
+
+      } catch (_s3Error) {
+        // Fallback: upload directo al backend sin S3
+        console.warn('S3 no disponible, usando upload directo...');
+        setUploadProgress('Analizando datos (modo local)...');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const localResponse = await apiClient.post('/api/report/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 120000,
+        });
+
+        if (!localResponse.data.success) {
+          throw new Error(localResponse.data.error || 'Upload failed');
+        }
+
+        ({ excelData, summary } = localResponse.data.data);
+
+        // Parsear dependencias en el backend usando el endpoint de dependencias
+        try {
+          const depFormData = new FormData();
+          depFormData.append('file', file);
+          const depResponse = await apiClient.post('/api/dependencies/parse', depFormData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: 60000,
+          });
+          if (depResponse.data.success) {
+            dependencyData = depResponse.data.data.dependencyData;
+            migrationWaves = depResponse.data.data.migrationWaves;
+          }
+        } catch (_depErr) {
+          console.warn('No se pudieron parsear dependencias:', _depErr);
+        }
       }
+
+      setSummary(summary);
+      setUploadState('success');
+
+      // Pass all data including dependencies and waves
+      onDataLoaded(excelData, summary, dependencyData, migrationWaves);
+
+      // Create success message with data source info
+      const dataSourceLabel = getDataSourceLabel(summary.dataSource);
+      let successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos`;
+
+      if (summary.communicationCount) {
+        successMsg += `, ${summary.communicationCount} conexiones`;
+      }
+
+      if (migrationWaves) {
+        successMsg += `, ${migrationWaves.totalWaves} olas de migración calculadas`;
+      }
+
+      toast.success(successMsg, {
+        id: 'file-upload',
+        duration: 5000
+      });
+
     } catch (error) {
       setUploadState('error');
       const message = error instanceof Error ? error.message : 'Failed to upload file';

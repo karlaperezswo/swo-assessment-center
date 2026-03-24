@@ -97,11 +97,33 @@ export class ReportController {
       console.log(`[UPLOAD] Success - Total time: ${Date.now() - startTime}ms`);
       console.log(`[UPLOAD] Data Source: ${excelData.dataSource}`);
       console.log(`[UPLOAD] Summary:`, summary);
+
+      // Parse dependencies from Server Communication sheet
+      let dependencyData = null;
+      let migrationWaves = null;
+      try {
+        const depParser = this.dependencyService.parseDependencyFile(fileBuffer);
+        dependencyData = {
+          dependencies: depParser.dependencies,
+          appDependencies: depParser.appDependencies,
+          servers: Array.from(depParser.servers),
+          applications: Array.from(depParser.applications),
+          databases: depParser.databases,
+          databasesWithoutDependencies: depParser.databasesWithoutDependencies,
+          summary: depParser.summary,
+        };
+        migrationWaves = this.dependencyService.calculateMigrationWaves(depParser.dependencies);
+      } catch (depError) {
+        console.warn('[UPLOAD] Could not parse dependencies:', depError);
+      }
+
       res.json({
         success: true,
         data: {
           excelData,
-          summary
+          summary,
+          dependencyData,
+          migrationWaves,
         }
       });
     } catch (error) {
@@ -186,8 +208,10 @@ export class ReportController {
         const depParser = this.dependencyService.parseDependencyFile(fileBuffer);
         dependencyData = {
           dependencies: depParser.dependencies,
+          appDependencies: depParser.appDependencies,
           servers: Array.from(depParser.servers),
           applications: Array.from(depParser.applications),
+          databases: depParser.databases,
           databasesWithoutDependencies: depParser.databasesWithoutDependencies,
           summary: depParser.summary
         };

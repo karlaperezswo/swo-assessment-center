@@ -81,7 +81,7 @@ function App() {
 
   // Dependency and migration wave data
   const [dependencyData, setDependencyData] = useState<any>(null);
-  const [autoCalculatedWaves, setAutoCalculatedWaves] = useState<any>(null);
+  const [_autoCalculatedWaves, setAutoCalculatedWaves] = useState<any>(null);
 
   const handleDataLoaded = (data: ExcelData, summary: UploadSummary, depData?: any, waves?: any) => {
     setExcelData(data);
@@ -104,7 +104,7 @@ function App() {
       setAutoCalculatedWaves(waves);
       
       // Convert calculated waves to MigrationWave format
-      const convertedWaves: MigrationWave[] = waves.waves.map((wave: any, index: number) => ({
+      const convertedWaves: MigrationWave[] = waves.waves.map((wave: any, _index: number) => ({
         id: `wave-auto-${wave.waveNumber}`,
         waveNumber: wave.waveNumber,
         name: `Wave ${wave.waveNumber}${wave.waveNumber === 1 ? ' - Base Infrastructure' : ''}`,

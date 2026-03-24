@@ -1,13 +1,10 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MigrationPlanner } from '@/components/MigrationPlanner';
 import { WavePlannerTool } from '@/components/migrate/WavePlannerTool';
 
 import { MigrationWave } from '@/types/assessment';
-import { Waves, Plus, Trash2, Play, Pause, CheckCircle, AlertCircle, Network, Settings } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Waves, Plus, Trash2, Play, Pause, CheckCircle, AlertCircle, Settings } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface MigrationWavesProps {
@@ -85,223 +82,242 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <Waves className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-bold text-amber-900 text-lg">Migration Waves Planning</h3>
-              <p className="text-sm text-amber-700 mt-1">
-                Organize your migration into manageable waves based on dependencies, business priority, and technical complexity.
-                Track wave status and progress throughout the migration journey.
-              </p>
+      <div style={{
+        borderRadius: 10, overflow: 'hidden',
+        boxShadow: '0 2px 12px rgba(8,145,178,0.12)', border: '1px solid #99f6e4'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #0f766e 0%, #0891b2 60%, #0284c7 100%)',
+          padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 12
+        }}>
+          <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px', display: 'flex', alignItems: 'center' }}>
+            <Waves style={{ width: 20, height: 20, color: '#fff' }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', letterSpacing: '0.01em' }}>
+              Planificación de Olas de Migración
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 3 }}>
+              Organiza la migración en olas según dependencias, prioridad y complejidad técnica
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '3px 14px',
+              fontSize: 12, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}>
+              {waves.length} olas
+            </div>
+          </div>
+        </div>
+        <div style={{ background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)', padding: '12px 20px',
+          borderTop: '1px solid #99f6e4', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          {[
+            { value: waves.length, label: 'Olas', icon: '🌊' },
+            { value: waves.reduce((s, w) => s + w.serverCount, 0), label: 'Servidores', icon: '🖥' },
+            { value: waves.reduce((s, w) => s + w.applicationCount, 0), label: 'Aplicaciones', icon: '📦' },
+            { value: waves.filter(w => w.status === 'completed').length, label: 'Completadas', icon: '✅' },
+          ].map((s, i) => (
+            <div key={i} style={{ textAlign: 'center', minWidth: 60 }}>
+              <div style={{ fontSize: 10, marginBottom: 1 }}>{s.icon}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#0f766e', lineHeight: 1.1 }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: '#0891b2', fontWeight: 500 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Actions */}
-      <div className="flex gap-3 flex-wrap">
-        <Button onClick={() => setShowForm(!showForm)} variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50">
-          <Plus className="h-4 w-4 mr-1" /> {showForm ? 'Cancel' : 'Add Wave'}
-        </Button>
-        <Button 
-          onClick={() => setShowPlanner(true)} 
-          disabled={!dependencyData?.dependencies || dependencyData.dependencies.length === 0}
-          className="bg-gradient-to-r from-[#2563eb] to-[#1e3a8a] hover:from-[#1d4ed8] hover:to-[#1e40af] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          title={!dependencyData?.dependencies ? 'Carga un archivo MPA con dependencias primero' : ''}
-        >
-          <Network className="h-4 w-4 mr-2" />
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <button onClick={() => setShowForm(!showForm)}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 8,
+            fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
+            background: showForm ? 'linear-gradient(90deg, #0f766e 0%, #0891b2 100%)' : '#f1f5f9',
+            color: showForm ? '#fff' : '#475569',
+            boxShadow: showForm ? '0 2px 8px rgba(8,145,178,0.3)' : 'none' }}>
+          <Plus style={{ width: 14, height: 14 }} />
+          {showForm ? 'Cancelar' : 'Agregar Ola'}
+        </button>
+        <button onClick={() => setShowWaveTool(true)}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 8,
+            fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
+            background: 'linear-gradient(90deg, #0f766e 0%, #0891b2 100%)',
+            color: '#fff', boxShadow: '0 2px 8px rgba(8,145,178,0.3)' }}>
+          <Settings style={{ width: 14, height: 14 }} />
           Migration Planner
-        </Button>
-        <Button 
-          onClick={() => setShowWaveTool(true)} 
-          disabled={!dependencyData?.servers || dependencyData.servers.length === 0}
-          className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          title={!dependencyData?.servers ? 'Carga un archivo MPA con servidores primero' : ''}
-        >
-          <Settings className="h-4 w-4 mr-2" />
-          Wave Planner Tool
-        </Button>
+        </button>
       </div>
 
       {/* Info message when no dependency data */}
       {(!dependencyData || !dependencyData.dependencies || dependencyData.dependencies.length === 0) && (
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">Herramientas de planificación avanzada disponibles</p>
-                <p>
-                  Los botones "Migration Planner" y "Wave Planner Tool" se habilitarán automáticamente 
-                  cuando cargues un archivo MPA con datos de dependencias en la pestaña "Descubrimiento Rápido".
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div style={{ borderRadius: 8, border: '1px solid #99f6e4',
+          background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)', padding: '14px 18px',
+          display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <AlertCircle style={{ width: 16, height: 16, color: '#0891b2', flexShrink: 0, marginTop: 1 }} />
+          <div style={{ fontSize: 12, color: '#0c4a6e' }}>
+            <div style={{ fontWeight: 600, marginBottom: 3 }}>Herramientas de planificación avanzada disponibles</div>
+            <div>El botón "Migration Planner" se habilitará automáticamente cuando cargues un archivo MPA con datos de dependencias en la pestaña "Descubrimiento Rápido".</div>
+          </div>
+        </div>
       )}
 
       {/* Add Wave Form */}
       {showForm && (
-        <Card className="border-amber-200">
-          <CardHeader>
-            <CardTitle className="text-sm text-amber-700">Create New Migration Wave</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #99f6e4', boxShadow: '0 2px 8px rgba(8,145,178,0.08)' }}>
+          <div style={{ background: 'linear-gradient(135deg, #0f766e 0%, #0891b2 60%, #0284c7 100%)', padding: '12px 20px' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Nueva Ola de Migración</div>
+          </div>
+          <div style={{ padding: '16px 20px', background: '#fff' }}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">Wave Name</label>
-                <Input
-                  value={newWave.name}
-                  onChange={(e) => setNewWave({ ...newWave, name: e.target.value })}
-                  placeholder="e.g., Dev/Test Workloads"
-                  className="text-sm"
-                />
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Nombre de la Ola</label>
+                <Input value={newWave.name} onChange={(e) => setNewWave({ ...newWave, name: e.target.value })}
+                  placeholder="ej. Dev/Test Workloads" className="text-sm" />
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">Strategy</label>
-                <select
-                  value={newWave.strategy}
-                  onChange={(e) => setNewWave({ ...newWave, strategy: e.target.value })}
-                  className="w-full text-sm border rounded-md px-3 py-2"
-                >
-                  <option>Rehost</option>
-                  <option>Replatform</option>
-                  <option>Refactor</option>
-                  <option>Repurchase</option>
-                  <option>Relocate</option>
-                  <option>Retain</option>
-                  <option>Retire</option>
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Estrategia</label>
+                <select value={newWave.strategy} onChange={(e) => setNewWave({ ...newWave, strategy: e.target.value })}
+                  style={{ width: '100%', fontSize: 13, border: '1px solid #e2e8f0', borderRadius: 6, padding: '7px 10px', color: '#374151' }}>
+                  <option>Rehost</option><option>Replatform</option><option>Refactor</option>
+                  <option>Repurchase</option><option>Relocate</option><option>Retain</option><option>Retire</option>
                 </select>
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">Start Date</label>
-                <Input
-                  type="date"
-                  value={newWave.startDate}
-                  onChange={(e) => setNewWave({ ...newWave, startDate: e.target.value })}
-                  className="text-sm"
-                />
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Fecha Inicio</label>
+                <Input type="date" value={newWave.startDate} onChange={(e) => setNewWave({ ...newWave, startDate: e.target.value })} className="text-sm" />
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">End Date</label>
-                <Input
-                  type="date"
-                  value={newWave.endDate}
-                  onChange={(e) => setNewWave({ ...newWave, endDate: e.target.value })}
-                  className="text-sm"
-                />
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Fecha Fin</label>
+                <Input type="date" value={newWave.endDate} onChange={(e) => setNewWave({ ...newWave, endDate: e.target.value })} className="text-sm" />
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">Server Count</label>
-                <Input
-                  type="number"
-                  value={newWave.serverCount}
-                  onChange={(e) => setNewWave({ ...newWave, serverCount: parseInt(e.target.value) || 0 })}
-                  className="text-sm"
-                />
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Servidores</label>
+                <Input type="number" value={newWave.serverCount} onChange={(e) => setNewWave({ ...newWave, serverCount: parseInt(e.target.value) || 0 })} className="text-sm" />
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">Application Count</label>
-                <Input
-                  type="number"
-                  value={newWave.applicationCount}
-                  onChange={(e) => setNewWave({ ...newWave, applicationCount: parseInt(e.target.value) || 0 })}
-                  className="text-sm"
-                />
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Aplicaciones</label>
+                <Input type="number" value={newWave.applicationCount} onChange={(e) => setNewWave({ ...newWave, applicationCount: parseInt(e.target.value) || 0 })} className="text-sm" />
               </div>
             </div>
-            <Button onClick={handleAdd} className="bg-amber-600 hover:bg-amber-700">Create Wave</Button>
-          </CardContent>
-        </Card>
+            <button onClick={handleAdd}
+              style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 6, padding: '8px 20px', borderRadius: 8,
+                fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none',
+                background: 'linear-gradient(90deg, #0f766e 0%, #0891b2 100%)', color: '#fff',
+                boxShadow: '0 2px 8px rgba(8,145,178,0.3)' }}>
+              <Plus style={{ width: 14, height: 14 }} /> Crear Ola
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Wave List */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {waves.length === 0 && (
-          <p className="text-center text-gray-400 py-8">No migration waves defined yet. Click "Add Wave" to create one.</p>
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8', borderRadius: 10,
+            border: '1px dashed #99f6e4', background: '#f0fdfa' }}>
+            <Waves style={{ width: 40, height: 40, margin: '0 auto 12px', color: '#99f6e4' }} />
+            <div style={{ fontSize: 14, fontWeight: 500, color: '#0f766e' }}>Sin olas definidas</div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>Haz clic en "Agregar Ola" o usa el Migration Planner</div>
+          </div>
         )}
 
         {waves.map((wave) => {
           const config = statusConfig[wave.status];
           const StatusIcon = config.icon;
           return (
-            <Card key={wave.id} className={cn('border', config.bg)}>
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <button onClick={() => handleStatusChange(wave.id)} className="mt-0.5">
-                      <StatusIcon className="h-5 w-5" style={{ color: config.color }} />
-                    </button>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-gray-400">WAVE {wave.waveNumber}</span>
-                        <h4 className="font-semibold text-gray-900">{wave.name}</h4>
-                        <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: config.color + '20', color: config.color }}>
-                          {config.label}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Strategy: {wave.strategy} | {wave.serverCount} servers, {wave.applicationCount} apps | {wave.startDate} → {wave.endDate}
-                      </p>
-                    </div>
+            <div key={wave.id} style={{ borderRadius: 10, overflow: 'hidden',
+              border: '1px solid #99f6e4', boxShadow: '0 1px 4px rgba(8,145,178,0.07)' }}>
+              <div style={{ background: 'linear-gradient(135deg, #0f766e 0%, #0891b2 60%, #0284c7 100%)',
+                padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <button onClick={() => handleStatusChange(wave.id)}
+                  style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6,
+                    padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <StatusIcon style={{ width: 14, height: 14, color: '#fff' }} />
+                </button>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.05em' }}>
+                      OLA {wave.waveNumber}
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{wave.name}</span>
+                    <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10,
+                      background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}>
+                      {config.label}
+                    </span>
                   </div>
-                  <button onClick={() => handleRemove(wave.id)} className="text-gray-400 hover:text-red-500">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>
+                    {wave.strategy} · {wave.serverCount} servidores · {wave.applicationCount} apps · {wave.startDate} → {wave.endDate}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+                <button onClick={() => handleRemove(wave.id)}
+                  style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)',
+                    borderRadius: 6, padding: '4px 8px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center' }}>
+                  <Trash2 style={{ width: 13, height: 13 }} />
+                </button>
+              </div>
+              <div style={{ background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)',
+                padding: '8px 16px', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                {[
+                  { label: 'Servidores', value: wave.serverCount, icon: '🖥' },
+                  { label: 'Aplicaciones', value: wave.applicationCount, icon: '📦' },
+                  { label: 'Estrategia', value: wave.strategy, icon: '🎯' },
+                ].map((s, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#0c4a6e' }}>
+                    <span>{s.icon}</span>
+                    <span style={{ fontWeight: 700, color: '#0f766e' }}>{s.value}</span>
+                    <span style={{ color: '#64748b' }}>{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           );
         })}
       </div>
 
       {/* Chart */}
       {waves.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Wave Capacity Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+        <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #99f6e4', boxShadow: '0 2px 8px rgba(8,145,178,0.08)' }}>
+          <div style={{ background: 'linear-gradient(135deg, #0f766e 0%, #0891b2 60%, #0284c7 100%)', padding: '12px 20px' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Distribución de Capacidad por Ola</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>Servidores y aplicaciones por ola de migración</div>
+          </div>
+          <div style={{ padding: '16px', background: '#fff' }}>
+            <ResponsiveContainer width="100%" height={260}>
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="servers" name="Servers">
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#64748b' }} />
+                <Tooltip contentStyle={{ fontSize: 11, borderRadius: 6, border: '1px solid #99f6e4' }} />
+                <Bar dataKey="servers" name="Servidores" radius={[4,4,0,0]}>
+                  {chartData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill="#0f766e" />
                   ))}
                 </Bar>
-                <Bar dataKey="apps" name="Applications">
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} opacity={0.6} />
+                <Bar dataKey="apps" name="Aplicaciones" radius={[4,4,0,0]}>
+                  {chartData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill="#0891b2" opacity={0.7} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Migration Planner Modal */}
       {showPlanner && (
         <MigrationPlanner
           dependencies={dependencyData?.dependencies || []}
-          existingWaves={waves}
           onClose={() => setShowPlanner(false)}
         />
       )}
 
       {/* Wave Planner Tool Modal */}
-      {showWaveTool && dependencyData?.servers && (
+      {showWaveTool && (
         <WavePlannerTool
-          servers={dependencyData.servers}
+          servers={dependencyData?.servers ?? []}
           onClose={() => setShowWaveTool(false)}
           onWavesUpdate={onWavesChange}
+          dependencies={dependencyData?.dependencies ?? []}
+          databases={dependencyData?.databases ?? []}
         />
       )}
     </div>

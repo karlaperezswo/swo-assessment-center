@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Network, Download, RefreshCw, AlertCircle, Server, Layers, TrendingUp } from 'lucide-react';
+import { Download, RefreshCw, AlertCircle, Server, Layers, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Vis.js types
@@ -72,7 +72,7 @@ export function MigrationPlanner({ dependencies, onClose }: MigrationPlannerProp
   const [waves, setWaves] = useState<Wave[]>([]);
   const [selectedServer, setSelectedServer] = useState<string | null>(null);
   const [selectedWave, setSelectedWave] = useState<number | null>(null);
-  const [draggedServer, setDraggedServer] = useState<{ server: string; fromWave: number } | null>(null);
+  const [_draggedServer, _setDraggedServer] = useState<{ server: string; fromWave: number } | null>(null);
   const [stats, setStats] = useState({
     totalServers: 0,
     totalConnections: 0,

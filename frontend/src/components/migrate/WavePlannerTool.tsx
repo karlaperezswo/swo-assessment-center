@@ -158,8 +158,28 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
 
   useEffect(() => {
     if (initialServers && initialServers.length > 0) {
-      const { servers: assigned, waveInfos: infos } = buildWaves(initialServers);
-      applyWaves(assigned, infos);
+      // initialServers puede llegar como string[] desde dependencyData.servers
+      // Convertir a Server[] si es necesario
+      const normalized: Server[] = initialServers.map((s: any) => {
+        if (typeof s === 'string') {
+          return {
+            ServerName: s,
+            _env: 'PROD' as NormalizedEnv,
+            _crit: 'MEDIUM' as NormalizedCrit,
+            Criticidad: 'Media',
+            Ambiente: 'Producción',
+            Ola: '',
+            _appGroup: detectAppGroup(s),
+          };
+        }
+        // Ya es un objeto Server válido
+        return s;
+      }).filter((s: Server) => s.ServerName && typeof s.ServerName === 'string');
+
+      if (normalized.length > 0) {
+        const { servers: assigned, waveInfos: infos } = buildWaves(normalized);
+        applyWaves(assigned, infos);
+      }
     }
   }, [initialServers]);
 
@@ -475,7 +495,8 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
   const stats = getStats();
 
   // ── Apps & DBs per server (from dependency data) ───────────────────────────
-  const getServerAssets = (serverName: string) => {
+  const getServerAssets = (serverName: string | undefined) => {
+    if (!serverName) return { apps: [], dbs: [] };
     const srvLower = serverName.toLowerCase();
     // Apps: collect sourceApp/destinationApp from dependencies involving this server
     const apps = new Set<string>();

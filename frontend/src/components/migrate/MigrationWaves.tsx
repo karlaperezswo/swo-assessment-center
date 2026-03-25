@@ -146,19 +146,6 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
         </button>
       </div>
 
-      {/* Info message when no dependency data */}
-      {(!dependencyData || !dependencyData.dependencies || dependencyData.dependencies.length === 0) && (
-        <div style={{ borderRadius: 8, border: '1px solid #99f6e4',
-          background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)', padding: '14px 18px',
-          display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-          <AlertCircle style={{ width: 16, height: 16, color: '#0891b2', flexShrink: 0, marginTop: 1 }} />
-          <div style={{ fontSize: 12, color: '#0c4a6e' }}>
-            <div style={{ fontWeight: 600, marginBottom: 3 }}>Herramientas de planificación avanzada disponibles</div>
-            <div>El botón "Migration Planner" se habilitará automáticamente cuando cargues un archivo MPA con datos de dependencias en la pestaña "Descubrimiento Rápido".</div>
-          </div>
-        </div>
-      )}
-
       {/* Add Wave Form */}
       {showForm && (
         <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #99f6e4', boxShadow: '0 2px 8px rgba(8,145,178,0.08)' }}>

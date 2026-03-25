@@ -32,42 +32,82 @@ export function BusinessCaseUploader({ onDataLoaded, clientData }: BusinessCaseU
     try {
       setUploadProgress('Subiendo archivo...');
       
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('clientName', clientData.clientName);
-      formData.append('assessmentTool', clientData.assessmentTool);
-      if (clientData.otherToolName) {
-        formData.append('otherToolName', clientData.otherToolName);
-      }
-      formData.append('vertical', clientData.vertical);
-      formData.append('reportDate', clientData.reportDate);
-      formData.append('awsRegion', clientData.awsRegion);
-      formData.append('totalServers', clientData.totalServers.toString());
-      formData.append('onPremisesCost', clientData.onPremisesCost.toString());
-      formData.append('companyDescription', clientData.companyDescription);
-      formData.append('priorities', JSON.stringify(clientData.priorities));
-      formData.append('migrationReadiness', clientData.migrationReadiness);
+      const useLocalUpload = import.meta.env.VITE_USE_LOCAL_UPLOAD === 'true';
 
-      const response = await apiClient.post('/api/business-case/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      if (useLocalUpload) {
+        // ========== MODO LOCAL: Upload directo sin S3 ==========
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('clientName', clientData.clientName);
+        formData.append('assessmentTool', clientData.assessmentTool);
+        if (clientData.otherToolName) formData.append('otherToolName', clientData.otherToolName);
+        formData.append('vertical', clientData.vertical);
+        formData.append('reportDate', clientData.reportDate);
+        formData.append('awsRegion', clientData.awsRegion);
+        formData.append('totalServers', clientData.totalServers.toString());
+        formData.append('onPremisesCost', clientData.onPremisesCost.toString());
+        formData.append('companyDescription', clientData.companyDescription);
+        formData.append('priorities', JSON.stringify(clientData.priorities));
+        formData.append('migrationReadiness', clientData.migrationReadiness);
 
-      if (response.data.success) {
-        const uploadResponse: BusinessCaseUploadResponse = response.data.data;
-        setUploadState('success');
-        onDataLoaded(uploadResponse);
-
-        const { summary } = uploadResponse;
-        const successMsg = `${clientData.clientName} - ${summary.dataSource} cargado: ${summary.totalServers} servidores, ${summary.osDistributionCount} sistemas operativos`;
-
-        toast.success(successMsg, {
-          id: 'business-case-upload',
-          duration: 5000
+        const response = await apiClient.post('/api/business-case/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
+
+        if (response.data.success) {
+          const uploadResponse: BusinessCaseUploadResponse = response.data.data;
+          setUploadState('success');
+          onDataLoaded(uploadResponse);
+          const { summary } = uploadResponse;
+          toast.success(`${clientData.clientName} - ${summary.dataSource} cargado: ${summary.totalServers} servidores`, {
+            id: 'business-case-upload', duration: 5000
+          });
+        } else {
+          throw new Error(response.data.error || 'Upload failed');
+        }
       } else {
-        throw new Error(response.data.error || 'Upload failed');
+        // ========== MODO PRODUCCIÓN: Upload con S3 ==========
+        setUploadProgress('Preparando carga...');
+        const urlResponse = await apiClient.post('/api/report/get-upload-url', {
+          filename: file.name,
+          contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+        if (!urlResponse.data.success) throw new Error(urlResponse.data.error || 'Failed to get upload URL');
+        const { uploadUrl, key } = urlResponse.data.data;
+
+        setUploadProgress('Subiendo a S3...');
+        await fetch(uploadUrl, {
+          method: 'PUT', body: file,
+          headers: { 'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+        });
+
+        setUploadProgress('Analizando datos...');
+        const response = await apiClient.post('/api/business-case/upload-from-s3', {
+          key,
+          clientName: clientData.clientName,
+          assessmentTool: clientData.assessmentTool,
+          otherToolName: clientData.otherToolName,
+          vertical: clientData.vertical,
+          reportDate: clientData.reportDate,
+          awsRegion: clientData.awsRegion,
+          totalServers: clientData.totalServers,
+          onPremisesCost: clientData.onPremisesCost,
+          companyDescription: clientData.companyDescription,
+          priorities: clientData.priorities,
+          migrationReadiness: clientData.migrationReadiness
+        });
+
+        if (response.data.success) {
+          const uploadResponse: BusinessCaseUploadResponse = response.data.data;
+          setUploadState('success');
+          onDataLoaded(uploadResponse);
+          const { summary } = uploadResponse;
+          toast.success(`${clientData.clientName} - ${summary.dataSource} cargado: ${summary.totalServers} servidores`, {
+            id: 'business-case-upload', duration: 5000
+          });
+        } else {
+          throw new Error(response.data.error || 'Upload failed');
+        }
       }
     } catch (error) {
       setUploadState('error');

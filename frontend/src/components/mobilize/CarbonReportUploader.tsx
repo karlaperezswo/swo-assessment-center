@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { CarbonReportUploadResponse } from '@/types/assessment';
+import apiClient from '@/lib/api';
 
 interface CarbonReportUploaderProps {
   onDataLoaded: (data: CarbonReportUploadResponse) => void;
@@ -24,22 +25,47 @@ export function CarbonReportUploader({ onDataLoaded }: CarbonReportUploaderProps
     setErrorMessage('');
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const useLocalUpload = import.meta.env.VITE_USE_LOCAL_UPLOAD === 'true';
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/business-case/upload-carbon-report`, {
-        method: 'POST',
-        body: formData,
-      });
+      if (useLocalUpload) {
+        // ========== MODO LOCAL ==========
+        const formData = new FormData();
+        formData.append('file', file);
 
-      const result = await response.json();
+        const response = await apiClient.post('/api/business-case/upload-carbon-report', formData);
+        const result = response.data;
 
-      if (result.success) {
-        setUploadStatus('success');
-        onDataLoaded(result.data);
+        if (result.success) {
+          setUploadStatus('success');
+          onDataLoaded(result.data);
+        } else {
+          setUploadStatus('error');
+          setErrorMessage(result.error || 'Error al procesar el archivo');
+        }
       } else {
-        setUploadStatus('error');
-        setErrorMessage(result.error || 'Error al procesar el archivo');
+        // ========== MODO PRODUCCIÓN: S3 ==========
+        const urlResponse = await apiClient.post('/api/report/get-upload-url', {
+          filename: file.name,
+          contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+        if (!urlResponse.data.success) throw new Error(urlResponse.data.error || 'Failed to get upload URL');
+        const { uploadUrl, key } = urlResponse.data.data;
+
+        await fetch(uploadUrl, {
+          method: 'PUT', body: file,
+          headers: { 'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+        });
+
+        const response = await apiClient.post('/api/business-case/upload-carbon-report-from-s3', { key });
+        const result = response.data;
+
+        if (result.success) {
+          setUploadStatus('success');
+          onDataLoaded(result.data);
+        } else {
+          setUploadStatus('error');
+          setErrorMessage(result.error || 'Error al procesar el archivo');
+        }
       }
     } catch (error) {
       setUploadStatus('error');

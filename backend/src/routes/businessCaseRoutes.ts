@@ -63,6 +63,11 @@ router.post('/upload-carbon-report', (req, res, next) => {
 // Export Business Case to PowerPoint
 // router.post('/export-pptx', controller.exportPPTX); // REMOVED: PPTX export functionality removed
 
+// Process files from S3 (production mode)
+router.post('/upload-from-s3', controller.uploadBusinessCaseFromS3);
+router.post('/upload-tco-1year-from-s3', controller.uploadTCO1YearFromS3);
+router.post('/upload-carbon-report-from-s3', controller.uploadCarbonReportFromS3);
+
 // EOL & pricing data status + manual refresh
 router.get('/eol-status', controller.getEolStatus);
 router.post('/eol-refresh', controller.refreshEolData);

@@ -88,84 +88,104 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
     setUploadError(null);
 
     try {
-      console.log('[MatildaUploader] Uploading Business Case...');
-      // Upload Business Case (OS Distribution)
-      const formDataBC = new FormData();
-      formDataBC.append('file', file);
-      formDataBC.append('clientName', clientData.clientName);
-      formDataBC.append('assessmentTool', 'Matilda'); // Always Matilda for this uploader
-      if (clientData.otherToolName) formDataBC.append('otherToolName', clientData.otherToolName);
-      formDataBC.append('vertical', clientData.vertical || 'Technology');
-      formDataBC.append('reportDate', clientData.reportDate || new Date().toISOString().split('T')[0]);
-      formDataBC.append('awsRegion', clientData.awsRegion || 'us-east-1');
-      formDataBC.append('totalServers', (clientData.totalServers || 0).toString());
-      formDataBC.append('onPremisesCost', (clientData.onPremisesCost || 0).toString());
-      formDataBC.append('companyDescription', clientData.companyDescription || '');
-      formDataBC.append('priorities', JSON.stringify(clientData.priorities || []));
-      formDataBC.append('migrationReadiness', clientData.migrationReadiness || 'evaluating');
+      const useLocalUpload = import.meta.env.VITE_USE_LOCAL_UPLOAD === 'true';
+      const API_URL = import.meta.env.VITE_API_URL || '';
 
-      const responseBC = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/business-case/upload`, {
-        method: 'POST',
-        body: formDataBC,
-      });
+      if (useLocalUpload) {
+        // ========== MODO LOCAL ==========
+        const formDataBC = new FormData();
+        formDataBC.append('file', file);
+        formDataBC.append('clientName', clientData.clientName);
+        formDataBC.append('assessmentTool', 'Matilda');
+        if (clientData.otherToolName) formDataBC.append('otherToolName', clientData.otherToolName);
+        formDataBC.append('vertical', clientData.vertical || 'Technology');
+        formDataBC.append('reportDate', clientData.reportDate || new Date().toISOString().split('T')[0]);
+        formDataBC.append('awsRegion', clientData.awsRegion || 'us-east-1');
+        formDataBC.append('totalServers', (clientData.totalServers || 0).toString());
+        formDataBC.append('onPremisesCost', (clientData.onPremisesCost || 0).toString());
+        formDataBC.append('companyDescription', clientData.companyDescription || '');
+        formDataBC.append('priorities', JSON.stringify(clientData.priorities || []));
+        formDataBC.append('migrationReadiness', clientData.migrationReadiness || 'evaluating');
 
-      console.log('[MatildaUploader] Business Case response status:', responseBC.status);
+        const responseBC = await fetch(`${API_URL}/api/business-case/upload`, { method: 'POST', body: formDataBC });
+        if (!responseBC.ok) { const e = await responseBC.json(); throw new Error(e.error || `Error ${responseBC.status}`); }
+        const dataBC = await responseBC.json();
+        onBusinessCaseLoaded(dataBC.data);
 
-      if (!responseBC.ok) {
-        const errorText = await responseBC.text();
-        console.error('[MatildaUploader] Business Case error response:', errorText);
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          throw new Error(`Error ${responseBC.status}: ${errorText}`);
-        }
-        throw new Error(errorData.error || 'Error al procesar Business Case');
+        const formDataTCO = new FormData();
+        formDataTCO.append('file', file);
+        formDataTCO.append('storageIncrement', storageIncrement.toString());
+        const responseTCO = await fetch(`${API_URL}/api/business-case/upload-tco-1year`, { method: 'POST', body: formDataTCO });
+        if (!responseTCO.ok) { const e = await responseTCO.json(); throw new Error(e.error || `Error ${responseTCO.status}`); }
+        const dataTCO = await responseTCO.json();
+        onTCO1YearLoaded(dataTCO.data);
+      } else {
+        // ========== MODO PRODUCCIÓN: S3 ==========
+        // Step 1: Get pre-signed URL (single upload, reuse key for both parsers)
+        const urlRes = await fetch(`${API_URL}/api/report/get-upload-url`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name, contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        });
+        const urlData = await urlRes.json();
+        if (!urlData.success) throw new Error(urlData.error || 'Failed to get upload URL');
+        const { uploadUrl, key } = urlData.data;
+
+        // Step 2: Upload to S3 once
+        await fetch(uploadUrl, {
+          method: 'PUT', body: file,
+          headers: { 'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+        });
+
+        // Step 3: Process Business Case from S3
+        const responseBC = await fetch(`${API_URL}/api/business-case/upload-from-s3`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            key, clientName: clientData.clientName, assessmentTool: 'Matilda',
+            otherToolName: clientData.otherToolName, vertical: clientData.vertical || 'Technology',
+            reportDate: clientData.reportDate || new Date().toISOString().split('T')[0],
+            awsRegion: clientData.awsRegion || 'us-east-1', totalServers: clientData.totalServers || 0,
+            onPremisesCost: clientData.onPremisesCost || 0, companyDescription: clientData.companyDescription || '',
+            priorities: clientData.priorities || [], migrationReadiness: clientData.migrationReadiness || 'evaluating'
+          })
+        });
+        if (!responseBC.ok) { const e = await responseBC.json(); throw new Error(e.error || `Error ${responseBC.status}`); }
+        const dataBC = await responseBC.json();
+        onBusinessCaseLoaded(dataBC.data);
+
+        // Step 4: Get a second pre-signed URL for TCO (S3 key was deleted after BC processing)
+        const urlRes2 = await fetch(`${API_URL}/api/report/get-upload-url`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name, contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        });
+        const urlData2 = await urlRes2.json();
+        if (!urlData2.success) throw new Error(urlData2.error || 'Failed to get upload URL for TCO');
+        const { uploadUrl: uploadUrl2, key: key2 } = urlData2.data;
+
+        await fetch(uploadUrl2, {
+          method: 'PUT', body: file,
+          headers: { 'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+        });
+
+        const responseTCO = await fetch(`${API_URL}/api/business-case/upload-tco-1year-from-s3`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: key2, storageIncrement })
+        });
+        if (!responseTCO.ok) { const e = await responseTCO.json(); throw new Error(e.error || `Error ${responseTCO.status}`); }
+        const dataTCO = await responseTCO.json();
+        onTCO1YearLoaded(dataTCO.data);
       }
-
-      const dataBC = await responseBC.json();
-      console.log('[MatildaUploader] Business Case loaded successfully:', dataBC);
-      onBusinessCaseLoaded(dataBC.data);
-
-      // Upload TCO 1 Year
-      console.log('[MatildaUploader] Uploading TCO 1 Year...');
-      const formDataTCO = new FormData();
-      formDataTCO.append('file', file);
-      formDataTCO.append('storageIncrement', storageIncrement.toString());
-
-      const responseTCO = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/business-case/upload-tco-1year`, {
-        method: 'POST',
-        body: formDataTCO,
-      });
-
-      console.log('[MatildaUploader] TCO response status:', responseTCO.status);
-
-      if (!responseTCO.ok) {
-        const errorText = await responseTCO.text();
-        console.error('[MatildaUploader] TCO error response:', errorText);
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          throw new Error(`Error ${responseTCO.status}: ${errorText}`);
-        }
-        throw new Error(errorData.error || 'Error al procesar TCO 1 Year');
-      }
-
-      const dataTCO = await responseTCO.json();
-      console.log('[MatildaUploader] TCO 1 Year loaded successfully:', dataTCO);
-      onTCO1YearLoaded(dataTCO.data);
 
       setUploadSuccess(true);
       setUploadError(null);
-      console.log('[MatildaUploader] ✓ Upload completed successfully');
     } catch (error) {
-      console.error('[MatildaUploader] Error uploading Matilda file:', error);
       const msg = error instanceof Error ? error.message : 'Error al subir el archivo';
-      // If it's a network/fetch error, likely the file is locked by another app
       const isNetworkError = msg.toLowerCase().includes('fetch') || msg.toLowerCase().includes('network') || msg.toLowerCase().includes('failed');
       setUploadError(isNetworkError
-        ? 'No se pudo conectar con el servidor. Si el archivo Excel está abierto en Excel u otra aplicación, ciérralo e intenta de nuevo.'
+        ? 'No se pudo conectar con el servidor. Si el archivo Excel está abierto, ciérralo e intenta de nuevo.'
         : msg
       );
       setUploadSuccess(false);

@@ -2,7 +2,24 @@ import { Request, Response } from 'express';
 import { BusinessCaseFormatDetector } from '../services/parsers/BusinessCaseFormatDetector';
 import { getCacheStatus, refreshProduct, PRODUCT_SLUGS } from '../services/eolApiService';
 import { getSQLPricingStatus } from '../services/sqlPricingService';
+import { S3Client, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import * as XLSX from 'xlsx';
+
+const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'assessment-center-files-assessment-dashboard';
+
+async function getBufferFromS3(key: string): Promise<Buffer> {
+  const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: key });
+  const response = await s3Client.send(command);
+  if (!response.Body) throw new Error('No file content received from S3');
+  const chunks: Uint8Array[] = [];
+  for await (const chunk of response.Body as any) chunks.push(chunk);
+  return Buffer.concat(chunks);
+}
+
+async function deleteFromS3(key: string): Promise<void> {
+  await s3Client.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME, Key: key }));
+}
 
 /**
  * Business Case Controller
@@ -261,6 +278,123 @@ export class BusinessCaseController {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       });
+    }
+  };
+
+  /**
+   * POST /api/business-case/upload-from-s3
+   * Process Business Case Excel file already uploaded to S3
+   */
+  uploadBusinessCaseFromS3 = async (req: Request, res: Response): Promise<void> => {
+    const startTime = Date.now();
+    try {
+      const { key, clientName = '', assessmentTool = 'Unknown', otherToolName, vertical = 'Technology',
+        reportDate, awsRegion = 'us-east-1', totalServers = 0, onPremisesCost = 0,
+        companyDescription = '', priorities = [], migrationReadiness = 'evaluating' } = req.body;
+
+      if (!key) { res.status(400).json({ success: false, error: 'S3 key is required' }); return; }
+
+      console.log(`[BUSINESS-CASE-S3] Fetching from S3: ${key}`);
+      const fileBuffer = await getBufferFromS3(key);
+      await deleteFromS3(key);
+      console.log(`[BUSINESS-CASE-S3] File downloaded (${fileBuffer.length} bytes), S3 cleaned`);
+
+      const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+      const detector = new BusinessCaseFormatDetector(workbook);
+      const { parser, dataSource } = detector.detectBusinessCaseFormat();
+      console.log(`[BUSINESS-CASE-S3] Detected format: ${dataSource}`);
+      const businessCaseData = parser.parse();
+
+      const summary = {
+        totalServers: businessCaseData.servers.length,
+        prodServers: businessCaseData.summary.prodServers,
+        devServers: businessCaseData.summary.devServers,
+        qaServers: businessCaseData.summary.qaServers,
+        osDistributionCount: businessCaseData.osDistribution.length,
+        dataSource: businessCaseData.dataSource
+      };
+
+      console.log(`[BUSINESS-CASE-S3] Success - ${Date.now() - startTime}ms`);
+      res.json({ success: true, data: { businessCaseData, summary,
+        clientData: { clientName, assessmentTool, otherToolName, vertical,
+          reportDate: reportDate || new Date().toISOString().split('T')[0],
+          awsRegion, totalServers, onPremisesCost, companyDescription, priorities, migrationReadiness }
+      }});
+    } catch (error) {
+      console.error(`[BUSINESS-CASE-S3] Error:`, error);
+      res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Failed to process file from S3' });
+    }
+  };
+
+  /**
+   * POST /api/business-case/upload-tco-1year-from-s3
+   * Process TCO 1 Year Excel file already uploaded to S3
+   */
+  uploadTCO1YearFromS3 = async (req: Request, res: Response): Promise<void> => {
+    const startTime = Date.now();
+    try {
+      const { key, storageIncrement = 0 } = req.body;
+      if (!key) { res.status(400).json({ success: false, error: 'S3 key is required' }); return; }
+
+      console.log(`[TCO-1-YEAR-S3] Fetching from S3: ${key}`);
+      const fileBuffer = await getBufferFromS3(key);
+      await deleteFromS3(key);
+      console.log(`[TCO-1-YEAR-S3] File downloaded (${fileBuffer.length} bytes), S3 cleaned`);
+
+      const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+      const detector = new BusinessCaseFormatDetector(workbook);
+      const { parser, dataSource } = detector.detectTCO1YearFormat(parseFloat(storageIncrement) || 0);
+      console.log(`[TCO-1-YEAR-S3] Detected format: ${dataSource}`);
+
+      if (!parser.canParse()) {
+        res.status(400).json({ success: false, error: 'File does not contain required sheets for TCO 1 Year' });
+        return;
+      }
+
+      const tco1YearData = await parser.parse();
+      const summary = { totalResources: tco1YearData.resourceOptimization.length, dataSource: tco1YearData.dataSource };
+
+      console.log(`[TCO-1-YEAR-S3] Success - ${Date.now() - startTime}ms`);
+      res.json({ success: true, data: { tco1YearData, summary } });
+    } catch (error) {
+      console.error(`[TCO-1-YEAR-S3] Error:`, error);
+      res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Failed to process file from S3' });
+    }
+  };
+
+  /**
+   * POST /api/business-case/upload-carbon-report-from-s3
+   * Process Carbon Report Excel file already uploaded to S3
+   */
+  uploadCarbonReportFromS3 = async (req: Request, res: Response): Promise<void> => {
+    const startTime = Date.now();
+    try {
+      const { key } = req.body;
+      if (!key) { res.status(400).json({ success: false, error: 'S3 key is required' }); return; }
+
+      console.log(`[CARBON-REPORT-S3] Fetching from S3: ${key}`);
+      const fileBuffer = await getBufferFromS3(key);
+      await deleteFromS3(key);
+      console.log(`[CARBON-REPORT-S3] File downloaded (${fileBuffer.length} bytes), S3 cleaned`);
+
+      const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+      const { CarbonReportParser } = await import('../services/parsers/CarbonReportParser');
+      const parser = new CarbonReportParser(workbook);
+
+      if (!parser.canParse()) {
+        res.status(400).json({ success: false, error: 'Invalid Carbon Report format' });
+        return;
+      }
+
+      const carbonData = parser.parse();
+      console.log(`[CARBON-REPORT-S3] Success - ${Date.now() - startTime}ms`);
+      res.json({ success: true, data: { carbonData, summary: {
+        totalCurrentUsage: carbonData.currentUsage, totalAWSUsage: carbonData.awsUsage,
+        totalSavings: carbonData.savings, savingsPercent: carbonData.savingsPercent
+      }}});
+    } catch (error) {
+      console.error(`[CARBON-REPORT-S3] Error:`, error);
+      res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Failed to process file from S3' });
     }
   };
 

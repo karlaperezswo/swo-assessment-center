@@ -34,31 +34,61 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded }: BusinessCaseTCO1Y
     try {
       setUploadProgress('Subiendo archivo...');
       
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('storageIncrement', increment);
+      const useLocalUpload = import.meta.env.VITE_USE_LOCAL_UPLOAD === 'true';
 
-      const response = await apiClient.post('/api/business-case/upload-tco-1year', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      if (useLocalUpload) {
+        // ========== MODO LOCAL ==========
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('storageIncrement', increment);
 
-      if (response.data.success) {
-        const uploadResponse: TCO1YearUploadResponse = response.data.data;
-        setUploadState('success');
-        setUploadedFile(file); // Store the file for re-upload
-        onDataLoaded(uploadResponse);
-
-        const { summary } = uploadResponse;
-        const successMsg = `TCO 1 Año cargado: ${summary.totalResources} recursos analizados (Storage +${increment}%)`;
-
-        toast.success(successMsg, {
-          id: 'tco-1year-upload',
-          duration: 5000
+        const response = await apiClient.post('/api/business-case/upload-tco-1year', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
+
+        if (response.data.success) {
+          const uploadResponse: TCO1YearUploadResponse = response.data.data;
+          setUploadState('success');
+          setUploadedFile(file);
+          onDataLoaded(uploadResponse);
+          toast.success(`TCO 1 Año cargado: ${uploadResponse.summary.totalResources} recursos (Storage +${increment}%)`, {
+            id: 'tco-1year-upload', duration: 5000
+          });
+        } else {
+          throw new Error(response.data.error || 'Upload failed');
+        }
       } else {
-        throw new Error(response.data.error || 'Upload failed');
+        // ========== MODO PRODUCCIÓN: S3 ==========
+        setUploadProgress('Preparando carga...');
+        const urlResponse = await apiClient.post('/api/report/get-upload-url', {
+          filename: file.name,
+          contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+        if (!urlResponse.data.success) throw new Error(urlResponse.data.error || 'Failed to get upload URL');
+        const { uploadUrl, key } = urlResponse.data.data;
+
+        setUploadProgress('Subiendo a S3...');
+        await fetch(uploadUrl, {
+          method: 'PUT', body: file,
+          headers: { 'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+        });
+
+        setUploadProgress('Analizando datos...');
+        const response = await apiClient.post('/api/business-case/upload-tco-1year-from-s3', {
+          key, storageIncrement: increment
+        });
+
+        if (response.data.success) {
+          const uploadResponse: TCO1YearUploadResponse = response.data.data;
+          setUploadState('success');
+          setUploadedFile(file);
+          onDataLoaded(uploadResponse);
+          toast.success(`TCO 1 Año cargado: ${uploadResponse.summary.totalResources} recursos (Storage +${increment}%)`, {
+            id: 'tco-1year-upload', duration: 5000
+          });
+        } else {
+          throw new Error(response.data.error || 'Upload failed');
+        }
       }
     } catch (error) {
       setUploadState('error');

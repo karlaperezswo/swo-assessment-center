@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, RefreshCw, AlertCircle, Server, Layers, TrendingUp } from 'lucide-react';
+import { Download, RefreshCw, AlertCircle, Server, Layers, TrendingUp, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Vis.js types
@@ -323,6 +323,104 @@ export function MigrationPlanner({ dependencies, onClose }: MigrationPlannerProp
     }
   };
 
+  // Exportar a Word
+  const exportToWord = () => {
+    const date = new Date().toLocaleString('es-ES');
+    const fileDate = new Date().toISOString().split('T')[0];
+
+    const waveRows = waves.map(wave => {
+      const serverRows = wave.servers.map((server, idx) => {
+        const type = getServerType(server);
+        const icon = SERVER_ICONS[type];
+        const deps = getServerDependencies(server);
+        const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+        return `<tr style="background:${bg}">
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt">${icon} ${server}</td>
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt;text-align:center">
+            <span style="background:${wave.color}22;color:${wave.color};border:1px solid ${wave.color}55;border-radius:4px;padding:2px 8px;font-weight:700;font-size:8pt">Wave ${wave.number}</span>
+          </td>
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt;color:#475569">${type}</td>
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt;color:#64748b">${deps.dependsOn.map(d => d.destination).join(', ') || '—'}</td>
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt;color:#64748b">${deps.dependents.map(d => d.source).join(', ') || '—'}</td>
+        </tr>`;
+      }).join('');
+
+      return `
+        <tr>
+          <td colspan="5" style="padding:0">
+            <div style="background:linear-gradient(90deg,${wave.color},${wave.color}cc);padding:8px 14px;margin-top:14px">
+              <span style="color:#fff;font-weight:700;font-size:11pt">Wave ${wave.number}</span>
+              <span style="color:rgba(255,255,255,0.85);font-size:9pt;margin-left:12px">${wave.servers.length} servidor${wave.servers.length !== 1 ? 'es' : ''}</span>
+            </div>
+          </td>
+        </tr>
+        <tr style="background:#1e40af">
+          <th style="padding:6px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Servidor</th>
+          <th style="padding:6px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Wave</th>
+          <th style="padding:6px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Tipo</th>
+          <th style="padding:6px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Depende de</th>
+          <th style="padding:6px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Dependientes</th>
+        </tr>
+        ${serverRows}`;
+    }).join('');
+
+    const html = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="UTF-8">
+  <title>Migration Planner</title>
+  <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
+  <style>
+    @page { size: A4 landscape; margin: 1.5cm 2cm; }
+    body { font-family: Calibri, Arial, sans-serif; font-size: 10pt; color: #1f2937; margin: 0; }
+    .header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 60%, #6366f1 100%); color: #fff; padding: 18px 22px 14px; margin-bottom: 16px; border-radius: 4px; }
+    .header h1 { margin: 0 0 4px; font-size: 20pt; font-weight: bold; }
+    .header p  { margin: 2px 0; font-size: 9pt; opacity: .85; }
+    .stats { display: table; width: 100%; border-collapse: separate; border-spacing: 8px; margin-bottom: 16px; }
+    .stat  { display: table-cell; background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 14px; text-align: center; border-radius: 6px; }
+    .stat .n { font-size: 22pt; font-weight: bold; color: #1d4ed8; display: block; }
+    .stat .l { font-size: 8pt; color: #6b7280; }
+    table.data { width: 100%; border-collapse: collapse; font-size: 9pt; }
+    .footer { margin-top: 24px; text-align: center; color: #9ca3af; font-size: 8pt; border-top: 1px solid #e5e7eb; padding-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Migration Planner</h1>
+    <p>Planificación automática de waves de migración — SoftwareOne</p>
+    <p>Generado: ${date}</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span class="n">${stats.totalServers}</span><span class="l">Servidores</span></div>
+    <div class="stat"><span class="n">${stats.totalConnections}</span><span class="l">Conexiones</span></div>
+    <div class="stat"><span class="n">${stats.totalWaves}</span><span class="l">Waves</span></div>
+    <div class="stat"><span class="n">${stats.unassigned}</span><span class="l">Sin Asignar</span></div>
+  </div>
+
+  <table class="data">
+    ${waveRows}
+  </table>
+
+  <div class="footer">© ${new Date().getFullYear()} SoftwareOne – AWS Migration Assessment Platform</div>
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `migration-planner-${fileDate}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast.success('Informe Word generado', { description: 'El archivo .doc se ha descargado correctamente' });
+  };
+
   // Exportar a CSV
   const exportToCSV = () => {
     const serverWaveMap = new Map<string, number>();
@@ -371,6 +469,10 @@ export function MigrationPlanner({ dependencies, onClose }: MigrationPlannerProp
             <Button onClick={exportToCSV} variant="outline" size="sm">
               <Download className="h-4 w-4 mr-2" />
               Exportar CSV
+            </Button>
+            <Button onClick={exportToWord} variant="outline" size="sm">
+              <FileText className="h-4 w-4 mr-2" />
+              Exportar Word
             </Button>
             <Button onClick={() => calculateWaves()} variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />

@@ -479,6 +479,146 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
     toast.success('PDF generado', { description: 'Abre el archivo y usa Ctrl+P para imprimir como PDF', duration: 6000 });
   };
 
+  // ── Exportar Word ─────────────────────────────────────────────────────────
+  const exportToWord = () => {
+    const date = new Date().toLocaleString('es-ES');
+    const fileDate = new Date().toISOString().split('T')[0];
+    const escape = (s: any) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    const waveBlocks = waves.map(wave => {
+      const info = waveInfos.find(w => w.name === wave);
+      const waveServers = servers.filter(s => s.Ola === wave);
+      const rows = waveServers.map((s, i) => {
+        const bg = i % 2 === 0 ? '#ffffff' : '#f0fdfa';
+        const critColor = s._crit === 'HIGH' ? '#991b1b' : s._crit === 'MEDIUM' ? '#9a3412' : '#166534';
+        const critBg    = s._crit === 'HIGH' ? '#fee2e2' : s._crit === 'MEDIUM' ? '#ffedd5' : '#dcfce7';
+        const envColor  = s._env === 'PROD' ? '#991b1b' : s._env === 'UAT' ? '#92400e' : s._env === 'TEST' ? '#1e40af' : '#065f46';
+        const envBg     = s._env === 'PROD' ? '#fee2e2' : s._env === 'UAT' ? '#fef3c7' : s._env === 'TEST' ? '#dbeafe' : '#d1fae5';
+        const { apps, dbs } = getServerAssets(s.ServerName);
+        return `<tr style="background:${bg}">
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt;font-weight:600;color:#0f172a">${escape(s.ServerName)}</td>
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt;text-align:center">
+            <span style="background:${envBg};color:${envColor};border-radius:4px;padding:2px 7px;font-size:8pt;font-weight:700">${ENV_LABELS[s._env]}</span>
+          </td>
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt;text-align:center">
+            <span style="background:${critBg};color:${critColor};border-radius:4px;padding:2px 7px;font-size:8pt;font-weight:700">${CRIT_LABELS[s._crit]}</span>
+          </td>
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt;color:#475569">${apps.length > 0 ? apps.join(', ') : '—'}</td>
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt;color:#475569">${dbs.length > 0 ? dbs.map(d => d.databaseName).join(', ') : '—'}</td>
+          <td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:9pt;color:#64748b">${escape(s.Dependencia || '—')}</td>
+        </tr>`;
+      }).join('');
+
+      return `
+        <div style="margin-bottom:20px;page-break-inside:avoid">
+          <div style="background:linear-gradient(135deg,#0f766e 0%,#0891b2 60%,#0284c7 100%);padding:10px 16px;border-radius:6px 6px 0 0;display:flex;align-items:center;gap:12px">
+            <span style="font-weight:700;font-size:13pt;color:#fff">${escape(wave)}</span>
+            <span style="font-size:9pt;color:rgba(255,255,255,0.8)">${info ? `${ENV_LABELS[info.env]} · Criticidad ${CRIT_LABELS[info.crit]}` : ''} · ${waveServers.length} servidor${waveServers.length !== 1 ? 'es' : ''}</span>
+          </div>
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr style="background:linear-gradient(90deg,#0f766e,#0891b2)">
+                <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Servidor</th>
+                <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Ambiente</th>
+                <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Criticidad</th>
+                <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Aplicaciones</th>
+                <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Bases de Datos</th>
+                <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Dependencia</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }).join('');
+
+    const summaryRows = waveInfos.map((info, i) => {
+      const waveStats = getStats();
+      const s = waveStats[info.name] || { total: 0, low: 0, medium: 0, high: 0 };
+      const bg = i % 2 === 0 ? '#ffffff' : '#f0fdfa';
+      return `<tr style="background:${bg}">
+        <td style="padding:7px 10px;border:1px solid #e2e8f0;font-weight:700;font-size:9pt;color:#0f766e">${escape(info.name)}</td>
+        <td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:9pt">${ENV_LABELS[info.env]}</td>
+        <td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:9pt">${CRIT_LABELS[info.crit]}</td>
+        <td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:9pt;text-align:center;font-weight:700;color:#0f766e">${s.total}</td>
+        <td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:9pt;color:#166534">${s.low}</td>
+        <td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:9pt;color:#9a3412">${s.medium}</td>
+        <td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:9pt;color:#991b1b">${s.high}</td>
+        <td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:9pt;color:#475569">${escape(info.justification)}</td>
+      </tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="UTF-8">
+  <title>Plan de Migración por Olas</title>
+  <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
+  <style>
+    @page { size: A4 landscape; margin: 1.5cm 2cm; }
+    body { font-family: Calibri, Arial, sans-serif; font-size: 10pt; color: #1f2937; margin: 0; }
+    .header { background: linear-gradient(135deg, #0f766e 0%, #0891b2 60%, #0284c7 100%); color: #fff; padding: 18px 22px 14px; margin-bottom: 16px; border-radius: 4px; }
+    .header h1 { margin: 0 0 4px; font-size: 18pt; font-weight: bold; }
+    .header p  { margin: 2px 0; font-size: 9pt; opacity: .85; }
+    .stats { display: table; width: 100%; border-collapse: separate; border-spacing: 8px; margin-bottom: 16px; }
+    .stat  { display: table-cell; background: #f0fdfa; border: 1px solid #99f6e4; padding: 10px 14px; text-align: center; border-radius: 6px; }
+    .stat .n { font-size: 20pt; font-weight: bold; color: #0f766e; display: block; }
+    .stat .l { font-size: 8pt; color: #0891b2; }
+    h2 { color: #0f766e; font-size: 12pt; border-bottom: 2px solid #99f6e4; padding-bottom: 4px; margin: 18px 0 8px; }
+    .footer { margin-top: 24px; text-align: center; color: #9ca3af; font-size: 8pt; border-top: 1px solid #e5e7eb; padding-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AWS MAP Wave Planner</h1>
+    <p>Plan de Migración por Olas — SoftwareOne</p>
+    <p>Generado: ${date} &nbsp;|&nbsp; ${servers.length} servidores &nbsp;|&nbsp; ${waves.length} olas</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span class="n">${servers.length}</span><span class="l">Servidores</span></div>
+    <div class="stat"><span class="n">${waves.length}</span><span class="l">Olas</span></div>
+    <div class="stat"><span class="n">${waveInfos.filter(w => w.env === 'PROD').length}</span><span class="l">Olas Producción</span></div>
+    <div class="stat"><span class="n">${servers.filter(s => s._crit === 'HIGH').length}</span><span class="l">Alta Criticidad</span></div>
+  </div>
+
+  <h2>Resumen Ejecutivo</h2>
+  <table style="width:100%;border-collapse:collapse">
+    <thead>
+      <tr style="background:linear-gradient(90deg,#0f766e,#0891b2)">
+        <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Ola</th>
+        <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Ambiente</th>
+        <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Criticidad</th>
+        <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:center;border:1px solid rgba(255,255,255,0.2)">Total</th>
+        <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:center;border:1px solid rgba(255,255,255,0.2)">Baja</th>
+        <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:center;border:1px solid rgba(255,255,255,0.2)">Media</th>
+        <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:center;border:1px solid rgba(255,255,255,0.2)">Alta</th>
+        <th style="padding:7px 10px;color:#fff;font-size:9pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Justificación</th>
+      </tr>
+    </thead>
+    <tbody>${summaryRows}</tbody>
+  </table>
+
+  <h2>Detalle por Ola</h2>
+  ${waveBlocks}
+
+  <div class="footer">© ${new Date().getFullYear()} SoftwareOne – AWS Migration Assessment Platform</div>
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `plan_migracion_olas_${fileDate}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Word generado', { description: 'El archivo .doc se ha descargado correctamente', duration: 4000 });
+  };
+
   // ── Stats por ola ──────────────────────────────────────────────────────────
   const getStats = () => {
     const stats: Record<string, { total: number; low: number; medium: number; high: number }> = {};
@@ -912,6 +1052,14 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
                 color: servers.length === 0 ? '#94a3b8' : '#fff',
                 boxShadow: servers.length === 0 ? 'none' : '0 2px 8px rgba(8,145,178,0.3)' }}>
               <FileText style={{ width: 14, height: 14 }} /> Exportar PDF
+            </button>
+            <button onClick={exportToWord} disabled={servers.length === 0}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 7,
+                fontSize: 12, fontWeight: 600, cursor: servers.length === 0 ? 'not-allowed' : 'pointer',
+                border: 'none', background: servers.length === 0 ? '#f1f5f9' : 'linear-gradient(90deg, #0891b2 0%, #0284c7 100%)',
+                color: servers.length === 0 ? '#94a3b8' : '#fff',
+                boxShadow: servers.length === 0 ? 'none' : '0 2px 8px rgba(8,145,178,0.3)' }}>
+              <FileText style={{ width: 14, height: 14 }} /> Exportar Word
             </button>
             <button onClick={exportToCSV} disabled={servers.length === 0}
               style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 7,

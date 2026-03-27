@@ -2,7 +2,6 @@ import { ExecutiveSummary } from '@/components/ExecutiveSummary';
 import { CostSummary } from '@/components/CostSummary';
 import { ClientFormData, CostBreakdown } from '@/types/assessment';
 import { TrendingUp, Sparkles } from 'lucide-react';
-import { useTranslation } from '@/i18n/useTranslation';
 
 interface BusinessCaseProps {
   clientData: ClientFormData;
@@ -17,7 +16,6 @@ interface BusinessCaseProps {
 }
 
 export function BusinessCase({ clientData, estimatedCosts, totalServers, migrationReadiness, calculatorLinks }: BusinessCaseProps) {
-  const { t } = useTranslation();
   if (!estimatedCosts || !clientData.clientName || clientData.onPremisesCost <= 0) {
     return (
       <div className="text-center py-12 text-gray-400">

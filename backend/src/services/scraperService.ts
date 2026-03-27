@@ -16,17 +16,19 @@ export async function scrapeAWSService(serviceName: string): Promise<{
   useCases: string[];
   docsUrl: string;
 }> {
-  // Normalize service name for URL
   const slug = serviceName.toLowerCase()
+    .replace(/^amazon\s+/i, '')
+    .replace(/^aws\s+/i, '')
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '');
 
-  // Try multiple AWS documentation URLs
   const urlsToTry = [
     `https://aws.amazon.com/${slug}/`,
-    `https://aws.amazon.com/${slug}/features/`,
-    `https://docs.aws.amazon.com/${slug}/latest/userguide/what-is-${slug}.html`,
     `https://aws.amazon.com/es/${slug}/`,
+    `https://docs.aws.amazon.com/${slug}/latest/userguide/what-is-${slug}.html`,
+    `https://docs.aws.amazon.com/${slug}/latest/userguide/Welcome.html`,
+    `https://aws.amazon.com/${slug}/features/`,
+    `https://aws.amazon.com/${slug}/faqs/`,
   ];
 
   let html = '';
@@ -34,101 +36,27 @@ export async function scrapeAWSService(serviceName: string): Promise<{
 
   for (const url of urlsToTry) {
     try {
-      const res = await axios.get(url, { headers: HEADERS, timeout: 10000 });
+      const res = await axios.get(url, { headers: HEADERS, timeout: 12000, maxRedirects: 5 });
       if (res.status === 200 && res.data.length > 500) {
-        html = res.data;
-        usedUrl = url;
-        break;
+        html = res.data; usedUrl = url; break;
       }
-    } catch {
-      continue;
-    }
+    } catch { continue; }
   }
 
   if (!html) {
-    // Fallback: search AWS docs
     try {
-      const searchUrl = `https://docs.aws.amazon.com/search/doc-search.html?searchPath=documentation&searchQuery=${encodeURIComponent(serviceName)}`;
+      const searchUrl = `https://aws.amazon.com/search/?searchQuery=${encodeURIComponent(serviceName)}`;
       const res = await axios.get(searchUrl, { headers: HEADERS, timeout: 10000 });
-      html = res.data;
-      usedUrl = searchUrl;
+      html = res.data; usedUrl = searchUrl;
     } catch {
       throw new Error(`No se pudo obtener información de AWS para: ${serviceName}`);
     }
   }
 
-  const $ = cheerio.load(html);
-
-  // Extract title
-  let title = $('h1').first().text().trim() ||
-    $('title').text().replace(' - AWS', '').replace(' | AWS', '').trim() ||
-    serviceName;
-
-  // Extract description — try multiple selectors
-  let description = '';
-  const descSelectors = [
-    '.aws-text-box p',
-    '#aws-page-content p',
-    '.lb-txt-normal',
-    'meta[name="description"]',
-    '.hero-text p',
-    'section p',
-    'p',
-  ];
-  for (const sel of descSelectors) {
-    if (sel === 'meta[name="description"]') {
-      description = $(sel).attr('content') || '';
-    } else {
-      const texts = $(sel).map((_, el) => $(el).text().trim()).get()
-        .filter(t => t.length > 80 && t.length < 600);
-      if (texts.length > 0) { description = texts[0]; break; }
-    }
-    if (description) break;
-  }
-
-  // Extract advantages from feature lists
-  const advantages: string[] = [];
-  $('ul li, .lb-txt-normal li').each((_, el) => {
-    const text = $(el).text().trim();
-    if (text.length > 20 && text.length < 300 && advantages.length < 6) {
-      advantages.push(text);
-    }
-  });
-
-  // Disadvantages — typically not on AWS docs, provide standard ones
-  const disadvantages: string[] = [
-    'Requiere conocimiento previo de la plataforma AWS para configuración óptima.',
-    'Los costos pueden incrementarse con el uso intensivo sin una política de optimización.',
-    'La dependencia del proveedor (vendor lock-in) puede ser un factor a considerar.',
-    'La latencia puede variar según la región de despliegue seleccionada.',
-  ];
-
-  // Use cases
-  const useCases: string[] = [];
-  $('h2, h3').each((_, el) => {
-    const text = $(el).text().trim();
-    if (text.length > 10 && text.length < 100 && useCases.length < 5) {
-      useCases.push(text);
-    }
-  });
-
-  return {
-    title: title || serviceName,
-    description: description || `${serviceName} es un servicio de Amazon Web Services que proporciona capacidades escalables y administradas en la nube.`,
-    advantages: advantages.length > 0 ? advantages.slice(0, 6) : [
-      'Alta disponibilidad y escalabilidad automática.',
-      'Integración nativa con otros servicios de AWS.',
-      'Modelo de pago por uso sin costos iniciales.',
-      'Seguridad gestionada por AWS con certificaciones globales.',
-      'Soporte técnico y documentación extensa.',
-    ],
-    disadvantages,
-    useCases: useCases.length > 0 ? useCases.slice(0, 5) : ['Proyectos de migración a la nube', 'Arquitecturas serverless', 'Aplicaciones empresariales escalables'],
-    docsUrl: usedUrl,
-  };
+  return parseAWSHtml(html, serviceName, usedUrl);
 }
 
-// ── Generic URL Scraper ───────────────────────────────────────────────────────
+// ── Generic URL Scraper (any AWS or external URL) ─────────────────────────────
 export async function scrapeByUrl(url: string): Promise<{
   title: string;
   description: string;
@@ -146,30 +74,25 @@ export async function scrapeByUrl(url: string): Promise<{
   }
 
   const $ = cheerio.load(html);
+  $('script, style, nav, footer, header, .cookie-banner, .nav, .footer, .header, .sidebar, .breadcrumb').remove();
 
-  // Remove noise
-  $('script, style, nav, footer, header, .cookie-banner, .nav, .footer, .header, .sidebar').remove();
-
-  // Title
   const title =
     $('h1').first().text().trim() ||
     $('title').text().replace(/[-|].*$/, '').trim() ||
     $('meta[property="og:title"]').attr('content') || url;
 
-  // Description — meta first, then first meaningful paragraph
   let description =
     $('meta[name="description"]').attr('content') ||
     $('meta[property="og:description"]').attr('content') || '';
 
   if (!description || description.length < 60) {
-    const paras = $('main p, article p, section p, .content p, p')
+    const paras = $('main p, article p, .lb-txt-normal, section p, p')
       .map((_, el) => $(el).text().trim())
       .get()
       .filter(t => t.length > 80 && t.length < 800);
     if (paras.length > 0) description = paras[0];
   }
 
-  // Key points — headings + first sentence of their section
   const keyPoints: string[] = [];
   $('h2, h3').each((_, el) => {
     const heading = $(el).text().trim();
@@ -179,29 +102,80 @@ export async function scrapeByUrl(url: string): Promise<{
     }
   });
 
-  // Advantages — list items with positive keywords
   const advantages: string[] = [];
   $('ul li, ol li').each((_, el) => {
     const text = $(el).text().trim();
-    if (text.length > 20 && text.length < 300 && advantages.length < 6) {
-      advantages.push(text);
-    }
+    if (text.length > 20 && text.length < 300 && advantages.length < 6) advantages.push(text);
   });
-
-  // Disadvantages — standard fallback
-  const disadvantages: string[] = [
-    'Requiere planificación y configuración inicial adecuada.',
-    'Puede generar costos adicionales si no se gestiona correctamente.',
-    'Dependencia del proveedor (vendor lock-in) a considerar.',
-  ];
 
   return {
     title: title.slice(0, 120),
     description: description || 'Descripción no disponible. Edite manualmente.',
     keyPoints: keyPoints.length > 0 ? keyPoints : ['Consulte la documentación oficial para más detalles.'],
     advantages: advantages.length > 0 ? advantages : ['Consulte la documentación oficial para ventajas detalladas.'],
-    disadvantages,
+    disadvantages: [
+      'Requiere planificación y configuración inicial adecuada.',
+      'Puede generar costos adicionales si no se gestiona correctamente.',
+      'Dependencia del proveedor (vendor lock-in) a considerar.',
+    ],
     docsUrl: url,
+  };
+}
+
+// ── Shared HTML parser for AWS pages ─────────────────────────────────────────
+function parseAWSHtml(html: string, serviceName: string, usedUrl: string): {
+  title: string; description: string; advantages: string[];
+  disadvantages: string[]; useCases: string[]; docsUrl: string;
+} {
+  const $ = cheerio.load(html);
+  $('script, style, nav, footer, .cookie-banner, .breadcrumb').remove();
+
+  let title =
+    $('h1').first().text().trim() ||
+    $('title').text().replace(/\s*[-|]\s*(AWS|Amazon).*$/i, '').trim() ||
+    $('meta[property="og:title"]').attr('content') ||
+    serviceName;
+
+  let description =
+    $('meta[name="description"]').attr('content') ||
+    $('meta[property="og:description"]').attr('content') || '';
+
+  if (!description || description.length < 60) {
+    const paras = $('main p, .lb-txt-normal, article p, section p, p')
+      .map((_, el) => $(el).text().trim())
+      .get()
+      .filter(t => t.length > 80 && t.length < 800);
+    if (paras.length > 0) description = paras[0];
+  }
+
+  const advantages: string[] = [];
+  $('ul li, .lb-txt-normal li').each((_, el) => {
+    const text = $(el).text().trim();
+    if (text.length > 20 && text.length < 300 && advantages.length < 6) advantages.push(text);
+  });
+
+  const useCases: string[] = [];
+  $('h2, h3').each((_, el) => {
+    const text = $(el).text().trim();
+    if (text.length > 10 && text.length < 100 && useCases.length < 5) useCases.push(text);
+  });
+
+  return {
+    title: (title || serviceName).slice(0, 120),
+    description: description || `${serviceName} es un servicio de Amazon Web Services que proporciona capacidades escalables y administradas en la nube.`,
+    advantages: advantages.length > 0 ? advantages.slice(0, 6) : [
+      'Alta disponibilidad y escalabilidad automática.',
+      'Integración nativa con otros servicios de AWS.',
+      'Modelo de pago por uso sin costos iniciales.',
+      'Seguridad gestionada por AWS con certificaciones globales.',
+    ],
+    disadvantages: [
+      'Requiere conocimiento previo de la plataforma AWS para configuración óptima.',
+      'Los costos pueden incrementarse con el uso intensivo sin una política de optimización.',
+      'La dependencia del proveedor (vendor lock-in) puede ser un factor a considerar.',
+    ],
+    useCases: useCases.length > 0 ? useCases.slice(0, 5) : ['Proyectos de migración a la nube', 'Arquitecturas serverless', 'Aplicaciones empresariales escalables'],
+    docsUrl: usedUrl,
   };
 }
 

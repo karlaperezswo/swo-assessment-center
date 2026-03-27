@@ -236,28 +236,43 @@ export function TechnicalMemory() {
       toast.warning('Este servicio ya fue agregado'); return;
     }
     setIsSearchingAWS(true);
-    toast.loading(`Buscando ${serviceSearch} en AWS...`, { id: 'aws-search' });
+    toast.loading(Buscando \ en AWS..., { id: 'aws-search' });
     try {
       const res = await apiClient.post('/api/scraper/aws-service', { serviceName: serviceSearch });
       if (res.data.success) {
         const d = res.data.data;
         const newSvc: AWSServiceEntry = {
-          id: `svc-${Date.now()}`,
+          id: svc-\,
           serviceName: serviceSearch,
           title: d.title,
           description: d.description,
           advantages: d.advantages,
           disadvantages: d.disadvantages,
           useCases: d.useCases,
+          keyPoints: d.useCases || [],
           whyUsed: '',
           docsUrl: d.docsUrl,
         };
-        setData(prev => ({ ...prev, services: [...prev.services, newSvc] }));
+        // Auto-agregar al diccionario como base de conocimiento
+        const dictEntry: DictionaryEntry = {
+          id: dict-svc-\,
+          term: d.title,
+          definition: d.description.slice(0, 300) + (d.description.length > 300 ? '...' : ''),
+          category: 'Servicios AWS',
+          selected: false,
+        };
+        setData(prev => ({
+          ...prev,
+          services: [...prev.services, newSvc],
+          dictionary: prev.dictionary.some(e => e.term.toLowerCase() === d.title.toLowerCase())
+            ? prev.dictionary
+            : [...prev.dictionary, dictEntry],
+        }));
         setServiceSearch('');
         setExpandedService(newSvc.id);
-        toast.success(`${d.title} agregado`, { id: 'aws-search' });
+        toast.success(\ agregado al documento y al diccionario, { id: 'aws-search' });
       } else {
-        toast.error(res.data.error || 'No se encontró el servicio', { id: 'aws-search' });
+        toast.error(res.data.error || 'No se encontro el servicio', { id: 'aws-search' });
       }
     } catch {
       toast.error('Error al buscar el servicio AWS', { id: 'aws-search' });

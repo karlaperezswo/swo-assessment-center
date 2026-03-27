@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { scrapeAWSService, scrapeCompanyInfo, getSoftwareOneLogo } from '../services/scraperService';
+import { scrapeAWSService, scrapeCompanyInfo, getSoftwareOneLogo, scrapeByUrl } from '../services/scraperService';
 
 export class ScraperController {
 
@@ -15,6 +15,21 @@ export class ScraperController {
     } catch (error: any) {
       console.error('[Scraper] AWS service error:', error.message);
       res.status(500).json({ success: false, error: error.message || 'Error al obtener información del servicio AWS' });
+    }
+  };
+
+  // POST /api/scraper/by-url
+  byUrl = async (req: Request, res: Response) => {
+    try {
+      const { url } = req.body;
+      if (!url || typeof url !== 'string') {
+        return res.status(400).json({ success: false, error: 'url es requerida' });
+      }
+      const data = await scrapeByUrl(url.trim());
+      res.json({ success: true, data });
+    } catch (error: any) {
+      console.error('[Scraper] URL scrape error:', error.message);
+      res.status(500).json({ success: false, error: error.message || 'Error al extraer información de la URL' });
     }
   };
 

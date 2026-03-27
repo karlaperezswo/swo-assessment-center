@@ -128,7 +128,84 @@ export async function scrapeAWSService(serviceName: string): Promise<{
   };
 }
 
-// ── Company Info Scraper ──────────────────────────────────────────────────────
+// ── Generic URL Scraper ───────────────────────────────────────────────────────
+export async function scrapeByUrl(url: string): Promise<{
+  title: string;
+  description: string;
+  keyPoints: string[];
+  advantages: string[];
+  disadvantages: string[];
+  docsUrl: string;
+}> {
+  let html = '';
+  try {
+    const res = await axios.get(url, { headers: HEADERS, timeout: 15000, maxRedirects: 5 });
+    html = res.data;
+  } catch (err: any) {
+    throw new Error(`No se pudo acceder a la URL: ${err.message}`);
+  }
+
+  const $ = cheerio.load(html);
+
+  // Remove noise
+  $('script, style, nav, footer, header, .cookie-banner, .nav, .footer, .header, .sidebar').remove();
+
+  // Title
+  const title =
+    $('h1').first().text().trim() ||
+    $('title').text().replace(/[-|].*$/, '').trim() ||
+    $('meta[property="og:title"]').attr('content') || url;
+
+  // Description — meta first, then first meaningful paragraph
+  let description =
+    $('meta[name="description"]').attr('content') ||
+    $('meta[property="og:description"]').attr('content') || '';
+
+  if (!description || description.length < 60) {
+    const paras = $('main p, article p, section p, .content p, p')
+      .map((_, el) => $(el).text().trim())
+      .get()
+      .filter(t => t.length > 80 && t.length < 800);
+    if (paras.length > 0) description = paras[0];
+  }
+
+  // Key points — headings + first sentence of their section
+  const keyPoints: string[] = [];
+  $('h2, h3').each((_, el) => {
+    const heading = $(el).text().trim();
+    if (heading.length > 5 && heading.length < 120 && keyPoints.length < 8) {
+      const next = $(el).next('p').text().trim();
+      keyPoints.push(next ? `${heading}: ${next.slice(0, 200)}` : heading);
+    }
+  });
+
+  // Advantages — list items with positive keywords
+  const advantages: string[] = [];
+  $('ul li, ol li').each((_, el) => {
+    const text = $(el).text().trim();
+    if (text.length > 20 && text.length < 300 && advantages.length < 6) {
+      advantages.push(text);
+    }
+  });
+
+  // Disadvantages — standard fallback
+  const disadvantages: string[] = [
+    'Requiere planificación y configuración inicial adecuada.',
+    'Puede generar costos adicionales si no se gestiona correctamente.',
+    'Dependencia del proveedor (vendor lock-in) a considerar.',
+  ];
+
+  return {
+    title: title.slice(0, 120),
+    description: description || 'Descripción no disponible. Edite manualmente.',
+    keyPoints: keyPoints.length > 0 ? keyPoints : ['Consulte la documentación oficial para más detalles.'],
+    advantages: advantages.length > 0 ? advantages : ['Consulte la documentación oficial para ventajas detalladas.'],
+    disadvantages,
+    docsUrl: url,
+  };
+}
+
+
 export async function scrapeCompanyInfo(companyUrl: string): Promise<{
   mission: string;
   vision: string;

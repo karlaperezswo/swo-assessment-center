@@ -1,11 +1,12 @@
 ﻿import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api';
-import { TechMemoryData, AWSServiceEntry } from './types';
+import { TechMemoryData, AWSServiceEntry, DictionaryEntry } from './types';
 import { exportTechMemoryWord } from './wordExporter';
 import {
   Search, Plus, Trash2, Download, Upload, RefreshCw,
-  BookOpen, Building2, FileText, Award, ChevronDown, ChevronUp, Loader2
+  BookOpen, Building2, FileText, Award, ChevronDown, ChevronUp, Loader2,
+  Link, Library, CheckSquare, Square
 } from 'lucide-react';
 
 const GRADIENT = 'linear-gradient(135deg, #e91e8c 0%, #9c27b0 50%, #1565c0 100%)';
@@ -39,6 +40,29 @@ Estamos convencidos de que esta migración a AWS representa el inicio de una nue
 
 Agradecemos profundamente la oportunidad de haber sido parte de este proyecto y esperamos continuar fortaleciendo nuestra relación en el futuro.`;
 
+const DEFAULT_DICTIONARY: DictionaryEntry[] = [
+  { id: 'd1',  term: 'Cloud Computing',      category: 'Conceptos Cloud',  selected: false, definition: 'Modelo de entrega de servicios de TI a través de internet, que permite acceso bajo demanda a recursos computacionales compartidos.' },
+  { id: 'd2',  term: 'IaaS',                 category: 'Conceptos Cloud',  selected: false, definition: 'Infrastructure as a Service. Modelo de nube que proporciona recursos de infraestructura virtualizados como servidores, almacenamiento y redes.' },
+  { id: 'd3',  term: 'PaaS',                 category: 'Conceptos Cloud',  selected: false, definition: 'Platform as a Service. Plataforma en la nube que permite desarrollar, ejecutar y gestionar aplicaciones sin gestionar la infraestructura subyacente.' },
+  { id: 'd4',  term: 'SaaS',                 category: 'Conceptos Cloud',  selected: false, definition: 'Software as a Service. Modelo de distribución de software donde las aplicaciones se alojan en la nube y se accede a ellas vía internet.' },
+  { id: 'd5',  term: 'Migración a la Nube',  category: 'Migración',        selected: false, definition: 'Proceso de mover aplicaciones, datos e infraestructura de TI desde entornos on-premises hacia una plataforma de nube.' },
+  { id: 'd6',  term: 'Lift and Shift',       category: 'Migración',        selected: false, definition: 'Estrategia de migración que consiste en mover aplicaciones a la nube sin modificar su arquitectura (Rehost).' },
+  { id: 'd7',  term: 'AWS MAP',              category: 'AWS',              selected: false, definition: 'Migration Acceleration Program. Programa de AWS que proporciona metodología, herramientas y financiamiento para acelerar migraciones a la nube.' },
+  { id: 'd8',  term: 'VPC',                  category: 'AWS',              selected: false, definition: 'Virtual Private Cloud. Red virtual privada aislada dentro de AWS que permite controlar el entorno de red de los recursos.' },
+  { id: 'd9',  term: 'IAM',                  category: 'AWS',              selected: false, definition: 'Identity and Access Management. Servicio de AWS para gestionar el acceso a recursos mediante usuarios, roles y políticas.' },
+  { id: 'd10', term: 'S3',                   category: 'AWS',              selected: false, definition: 'Simple Storage Service. Servicio de almacenamiento de objetos de AWS con alta disponibilidad, durabilidad y escalabilidad.' },
+  { id: 'd11', term: 'EC2',                  category: 'AWS',              selected: false, definition: 'Elastic Compute Cloud. Servicio de AWS que proporciona capacidad de cómputo escalable en la nube mediante instancias virtuales.' },
+  { id: 'd12', term: 'RDS',                  category: 'AWS',              selected: false, definition: 'Relational Database Service. Servicio administrado de bases de datos relacionales en AWS que soporta múltiples motores.' },
+  { id: 'd13', term: 'Alta Disponibilidad',  category: 'Arquitectura',     selected: false, definition: 'Capacidad de un sistema para operar continuamente sin fallos durante un período determinado, minimizando el tiempo de inactividad.' },
+  { id: 'd14', term: 'Escalabilidad',        category: 'Arquitectura',     selected: false, definition: 'Capacidad de un sistema para manejar una cantidad creciente de trabajo añadiendo recursos de forma proporcional.' },
+  { id: 'd15', term: 'Resiliencia',          category: 'Arquitectura',     selected: false, definition: 'Capacidad de un sistema para recuperarse rápidamente de fallos y continuar operando con normalidad.' },
+  { id: 'd16', term: 'DevOps',               category: 'Metodologías',     selected: false, definition: 'Conjunto de prácticas que combina desarrollo de software y operaciones de TI para acortar el ciclo de vida del desarrollo.' },
+  { id: 'd17', term: 'CI/CD',                category: 'Metodologías',     selected: false, definition: 'Integración Continua / Entrega Continua. Prácticas de automatización para integrar, probar y desplegar código de forma frecuente.' },
+  { id: 'd18', term: 'Contenedor',           category: 'Tecnologías',      selected: false, definition: 'Unidad estándar de software que empaqueta código y sus dependencias para que la aplicación se ejecute de forma confiable en cualquier entorno.' },
+  { id: 'd19', term: 'Serverless',           category: 'Tecnologías',      selected: false, definition: 'Modelo de ejecución en la nube donde el proveedor gestiona la infraestructura y el desarrollador solo se enfoca en el código.' },
+  { id: 'd20', term: 'TCO',                  category: 'Negocio',          selected: false, definition: 'Total Cost of Ownership. Costo total de propiedad que incluye todos los costos directos e indirectos asociados a un activo tecnológico.' },
+];
+
 const emptyData = (): TechMemoryData => ({
   projectName: '',
   clientName: '',
@@ -55,18 +79,23 @@ const emptyData = (): TechMemoryData => ({
   challenges: DEFAULT_CHALLENGES,
   conclusions: DEFAULT_CONCLUSIONS,
   services: [],
+  dictionary: DEFAULT_DICTIONARY,
   thankYouLetter: DEFAULT_THANK_YOU,
   itTeam: '',
 });
 
 export function TechnicalMemory() {
   const [data, setData] = useState<TechMemoryData>(emptyData());
-  const [activeTab, setActiveTab] = useState<'project'|'company'|'services'|'document'|'letter'>('project');
+  const [activeTab, setActiveTab] = useState<'project'|'company'|'services'|'dictionary'|'document'|'letter'>('project');
   const [serviceSearch, setServiceSearch] = useState('');
+  const [serviceUrl, setServiceUrl] = useState('');
   const [isSearchingAWS, setIsSearchingAWS] = useState(false);
+  const [isScrapingUrl, setIsScrapingUrl] = useState(false);
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
   const [isLoadingLogo, setIsLoadingLogo] = useState(false);
   const [expandedService, setExpandedService] = useState<string|null>(null);
+  const [dictSearch, setDictSearch] = useState('');
+  const [newTerm, setNewTerm] = useState({ term: '', definition: '', category: '' });
   const clientLogoRef = useRef<HTMLInputElement>(null);
 
   const set = (field: keyof TechMemoryData, value: any) =>
@@ -162,6 +191,69 @@ export function TechnicalMemory() {
       services: prev.services.map(s => s.id === id ? { ...s, [field]: value } : s),
     }));
 
+  // ── Scrape by URL ──────────────────────────────────────────────────────────
+  const scrapeByUrl = async () => {
+    if (!serviceUrl.trim()) { toast.error('Ingresa una URL'); return; }
+    setIsScrapingUrl(true);
+    toast.loading('Extrayendo información de la URL...', { id: 'url-scrape' });
+    try {
+      const res = await apiClient.post('/api/scraper/by-url', { url: serviceUrl });
+      if (res.data.success) {
+        const d = res.data.data;
+        const newSvc: AWSServiceEntry = {
+          id: `svc-${Date.now()}`,
+          serviceName: d.title,
+          title: d.title,
+          description: d.description,
+          advantages: d.advantages,
+          disadvantages: d.disadvantages,
+          useCases: d.keyPoints,
+          keyPoints: d.keyPoints,
+          whyUsed: '',
+          docsUrl: serviceUrl,
+        };
+        setData(prev => ({ ...prev, services: [...prev.services, newSvc] }));
+        setServiceUrl('');
+        setExpandedService(newSvc.id);
+        toast.success(`"${d.title}" agregado desde URL`, { id: 'url-scrape' });
+      } else {
+        toast.error(res.data.error || 'No se pudo extraer información', { id: 'url-scrape' });
+      }
+    } catch {
+      toast.error('Error al conectar con el servidor', { id: 'url-scrape' });
+    } finally { setIsScrapingUrl(false); }
+  };
+
+  // ── Dictionary helpers ─────────────────────────────────────────────────────
+  const toggleDictEntry = (id: string) =>
+    setData(prev => ({
+      ...prev,
+      dictionary: prev.dictionary.map(d =>
+        d.id === id ? { ...d, selected: !d.selected } : d
+      ),
+    }));
+
+  const addDictEntry = () => {
+    if (!newTerm.term.trim() || !newTerm.definition.trim()) {
+      toast.error('Ingresa el término y la definición'); return;
+    }
+    const entry: DictionaryEntry = {
+      id: `dict-${Date.now()}`,
+      term: newTerm.term.trim(),
+      definition: newTerm.definition.trim(),
+      category: newTerm.category.trim() || 'Personalizado',
+      selected: true,
+    };
+    setData(prev => ({ ...prev, dictionary: [...prev.dictionary, entry] }));
+    setNewTerm({ term: '', definition: '', category: '' });
+    toast.success(`"${entry.term}" agregado al diccionario`);
+  };
+
+  const removeDictEntry = (id: string) =>
+    setData(prev => ({ ...prev, dictionary: prev.dictionary.filter(d => d.id !== id) }));
+
+  const selectedCount = data.dictionary.filter(d => d.selected).length;
+
   const handleExport = () => {
     if (!data.projectName || !data.clientName) {
       toast.error('Completa el nombre del proyecto y del cliente antes de exportar');
@@ -173,11 +265,12 @@ export function TechnicalMemory() {
 
   // ── Tabs config ────────────────────────────────────────────────────────────
   const tabs = [
-    { id: 'project',  label: 'Proyecto',   icon: <FileText style={{ width: 14, height: 14 }} /> },
-    { id: 'company',  label: 'Empresa',    icon: <Building2 style={{ width: 14, height: 14 }} /> },
-    { id: 'services', label: 'Servicios AWS', icon: <BookOpen style={{ width: 14, height: 14 }} /> },
-    { id: 'document', label: 'Documento',  icon: <FileText style={{ width: 14, height: 14 }} /> },
-    { id: 'letter',   label: 'Carta',      icon: <Award style={{ width: 14, height: 14 }} /> },
+    { id: 'project',    label: 'Proyecto',      icon: <FileText style={{ width: 14, height: 14 }} /> },
+    { id: 'company',    label: 'Empresa',        icon: <Building2 style={{ width: 14, height: 14 }} /> },
+    { id: 'services',   label: 'Servicios AWS',  icon: <BookOpen style={{ width: 14, height: 14 }} /> },
+    { id: 'dictionary', label: `Diccionario${selectedCount > 0 ? ` (${selectedCount})` : ''}`, icon: <Library style={{ width: 14, height: 14 }} /> },
+    { id: 'document',   label: 'Documento',      icon: <FileText style={{ width: 14, height: 14 }} /> },
+    { id: 'letter',     label: 'Carta',          icon: <Award style={{ width: 14, height: 14 }} /> },
   ] as const;
 
   return (
@@ -332,19 +425,47 @@ export function TechnicalMemory() {
                 Busca en la documentación oficial de AWS y agrega al documento
               </div>
             </div>
-            <div style={{ padding: '16px 20px', display: 'flex', gap: 8 }}>
-              <input value={serviceSearch} onChange={e => setServiceSearch(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && searchAWSService()}
-                placeholder="ej. Amazon S3, AWS Lambda, Amazon RDS, Amazon EC2..."
-                style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: '1px solid #fce4ec',
-                  fontSize: 13, outline: 'none' }} />
-              <button onClick={searchAWSService} disabled={isSearchingAWS}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 20px', borderRadius: 8,
-                  border: 'none', background: isSearchingAWS ? '#f1f5f9' : GRADIENT_H,
-                  color: isSearchingAWS ? '#94a3b8' : '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                {isSearchingAWS ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Search style={{ width: 14, height: 14 }} />}
-                {isSearchingAWS ? 'Buscando...' : 'Buscar y Agregar'}
-              </button>
+            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* Buscar por nombre */}
+              <div>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>
+                  Buscar por nombre de servicio AWS
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input value={serviceSearch} onChange={e => setServiceSearch(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && searchAWSService()}
+                    placeholder="ej. Amazon S3, AWS Lambda, Amazon RDS, Amazon EC2..."
+                    style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: '1px solid #fce4ec',
+                      fontSize: 13, outline: 'none' }} />
+                  <button onClick={searchAWSService} disabled={isSearchingAWS}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 20px', borderRadius: 8,
+                      border: 'none', background: isSearchingAWS ? '#f1f5f9' : GRADIENT_H,
+                      color: isSearchingAWS ? '#94a3b8' : '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                    {isSearchingAWS ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Search style={{ width: 14, height: 14 }} />}
+                    {isSearchingAWS ? 'Buscando...' : 'Buscar en AWS'}
+                  </button>
+                </div>
+              </div>
+              {/* Buscar por URL */}
+              <div>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>
+                  O pega una URL y extrae automáticamente
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input value={serviceUrl} onChange={e => setServiceUrl(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && scrapeByUrl()}
+                    placeholder="ej. https://aws.amazon.com/s3/ o cualquier URL de documentación..."
+                    style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: '1px solid #fce4ec',
+                      fontSize: 13, outline: 'none' }} />
+                  <button onClick={scrapeByUrl} disabled={isScrapingUrl}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 20px', borderRadius: 8,
+                      border: 'none', background: isScrapingUrl ? '#f1f5f9' : GRADIENT_H,
+                      color: isScrapingUrl ? '#94a3b8' : '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                    {isScrapingUrl ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Link style={{ width: 14, height: 14 }} />}
+                    {isScrapingUrl ? 'Extrayendo...' : 'Extraer de URL'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -447,6 +568,107 @@ export function TechnicalMemory() {
               </div>
             ))
           )}
+        </div>
+      )}
+
+      {/* ── TAB: Diccionario ──────────────────────────────────────────────── */}
+      {activeTab === 'dictionary' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Agregar término nuevo */}
+          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
+            <div style={{ background: GRADIENT, padding: '10px 18px' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Agregar Término al Diccionario</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
+                Los términos seleccionados se incluyen automáticamente en el Word como Glosario
+              </div>
+            </div>
+            <div style={{ padding: '16px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 10, alignItems: 'end' }}>
+              <div>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>Término *</label>
+                <input value={newTerm.term} onChange={e => setNewTerm(p => ({ ...p, term: e.target.value }))}
+                  placeholder="ej. Kubernetes"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>Categoría</label>
+                <input value={newTerm.category} onChange={e => setNewTerm(p => ({ ...p, category: e.target.value }))}
+                  placeholder="ej. Tecnologías"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>Definición *</label>
+                <input value={newTerm.definition} onChange={e => setNewTerm(p => ({ ...p, definition: e.target.value }))}
+                  placeholder="Definición del término..."
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <button onClick={addDictEntry}
+                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 16px', borderRadius: 7,
+                  border: 'none', background: GRADIENT_H, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <Plus style={{ width: 13, height: 13 }} /> Agregar
+              </button>
+            </div>
+          </div>
+
+          {/* Filtro y lista */}
+          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid #fce4ec', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Search style={{ width: 14, height: 14, color: '#9c27b0' }} />
+              <input value={dictSearch} onChange={e => setDictSearch(e.target.value)}
+                placeholder="Filtrar términos..."
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, color: '#374151' }} />
+              <span style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, background: '#f3e8ff', borderRadius: 10, padding: '2px 10px' }}>
+                {selectedCount} seleccionados → Word
+              </span>
+            </div>
+
+            {/* Group by category */}
+            {(() => {
+              const filtered = data.dictionary.filter(d =>
+                !dictSearch || d.term.toLowerCase().includes(dictSearch.toLowerCase()) ||
+                d.definition.toLowerCase().includes(dictSearch.toLowerCase()) ||
+                d.category.toLowerCase().includes(dictSearch.toLowerCase())
+              );
+              const categories = [...new Set(filtered.map(d => d.category || 'General'))];
+              return categories.map(cat => (
+                <div key={cat}>
+                  <div style={{ padding: '6px 16px', background: '#f3e8ff', fontSize: 11, fontWeight: 700, color: '#7b2ff7', borderBottom: '1px solid #fce4ec' }}>
+                    {cat}
+                  </div>
+                  {filtered.filter(d => (d.category || 'General') === cat).map((entry, i) => (
+                    <div key={entry.id}
+                      style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 16px',
+                        borderBottom: '1px solid #fce4ec', background: i % 2 === 0 ? '#fff' : '#fdf4ff',
+                        transition: 'background 0.1s', cursor: 'pointer' }}
+                      onClick={() => toggleDictEntry(entry.id)}
+                      onMouseEnter={e => (e.currentTarget.style.background = '#f3e8ff')}
+                      onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? '#fff' : '#fdf4ff')}>
+                      <div style={{ flexShrink: 0, marginTop: 2, color: entry.selected ? '#e91e8c' : '#d1d5db' }}>
+                        {entry.selected
+                          ? <CheckSquare style={{ width: 16, height: 16 }} />
+                          : <Square style={{ width: 16, height: 16 }} />}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: entry.selected ? '#e91e8c' : '#0f172a' }}>
+                          {entry.term}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#475569', marginTop: 2, lineHeight: 1.5 }}>
+                          {entry.definition}
+                        </div>
+                      </div>
+                      <button onClick={e => { e.stopPropagation(); removeDictEntry(entry.id); }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', flexShrink: 0, padding: 4 }}>
+                        <Trash2 style={{ width: 13, height: 13 }} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ));
+            })()}
+          </div>
+
+          <div style={{ fontSize: 11, color: '#9c27b0', padding: '8px 12px', background: '#f3e8ff', borderRadius: 8, border: '1px solid #fce4ec' }}>
+            Haz clic en cualquier término para seleccionarlo/deseleccionarlo. Los términos seleccionados aparecerán en la sección "Glosario" del documento Word exportado.
+          </div>
         </div>
       )}
 

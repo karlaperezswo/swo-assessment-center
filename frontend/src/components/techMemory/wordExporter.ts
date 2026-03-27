@@ -7,6 +7,9 @@ export function exportTechMemoryWord(data: TechMemoryData): void {
 
   const servicesSections = data.services.map((svc, idx) => buildServiceSection(svc, idx + 1)).join('');
 
+  const selectedTerms = (data.dictionary || []).filter(d => d.selected);
+  const glossarySection = selectedTerms.length > 0 ? buildGlossarySection(selectedTerms) : '';
+
   const html = `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
       xmlns:w="urn:schemas-microsoft-com:office:word"
@@ -73,8 +76,9 @@ export function exportTechMemoryWord(data: TechMemoryData): void {
   <p class="no-indent">3. Servicios AWS Implementados .............................................. 5</p>
   <p class="no-indent">4. Retos del Proyecto ....................................................... ${4 + data.services.length}</p>
   <p class="no-indent">5. Conclusiones ............................................................. ${5 + data.services.length}</p>
-  <p class="no-indent">6. Referencias .............................................................. ${6 + data.services.length}</p>
-  <p class="no-indent">7. Carta de Agradecimiento .................................................. ${7 + data.services.length}</p>
+  <p class="no-indent">6. Glosario ................................................................. ${6 + data.services.length}</p>
+  <p class="no-indent">7. Referencias .............................................................. ${7 + data.services.length}</p>
+  <p class="no-indent">8. Carta de Agradecimiento .................................................. ${8 + data.services.length}</p>
 </div>
 
 <!-- ══ 1. INTRODUCCIÓN ══════════════════════════════════════════════════════ -->
@@ -113,7 +117,10 @@ export function exportTechMemoryWord(data: TechMemoryData): void {
   ${paragraphs(data.conclusions)}
 </div>
 
-<!-- ══ 6. REFERENCIAS (APA) ═════════════════════════════════════════════════ -->
+<!-- ══ 6. GLOSARIO ════════════════════════════════════════════════════════════ -->
+${glossarySection ? `<div class="page-break">${glossarySection}</div>` : ''}
+
+<!-- ══ 7. REFERENCIAS (APA) ═════════════════════════════════════════════════ -->
 <div class="page-break">
   <div class="section-title">6. Referencias</div>
   ${data.services.map(svc => `
@@ -191,4 +198,38 @@ function buildServiceSection(svc: AWSServiceEntry, num: number): string {
       Recuperado de <a href="${escHtml(svc.docsUrl)}">${escHtml(svc.docsUrl)}</a>
     </p>
   </div>`;
+}
+
+function buildGlossarySection(terms: import('./types').DictionaryEntry[]): string {
+  // Group by category
+  const byCategory = new Map<string, import('./types').DictionaryEntry[]>();
+  terms.forEach(t => {
+    const cat = t.category || 'General';
+    if (!byCategory.has(cat)) byCategory.set(cat, []);
+    byCategory.get(cat)!.push(t);
+  });
+
+  let rows = '';
+  byCategory.forEach((entries, cat) => {
+    rows += `<tr style="background:#f3e8ff"><td colspan="2" style="padding:6px 10px;font-weight:700;font-size:10pt;color:#7b2ff7;border:1px solid #e9d5ff">${escHtml(cat)}</td></tr>`;
+    entries.forEach((e, i) => {
+      const bg = i % 2 === 0 ? '#ffffff' : '#fdf4ff';
+      rows += `<tr style="background:${bg}">
+        <td style="padding:6px 10px;border:1px solid #e9d5ff;font-weight:600;font-size:10pt;width:25%;vertical-align:top">${escHtml(e.term)}</td>
+        <td style="padding:6px 10px;border:1px solid #e9d5ff;font-size:10pt">${escHtml(e.definition)}</td>
+      </tr>`;
+    });
+  });
+
+  return `
+  <div class="section-title">6. Glosario</div>
+  <table style="width:100%;border-collapse:collapse;margin-top:8pt">
+    <thead>
+      <tr style="background:linear-gradient(90deg,#e91e8c,#9c27b0,#1565c0)">
+        <th style="padding:7px 10px;color:#fff;font-size:10pt;text-align:left;border:1px solid rgba(255,255,255,0.2);width:25%">Término</th>
+        <th style="padding:7px 10px;color:#fff;font-size:10pt;text-align:left;border:1px solid rgba(255,255,255,0.2)">Definición</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
 }

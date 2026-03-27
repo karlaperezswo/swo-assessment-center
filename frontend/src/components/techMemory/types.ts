@@ -6,8 +6,17 @@ export interface AWSServiceEntry {
   advantages: string[];
   disadvantages: string[];
   useCases: string[];
-  whyUsed: string; // editable by user
+  keyPoints: string[];
+  whyUsed: string;
   docsUrl: string;
+}
+
+export interface DictionaryEntry {
+  id: string;
+  term: string;
+  definition: string;
+  category: string;
+  selected: boolean; // si está seleccionado se incluye en el Word
 }
 
 export interface TechMemoryData {
@@ -33,6 +42,9 @@ export interface TechMemoryData {
 
   // AWS Services
   services: AWSServiceEntry[];
+
+  // Dictionary / Knowledge base
+  dictionary: DictionaryEntry[];
 
   // Thank you letter
   thankYouLetter: string;

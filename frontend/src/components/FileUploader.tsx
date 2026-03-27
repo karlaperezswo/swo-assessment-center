@@ -59,6 +59,10 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
         const formData = new FormData();
         formData.append('file', file);
 
+        const response = await apiClient.post('/api/report/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
         if (response.data.success) {
           const { excelData, summary } = response.data.data;
           setSummary(summary);

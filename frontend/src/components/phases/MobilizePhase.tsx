@@ -40,7 +40,7 @@ interface MobilizePhaseProps {
 }
 
 export function MobilizePhase({
-  excelData, uploadSummary, clientData, estimatedCosts, reportResult,
+  excelData, uploadSummary,
   migrationWaves, onMigrationWavesChange,
   skillAssessments, onSkillAssessmentsChange,
   landingZoneChecklist, onLandingZoneChange,

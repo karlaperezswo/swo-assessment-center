@@ -236,13 +236,13 @@ export function TechnicalMemory() {
       toast.warning('Este servicio ya fue agregado'); return;
     }
     setIsSearchingAWS(true);
-    toast.loading(Buscando \ en AWS..., { id: 'aws-search' });
+    toast.loading(`Buscando ${serviceSearch} en AWS...`, { id: 'aws-search' });
     try {
       const res = await apiClient.post('/api/scraper/aws-service', { serviceName: serviceSearch });
       if (res.data.success) {
         const d = res.data.data;
         const newSvc: AWSServiceEntry = {
-          id: svc-\,
+          id: `svc-${Date.now()}`,
           serviceName: serviceSearch,
           title: d.title,
           description: d.description,
@@ -253,9 +253,8 @@ export function TechnicalMemory() {
           whyUsed: '',
           docsUrl: d.docsUrl,
         };
-        // Auto-agregar al diccionario como base de conocimiento
         const dictEntry: DictionaryEntry = {
-          id: dict-svc-\,
+          id: `dict-svc-${Date.now()}`,
           term: d.title,
           definition: d.description.slice(0, 300) + (d.description.length > 300 ? '...' : ''),
           category: 'Servicios AWS',
@@ -270,9 +269,9 @@ export function TechnicalMemory() {
         }));
         setServiceSearch('');
         setExpandedService(newSvc.id);
-        toast.success(\ agregado al documento y al diccionario, { id: 'aws-search' });
+        toast.success(`${d.title} agregado al documento y al diccionario`, { id: 'aws-search' });
       } else {
-        toast.error(res.data.error || 'No se encontro el servicio', { id: 'aws-search' });
+        toast.error(res.data.error || 'No se encontró el servicio', { id: 'aws-search' });
       }
     } catch {
       toast.error('Error al buscar el servicio AWS', { id: 'aws-search' });

@@ -334,23 +334,23 @@ function ForceGraph({ nodes: rfNodes, edges: rfEdges, svgRef: externalRef }: For
 function getServerTypeInfo(name: string): { icon: string; label: string; color: string; bg: string } {
   const s = name.toLowerCase();
   if (/web|http|nginx|apache|iis|tomcat|frontend|portal|site|www/.test(s))
-    return { icon: '🌐', label: 'Web', color: '#0891b2', bg: '#e0f2fe' };
+    return { icon: '🖥️', label: 'Web', color: '#0891b2', bg: '#e0f2fe' };
   if (/db|database|sql|oracle|mysql|postgres|mongo|redis|elastic|mssql/.test(s))
     return { icon: '🗄️', label: 'Base de Datos', color: '#b45309', bg: '#fef3c7' };
   if (/api|rest|gateway|svc|service|microservice/.test(s))
-    return { icon: '⚙️', label: 'API / Servicio', color: '#0f766e', bg: '#ccfbf1' };
+    return { icon: '🖧', label: 'API / Servicio', color: '#0f766e', bg: '#ccfbf1' };
   if (/mail|exchange|smtp|outlook/.test(s))
-    return { icon: '📧', label: 'Correo', color: '#1d4ed8', bg: '#dbeafe' };
+    return { icon: '🖥️', label: 'Correo', color: '#1d4ed8', bg: '#dbeafe' };
   if (/file|ftp|sftp|nas|storage|backup|bkp/.test(s))
-    return { icon: '📁', label: 'Almacenamiento', color: '#92400e', bg: '#fef3c7' };
+    return { icon: '🗃️', label: 'Almacenamiento', color: '#92400e', bg: '#fef3c7' };
   if (/monitor|log|kibana|grafana|splunk|datadog|prometheus/.test(s))
-    return { icon: '📊', label: 'Monitoreo', color: '#065f46', bg: '#d1fae5' };
+    return { icon: '🖥️', label: 'Monitoreo', color: '#065f46', bg: '#d1fae5' };
   if (/auth|sso|ldap|ad[-_]|active.?dir|identity|iam|keycloak/.test(s))
-    return { icon: '🔐', label: 'Autenticación', color: '#7c3aed', bg: '#ede9fe' };
+    return { icon: '🖥️', label: 'Autenticación', color: '#7c3aed', bg: '#ede9fe' };
   if (/proxy|lb|load.?bal|haproxy|f5|nginx/.test(s))
-    return { icon: '🔀', label: 'Proxy / LB', color: '#0284c7', bg: '#e0f2fe' };
+    return { icon: '🖧', label: 'Proxy / LB', color: '#0284c7', bg: '#e0f2fe' };
   if (/app|apl|srv|svr/.test(s))
-    return { icon: '📦', label: 'App Server', color: '#475569', bg: '#f1f5f9' };
+    return { icon: '🖥️', label: 'App Server', color: '#475569', bg: '#f1f5f9' };
   return { icon: '🖥️', label: 'Servidor', color: '#334155', bg: '#f8fafc' };
 }
 

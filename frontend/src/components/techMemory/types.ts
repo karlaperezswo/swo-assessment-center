@@ -62,5 +62,6 @@ export interface TechMemoryData {
 
   // Thank you letter
   thankYouLetter: string;
+  thankYouDate: string;
   itTeam: string;
 }

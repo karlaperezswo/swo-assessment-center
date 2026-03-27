@@ -162,6 +162,7 @@ const emptyData = (): TechMemoryData => ({
   dictionary: DEFAULT_DICTIONARY,
   wellArch: DEFAULT_WELL_ARCH,
   thankYouLetter: DEFAULT_THANK_YOU,
+  thankYouDate: new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
   itTeam: '',
 });
 
@@ -829,39 +830,64 @@ export function TechnicalMemory() {
         </div>
       )}
 
-      {/* ── TAB: Carta ────────────────────────────────────────────────────── */}
+
+
+      {/* TAB: Carta */}
       {activeTab === 'letter' && (
-        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
-          <div style={{ background: GRADIENT, padding: '10px 18px' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Carta de Agradecimiento</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
-              Editable — se incluirá al final del documento Word
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
+            <div style={{ background: GRADIENT, padding: '10px 18px' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Datos de la Carta</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>Todos los campos son editables. La fecha se genera automaticamente si no la modificas.</div>
+            </div>
+            <div style={{ padding: '16px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>Fecha de la Carta</label>
+                <input value={data.thankYouDate} onChange={e => set('thankYouDate', e.target.value)}
+                  placeholder="ej. 27 de marzo de 2026"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>Equipo de TI Destinatario</label>
+                <input value={data.itTeam} onChange={e => set('itTeam', e.target.value)}
+                  placeholder="ej. Equipo de Infraestructura y Arquitectura Cloud"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>Nombre del Consultor (SoftwareOne)</label>
+                <input value={data.consultorName} onChange={e => set('consultorName', e.target.value)}
+                  placeholder="ej. Juan Perez"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>Cargo / Firma</label>
+                <input value={data.consultorSignature} onChange={e => set('consultorSignature', e.target.value)}
+                  placeholder="ej. Arquitecto Cloud Senior"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>Correo del Consultor</label>
+                <input value={data.consultorEmail} onChange={e => set('consultorEmail', e.target.value)}
+                  placeholder="ej. juan.perez@softwareone.com"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
             </div>
           </div>
-          <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div>
-              <label style={{ fontSize: 11, color: '#475569', fontWeight: 600, display: 'block', marginBottom: 4 }}>
-                Equipo de TI Involucrado
-              </label>
-              <input value={data.itTeam} onChange={e => set('itTeam', e.target.value)}
-                placeholder="ej. Equipo de Infraestructura y Arquitectura Cloud — Empresa XYZ"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec',
-                  fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
+            <div style={{ background: GRADIENT, padding: '10px 18px' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Contenido de la Carta</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>Usa [NOMBRE_EMPRESA] como marcador</div>
             </div>
-            <div>
-              <label style={{ fontSize: 11, color: '#475569', fontWeight: 600, display: 'block', marginBottom: 4 }}>
-                Contenido de la Carta
-              </label>
+            <div style={{ padding: '14px 18px' }}>
               <textarea value={data.thankYouLetter} onChange={e => set('thankYouLetter', e.target.value)}
-                rows={14}
+                rows={16}
                 style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0',
                   fontSize: 12, outline: 'none', resize: 'vertical', boxSizing: 'border-box',
-                  fontFamily: '"Times New Roman", serif', lineHeight: 1.8 }} />
+                  fontFamily: 'Times New Roman, serif', lineHeight: 1.8 }} />
             </div>
-            <div style={{ padding: '12px 16px', background: '#fce4ec', borderRadius: 8, border: '1px solid #fce4ec',
-              fontSize: 11, color: '#7b1fa2' }}>
-              La carta incluirá automáticamente los logos de SoftwareOne y del cliente, el nombre de la empresa y la fecha de generación.
-            </div>
+          </div>
+          <div style={{ padding: '10px 14px', background: '#f3e8ff', borderRadius: 8, border: '1px solid #fce4ec', fontSize: 11, color: '#7b2ff7' }}>
+            El documento Word incluira el logo de SoftwareOne en la esquina inferior derecha de la carta, junto con los datos del consultor y la fecha indicada.
           </div>
         </div>
       )}

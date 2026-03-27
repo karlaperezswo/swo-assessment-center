@@ -167,14 +167,20 @@ ${glossarySection ? `<div class="page-break">${glossarySection}</div>` : ''}
     ${data.clientLogoBase64 ? `<img src="${data.clientLogoBase64}" alt="${escHtml(data.clientName)}" style="max-width:120px" />` : ''}
   </div>
   <div class="section-title">Carta de Agradecimiento</div>
+  <p class="no-indent" style="text-align:right;font-size:11pt;margin-bottom:18pt">${escHtml(data.thankYouDate || date)}</p>
+  ${data.itTeam ? `<p class="no-indent"><strong>Para:</strong> ${escHtml(data.itTeam)}</p>` : ''}
   ${paragraphs(replacePlaceholders(data.thankYouLetter || '', data))}
   <p class="no-indent" style="margin-top:30pt">Atentamente,</p>
   <p class="no-indent" style="margin-top:20pt"><strong>${escHtml(data.consultorName || 'Consultor')}</strong></p>
   ${data.consultorSignature ? `<p class="no-indent">${escHtml(data.consultorSignature)}</p>` : ''}
   ${data.consultorEmail ? `<p class="no-indent">${escHtml(data.consultorEmail)}</p>` : ''}
-  <p class="no-indent">${escHtml(data.itTeam || '')}</p>
   <p class="no-indent">SoftwareOne</p>
-  <p class="no-indent">${date}</p>
+  <!-- Logo SoftwareOne esquina inferior derecha -->
+  <div style="position:fixed;bottom:1.5cm;right:2cm;text-align:right">
+    ${data.swoLogoBase64
+      ? `<img src="${data.swoLogoBase64}" alt="SoftwareOne" style="max-width:90px;opacity:0.85" />`
+      : '<span style="font-size:10pt;font-weight:bold;color:#E31837">SoftwareOne</span>'}
+  </div>
 </div>
 
 </body></html>`;

@@ -9,7 +9,7 @@ import apiClient from '@/lib/api';
 import { toast } from 'sonner';
 
 interface FileUploaderProps {
-  onDataLoaded: (data: ExcelData, summary: UploadSummary) => void;
+  onDataLoaded: (data: ExcelData, summary: UploadSummary, dependencyData?: any, migrationWaves?: any) => void;
 }
 
 // Helper function to get data source label
@@ -64,21 +64,19 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
         });
 
         if (response.data.success) {
-          const { excelData, summary } = response.data.data;
+          const { excelData, summary, dependencyData, migrationWaves } = response.data.data;
           setSummary(summary);
           setUploadState('success');
-          onDataLoaded(excelData, summary);
+          onDataLoaded(excelData, summary, dependencyData, migrationWaves);
 
-          // Create success message with data source info
           const dataSourceLabel = getDataSourceLabel(summary.dataSource);
-          const successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos${
+          let successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos${
             summary.communicationCount ? `, ${summary.communicationCount} conexiones` : ''
           }`;
-
-          toast.success(successMsg, {
-            id: 'file-upload',
-            duration: 5000
-          });
+          if (migrationWaves) {
+            successMsg += `, ${migrationWaves.totalWaves} olas de migración calculadas`;
+          }
+          toast.success(successMsg, { id: 'file-upload', duration: 5000 });
         } else {
           throw new Error(response.data.error || 'Upload failed');
         }
@@ -109,26 +107,22 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
 
         // Step 3: Process file from S3
         setUploadProgress('Analizando datos...');
-        const response = await apiClient.post('/api/report/upload-from-s3', {
-          key
-        });
+        const response = await apiClient.post('/api/report/upload-from-s3', { key });
 
         if (response.data.success) {
-          const { excelData, summary } = response.data.data;
+          const { excelData, summary, dependencyData, migrationWaves } = response.data.data;
           setSummary(summary);
           setUploadState('success');
-          onDataLoaded(excelData, summary);
+          onDataLoaded(excelData, summary, dependencyData, migrationWaves);
 
-          // Create success message with data source info
           const dataSourceLabel = getDataSourceLabel(summary.dataSource);
-          const successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos${
+          let successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos${
             summary.communicationCount ? `, ${summary.communicationCount} conexiones` : ''
           }`;
-
-          toast.success(successMsg, {
-            id: 'file-upload',
-            duration: 5000
-          });
+          if (migrationWaves) {
+            successMsg += `, ${migrationWaves.totalWaves} olas de migración calculadas`;
+          }
+          toast.success(successMsg, { id: 'file-upload', duration: 5000 });
         } else {
           throw new Error(response.data.error || 'Upload failed');
         }

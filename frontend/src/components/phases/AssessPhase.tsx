@@ -11,18 +11,19 @@ import { MigrationWaves } from '@/components/migrate/MigrationWaves';
 import { OpportunityDashboard } from '@/components/opportunities/OpportunityDashboard';
 import { SelectorPhase } from '@/components/phases/SelectorPhase';
 import { BusinessCase } from '@/components/mobilize/BusinessCase';
+import { DependencyMap } from '@/components/DependencyMap';
 import {
   ExcelData, UploadSummary, ClientFormData, CostBreakdown,
   PhaseStatus, BriefingSession, ImmersionDayPlan, MigrationWave,
 } from '@/types/assessment';
-import { Upload, DollarSign, Gauge, Presentation, GraduationCap, Waves, Target, Briefcase } from 'lucide-react';
+import { Upload, DollarSign, Gauge, Presentation, GraduationCap, Waves, Target, Briefcase, Network } from 'lucide-react';
 
 interface AssessPhaseProps {
   excelData: ExcelData | null;
   uploadSummary: UploadSummary | null;
   clientData: ClientFormData;
   estimatedCosts: CostBreakdown | null;
-  onDataLoaded: (data: ExcelData, summary: UploadSummary) => void;
+  onDataLoaded: (data: ExcelData, summary: UploadSummary, dependencyData?: any, migrationWaves?: any) => void;
   onFormChange: (data: ClientFormData) => void;
   phaseStatus: PhaseStatus;
   onCompletePhase: () => void;
@@ -38,6 +39,7 @@ interface AssessPhaseProps {
   onMRAFileChange: (file: File | null) => void;
   questionnaireFile: File | null;
   onQuestionnaireFileChange: (file: File | null) => void;
+  dependencyData?: any;
 }
 
 export function AssessPhase({
@@ -49,6 +51,7 @@ export function AssessPhase({
   opportunitySessionId, onOpportunitySessionIdChange,
   mraFile, onMRAFileChange,
   questionnaireFile, onQuestionnaireFileChange,
+  dependencyData,
 }: AssessPhaseProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('rapid-discovery');
@@ -57,6 +60,7 @@ export function AssessPhase({
     {
       tabs: [
         { value: 'rapid-discovery', label: t('assess.tabs.rapidDiscovery'), icon: <Upload className="h-4 w-4" /> },
+        { value: 'dependency-map', label: 'Mapa de Dependencias', icon: <Network className="h-4 w-4" /> },
         { value: 'tco-report', label: t('assess.tabs.tcoReport'), icon: <DollarSign className="h-4 w-4" /> },
         { value: 'migration-readiness', label: t('assess.tabs.migrationReadiness'), icon: <Gauge className="h-4 w-4" /> },
         { value: 'opportunities', label: t('assess.tabs.opportunities'), icon: <Target className="h-4 w-4" /> },
@@ -86,6 +90,9 @@ export function AssessPhase({
             onQuestionnaireFileChange={onQuestionnaireFileChange}
           />
         )}
+        {activeTab === 'dependency-map' && (
+          <DependencyMap dependencyData={dependencyData} />
+        )}
         {activeTab === 'tco-report' && (
           <TCOReport
             excelData={excelData}
@@ -110,6 +117,7 @@ export function AssessPhase({
           <MigrationWaves
             waves={migrationWaves}
             onWavesChange={onMigrationWavesChange}
+            dependencyData={dependencyData}
           />
         )}
         {activeTab === 'briefings-workshops' && (

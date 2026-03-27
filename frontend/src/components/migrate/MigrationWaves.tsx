@@ -3,9 +3,10 @@ import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { MigrationPlanner } from '@/components/MigrationPlanner';
 
 import { MigrationWave } from '@/types/assessment';
-import { Waves, Plus, Trash2, Play, Pause, CheckCircle, AlertCircle } from 'lucide-react';
+import { Waves, Plus, Trash2, Play, Pause, CheckCircle, AlertCircle, Network } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -14,11 +15,12 @@ interface MigrationWavesProps {
   // totalServers and totalApplications are available for future use
   waves: MigrationWave[];
   onWavesChange: (waves: MigrationWave[]) => void;
+  dependencyData?: any;
   // totalServers: number;
   // totalApplications: number;
 }
 
-export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
+export function MigrationWaves({ waves, onWavesChange, dependencyData }: MigrationWavesProps) {
   const { t } = useTranslation();
 
   const statusConfig = {
@@ -28,6 +30,7 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
     blocked: { icon: AlertCircle, color: '#ef4444', label: t('migrationWaves.statuses.blocked'), bg: 'bg-red-50 border-red-200' },
   };
   const [showForm, setShowForm] = useState(false);
+  const [showPlanner, setShowPlanner] = useState(false);
   const [newWave, setNewWave] = useState({
     name: '',
     startDate: '',
@@ -100,6 +103,13 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
       <div className="flex gap-3">
         <Button onClick={() => setShowForm(!showForm)} variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50">
           <Plus className="h-4 w-4 mr-1" /> {showForm ? t('common.cancel') : t('migrationWaves.addWave')}
+        </Button>
+        <Button 
+          onClick={() => setShowPlanner(true)} 
+          className="bg-gradient-to-r from-[#2563eb] to-[#1e3a8a] hover:from-[#1d4ed8] hover:to-[#1e40af] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+        >
+          <Network className="h-4 w-4 mr-2" />
+          Migration Planner
         </Button>
       </div>
 
@@ -245,6 +255,14 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+      )}
+
+      {/* Migration Planner Modal */}
+      {showPlanner && (
+        <MigrationPlanner
+          dependencies={dependencyData?.dependencies || []}
+          onClose={() => setShowPlanner(false)}
+        />
       )}
     </div>
   );

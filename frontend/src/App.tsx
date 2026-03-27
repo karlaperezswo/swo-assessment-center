@@ -85,7 +85,10 @@ function App() {
     createDefaultSecurityChecklist()
   );
 
-  const handleDataLoaded = (data: ExcelData, summary: UploadSummary) => {
+  // Dependency and migration wave data
+  const [dependencyData, setDependencyData] = useState<any>(null);
+
+  const handleDataLoaded = (data: ExcelData, summary: UploadSummary, depData?: any, waves?: any) => {
     setExcelData(data);
     setUploadSummary(summary);
     setClientData(prev => ({
@@ -94,6 +97,38 @@ function App() {
     }));
     setReportResult(null);
     setError(null);
+
+    // Store dependency data
+    if (depData) {
+      setDependencyData(depData);
+      console.log('✅ Dependencias cargadas:', depData.summary);
+    }
+
+    // Store and convert auto-calculated waves to MigrationWave format
+    if (waves) {
+      // Convert calculated waves to MigrationWave format
+      const convertedWaves: MigrationWave[] = waves.waves.map((wave: any) => ({
+        id: `wave-auto-${wave.waveNumber}`,
+        waveNumber: wave.waveNumber,
+        name: `Wave ${wave.waveNumber}${wave.waveNumber === 1 ? ' - Base Infrastructure' : ''}`,
+        startDate: '', // User can fill these later
+        endDate: '',
+        serverCount: wave.serverCount,
+        applicationCount: 0,
+        status: 'planned' as const,
+        strategy: 'Rehost',
+        notes: `Servidores: ${wave.servers.join(', ')}`,
+        servers: wave.servers,
+      }));
+      
+      setMigrationWaves(convertedWaves);
+      console.log(`✅ ${waves.totalWaves} olas de migración generadas automáticamente`);
+      
+      toast.success(`Olas de migración calculadas automáticamente`, {
+        description: `${waves.totalWaves} olas generadas para ${waves.totalServers} servidores`,
+        duration: 5000
+      });
+    }
 
     // Generate simple cost estimate
     estimateCosts(data);
@@ -567,6 +602,7 @@ function App() {
               onMRAFileChange={setMRAFile}
               questionnaireFile={questionnaireFile}
               onQuestionnaireFileChange={setQuestionnaireFile}
+              dependencyData={dependencyData}
             />
           )}
 

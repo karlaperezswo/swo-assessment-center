@@ -8,6 +8,7 @@ export { MatildaParser } from './MatildaParser';
 export { MatildaTCO1YearParser } from './MatildaTCO1YearParser';
 export { CarbonReportParser } from './CarbonReportParser';
 export { BusinessCaseFormatDetector } from './BusinessCaseFormatDetector';
+export { DependencyParser } from './DependencyParser';
 export {
   FormatDetector,
   createParser,

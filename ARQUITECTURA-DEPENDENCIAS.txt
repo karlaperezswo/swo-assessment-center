@@ -1,0 +1,481 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    ARQUITECTURA DEL MÓDULO DE DEPENDENCIAS                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FLUJO DE DATOS                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    Usuario                Frontend                Backend              Memoria
+      │                      │                       │                    │
+      │  1. Selecciona       │                       │                    │
+      │     Excel            │                       │                    │
+      ├─────────────────────>│                       │                    │
+      │                      │                       │                    │
+      │  2. Click "Cargar"   │                       │                    │
+      ├─────────────────────>│                       │                    │
+      │                      │                       │                    │
+      │                      │  3. POST /upload      │                    │
+      │                      │      (FormData)       │                    │
+      │                      ├──────────────────────>│                    │
+      │                      │                       │                    │
+      │                      │                       │  4. Parse Excel    │
+      │                      │                       │     (DependencyParser)
+      │                      │                       │                    │
+      │                      │                       │  5. Build Graph    │
+      │                      │                       │     (DependencyService)
+      │                      │                       │                    │
+      │                      │                       │  6. Store Session  │
+      │                      │                       ├───────────────────>│
+      │                      │                       │                    │
+      │                      │  7. Response          │                    │
+      │                      │     (sessionId, graph)│                    │
+      │                      │<──────────────────────┤                    │
+      │                      │                       │                    │
+      │  8. Muestra Grafo    │                       │                    │
+      │<─────────────────────┤                       │                    │
+      │                      │                       │                    │
+      │  9. Busca "SERVER-01"│                       │                    │
+      ├─────────────────────>│                       │                    │
+      │                      │                       │                    │
+      │                      │  10. POST /search     │                    │
+      │                      │      (sessionId, term)│                    │
+      │                      ├──────────────────────>│                    │
+      │                      │                       │                    │
+      │                      │                       │  11. Get Session   │
+      │                      │                       │<───────────────────┤
+      │                      │                       │                    │
+      │                      │                       │  12. Search Deps   │
+      │                      │                       │      (Transitive)  │
+      │                      │                       │                    │
+      │                      │  13. Response         │                    │
+      │                      │      (filtered graph) │                    │
+      │                      │<──────────────────────┤                    │
+      │                      │                       │                    │
+      │  14. Muestra Filtrado│                       │                    │
+      │<─────────────────────┤                       │                    │
+      │                      │                       │                    │
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          ESTRUCTURA DE ARCHIVOS                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+swo-assessment-center/
+│
+├── backend/
+│   └── src/
+│       ├── controllers/
+│       │   └── dependencyController.ts ────┐
+│       │                                    │ Maneja requests HTTP
+│       ├── services/                        │ Valida datos
+│       │   ├── dependencyService.ts ────────┤ Llama al servicio
+│       │   │                                │
+│       │   └── parsers/                     │
+│       │       └── DependencyParser.ts ─────┤ Parse Excel
+│       │                                    │ Detecta formato
+│       ├── routes/                          │ Extrae datos
+│       │   └── dependencyRoutes.ts ─────────┤
+│       │                                    │ Define rutas
+│       └── index.ts ────────────────────────┘ Registra rutas
+│
+├── frontend/
+│   └── src/
+│       ├── components/
+│       │   ├── DependencyMap.tsx ───────────┐
+│       │   │                                │ Componente principal
+│       │   │                                │ Upload de archivos
+│       │   │                                │ Búsqueda
+│       │   │                                │ Visualización ReactFlow
+│       │   │                                │
+│       │   └── phases/                      │
+│       │       └── AssessPhase.tsx ─────────┤ Integra DependencyMap
+│       │                                    │ Nueva pestaña
+│       └── lib/                             │
+│           └── api.ts ──────────────────────┘ Cliente HTTP (Axios)
+│
+├── Documentación/
+│   ├── DEPENDENCY-MAP-GUIDE.md ────────────── Guía completa de usuario
+│   ├── DEPENDENCY-MODULE-README.md ────────── README técnico
+│   ├── MODULO-DEPENDENCIAS-COMPLETADO.md ─── Resumen de implementación
+│   ├── INICIO-RAPIDO-DEPENDENCIAS.md ──────── Inicio rápido
+│   └── ARQUITECTURA-DEPENDENCIAS.txt ──────── Este archivo
+│
+├── Scripts/
+│   ├── create-dependency-sample.js ────────── Genera datos de ejemplo
+│   ├── 4-GENERAR-DATOS-EJEMPLO.bat ────────── Ejecuta generador
+│   └── INSTALAR-CON-DEPENDENCIAS.bat ──────── Instalación completa
+│
+└── Datos/
+    └── sample-dependencies.xlsx ───────────── Archivo de ejemplo (generado)
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          COMPONENTES BACKEND                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ DependencyController                                                      │
+├──────────────────────────────────────────────────────────────────────────┤
+│ • uploadDependencyFile()                                                  │
+│   - Recibe archivo Excel                                                  │
+│   - Llama al parser                                                       │
+│   - Construye grafo                                                       │
+│   - Guarda en cache                                                       │
+│   - Retorna sessionId + datos                                             │
+│                                                                           │
+│ • searchDependencies()                                                    │
+│   - Recibe sessionId + término                                            │
+│   - Busca en cache                                                        │
+│   - Filtra dependencias                                                   │
+│   - Retorna grafo filtrado                                                │
+└──────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│ DependencyService                                                         │
+├──────────────────────────────────────────────────────────────────────────┤
+│ • parseDependencyFile()                                                   │
+│   - Delega al DependencyParser                                            │
+│                                                                           │
+│ • buildDependencyGraph()                                                  │
+│   - Crea nodos (servidores/apps)                                          │
+│   - Crea edges (conexiones)                                               │
+│   - Retorna grafo ReactFlow                                               │
+│                                                                           │
+│ • searchDependencies()                                                    │
+│   - Busca servidor por nombre                                             │
+│   - Filtra incoming/outgoing                                              │
+│   - Calcula transitivas (2 niveles)                                       │
+│   - Construye subgrafo                                                    │
+│                                                                           │
+│ • getTransitiveDependencies()                                             │
+│   - BFS para encontrar dependencias                                       │
+│   - Limita profundidad a 2 niveles                                        │
+└──────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│ DependencyParser                                                          │
+├──────────────────────────────────────────────────────────────────────────┤
+│ • parseDependencies()                                                     │
+│   - Lee Excel con XLSX                                                    │
+│   - Detecta hoja de dependencias                                          │
+│   - Parsea cada fila                                                      │
+│   - Valida datos                                                          │
+│   - Retorna DependencyData                                                │
+│                                                                           │
+│ • findDependencySheet()                                                   │
+│   - Busca por keywords                                                    │
+│   - Soporta múltiples idiomas                                             │
+│                                                                           │
+│ • parseDependencyRow()                                                    │
+│   - Extrae source/destination                                             │
+│   - Extrae port/protocol                                                  │
+│   - Extrae datos opcionales                                               │
+│   - Valida y limpia datos                                                 │
+│                                                                           │
+│ • extractValue()                                                          │
+│   - Busca columna por múltiples nombres                                   │
+│   - Case-insensitive                                                      │
+│   - Partial match                                                         │
+└──────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          COMPONENTES FRONTEND                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ DependencyMap Component                                                   │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│ Estado:                                                                   │
+│ • file: File | null                                                       │
+│ • sessionId: string | null                                                │
+│ • summary: DependencySummary | null                                       │
+│ • searchTerm: string                                                      │
+│ • searchResult: SearchResult | null                                       │
+│ • nodes: Node[] (ReactFlow)                                               │
+│ • edges: Edge[] (ReactFlow)                                               │
+│                                                                           │
+│ Funciones:                                                                │
+│ • handleFileChange() - Captura archivo seleccionado                       │
+│ • handleUpload() - Sube archivo al backend                                │
+│ • handleSearch() - Busca servidor específico                              │
+│ • displayGraph() - Convierte datos a formato ReactFlow                    │
+│                                                                           │
+│ UI Sections:                                                              │
+│ ┌─────────────────────────────────────────────────────────────────────┐  │
+│ │ Upload Section                                                       │  │
+│ │ • Input file                                                         │  │
+│ │ • Button "Cargar"                                                    │  │
+│ │ • Summary stats (4 métricas)                                         │  │
+│ └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                           │
+│ ┌─────────────────────────────────────────────────────────────────────┐  │
+│ │ Search Section                                                       │  │
+│ │ • Input search                                                       │  │
+│ │ • Button "Buscar"                                                    │  │
+│ │ • Results (incoming/outgoing)                                        │  │
+│ │ • Related apps (badges)                                              │  │
+│ └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                           │
+│ ┌─────────────────────────────────────────────────────────────────────┐  │
+│ │ Graph Visualization                                                  │  │
+│ │ • ReactFlow canvas (600px)                                           │  │
+│ │ • Controls (zoom, pan)                                               │  │
+│ │ • Background grid                                                    │  │
+│ │ • Legend                                                             │  │
+│ └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          ESTRUCTURA DE DATOS                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+NetworkDependency {
+  source: string              // "WEB-SERVER-01"
+  destination: string         // "APP-SERVER-01"
+  port: number               // 8080
+  protocol: string           // "TCP"
+  serviceName?: string       // "HTTP"
+  sourceApp?: string         // "Frontend"
+  destinationApp?: string    // "Backend"
+  sourceIP?: string          // "192.168.1.10"
+  destinationIP?: string     // "192.168.1.20"
+}
+
+DependencyData {
+  dependencies: NetworkDependency[]
+  servers: Set<string>
+  applications: Set<string>
+  summary: {
+    totalDependencies: number
+    uniqueServers: number
+    uniqueApplications: number
+    uniquePorts: number
+  }
+}
+
+DependencyGraph {
+  nodes: DependencyNode[]
+  edges: DependencyEdge[]
+}
+
+DependencyNode {
+  id: string                 // "WEB-SERVER-01"
+  label: string              // "WEB-SERVER-01"
+  type: 'server' | 'application'
+  group?: string             // "Frontend"
+}
+
+DependencyEdge {
+  from: string               // "WEB-SERVER-01"
+  to: string                 // "APP-SERVER-01"
+  label: string              // "TCP:8080"
+  port: number               // 8080
+  protocol: string           // "TCP"
+  serviceName?: string       // "HTTP"
+}
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          ALGORITMOS CLAVE                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1. DETECCIÓN DE FORMATO
+   ┌─────────────────────────────────────────────────────────────────────┐
+   │ findDependencySheet()                                                │
+   │                                                                      │
+   │ Keywords = [dependenc, network, connection, flow, comunicacion, ...]│
+   │                                                                      │
+   │ FOR EACH sheetName IN workbook:                                      │
+   │   IF sheetName.toLowerCase() CONTAINS any keyword:                   │
+   │     RETURN sheetName                                                 │
+   │                                                                      │
+   │ IF no match:                                                         │
+   │   RETURN first sheet                                                 │
+   └─────────────────────────────────────────────────────────────────────┘
+
+2. EXTRACCIÓN DE VALORES
+   ┌─────────────────────────────────────────────────────────────────────┐
+   │ extractValue(row, possibleKeys)                                      │
+   │                                                                      │
+   │ FOR EACH key IN possibleKeys:                                        │
+   │   // Exact match                                                     │
+   │   IF row[key] exists:                                                │
+   │     RETURN row[key]                                                  │
+   │                                                                      │
+   │   // Case-insensitive match                                          │
+   │   foundKey = find key in row (case-insensitive)                      │
+   │   IF foundKey exists:                                                │
+   │     RETURN row[foundKey]                                             │
+   │                                                                      │
+   │   // Partial match                                                   │
+   │   partialKey = find key that contains substring                      │
+   │   IF partialKey exists:                                              │
+   │     RETURN row[partialKey]                                           │
+   │                                                                      │
+   │ RETURN null                                                          │
+   └─────────────────────────────────────────────────────────────────────┘
+
+3. BÚSQUEDA TRANSITIVA (BFS)
+   ┌─────────────────────────────────────────────────────────────────────┐
+   │ getTransitiveDependencies(allDeps, startServer, maxDepth=2)         │
+   │                                                                      │
+   │ result = new Set()                                                   │
+   │ visited = new Set()                                                  │
+   │ queue = [{server: startServer, depth: 0}]                            │
+   │                                                                      │
+   │ WHILE queue not empty:                                               │
+   │   {server, depth} = queue.shift()                                    │
+   │                                                                      │
+   │   IF visited.has(server) OR depth > maxDepth:                        │
+   │     CONTINUE                                                         │
+   │                                                                      │
+   │   visited.add(server)                                                │
+   │                                                                      │
+   │   // Find all dependencies involving this server                     │
+   │   related = filter allDeps where:                                    │
+   │     source == server OR destination == server                        │
+   │                                                                      │
+   │   FOR EACH dep IN related:                                           │
+   │     result.add(dep)                                                  │
+   │                                                                      │
+   │     IF depth < maxDepth:                                             │
+   │       IF dep.source == server:                                       │
+   │         queue.push({server: dep.destination, depth: depth+1})        │
+   │       ELSE:                                                          │
+   │         queue.push({server: dep.source, depth: depth+1})             │
+   │                                                                      │
+   │ RETURN Array.from(result)                                            │
+   └─────────────────────────────────────────────────────────────────────┘
+
+4. LAYOUT CIRCULAR
+   ┌─────────────────────────────────────────────────────────────────────┐
+   │ displayGraph(graph)                                                  │
+   │                                                                      │
+   │ radius = min(300, nodeCount * 30)                                    │
+   │                                                                      │
+   │ FOR EACH node, index IN graph.nodes:                                 │
+   │   angle = (index / nodeCount) * 2 * PI                               │
+   │   x = 400 + radius * cos(angle)                                      │
+   │   y = 300 + radius * sin(angle)                                      │
+   │   node.position = {x, y}                                             │
+   │                                                                      │
+   │ setNodes(flowNodes)                                                  │
+   │ setEdges(flowEdges)                                                  │
+   └─────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          EJEMPLO DE DATOS                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Excel Input:
+┌──────────────┬────────────────┬──────┬──────────┬─────────┬────────────┐
+│ Source       │ Destination    │ Port │ Protocol │ Service │ Source App │
+├──────────────┼────────────────┼──────┼──────────┼─────────┼────────────┤
+│ WEB-SERVER-01│ APP-SERVER-01  │ 8080 │ TCP      │ HTTP    │ Frontend   │
+│ APP-SERVER-01│ DB-SERVER-01   │ 3306 │ TCP      │ MySQL   │ Backend    │
+│ APP-SERVER-01│ CACHE-SERVER-01│ 6379 │ TCP      │ Redis   │ Backend    │
+└──────────────┴────────────────┴──────┴──────────┴─────────┴────────────┘
+
+Parsed Data:
+{
+  dependencies: [
+    {
+      source: "WEB-SERVER-01",
+      destination: "APP-SERVER-01",
+      port: 8080,
+      protocol: "TCP",
+      serviceName: "HTTP",
+      sourceApp: "Frontend"
+    },
+    ...
+  ],
+  servers: Set(["WEB-SERVER-01", "APP-SERVER-01", "DB-SERVER-01", ...]),
+  applications: Set(["Frontend", "Backend", "Database", ...]),
+  summary: {
+    totalDependencies: 35,
+    uniqueServers: 15,
+    uniqueApplications: 8,
+    uniquePorts: 12
+  }
+}
+
+Graph Output:
+{
+  nodes: [
+    {
+      id: "WEB-SERVER-01",
+      label: "WEB-SERVER-01",
+      type: "server",
+      group: "Frontend"
+    },
+    ...
+  ],
+  edges: [
+    {
+      from: "WEB-SERVER-01",
+      to: "APP-SERVER-01",
+      label: "TCP:8080",
+      port: 8080,
+      protocol: "TCP",
+      serviceName: "HTTP"
+    },
+    ...
+  ]
+}
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          ENDPOINTS API                                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+POST /api/dependencies/upload
+├─ Request:
+│  └─ Content-Type: multipart/form-data
+│     └─ file: Excel file
+│
+└─ Response:
+   └─ {
+        success: true,
+        data: {
+          sessionId: "1234567890",
+          summary: {...},
+          graph: {...},
+          servers: [...],
+          applications: [...]
+        }
+      }
+
+POST /api/dependencies/search
+├─ Request:
+│  └─ {
+│       sessionId: "1234567890",
+│       searchTerm: "APP-SERVER-01"
+│     }
+│
+└─ Response:
+   └─ {
+        success: true,
+        data: {
+          server: "APP-SERVER-01",
+          dependencies: {
+            incoming: [...],
+            outgoing: [...]
+          },
+          relatedServers: [...],
+          relatedApplications: [...],
+          graph: {...}
+        }
+      }
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              FIN DE ARQUITECTURA                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝

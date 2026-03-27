@@ -9,12 +9,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AppWindow } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface ApplicationTableProps {
   applications: Application[];
 }
 
 export function ApplicationTable({ applications }: ApplicationTableProps) {
+  const { t } = useTranslation();
   const [selectedEnvironment, setSelectedEnvironment] = useState<string>('all');
 
   // Get unique environments from applications
@@ -42,14 +44,14 @@ export function ApplicationTable({ applications }: ApplicationTableProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <AppWindow className="h-5 w-5" />
-            Aplicaciones ({filteredApplications.length})
+            {t('applicationTable.title', { count: filteredApplications.length })}
           </CardTitle>
           <Select value={selectedEnvironment} onValueChange={setSelectedEnvironment}>
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filtrar por ambiente" />
+              <SelectValue placeholder={t('applicationTable.filterByEnvironment')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos los Ambientes</SelectItem>
+              <SelectItem value="all">{t('applicationTable.allEnvironments')}</SelectItem>
               {environments.map(env => (
                 <SelectItem key={env} value={env}>
                   {env}
@@ -64,12 +66,12 @@ export function ApplicationTable({ applications }: ApplicationTableProps) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left p-2 font-medium">Nombre de Aplicación</th>
-                <th className="text-left p-2 font-medium">Tipo</th>
-                <th className="text-right p-2 font-medium">Conexiones Totales</th>
-                <th className="text-right p-2 font-medium">Entrantes</th>
-                <th className="text-right p-2 font-medium">Salientes</th>
-                <th className="text-left p-2 font-medium">Ambiente</th>
+                <th className="text-left p-2 font-medium">{t('applicationTable.appName')}</th>
+                <th className="text-left p-2 font-medium">{t('applicationTable.type')}</th>
+                <th className="text-right p-2 font-medium">{t('applicationTable.totalConnections')}</th>
+                <th className="text-right p-2 font-medium">{t('applicationTable.inbound')}</th>
+                <th className="text-right p-2 font-medium">{t('applicationTable.outbound')}</th>
+                <th className="text-left p-2 font-medium">{t('applicationTable.environment')}</th>
               </tr>
             </thead>
             <tbody>
@@ -97,7 +99,7 @@ export function ApplicationTable({ applications }: ApplicationTableProps) {
           </table>
           {filteredApplications.length === 0 && (
             <p className="text-sm text-muted-foreground mt-2 text-center py-4">
-              No se encontraron aplicaciones para el ambiente seleccionado
+              {t('applicationTable.noApps')}
             </p>
           )}
         </div>

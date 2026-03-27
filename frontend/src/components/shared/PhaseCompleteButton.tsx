@@ -35,7 +35,7 @@ export function PhaseCompleteButton({
       <div className="flex items-center justify-center gap-3 py-6">
         <div className="flex items-center gap-2 bg-green-100 text-green-800 px-6 py-3 rounded-lg border border-green-300">
           <CheckCircle className="h-5 w-5" />
-          <span className="font-semibold">{phaseLabel} Phase {t('phaseComplete.completed', { phase: phaseLabel })}</span>
+          <span className="font-semibold">{t('phaseComplete.completed', { phaseLabel: phaseLabel })}</span>
         </div>
       </div>
     );

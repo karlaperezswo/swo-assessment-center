@@ -1,32 +1,32 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-
 import { SkillAssessment } from '@/types/assessment';
 import { GraduationCap, TrendingUp, BookOpen, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface SkillsCoEProps {
   skills: SkillAssessment[];
   onSkillsChange: (skills: SkillAssessment[]) => void;
 }
 
-const levelLabels = {
-  none: 'None',
-  basic: 'Basic',
-  intermediate: 'Intermediate',
-  advanced: 'Advanced',
-  expert: 'Expert',
-};
-
-const levelColors = {
-  none: 'bg-gray-100 text-gray-700',
-  basic: 'bg-blue-100 text-blue-700',
-  intermediate: 'bg-green-100 text-green-700',
-  advanced: 'bg-purple-100 text-purple-700',
-  expert: 'bg-orange-100 text-orange-700',
-};
-
 export function SkillsCoE({ skills, onSkillsChange }: SkillsCoEProps) {
+  const { t } = useTranslation();
+
+  const levelLabels = {
+    none: t('skillsCoE.levels.none'),
+    basic: t('skillsCoE.levels.basic'),
+    intermediate: t('skillsCoE.levels.intermediate'),
+    advanced: t('skillsCoE.levels.advanced'),
+    expert: t('skillsCoE.levels.expert'),
+  };
+
+  const levelColors = {
+    none: 'bg-gray-100 text-gray-700',
+    basic: 'bg-blue-100 text-blue-700',
+    intermediate: 'bg-green-100 text-green-700',
+    advanced: 'bg-purple-100 text-purple-700',
+    expert: 'bg-orange-100 text-orange-700',
+  };
   const handleLevelChange = (id: string, field: 'currentLevel' | 'targetLevel', value: string) => {
     onSkillsChange(skills.map(s => {
       if (s.id !== id) return s;
@@ -51,10 +51,9 @@ export function SkillsCoE({ skills, onSkillsChange }: SkillsCoEProps) {
           <div className="flex items-start gap-3">
             <GraduationCap className="h-6 w-6 text-violet-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-bold text-violet-900 text-lg">AWS Skills Assessment & Center of Excellence</h3>
+              <h3 className="font-bold text-violet-900 text-lg">{t('skillsCoE.title')}</h3>
               <p className="text-sm text-violet-700 mt-1">
-                Assess your team's current AWS proficiency and create targeted training plans to build internal expertise.
-                A strong Center of Excellence accelerates migration and reduces reliance on external consultants.
+                {t('skillsCoE.description')}
               </p>
             </div>
           </div>
@@ -67,21 +66,21 @@ export function SkillsCoE({ skills, onSkillsChange }: SkillsCoEProps) {
           <CardContent className="pt-6">
             <TrendingUp className="h-8 w-8 text-orange-600 mb-2" />
             <p className="text-3xl font-bold text-gray-900">{avgGap}%</p>
-            <p className="text-sm text-gray-600">Avg Skill Gap</p>
+            <p className="text-sm text-gray-600">{t('skillsCoE.avgSkillGap')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <BookOpen className="h-8 w-8 text-blue-600 mb-2" />
             <p className="text-3xl font-bold text-gray-900">{criticalGaps}</p>
-            <p className="text-sm text-gray-600">Critical Gaps (≥50%)</p>
+            <p className="text-sm text-gray-600">{t('skillsCoE.criticalGaps')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <Award className="h-8 w-8 text-purple-600 mb-2" />
             <p className="text-3xl font-bold text-gray-900">{skills.length}</p>
-            <p className="text-sm text-gray-600">Skill Areas Tracked</p>
+            <p className="text-sm text-gray-600">{t('skillsCoE.skillAreasTracked')}</p>
           </CardContent>
         </Card>
       </div>
@@ -89,7 +88,7 @@ export function SkillsCoE({ skills, onSkillsChange }: SkillsCoEProps) {
       {/* Skills Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Team Skill Assessment</CardTitle>
+          <CardTitle>{t('skillsCoE.teamSkillAssessment')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -103,7 +102,7 @@ export function SkillsCoE({ skills, onSkillsChange }: SkillsCoEProps) {
                     {/* Gap bar */}
                     <div className="mt-3">
                       <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                        <span>Skill Gap</span>
+                        <span>{t('skillsCoE.skillGap')}</span>
                         <span className="font-medium text-gray-900">{skill.gap}%</span>
                       </div>
                       <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -122,7 +121,7 @@ export function SkillsCoE({ skills, onSkillsChange }: SkillsCoEProps) {
 
                   <div className="flex items-center gap-3">
                     <div>
-                      <p className="text-[10px] text-gray-400 uppercase mb-1">Current</p>
+                      <p className="text-[10px] text-gray-400 uppercase mb-1">{t('skillsCoE.current')}</p>
                       <select
                         value={skill.currentLevel}
                         onChange={(e) => handleLevelChange(skill.id, 'currentLevel', e.target.value)}
@@ -135,7 +134,7 @@ export function SkillsCoE({ skills, onSkillsChange }: SkillsCoEProps) {
                     </div>
                     <div className="text-gray-300">→</div>
                     <div>
-                      <p className="text-[10px] text-gray-400 uppercase mb-1">Target</p>
+                      <p className="text-[10px] text-gray-400 uppercase mb-1">{t('skillsCoE.target')}</p>
                       <select
                         value={skill.targetLevel}
                         onChange={(e) => handleLevelChange(skill.id, 'targetLevel', e.target.value)}

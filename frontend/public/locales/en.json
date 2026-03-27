@@ -22,7 +22,23 @@
     "no": "No",
     "optional": "Optional",
     "required": "Required",
-    "developedBy": "Developed by"
+    "developedBy": "Developed by",
+    "tip": "Tip",
+    "savings": "savings",
+    "downloadStarting": "Starting report download",
+    "filterByEnvironment": "Filter by environment",
+  "applicationTable": {
+    "title": "Applications ({{count}})",
+    "filterByEnvironment": "Filter by environment",
+    "allEnvironments": "All Environments",
+    "appName": "Application Name",
+    "type": "Type",
+    "totalConnections": "Total Connections",
+    "inbound": "Inbound",
+    "outbound": "Outbound",
+    "environment": "Environment",
+    "noApps": "No applications found for the selected environment"
+  }
   },
   "header": {
     "title": "AWS Migration Assessment Center",
@@ -104,6 +120,79 @@
     "threeYear": "3 Years",
     "savings": "Savings",
     "total": "Total"
+  },
+  "costOptimization": {
+    "title": "AWS Cost Optimization",
+    "description": "Additional strategies to maximize savings beyond the base migration.",
+    "potentialSavings": "Additional Potential Savings",
+    "beyondBaseline": "Beyond the {{amount}}/year baseline with 3-Year NURI",
+    "categories": {
+      "rightSizing": "Instance Rightsizing",
+      "reservedInstances": "Reserved Instances & Savings Plans",
+      "storage": "Storage Optimization",
+      "modernization": "Architecture Modernization"
+    },
+    "rightSizing": {
+      "op1": { "title": "CPU/RAM Utilization Analysis", "description": "Identify oversized instances using CloudWatch metrics and recommend smaller instance types." },
+      "op2": { "title": "Migration to Graviton (ARM)", "description": "AWS Graviton3 instances offer up to 40% better price/performance vs equivalent x86 instances." },
+      "op3": { "title": "Dynamic Auto Scaling", "description": "Implement automatic scaling policies to adjust capacity based on real demand." }
+    },
+    "reservedInstances": {
+      "op1": { "title": "3-Year Reserved Instances (No Upfront)", "description": "3-year commitment with no upfront payment. Ideal for stable and predictable workloads." },
+      "op2": { "title": "1-Year Reserved Instances", "description": "Balance between flexibility and savings. Recommended for workloads with moderate growth." },
+      "op3": { "title": "Savings Plans (Compute)", "description": "Flexibility to switch between instance families, regions and operating systems." }
+    },
+    "storage": {
+      "op1": { "title": "S3 Intelligent-Tiering", "description": "Automatically moves data between frequent and infrequent access tiers based on usage patterns." },
+      "op2": { "title": "EBS Volume Optimization", "description": "Migrate from gp2 to gp3 for better performance at lower cost. gp3 is 20% cheaper than gp2." },
+      "op3": { "title": "Lifecycle Policies", "description": "Archive old data to S3 Glacier to reduce long-term storage costs." }
+    },
+    "modernization": {
+      "op1": { "title": "Serverless with AWS Lambda", "description": "Eliminate idle server costs. Pay only per execution. Ideal for intermittent workloads." },
+      "op2": { "title": "Containers with ECS/EKS", "description": "Higher workload density per server. Reduces number of instances needed." },
+      "op3": { "title": "Managed Services (RDS, ElastiCache)", "description": "Reduces operational overhead and optimizes database licensing costs." }
+    }
+  },
+  "modernization": {
+    "title": "Modernization Roadmap",
+    "description": "Structured plan to modernize your infrastructure leveraging native AWS services.",
+    "benefits": {
+      "title": "Key Modernization Benefits",
+      "innovation": { "title": "Innovation Speed", "description": "Faster development cycles with managed services and modern architectures." },
+      "performance": { "title": "Optimized Performance", "description": "Native AWS services designed to scale automatically on demand." },
+      "capabilities": { "title": "New Capabilities", "description": "Access to AI/ML, advanced analytics and next-generation services." }
+    },
+    "phase1": {
+      "title": "Phase 1: Cloud-Ready Foundations",
+      "init1": { "title": "Database Optimization", "description": "Migrate to Amazon RDS/Aurora to reduce operational overhead and improve availability." },
+      "init2": { "title": "CI/CD Implementation", "description": "Automate deployment pipelines with AWS CodePipeline, CodeBuild and CodeDeploy." },
+      "init3": { "title": "Monitoring & Observability", "description": "Implement CloudWatch, X-Ray and AWS Config for full system visibility." }
+    },
+    "phase2": {
+      "title": "Phase 2: Containerization",
+      "init1": { "title": "Application Containerization", "description": "Migrate monolithic applications to Docker containers for greater portability." },
+      "init2": { "title": "Orchestration with ECS/EKS", "description": "Implement container orchestration for scalability and high availability." },
+      "init3": { "title": "Service Mesh & Istio", "description": "Implement secure and observable communication between microservices." }
+    },
+    "phase3": {
+      "title": "Phase 3: Microservices Architecture",
+      "init1": { "title": "Monolith Decomposition", "description": "Identify and extract bounded contexts to create independent microservices." },
+      "init2": { "title": "Event-Driven Architecture", "description": "Implement asynchronous communication with Amazon SQS, SNS and EventBridge." },
+      "init3": { "title": "API Gateway & GraphQL", "description": "Centralize API management with Amazon API Gateway and AWS AppSync." }
+    },
+    "phase4": {
+      "title": "Phase 4: Cloud-Native & AI",
+      "init1": { "title": "Serverless with Lambda", "description": "Migrate appropriate workloads to serverless architecture for maximum efficiency." },
+      "init2": { "title": "ML/AI Integration", "description": "Incorporate Amazon SageMaker, Rekognition and Bedrock for AI capabilities." },
+      "init3": { "title": "Data Lake & Analytics", "description": "Implement modern data architecture with S3, Glue, Athena and QuickSight." }
+    },
+    "metrics": {
+      "title": "Expected Success Metrics",
+      "deploymentTime": "Deployment time reduction",
+      "releaseFrequency": "Release frequency",
+      "opsCost": "Operational cost reduction",
+      "availability": "Target availability"
+    }
   },
   "servers": {
     "title": "Servers",
@@ -235,14 +324,47 @@
     "placeholders": {
       "clientName": "Enter client name",
       "vertical": "Select industry",
-      "companyDescription": "Briefly describe the company"
+      "companyDescription": "Briefly describe the company",
+      "onPremisesCost": "E.g.: 500000",
+      "selectRegion": "Select region",
+      "selectReadiness": "Select status"
+    },
+    "verticals": {
+      "Energy": "Energy",
+      "Insurance": "Insurance",
+      "Healthcare": "Healthcare",
+      "Financial": "Financial",
+      "Retail": "Retail",
+      "Manufacturing": "Manufacturing",
+      "Technology": "Technology",
+      "Other": "Other"
+    },
+    "awsRegions": {
+      "usEast1": "US East (N. Virginia)",
+      "usEast2": "US East (Ohio)",
+      "usWest1": "US West (N. California)",
+      "usWest2": "US West (Oregon)",
+      "euWest1": "Europe (Ireland)",
+      "euWest2": "Europe (London)",
+      "euCentral1": "Europe (Frankfurt)",
+      "apSoutheast1": "Asia Pacific (Singapore)",
+      "apSoutheast2": "Asia Pacific (Sydney)",
+      "apNortheast1": "Asia Pacific (Tokyo)",
+      "saEast1": "South America (São Paulo)"
+    },
+    "validation": {
+      "clientNameRequired": "Client name is required",
+      "reportDateRequired": "Report date is required",
+      "totalServersMin": "There must be at least 1 server",
+      "costPositive": "Cost must be a positive value"
     },
     "priorities": {
       "reduceCosts": "Reduce infrastructure costs",
       "improveResiliency": "Improve operational resilience",
       "businessAgility": "Business agility",
       "innovationAcceleration": "Accelerate innovation",
-      "legacyModernization": "Legacy system modernization"
+      "legacyModernization": "Legacy system modernization",
+      "securityCompliance": "Security and compliance"
     },
     "readiness": {
       "ready": "Ready to migrate",
@@ -267,17 +389,49 @@
     "error": "Upload Failed",
     "errorRetry": "Click to try again"
   },
+  "mraUploader": {
+    "toastFileTooLarge": "The PDF file is too large. Maximum 50MB.",
+    "toastInvalidType": "Only PDF files are allowed.",
+    "toastFileSelected": "MRA file selected: {{name}}",
+    "toastFileRemoved": "MRA file removed",
+    "dragText": "Drag your MRA PDF file here",
+    "clickText": "or click to select (max. 50MB)",
+    "pdfOnly": "PDF only",
+    "removeTitle": "Remove file",
+    "infoNote": "The MRA improves analysis quality by providing context about architecture and risks. For an even more complete analysis, you can also upload the <strong>Infrastructure Questionnaire</strong> (optional) below."
+  },
+  "questionnaireUploader": {
+    "toastFileTooLarge": "The Word file is too large. Maximum 50MB.",
+    "toastInvalidType": "Only Word files (.docx or .doc) are allowed.",
+    "toastFileSelected": "Questionnaire selected: {{name}}",
+    "toastFileRemoved": "Questionnaire removed",
+    "title": "Infrastructure Questionnaire",
+    "optional": "OPTIONAL",
+    "dragText": "Drag your Word file here or click to select (max. 50MB)",
+    "wordOnly": "Word (.docx, .doc)",
+    "removeTitle": "Remove file",
+    "infoNote": "The questionnaire improves analysis quality by providing context about client priorities, constraints and objectives. Sensitive data is automatically anonymized."
+  },
   "rapidDiscovery": {
     "title": "Rapid Discovery",
+    "description": "Load your infrastructure data and client information to start the migration analysis.",
     "mpaUpload": "MPA Excel Upload",
+    "mpaExcelUpload": "MPA Excel Upload",
     "mraUpload": "MRA PDF Upload (Optional)",
+    "mraPdfUpload": "MRA PDF Upload",
     "mraDescription": "For AI-powered opportunity analysis",
+    "forAiAnalysis": "For AI analysis",
     "questionnaireUpload": "Infrastructure Questionnaire (Optional)",
+    "infrastructureQuestionnaire": "Infrastructure Questionnaire",
+    "improvesAnalysis": "Improves analysis",
     "clientInfo": "Client Information",
     "dataLoaded": "Excel data loaded",
+    "excelLoaded": "{{servers}} servers, {{databases}} databases loaded",
     "pdfLoaded": "MRA PDF loaded",
+    "mraLoaded": "MRA: {{name}}",
     "questionnaireLoaded": "Questionnaire loaded",
-    "client": "Client:"
+    "client": "Client:",
+    "clientAdded": "Client: {{name}}"
   },
   "tcoReport": {
     "title": "TCO Report",
@@ -302,7 +456,7 @@
     "oneYearSavings": "~36% savings",
     "bestOption": "BEST",
     "threeYear": "3-Year NURI",
-    "threeYearSavings": "~60% savings"
+    "threeYearSavingsLabel": "~60% savings"
   },
   "mra": {
     "title": "Migration Readiness Assessment",
@@ -312,7 +466,7 @@
   },
   "briefings": {
     "title": "Briefings & Workshops",
-    "description": "Track executive briefings, technical workshops...",
+    "description": "Track executive briefings, technical workshops and immersion sessions with the client.",
     "totalSessions": "Total Sessions",
     "completed": "Completed",
     "planned": "Planned",
@@ -322,7 +476,93 @@
     "attendees": "Attendees",
     "cancel": "Cancel",
     "add": "Add",
-    "noSessions": "No sessions scheduled yet. Click \"Add Session\" to start tracking."
+    "noSessions": "No sessions scheduled yet. Click \"Add Session\" to start tracking.",
+    "types": {
+      "briefing": "Briefing",
+      "workshop": "Workshop",
+      "deepDive": "Deep Dive"
+    },
+    "stats": {
+      "totalSessions": "Total Sessions",
+      "completed": "Completed",
+      "planned": "Planned"
+    },
+    "form": {
+      "sessionTitle": "Session title",
+      "attendees": "Attendees"
+    }
+  },
+  "discoveryPlanning": {
+    "noData": "No inventory data available",
+    "noDataDescription": "Upload your MPA Excel file in the Assess phase",
+    "overviewTitle": "Infrastructure Inventory Overview",
+    "servers": "Servers",
+    "databases": "Databases",
+    "applications": "Applications",
+    "totalStorage": "Total Storage",
+    "portfolioTitle": "Application Portfolio Detail",
+    "osDistributionTitle": "Operating System Distribution"
+  },
+  "businessCase": {
+    "noData": "Complete the Assess phase to view the business case",
+    "noDataDescription": "Upload data and enter client information in the Assess tab",
+    "executiveSummaryTitle": "Executive Summary",
+    "financialAnalysisTitle": "Financial Analysis"
+  },
+  "skillsCoE": {
+    "title": "AWS Skills Assessment & Center of Excellence",
+    "description": "Assess your team's current AWS proficiency and create targeted training plans to build internal expertise. A strong Center of Excellence accelerates migration and reduces reliance on external consultants.",
+    "avgSkillGap": "Avg Skill Gap",
+    "criticalGaps": "Critical Gaps (≥50%)",
+    "skillAreasTracked": "Skill Areas Tracked",
+    "teamSkillAssessment": "Team Skill Assessment",
+    "skillGap": "Skill Gap",
+    "current": "Current",
+    "target": "Target",
+    "levels": {
+      "none": "None",
+      "basic": "Basic",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "expert": "Expert"
+    }
+  },
+  "securityCompliance": {
+    "title": "Security & Compliance Framework",
+    "description": "Establish a robust security posture and compliance framework before migrating sensitive workloads. These controls are essential for meeting regulatory requirements and protecting your data.",
+    "identityAccess": "Identity & Access Management",
+    "dataProtection": "Data Protection",
+    "networkSecurity": "Network Security",
+    "compliance": "Compliance",
+    "incidentResponse": "Incident Response"
+  },
+  "checklistCard": {
+    "addNotes": "Add notes...",
+    "priorities": {
+      "critical": "critical",
+      "high": "high",
+      "medium": "medium",
+      "low": "low"
+    }
+  },
+  "migrationPlan": {
+    "strategyTitle": "Migration Strategy (7Rs)",
+    "wavesTitle": "Migration Waves Planning"
+  },
+  "immersionDay": {
+    "title": "AWS Immersion Days",
+    "description": "Plan hands-on technical sessions where your team can experience AWS services firsthand. Immersion Days accelerate cloud adoption by providing practical, guided experiences.",
+    "addFromSuggested": "Add from Suggested Topics",
+    "suggestedTopics": "Recommended Immersion Day Topics",
+    "plannedTitle": "Planned Immersion Days ({{count}})",
+    "noPlans": "No immersion days planned yet. Add from suggested topics to get started.",
+    "alreadyAdded": "Already added",
+    "objectives": "Objectives:",
+    "statusLabels": {
+      "planned": "Planned",
+      "in_progress": "In Progress",
+      "completed": "Completed"
+    }
   },
   "migrationWaves": {
     "title": "Migration Waves Planning",
@@ -337,8 +577,12 @@
     "addWave": "Add Wave",
     "cancel": "Cancel",
     "createNew": "Create New Migration Wave",
-    "noWaves": "No migration waves defined yet...",
+    "noWaves": "No migration waves defined yet. Click \"Add Wave\" to create one.",
     "capacityDistribution": "Wave Capacity Distribution",
+    "waveLabel": "WAVE",
+    "strategyLabel": "Strategy",
+    "serversLabel": "servers",
+    "appsLabel": "apps",
     "statuses": {
       "planned": "Planned",
       "inProgress": "In Progress",
@@ -355,36 +599,71 @@
   },
   "rds": {
     "title": "RDS Recommendations",
-    "description": "Database migration recommendations"
+    "description": "Database migration recommendations",
+    "noDatabases": "No database data available",
+    "noDatabasesDescription": "Upload your MPA Excel file in the Assess phase",
+    "recommendationTitle": "Database Migration Recommendations ({{count}} databases)"
   },
   "opportunitiesDashboard": {
     "title": "Sales Opportunities",
     "aiAnalysis": "AI-Powered Opportunity Analysis",
     "description": "To generate sales opportunities, complete the following steps:",
-    "step1": "1. Upload MPA Excel file with data in the 'Rapid Discovery' tab",
-    "step2": "2. Enter client information (name, on-premises cost)",
-    "step3": "3. Optionally, upload MRA PDF file and/or Questionnaire",
-    "step4": "4. Click 'Complete Assessment' to start AWS Bedrock analysis",
-    "step5": "5. Opportunities will appear here when analysis is complete",
     "loading": "Loading opportunities...",
     "error": "Error loading opportunities",
-    "errorUpdate": "Error updating status"
+    "errorUpdate": "Error updating status",
+    "of": "of",
+    "opportunities": "opportunities",
+    "tipMessage": "You can upload the infrastructure questionnaire to improve the quality of the analysis.",
+    "step1": {
+      "title": "Load MPA data",
+      "description": "Upload the Excel file exported from Migration Portfolio Assessment in the 'Rapid Discovery' tab."
+    },
+    "step2": {
+      "title": "Client information",
+      "description": "Enter the client name and annual on-premises cost."
+    },
+    "step2dot5": {
+      "title": "Questionnaire (Optional)",
+      "description": "Upload the infrastructure questionnaire to enrich the AI analysis."
+    },
+    "step3": {
+      "title": "MRA PDF (Optional)",
+      "description": "Upload the Migration Readiness Assessment PDF for additional analysis."
+    },
+    "step4": {
+      "title": "Start analysis",
+      "description": "Click 'Complete Assessment' to start the AWS Bedrock analysis."
+    }
   },
   "opportunitiesFilters": {
     "search": "Search opportunities...",
+    "searchPlaceholder": "Search opportunities...",
     "filters": "Filters",
-    "priority": "Priority",
     "status": "Status",
     "arrRange": "ARR Range",
     "minimum": "Minimum",
     "maximum": "Maximum",
     "unlimited": "Unlimited",
+    "noLimit": "No limit",
     "showingCount": "Showing {{count}} opportunities",
-    "clearFilters": "Clear filters"
+    "showing": "Showing {{count}} opportunities",
+    "clearFilters": "Clear filters",
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    }
   },
   "opportunitiesCard": {
     "relatedService": "related AWS service",
-    "relatedServices": "related AWS services",
+    "relatedServices": "{{count}} related AWS services",
+    "status": {
+      "new": "New",
+      "inProgress": "In Progress",
+      "won": "Won",
+      "lost": "Lost",
+      "discarded": "Discarded"
+    },
     "statuses": {
       "new": "New",
       "inProgress": "In Progress",
@@ -392,20 +671,40 @@
       "lost": "Lost",
       "discarded": "Discarded"
     },
+    "category": {
+      "workshop": "Workshop",
+      "security": "Security",
+      "costOptimization": "Cost Optimization",
+      "reliability": "Reliability",
+      "operationalExcellence": "Operational Excellence",
+      "performanceEfficiency": "Performance Efficiency",
+      "sustainability": "Sustainability",
+      "migration": "Migration",
+      "modernization": "Modernization",
+      "other": "Other"
+    },
     "categories": {
       "workshop": "Workshop",
       "security": "Security",
       "costOptimization": "Cost Optimization",
       "reliability": "Reliability",
-      "performance": "Performance"
+      "performance": "Performance",
+      "operationalExcellence": "Operational Excellence",
+      "performanceEfficiency": "Performance Efficiency",
+      "sustainability": "Sustainability",
+      "migration": "Migration",
+      "modernization": "Modernization",
+      "other": "Other"
     }
   },
   "selector": {
     "title": "MAP Tool Selector",
     "description": "Answer 28 questions to get the ideal tool recommendation",
     "clientName": "Client Name",
+    "clientNameLabel": "Client Name",
     "clientNamePlaceholder": "E.g.: Acme Corp",
     "startSelector": "Start Selector",
+    "startButton": "Start Selector",
     "assessmentResult": "Assessment Result",
     "clientLabel": "Client: {{name}}",
     "recommendedTool": "Recommended Tool",
@@ -429,22 +728,58 @@
     "validationMissing": "Missing {{count}} question{{count}} to answer",
     "calculateRecommendation": "Calculate Recommendation",
     "questionRequired": "This question is required",
+    "messages": {
+      "sessionCreated": "Session created successfully",
+      "pdfDownloadSuccess": "PDF downloaded successfully",
+      "csvDownloadSuccess": "CSV downloaded successfully",
+      "calculationSuccess": "Recommendation calculated successfully"
+    },
     "errors": {
       "loadingQuestions": "Error loading questions",
       "creatingSession": "Error creating session",
       "invalidResponse": "Error: Invalid server response",
+      "invalidServerResponse": "Error: Invalid server response",
       "invalidPdf": "Error: Invalid PDF generated",
       "generatingPdf": "Error generating PDF",
       "exportingPdf": "Error exporting PDF",
       "generatingCsv": "Error generating CSV",
       "exportingCsv": "Error exporting CSV",
-      "calculatingRecommendation": "Error calculating recommendation"
+      "calculatingRecommendation": "Error calculating recommendation",
+      "calculating": "Error calculating recommendation",
+      "unansweredQuestions": "{{count}} questions still unanswered"
     },
     "toasts": {
       "sessionCreated": "Session created successfully",
       "pdfDownloaded": "PDF downloaded successfully",
       "csvDownloaded": "CSV downloaded successfully",
       "recommendationCalculated": "Recommendation calculated successfully"
+    },
+    "results": {
+      "title": "Assessment Result",
+      "client": "Client: {{name}}",
+      "recommendedTool": "Recommended Tool",
+      "confidence": "Confidence: {{confidence}} ({{percentage}}%)",
+      "toolComparison": "Visual Tool Comparison",
+      "score": "Score",
+      "tool": "Tool",
+      "scorePercentage": "Score (%)",
+      "whyRecommendation": "Why this recommendation?",
+      "decisiveFactorsText": "These questions had the most impact on the {{tool}} recommendation:",
+      "yourAnswer": "Your answer",
+      "impact": "Impact",
+      "allToolScores": "All Tools Scores",
+      "exportResults": "Export Results",
+      "exportPdf": "Export PDF",
+      "exportCsv": "Export CSV"
+    },
+    "questionnaire": {
+      "title": "Assessment: {{name}}",
+      "description": "Answer all questions to get your recommendation",
+      "answered": "{{answered}} / {{total}} answered",
+      "requiredQuestion": "This question is required",
+      "mustAnswerAll": "You must answer all questions",
+      "unansweredCount": "{{count}} questions still unanswered",
+      "calculateButton": "Calculate Recommendation"
     }
   }
 }

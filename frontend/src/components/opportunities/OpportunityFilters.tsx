@@ -134,7 +134,7 @@ export function OpportunityFilters({ filters, onFiltersChange, opportunityCount 
                       htmlFor={`status-${status}`}
                       className="text-sm cursor-pointer"
                     >
-                      {t(`opportunitiesCard.status.${statusKeyMap[status]}`)}
+                      {t(`opportunitiesCard.statuses.${statusKeyMap[status]}`)}
                     </label>
                   </div>
                 );

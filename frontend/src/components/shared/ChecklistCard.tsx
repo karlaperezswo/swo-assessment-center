@@ -3,6 +3,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { ChecklistItem } from '@/types/assessment';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface ChecklistCardProps {
   title: string;
@@ -13,15 +14,16 @@ interface ChecklistCardProps {
   accentColor?: 'violet' | 'fuchsia' | 'amber' | 'blue' | 'green';
 }
 
-const priorityStyles = {
-  critical: 'bg-red-100 text-red-700',
-  high: 'bg-orange-100 text-orange-700',
-  medium: 'bg-yellow-100 text-yellow-700',
-  low: 'bg-green-100 text-green-700',
-};
-
 export function ChecklistCard({ title, icon, items, onItemToggle, onItemNotesChange, accentColor = 'violet' }: ChecklistCardProps) {
+  const { t } = useTranslation();
   const completedCount = items.filter(i => i.completed).length;
+  const priorityStyles = {
+    critical: 'bg-red-100 text-red-700',
+    high: 'bg-orange-100 text-orange-700',
+    medium: 'bg-yellow-100 text-yellow-700',
+    low: 'bg-green-100 text-green-700',
+  };
+
   const progress = items.length > 0 ? (completedCount / items.length) * 100 : 0;
 
   const accentStyles = {
@@ -74,15 +76,15 @@ export function ChecklistCard({ title, icon, items, onItemToggle, onItemNotesCha
                   {item.title}
                 </span>
                 <span className={cn('text-xs px-2 py-0.5 rounded-full', priorityStyles[item.priority])}>
-                  {item.priority}
-                </span>
+                    {t(`checklistCard.priorities.${item.priority}`)}
+                  </span>
               </div>
               <p className="text-xs text-gray-500 mt-1">{item.description}</p>
               <div className="mt-2">
                 <Textarea
                   value={item.notes}
                   onChange={(e) => onItemNotesChange(item.id, e.target.value)}
-                  placeholder="Add notes..."
+                  placeholder={t('checklistCard.addNotes')}
                   className="text-xs min-h-[60px]"
                 />
               </div>

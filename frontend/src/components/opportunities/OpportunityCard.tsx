@@ -25,7 +25,7 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
       'Perdida': 'lost',
       'Descartada': 'discarded'
     };
-    return t(`opportunitiesCard.status.${statusKeyMap[status] || 'new'}`);
+    return t(`opportunitiesCard.statuses.${statusKeyMap[status] || 'new'}`);
   };
 
   const getCategoryLabel = (category: OpportunityCategory) => {
@@ -41,7 +41,7 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
       'Modernización': 'modernization',
       'Otro': 'other'
     };
-    return t(`opportunitiesCard.category.${categoryKeyMap[category] || 'other'}`);
+    return t(`opportunitiesCard.categories.${categoryKeyMap[category] || 'other'}`);
   };
 
   const priorityColors: Record<OpportunityPriority, string> = {

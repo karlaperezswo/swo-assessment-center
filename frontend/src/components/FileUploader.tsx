@@ -49,53 +49,85 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
     toast.loading(`${t('fileUploader.uploadingMessage')}...`, { id: 'file-upload' });
 
     try {
-      // Step 1: Get pre-signed URL for S3 upload
-      setUploadProgress(t('common.loading'));
-      const urlResponse = await apiClient.post('/api/report/get-upload-url', {
-        filename: file.name,
-        contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      });
+      // Detectar modo: local (sin S3) o producción (con S3)
+      const useLocalUpload = import.meta.env.VITE_USE_LOCAL_UPLOAD === 'true';
 
-      if (!urlResponse.data.success) {
-        throw new Error(urlResponse.data.error || 'Failed to get upload URL');
-      }
+      if (useLocalUpload) {
+        // ========== MODO LOCAL: Upload directo sin S3 ==========
+        setUploadProgress('Subiendo archivo...');
+        
+        const formData = new FormData();
+        formData.append('file', file);
 
-      const { uploadUrl, key } = urlResponse.data.data;
+        if (response.data.success) {
+          const { excelData, summary } = response.data.data;
+          setSummary(summary);
+          setUploadState('success');
+          onDataLoaded(excelData, summary);
 
-      // Step 2: Upload file directly to S3
-      setUploadProgress(t('fileUploader.uploadingMessage'));
-      await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          // Create success message with data source info
+          const dataSourceLabel = getDataSourceLabel(summary.dataSource);
+          const successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos${
+            summary.communicationCount ? `, ${summary.communicationCount} conexiones` : ''
+          }`;
+
+          toast.success(successMsg, {
+            id: 'file-upload',
+            duration: 5000
+          });
+        } else {
+          throw new Error(response.data.error || 'Upload failed');
         }
-      });
-
-      // Step 3: Process file from S3
-      setUploadProgress(t('fileUploader.analyzingMessage'));
-      const response = await apiClient.post('/api/report/upload-from-s3', {
-        key
-      });
-
-      if (response.data.success) {
-        const { excelData, summary } = response.data.data;
-        setSummary(summary);
-        setUploadState('success');
-        onDataLoaded(excelData, summary);
-
-        // Create success message with data source info
-        const dataSourceLabel = getDataSourceLabel(summary.dataSource);
-        const successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos${
-          summary.communicationCount ? `, ${summary.communicationCount} conexiones` : ''
-        }`;
-
-        toast.success(successMsg, {
-          id: 'file-upload',
-          duration: 5000
-        });
       } else {
-        throw new Error(response.data.error || 'Upload failed');
+        // ========== MODO PRODUCCIÓN: Upload con S3 ==========
+        // Step 1: Get pre-signed URL for S3 upload
+        setUploadProgress('Preparando carga...');
+        const urlResponse = await apiClient.post('/api/report/get-upload-url', {
+          filename: file.name,
+          contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+
+        if (!urlResponse.data.success) {
+          throw new Error(urlResponse.data.error || 'Failed to get upload URL');
+        }
+
+        const { uploadUrl, key } = urlResponse.data.data;
+
+        // Step 2: Upload file directly to S3
+        setUploadProgress('Subiendo a S3...');
+        await fetch(uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          }
+        });
+
+        // Step 3: Process file from S3
+        setUploadProgress('Analizando datos...');
+        const response = await apiClient.post('/api/report/upload-from-s3', {
+          key
+        });
+
+        if (response.data.success) {
+          const { excelData, summary } = response.data.data;
+          setSummary(summary);
+          setUploadState('success');
+          onDataLoaded(excelData, summary);
+
+          // Create success message with data source info
+          const dataSourceLabel = getDataSourceLabel(summary.dataSource);
+          const successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos${
+            summary.communicationCount ? `, ${summary.communicationCount} conexiones` : ''
+          }`;
+
+          toast.success(successMsg, {
+            id: 'file-upload',
+            duration: 5000
+          });
+        } else {
+          throw new Error(response.data.error || 'Upload failed');
+        }
       }
     } catch (error) {
       setUploadState('error');

@@ -10,11 +10,12 @@ import { ImmersionDay } from '@/components/assess/ImmersionDay';
 import { MigrationWaves } from '@/components/migrate/MigrationWaves';
 import { OpportunityDashboard } from '@/components/opportunities/OpportunityDashboard';
 import { SelectorPhase } from '@/components/phases/SelectorPhase';
+import { BusinessCase } from '@/components/mobilize/BusinessCase';
 import {
   ExcelData, UploadSummary, ClientFormData, CostBreakdown,
   PhaseStatus, BriefingSession, ImmersionDayPlan, MigrationWave,
 } from '@/types/assessment';
-import { Upload, DollarSign, Gauge, Presentation, GraduationCap, Waves, Target } from 'lucide-react';
+import { Upload, DollarSign, Gauge, Presentation, GraduationCap, Waves, Target, Briefcase } from 'lucide-react';
 
 interface AssessPhaseProps {
   excelData: ExcelData | null;
@@ -63,6 +64,7 @@ export function AssessPhase({
         { value: 'briefings-workshops', label: t('assess.tabs.briefings'), icon: <Presentation className="h-4 w-4" /> },
         { value: 'immersion-day', label: t('assess.tabs.immersionDay'), icon: <GraduationCap className="h-4 w-4" /> },
         { value: 'selector', label: t('assess.tabs.selector'), icon: <Target className="h-4 w-4" /> },
+        { value: 'business-case', label: 'Caso de Negocio', icon: <Briefcase className="h-4 w-4" /> },
       ],
     },
   ];
@@ -124,6 +126,9 @@ export function AssessPhase({
         )}
         {activeTab === 'selector' && (
           <SelectorPhase />
+        )}
+        {activeTab === 'business-case' && (
+          <BusinessCase />
         )}
       </SubTabLayout>
 

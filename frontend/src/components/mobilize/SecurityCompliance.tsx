@@ -2,7 +2,6 @@ import { ChecklistCard } from '@/components/shared/ChecklistCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { SecurityComplianceChecklist } from '@/types/assessment';
 import { Shield, Lock, Network, FileCheck, AlertTriangle } from 'lucide-react';
-import { useTranslation } from '@/i18n/useTranslation';
 
 interface SecurityComplianceProps {
   checklist: SecurityComplianceChecklist;
@@ -10,7 +9,6 @@ interface SecurityComplianceProps {
 }
 
 export function SecurityCompliance({ checklist, onChecklistChange }: SecurityComplianceProps) {
-  const { t } = useTranslation();
   const handleToggle = (category: keyof SecurityComplianceChecklist, id: string) => {
     onChecklistChange({
       ...checklist,

@@ -58,11 +58,11 @@ const phaseConfig = [
     subtitle: 'Documentación técnica AWS con normas APA',
     icon: BookOpen,
     colors: {
-      active: 'border-purple-300 bg-gradient-to-br from-fuchsia-50 to-indigo-50 text-purple-900',
+      active: 'border-pink-500 bg-gradient-to-br from-pink-50 to-blue-50 text-pink-900',
       completed: 'border-green-500 bg-green-50 text-green-800 hover:bg-green-100',
       default: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:border-gray-300',
-      number: 'text-purple-500 bg-purple-100',
-      borderBottom: 'bg-purple-400',
+      number: 'text-pink-600 bg-pink-100',
+      borderBottom: 'bg-gradient-to-r from-pink-500 to-blue-600',
     },
   },
 ];

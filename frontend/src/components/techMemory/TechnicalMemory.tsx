@@ -8,8 +8,8 @@ import {
   BookOpen, Building2, FileText, Award, ChevronDown, ChevronUp, Loader2
 } from 'lucide-react';
 
-const GRADIENT = 'linear-gradient(135deg, #c084fc 0%, #a78bfa 50%, #818cf8 100%)';
-const GRADIENT_H = 'linear-gradient(90deg, #c084fc 0%, #a78bfa 50%, #818cf8 100%)';
+const GRADIENT = 'linear-gradient(135deg, #e91e8c 0%, #9c27b0 50%, #1565c0 100%)';
+const GRADIENT_H = 'linear-gradient(90deg, #e91e8c 0%, #9c27b0 50%, #1565c0 100%)';
 
 const DEFAULT_INTRO = `El presente documento constituye la memoria técnica del proyecto de migración a Amazon Web Services (AWS) desarrollado para [NOMBRE_EMPRESA]. Este proyecto fue ejecutado por SoftwareOne en el marco del programa AWS Migration Acceleration Program (MAP), con el objetivo de modernizar la infraestructura tecnológica del cliente y aprovechar las capacidades de la nube.
 
@@ -221,7 +221,7 @@ export function TechnicalMemory() {
 
       {/* ── TAB: Proyecto ─────────────────────────────────────────────────── */}
       {activeTab === 'project' && (
-        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e9d5ff', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
           <div style={{ background: GRADIENT, padding: '10px 18px' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Información del Proyecto</div>
           </div>
@@ -236,7 +236,7 @@ export function TechnicalMemory() {
                 <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4, fontWeight: 600 }}>{f.label}</label>
                 <input value={(data[f.field] as string) || ''} onChange={e => set(f.field, e.target.value)}
                   placeholder={f.placeholder}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #e9d5ff',
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec',
                     fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
             ))}
@@ -250,7 +250,7 @@ export function TechnicalMemory() {
                   : <span style={{ fontSize: 11, color: '#94a3b8' }}>No cargado</span>}
                 <button onClick={loadSwoLogo} disabled={isLoadingLogo}
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 7,
-                    border: '1px solid #e9d5ff', background: '#fdf4ff', color: '#9333ea',
+                    border: '1px solid #fce4ec', background: '#fce4ec', color: '#e91e8c',
                     fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                   {isLoadingLogo ? <Loader2 style={{ width: 12, height: 12 }} className="animate-spin" /> : <RefreshCw style={{ width: 12, height: 12 }} />}
                   {isLoadingLogo ? 'Cargando...' : 'Obtener de web'}
@@ -266,7 +266,7 @@ export function TechnicalMemory() {
                   : <span style={{ fontSize: 11, color: '#94a3b8' }}>No cargado</span>}
                 <button onClick={() => clientLogoRef.current?.click()}
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 7,
-                    border: '1px solid #e9d5ff', background: '#fdf4ff', color: '#9333ea',
+                    border: '1px solid #fce4ec', background: '#fce4ec', color: '#e91e8c',
                     fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                   <Upload style={{ width: 12, height: 12 }} /> Subir logo
                 </button>
@@ -279,7 +279,7 @@ export function TechnicalMemory() {
 
       {/* ── TAB: Empresa ──────────────────────────────────────────────────── */}
       {activeTab === 'company' && (
-        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e9d5ff', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
           <div style={{ background: GRADIENT, padding: '10px 18px' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Información de la Empresa Cliente</div>
           </div>
@@ -291,7 +291,7 @@ export function TechnicalMemory() {
               <div style={{ display: 'flex', gap: 8 }}>
                 <input value={data.clientUrl} onChange={e => set('clientUrl', e.target.value)}
                   placeholder="ej. https://www.empresa.com"
-                  style={{ flex: 1, padding: '8px 12px', borderRadius: 7, border: '1px solid #e9d5ff', fontSize: 13, outline: 'none' }} />
+                  style={{ flex: 1, padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none' }} />
                 <button onClick={scrapeCompany} disabled={isSearchingCompany}
                   style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 7,
                     border: 'none', background: GRADIENT_H, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
@@ -313,7 +313,7 @@ export function TechnicalMemory() {
                 <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4, fontWeight: 600 }}>{f.label}</label>
                 <textarea value={data[f.field] as string} onChange={e => set(f.field, e.target.value)}
                   rows={4} placeholder={`${f.label} de la empresa (editable)`}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #e9d5ff',
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec',
                     fontSize: 12, outline: 'none', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
               </div>
             ))}
@@ -325,7 +325,7 @@ export function TechnicalMemory() {
       {activeTab === 'services' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {/* Search bar */}
-          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e9d5ff', overflow: 'hidden' }}>
+          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
             <div style={{ background: GRADIENT, padding: '10px 18px' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Buscar Servicio AWS</div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
@@ -336,7 +336,7 @@ export function TechnicalMemory() {
               <input value={serviceSearch} onChange={e => setServiceSearch(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && searchAWSService()}
                 placeholder="ej. Amazon S3, AWS Lambda, Amazon RDS, Amazon EC2..."
-                style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: '1px solid #e9d5ff',
+                style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: '1px solid #fce4ec',
                   fontSize: 13, outline: 'none' }} />
               <button onClick={searchAWSService} disabled={isSearchingAWS}
                 style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 20px', borderRadius: 8,
@@ -351,16 +351,16 @@ export function TechnicalMemory() {
           {/* Services list */}
           {data.services.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8',
-              background: '#fff', borderRadius: 10, border: '1px dashed #e9d5ff' }}>
-              <BookOpen style={{ width: 40, height: 40, margin: '0 auto 12px', color: '#e9d5ff' }} />
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#9333ea', marginBottom: 4 }}>
+              background: '#fff', borderRadius: 10, border: '1px dashed #fce4ec' }}>
+              <BookOpen style={{ width: 40, height: 40, margin: '0 auto 12px', color: '#fce4ec' }} />
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#e91e8c', marginBottom: 4 }}>
                 No hay servicios agregados
               </div>
               <div style={{ fontSize: 12 }}>Busca un servicio AWS para comenzar</div>
             </div>
           ) : (
             data.services.map(svc => (
-              <div key={svc.id} style={{ background: '#fff', borderRadius: 10, border: '1px solid #e9d5ff', overflow: 'hidden' }}>
+              <div key={svc.id} style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
                 <div style={{ background: GRADIENT_H, padding: '10px 16px',
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -396,7 +396,7 @@ export function TechnicalMemory() {
                       </label>
                       <textarea value={svc.whyUsed} onChange={e => updateService(svc.id, 'whyUsed', e.target.value)}
                         rows={3} placeholder="Describe la justificación técnica de este servicio en el contexto del proyecto..."
-                        style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #e9d5ff',
+                        style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec',
                           fontSize: 12, outline: 'none', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -415,7 +415,7 @@ export function TechnicalMemory() {
                           </div>
                         ))}
                         <button onClick={() => updateService(svc.id, 'advantages', [...svc.advantages, ''])}
-                          style={{ fontSize: 11, color: '#9333ea', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          style={{ fontSize: 11, color: '#e91e8c', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Plus style={{ width: 11, height: 11 }} /> Agregar ventaja
                         </button>
                       </div>
@@ -434,13 +434,13 @@ export function TechnicalMemory() {
                           </div>
                         ))}
                         <button onClick={() => updateService(svc.id, 'disadvantages', [...svc.disadvantages, ''])}
-                          style={{ fontSize: 11, color: '#9333ea', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          style={{ fontSize: 11, color: '#e91e8c', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Plus style={{ width: 11, height: 11 }} /> Agregar desventaja
                         </button>
                       </div>
                     </div>
                     <div style={{ fontSize: 10, color: '#94a3b8' }}>
-                      Fuente: <a href={svc.docsUrl} target="_blank" rel="noreferrer" style={{ color: '#7c3aed' }}>{svc.docsUrl}</a>
+                      Fuente: <a href={svc.docsUrl} target="_blank" rel="noreferrer" style={{ color: '#9c27b0' }}>{svc.docsUrl}</a>
                     </div>
                   </div>
                 )}
@@ -461,7 +461,7 @@ export function TechnicalMemory() {
             { label: 'Conclusiones', field: 'conclusions' as const, rows: 8,
               hint: 'Resume los logros, beneficios obtenidos y recomendaciones.' },
           ].map(f => (
-            <div key={f.field} style={{ background: '#fff', borderRadius: 10, border: '1px solid #e9d5ff', overflow: 'hidden' }}>
+            <div key={f.field} style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
               <div style={{ background: GRADIENT, padding: '10px 18px' }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{f.label}</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>{f.hint}</div>
@@ -480,7 +480,7 @@ export function TechnicalMemory() {
 
       {/* ── TAB: Carta ────────────────────────────────────────────────────── */}
       {activeTab === 'letter' && (
-        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e9d5ff', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
           <div style={{ background: GRADIENT, padding: '10px 18px' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Carta de Agradecimiento</div>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
@@ -494,7 +494,7 @@ export function TechnicalMemory() {
               </label>
               <input value={data.itTeam} onChange={e => set('itTeam', e.target.value)}
                 placeholder="ej. Equipo de Infraestructura y Arquitectura Cloud — Empresa XYZ"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #e9d5ff',
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec',
                   fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
@@ -507,8 +507,8 @@ export function TechnicalMemory() {
                   fontSize: 12, outline: 'none', resize: 'vertical', boxSizing: 'border-box',
                   fontFamily: '"Times New Roman", serif', lineHeight: 1.8 }} />
             </div>
-            <div style={{ padding: '12px 16px', background: '#fdf4ff', borderRadius: 8, border: '1px solid #e9d5ff',
-              fontSize: 11, color: '#6d28d9' }}>
+            <div style={{ padding: '12px 16px', background: '#fce4ec', borderRadius: 8, border: '1px solid #fce4ec',
+              fontSize: 11, color: '#7b1fa2' }}>
               La carta incluirá automáticamente los logos de SoftwareOne y del cliente, el nombre de la empresa y la fecha de generación.
             </div>
           </div>

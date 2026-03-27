@@ -1,5 +1,5 @@
 import { MigrationPhase, PhaseStatus } from '@/types/assessment';
-import { CheckCircle, Search, Rocket, Zap } from 'lucide-react';
+import { CheckCircle, Search, Rocket, Zap, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PhaseNavigatorProps {
@@ -51,19 +51,33 @@ const phaseConfig = [
       borderBottom: 'bg-amber-600',
     },
   },
+  {
+    key: 'tech-memory' as MigrationPhase,
+    number: 4,
+    label: 'MEMORIA TÉCNICA',
+    subtitle: 'Documentación técnica AWS con normas APA',
+    icon: BookOpen,
+    colors: {
+      active: 'border-teal-600 bg-gradient-to-br from-teal-50 to-cyan-50 text-teal-900',
+      completed: 'border-green-500 bg-green-50 text-green-800 hover:bg-green-100',
+      default: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:border-gray-300',
+      number: 'text-teal-600 bg-teal-100',
+      borderBottom: 'bg-teal-600',
+    },
+  },
 ];
 
 export function PhaseNavigator({ currentPhase, onPhaseChange, phaseStatus, children }: PhaseNavigatorProps & { children: React.ReactNode }) {
   return (
     <div className="space-y-6">
       {/* Phase tabs */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         {phaseConfig.map((phase) => {
           const status = phaseStatus[phase.key];
           const isActive = currentPhase === phase.key;
           const Icon = phase.icon;
 
-          const canNavigate = status !== 'not_started' || phase.key === 'assess';
+          const canNavigate = phase.key === 'tech-memory' || status !== 'not_started' || phase.key === 'assess';
 
           return (
             <button

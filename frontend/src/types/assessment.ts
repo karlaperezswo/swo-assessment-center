@@ -172,7 +172,7 @@ export interface GenerateReportResponse {
 // Phase Navigation Types
 // ============================================
 
-export type MigrationPhase = 'assess' | 'mobilize' | 'migrate';
+export type MigrationPhase = 'assess' | 'mobilize' | 'migrate' | 'tech-memory';
 
 export type PhaseStatusValue = 'not_started' | 'in_progress' | 'completed';
 
@@ -180,6 +180,7 @@ export interface PhaseStatus {
   assess: PhaseStatusValue;
   mobilize: PhaseStatusValue;
   migrate: PhaseStatusValue;
+  'tech-memory': PhaseStatusValue;
 }
 
 // ============================================

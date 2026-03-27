@@ -29,7 +29,7 @@ import {
   LandingZoneChecklist,
   SecurityComplianceChecklist,
 } from '@/types/assessment';
-import { RefreshCw, Cloud, BookOpen } from 'lucide-react';
+import { RefreshCw, Cloud } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { TechnicalMemory } from '@/components/techMemory/TechnicalMemory';
 
@@ -62,6 +62,7 @@ function App() {
     assess: 'in_progress',
     mobilize: 'not_started',
     migrate: 'not_started',
+    'tech-memory': 'not_started',
   });
 
   // Assess phase state
@@ -83,7 +84,6 @@ function App() {
   // Dependency and migration wave data
   const [dependencyData, setDependencyData] = useState<any>(null);
   const [_autoCalculatedWaves, setAutoCalculatedWaves] = useState<any>(null);
-  const [showTechMemory, setShowTechMemory] = useState(false);
 
   const handleDataLoaded = (data: ExcelData, summary: UploadSummary, depData?: any, waves?: any) => {
     setExcelData(data);
@@ -344,7 +344,7 @@ function App() {
     });
     // Reset phase state
     setCurrentPhase('assess');
-    setPhaseStatus({ assess: 'in_progress', mobilize: 'not_started', migrate: 'not_started' });
+    setPhaseStatus({ assess: 'in_progress', mobilize: 'not_started', migrate: 'not_started', 'tech-memory': 'not_started' });
     setBriefingSessions([]);
     setImmersionDays([]);
     setMigrationWaves([]);
@@ -378,21 +378,6 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowTechMemory(v => !v)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                background: showTechMemory
-                  ? 'linear-gradient(90deg, #0f766e, #0891b2)'
-                  : '#f1f5f9',
-                color: showTechMemory ? '#fff' : '#475569',
-                fontSize: 13, fontWeight: 600,
-                boxShadow: showTechMemory ? '0 2px 8px rgba(8,145,178,0.3)' : 'none',
-              }}>
-              <BookOpen style={{ width: 14, height: 14 }} />
-              Memoria Técnica
-            </button>
             <span className="text-sm text-gray-500">Desarrollado por</span>
             <span className="font-bold text-orange-500">SoftwareOne</span>
           </div>
@@ -404,15 +389,7 @@ function App() {
         {/* Phase Progress Bar */}
         <PhaseProgressBar phaseStatus={phaseStatus} currentPhase={currentPhase} />
 
-        {/* Memoria Técnica — módulo independiente */}
-        {showTechMemory && (
-          <div style={{ marginBottom: 8 }}>
-            <TechnicalMemory />
-          </div>
-        )}
-
         {/* Phase Navigator and Content */}
-        {!showTechMemory && (
         <PhaseNavigator
           currentPhase={currentPhase}
           onPhaseChange={setCurrentPhase}
@@ -477,8 +454,11 @@ function App() {
               isGenerating={isGenerating}
             />
           )}
+
+          {currentPhase === 'tech-memory' && (
+            <TechnicalMemory />
+          )}
         </PhaseNavigator>
-        )}
 
         {/* Error Message */}
         {error && (

@@ -30,7 +30,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
     vertical: z.enum(['Energy', 'Insurance', 'Healthcare', 'Financial', 'Retail', 'Manufacturing', 'Technology', 'Other']),
     reportDate: z.string().min(1, t('clientForm.validation.reportDateRequired')),
     awsRegion: z.enum(['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2', 'eu-west-1', 'eu-west-2', 'eu-central-1', 'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'sa-east-1']),
-    totalServers: z.number().min(1, t('clientForm.validation.totalServersRequired')),
+    totalServers: z.number().min(1, t('clientForm.validation.totalServersMin')),
     onPremisesCost: z.number().min(0, t('clientForm.validation.costPositive')),
     companyDescription: z.string(),
     priorities: z.array(z.string()),
@@ -38,11 +38,11 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
   });
 
   const PRIORITIES: { value: ClientPriority; label: string }[] = [
-    { value: 'reduced_costs', label: t('clientForm.priorities.reducedCosts') },
-    { value: 'operational_resilience', label: t('clientForm.priorities.operationalResilience') },
+    { value: 'reduced_costs', label: t('clientForm.priorities.reduceCosts') },
+    { value: 'operational_resilience', label: t('clientForm.priorities.improveResiliency') },
     { value: 'business_agility', label: t('clientForm.priorities.businessAgility') },
-    { value: 'environment_updated', label: t('clientForm.priorities.environmentUpdated') },
-    { value: 'modernize_databases', label: t('clientForm.priorities.modernizeDatabases') },
+    { value: 'environment_updated', label: t('clientForm.priorities.innovationAcceleration') },
+    { value: 'modernize_databases', label: t('clientForm.priorities.legacyModernization') },
     { value: 'security_compliance', label: t('clientForm.priorities.securityCompliance') },
   ];
 
@@ -118,7 +118,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="clientName">{t('clientForm.clientName')}</Label>
+            <Label htmlFor="clientName">{t('clientForm.labels.clientName')}</Label>
             <Input
               id="clientName"
               {...register('clientName')}
@@ -126,7 +126,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
                 register('clientName').onChange(e);
                 handleChange();
               }}
-              placeholder={t('clientForm.clientNamePlaceholder')}
+              placeholder={t('clientForm.placeholders.clientName')}
             />
             {errors.clientName && (
               <p className="text-sm text-red-500">{errors.clientName.message}</p>
@@ -134,7 +134,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="vertical">{t('clientForm.vertical')}</Label>
+            <Label htmlFor="vertical">{t('clientForm.labels.vertical')}</Label>
             <Select
               value={watchedValues.vertical}
               onValueChange={(value) => {
@@ -143,12 +143,12 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder={t('clientForm.selectVertical')} />
+                <SelectValue placeholder={t('clientForm.placeholders.vertical')} />
               </SelectTrigger>
               <SelectContent>
                 {VERTICALS.map((vertical) => (
                   <SelectItem key={vertical} value={vertical}>
-                    {vertical}
+                    {t(`clientForm.verticals.${vertical}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -158,7 +158,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="reportDate">{t('clientForm.reportDate')}</Label>
+            <Label htmlFor="reportDate">{t('clientForm.labels.reportDate')}</Label>
             <Input
               id="reportDate"
               type="date"
@@ -171,7 +171,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="awsRegion">{t('clientForm.awsRegion')}</Label>
+            <Label htmlFor="awsRegion">{t('clientForm.labels.awsRegion')}</Label>
             <Select
               value={watchedValues.awsRegion}
               onValueChange={(value) => {
@@ -180,7 +180,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder={t('clientForm.selectRegion')} />
+                <SelectValue placeholder={t('clientForm.placeholders.selectRegion')} />
               </SelectTrigger>
               <SelectContent>
                 {AWS_REGIONS.map((region) => (
@@ -195,7 +195,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="totalServers">{t('clientForm.totalServers')}</Label>
+            <Label htmlFor="totalServers">{t('clientForm.labels.totalServers')}</Label>
             <Input
               id="totalServers"
               type="number"
@@ -208,7 +208,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="onPremisesCost">{t('clientForm.onPremisesCost')}</Label>
+            <Label htmlFor="onPremisesCost">{t('clientForm.labels.onPremisesCost')}</Label>
             <Input
               id="onPremisesCost"
               type="number"
@@ -217,13 +217,13 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
                 register('onPremisesCost', { valueAsNumber: true }).onChange(e);
                 handleChange();
               }}
-              placeholder={t('clientForm.onPremisesCostPlaceholder')}
+              placeholder={t('clientForm.placeholders.onPremisesCost')}
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="companyDescription">{t('clientForm.companyDescription')}</Label>
+          <Label htmlFor="companyDescription">{t('clientForm.labels.companyDescription')}</Label>
           <Textarea
             id="companyDescription"
             {...register('companyDescription')}
@@ -231,13 +231,13 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
               register('companyDescription').onChange(e);
               handleChange();
             }}
-            placeholder={t('clientForm.companyDescriptionPlaceholder')}
+            placeholder={t('clientForm.placeholders.companyDescription')}
             rows={3}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>{t('clientForm.clientPriorities')}</Label>
+          <Label>{t('clientForm.labels.priorities')}</Label>
           <div className="grid grid-cols-2 gap-2">
             {PRIORITIES.map((priority) => (
               <div key={priority.value} className="flex items-center space-x-2">
@@ -260,7 +260,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="migrationReadiness">{t('clientForm.migrationReadiness')}</Label>
+          <Label htmlFor="migrationReadiness">{t('clientForm.labels.migrationReadiness')}</Label>
           <Select
             value={watchedValues.migrationReadiness}
             onValueChange={(value) => {
@@ -269,7 +269,7 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t('clientForm.selectReadiness')} />
+              <SelectValue placeholder={t('clientForm.placeholders.selectReadiness')} />
             </SelectTrigger>
             <SelectContent>
               {READINESS_OPTIONS.map((option) => (

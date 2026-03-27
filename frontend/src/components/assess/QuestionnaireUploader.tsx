@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { Card, CardContent } from '@/components/ui/card';
 import { FileText, Upload, X, CheckCircle, Info } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface QuestionnaireUploaderProps {
   onFileSelected: (file: File | null) => void;
@@ -10,6 +11,7 @@ interface QuestionnaireUploaderProps {
 }
 
 export function QuestionnaireUploader({ onFileSelected, selectedFile }: QuestionnaireUploaderProps) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -19,7 +21,7 @@ export function QuestionnaireUploader({ onFileSelected, selectedFile }: Question
       // Validate file size (50MB max)
       const maxSize = 50 * 1024 * 1024;
       if (file.size > maxSize) {
-        toast.error('El archivo Word es demasiado grande. Máximo 50MB.');
+        toast.error(t('questionnaireUploader.toastFileTooLarge'));
         return;
       }
 
@@ -30,15 +32,15 @@ export function QuestionnaireUploader({ onFileSelected, selectedFile }: Question
       ];
       
       if (!validTypes.includes(file.type) && !file.name.endsWith('.docx') && !file.name.endsWith('.doc')) {
-        toast.error('Solo se permiten archivos Word (.docx o .doc).');
+        toast.error(t('questionnaireUploader.toastInvalidType'));
         return;
       }
 
       onFileSelected(file);
-      toast.success(`Cuestionario seleccionado: ${file.name}`);
+      toast.success(t('questionnaireUploader.toastFileSelected', { name: file.name }));
     }
     setIsDragging(false);
-  }, [onFileSelected]);
+  }, [onFileSelected, t]);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
@@ -54,7 +56,7 @@ export function QuestionnaireUploader({ onFileSelected, selectedFile }: Question
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     onFileSelected(null);
-    toast.info('Cuestionario eliminado');
+    toast.info(t('questionnaireUploader.toastFileRemoved'));
   };
 
   return (
@@ -85,7 +87,7 @@ export function QuestionnaireUploader({ onFileSelected, selectedFile }: Question
               <button
                 onClick={handleRemove}
                 className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                title="Eliminar archivo"
+                title={t('questionnaireUploader.removeTitle')}
               >
                 <X className="h-5 w-5 text-red-600" />
               </button>
@@ -97,24 +99,23 @@ export function QuestionnaireUploader({ onFileSelected, selectedFile }: Question
               </div>
               <div className="flex items-center justify-center gap-2 mb-2">
                 <p className="text-sm font-medium text-gray-700">
-                  Cuestionario de Infraestructura
+                  {t('questionnaireUploader.title')}
                 </p>
                 <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
-                  OPCIONAL
+                  {t('questionnaireUploader.optional')}
                 </span>
               </div>
               <p className="text-xs text-gray-500 mb-3">
-                Arrastra tu archivo Word aquí o haz clic para seleccionar (máx. 50MB)
+                {t('questionnaireUploader.dragText')}
               </p>
               <div className="flex items-center justify-center gap-2 text-xs text-gray-400 mb-3">
                 <Upload className="h-3 w-3" />
-                <span>Word (.docx, .doc)</span>
+                <span>{t('questionnaireUploader.wordOnly')}</span>
               </div>
               <div className="flex items-start gap-2 text-xs text-blue-600 bg-blue-50 p-3 rounded-lg max-w-md mx-auto">
                 <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
                 <p className="text-left">
-                  El cuestionario mejora la calidad del análisis al proporcionar contexto sobre prioridades, 
-                  restricciones y objetivos del cliente. Los datos sensibles se anonimizan automáticamente.
+                  {t('questionnaireUploader.infoNote')}
                 </p>
               </div>
             </div>

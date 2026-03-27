@@ -75,11 +75,13 @@ export function I18nProvider({ children }: Props) {
    */
   const translate = useCallback((keyOrText: string, options?: TranslateOptions): string => {
     if (!keyOrText) return keyOrText
+    const { defaultValue, interpolation, namespace, ...rest } = options ?? {}
     const result = i18next.t(keyOrText, {
       lng: currentLanguage,
-      defaultValue: options?.defaultValue ?? keyOrText,
-      ...(options?.interpolation ?? {}),
-      ns: options?.namespace,
+      defaultValue: defaultValue ?? keyOrText,
+      ns: namespace,
+      ...(interpolation ?? {}),
+      ...rest,
     })
     return (result as string) || keyOrText
   }, [currentLanguage])

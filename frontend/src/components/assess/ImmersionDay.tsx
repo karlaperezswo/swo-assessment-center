@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { ImmersionDayPlan } from '@/types/assessment';
 import { GraduationCap, Plus, Trash2, CheckCircle, Clock, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface ImmersionDayProps {
   plans: ImmersionDayPlan[];
@@ -20,14 +21,15 @@ const SUGGESTED_TOPICS = [
   { topic: 'Container & Modernization', duration: '4 hours', objectives: ['Containerization strategies', 'ECS/EKS overview', 'Hands-on deployment'], deliverables: ['Containerization assessment'] },
 ];
 
-const statusConfig = {
-  planned: { icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-50 border-yellow-200', label: 'Planned' },
-  in_progress: { icon: Play, color: 'text-blue-500', bg: 'bg-blue-50 border-blue-200', label: 'In Progress' },
-  completed: { icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50 border-green-200', label: 'Completed' },
-};
-
 export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
+  const { t } = useTranslation();
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const statusConfig = {
+    planned: { icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-50 border-yellow-200', label: t('immersionDay.statusLabels.planned') },
+    in_progress: { icon: Play, color: 'text-blue-500', bg: 'bg-blue-50 border-blue-200', label: t('immersionDay.statusLabels.in_progress') },
+    completed: { icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50 border-green-200', label: t('immersionDay.statusLabels.completed') },
+  };
 
   const handleAddSuggested = (suggestion: typeof SUGGESTED_TOPICS[0]) => {
     const plan: ImmersionDayPlan = {
@@ -66,10 +68,9 @@ export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
           <div className="flex items-start gap-3">
             <GraduationCap className="h-6 w-6 text-fuchsia-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-bold text-fuchsia-900 text-lg">AWS Immersion Days</h3>
+              <h3 className="font-bold text-fuchsia-900 text-lg">{t('immersionDay.title')}</h3>
               <p className="text-sm text-fuchsia-700 mt-1">
-                Plan hands-on technical sessions where your team can experience AWS services firsthand.
-                Immersion Days accelerate cloud adoption by providing practical, guided experiences.
+                {t('immersionDay.description')}
               </p>
             </div>
           </div>
@@ -79,7 +80,7 @@ export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
       {/* Actions */}
       <div className="flex gap-3">
         <Button onClick={() => setShowSuggestions(!showSuggestions)} variant="outline" className="border-fuchsia-300 text-fuchsia-700 hover:bg-fuchsia-50">
-          <Plus className="h-4 w-4 mr-1" /> Add from Suggested Topics
+          <Plus className="h-4 w-4 mr-1" /> {showSuggestions ? t('common.cancel') : t('immersionDay.addFromSuggested')}
         </Button>
       </div>
 
@@ -87,7 +88,7 @@ export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
       {showSuggestions && (
         <Card className="border-fuchsia-200">
           <CardHeader>
-            <CardTitle className="text-sm text-fuchsia-700">Recommended Immersion Day Topics</CardTitle>
+            <CardTitle className="text-sm text-fuchsia-700">{t('immersionDay.suggestedTopics')}</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {SUGGESTED_TOPICS.map((suggestion, i) => {
@@ -106,7 +107,7 @@ export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
                 >
                   <p className="font-medium text-sm">{suggestion.topic}</p>
                   <p className="text-xs text-gray-500 mt-1">{suggestion.duration} - {suggestion.objectives.length} objectives</p>
-                  {alreadyAdded && <p className="text-xs text-green-600 mt-1">Already added</p>}
+                  {alreadyAdded && <p className="text-xs text-green-600 mt-1">{t('immersionDay.alreadyAdded')}</p>}
                 </button>
               );
             })}
@@ -117,11 +118,11 @@ export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
       {/* Plans list */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Planned Immersion Days ({plans.length})</CardTitle>
+          <CardTitle className="text-lg">{t('immersionDay.plannedTitle', { count: plans.length })}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {plans.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-8">No immersion days planned yet. Add from suggested topics to get started.</p>
+            <p className="text-sm text-gray-400 text-center py-8">{t('immersionDay.noPlans')}</p>
           )}
 
           {plans.map((plan) => {
@@ -138,7 +139,7 @@ export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
                       <h4 className="font-semibold text-gray-900">{plan.topic}</h4>
                       <p className="text-xs text-gray-500 mt-0.5">{plan.duration} - {config.label}</p>
                       <div className="mt-2 space-y-1">
-                        <p className="text-xs font-medium text-gray-600">Objectives:</p>
+                        <p className="text-xs font-medium text-gray-600">{t('immersionDay.objectives')}</p>
                         {plan.objectives.map((obj, i) => (
                           <p key={i} className="text-xs text-gray-500 pl-3">- {obj}</p>
                         ))}

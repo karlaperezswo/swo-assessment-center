@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { Card, CardContent } from '@/components/ui/card';
 import { FileText, Upload, X, CheckCircle, Info } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface MRAUploaderProps {
   onFileSelected: (file: File | null) => void;
@@ -10,6 +11,7 @@ interface MRAUploaderProps {
 }
 
 export function MRAUploader({ onFileSelected, selectedFile }: MRAUploaderProps) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -19,21 +21,21 @@ export function MRAUploader({ onFileSelected, selectedFile }: MRAUploaderProps) 
       // Validate file size (50MB max)
       const maxSize = 50 * 1024 * 1024;
       if (file.size > maxSize) {
-        toast.error('El archivo PDF es demasiado grande. Máximo 50MB.');
+        toast.error(t('mraUploader.toastFileTooLarge'));
         return;
       }
 
       // Validate file type
       if (file.type !== 'application/pdf') {
-        toast.error('Solo se permiten archivos PDF.');
+        toast.error(t('mraUploader.toastInvalidType'));
         return;
       }
 
       onFileSelected(file);
-      toast.success(`Archivo MRA seleccionado: ${file.name}`);
+      toast.success(t('mraUploader.toastFileSelected', { name: file.name }));
     }
     setIsDragging(false);
-  }, [onFileSelected]);
+  }, [onFileSelected, t]);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
@@ -48,7 +50,7 @@ export function MRAUploader({ onFileSelected, selectedFile }: MRAUploaderProps) 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     onFileSelected(null);
-    toast.info('Archivo MRA eliminado');
+    toast.info(t('mraUploader.toastFileRemoved'));
   };
 
   return (
@@ -79,7 +81,7 @@ export function MRAUploader({ onFileSelected, selectedFile }: MRAUploaderProps) 
               <button
                 onClick={handleRemove}
                 className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                title="Eliminar archivo"
+                title={t('mraUploader.removeTitle')}
               >
                 <X className="h-5 w-5 text-red-600" />
               </button>
@@ -90,14 +92,14 @@ export function MRAUploader({ onFileSelected, selectedFile }: MRAUploaderProps) 
                 <FileText className="h-6 w-6 text-fuchsia-600" />
               </div>
               <p className="text-sm font-medium text-gray-700 mb-1">
-                Arrastra tu archivo MRA PDF aquí
+                {t('mraUploader.dragText')}
               </p>
               <p className="text-xs text-gray-500 mb-3">
-                o haz clic para seleccionar (máx. 50MB)
+                {t('mraUploader.clickText')}
               </p>
               <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
                 <Upload className="h-3 w-3" />
-                <span>PDF únicamente</span>
+                <span>{t('mraUploader.pdfOnly')}</span>
               </div>
             </div>
           )}
@@ -107,9 +109,9 @@ export function MRAUploader({ onFileSelected, selectedFile }: MRAUploaderProps) 
         <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
           <div className="flex gap-2">
             <Info className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-800">
-              El MRA mejora la calidad del análisis al proporcionar contexto sobre arquitectura y riesgos. Para un análisis aún más completo, también puedes subir el <strong>Cuestionario de Infraestructura</strong> (opcional) debajo.
-            </p>
+            <p className="text-xs text-blue-800"
+              dangerouslySetInnerHTML={{ __html: t('mraUploader.infoNote') }}
+            />
           </div>
         </div>
       </CardContent>

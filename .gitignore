@@ -168,3 +168,17 @@ BASELINE-V2.md
 # Scripts de análisis temporales
 analyze-all-inputs.js
 analyze-mpa-structure.js
+
+# Scripts BAT adicionales
+start-dev.bat
+start-portforward.bat
+
+# Archivos de documentación adicionales
+DYNAMIC_METRICS.md
+ROADMAP.md
+
+# test-data directory
+test-data/
+
+# Backend test outputs
+backend/test-output/

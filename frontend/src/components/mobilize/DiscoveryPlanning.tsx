@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ApplicationTable } from '@/components/ApplicationTable';
 import { ExcelData } from '@/types/assessment';
 import { Database, Server, AppWindow, HardDrive } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 
 interface DiscoveryPlanningProps {
@@ -10,6 +11,7 @@ interface DiscoveryPlanningProps {
 }
 
 export function DiscoveryPlanning({ excelData, totalStorageGB }: DiscoveryPlanningProps) {
+  const { t } = useTranslation();
   if (!excelData) {
     return (
       <div className="text-center py-12 text-gray-400">

@@ -2,6 +2,7 @@ import { SevenRsChart } from '@/components/SevenRsChart';
 import { MigrationWaves } from '@/components/migrate/MigrationWaves';
 import { MigrationWave, Server } from '@/types/assessment';
 import { BarChart3, Waves } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface MigrationPlanProps {
   serverCount: number;
@@ -11,6 +12,7 @@ interface MigrationPlanProps {
 }
 
 export function MigrationPlan({ serverCount, servers, waves, onWavesChange }: MigrationPlanProps) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       {/* 7Rs Strategy Distribution */}

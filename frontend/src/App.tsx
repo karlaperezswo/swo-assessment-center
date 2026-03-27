@@ -505,7 +505,7 @@ function App() {
   const handleDownload = () => {
     if (reportResult?.downloadUrl) {
       window.open(reportResult.downloadUrl, '_blank');
-      toast.success('Iniciando descarga del reporte');
+      toast.success(t('common.downloadStarting'));
     }
   };
 

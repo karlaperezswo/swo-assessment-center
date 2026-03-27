@@ -137,7 +137,7 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
                 </select>
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">Start Date</label>
+                <label className="text-xs text-gray-600 mb-1 block">{t('migrationWaves.startDate')}</label>
                 <Input
                   type="date"
                   value={newWave.startDate}
@@ -146,7 +146,7 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">End Date</label>
+                <label className="text-xs text-gray-600 mb-1 block">{t('migrationWaves.endDate')}</label>
                 <Input
                   type="date"
                   value={newWave.endDate}
@@ -155,7 +155,7 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">Server Count</label>
+                <label className="text-xs text-gray-600 mb-1 block">{t('migrationWaves.serverCount')}</label>
                 <Input
                   type="number"
                   value={newWave.serverCount}
@@ -164,7 +164,7 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">Application Count</label>
+                <label className="text-xs text-gray-600 mb-1 block">{t('migrationWaves.applicationCount')}</label>
                 <Input
                   type="number"
                   value={newWave.applicationCount}
@@ -173,7 +173,7 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
                 />
               </div>
             </div>
-            <Button onClick={handleAdd} className="bg-amber-600 hover:bg-amber-700">Create Wave</Button>
+            <Button onClick={handleAdd} className="bg-amber-600 hover:bg-amber-700">{t('migrationWaves.createWave')}</Button>
           </CardContent>
         </Card>
       )}
@@ -181,7 +181,7 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
       {/* Wave List */}
       <div className="space-y-4">
         {waves.length === 0 && (
-          <p className="text-center text-gray-400 py-8">No migration waves defined yet. Click "Add Wave" to create one.</p>
+          <p className="text-center text-gray-400 py-8">{t('migrationWaves.noWaves')}</p>
         )}
 
         {waves.map((wave) => {
@@ -197,14 +197,14 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
                     </button>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-gray-400">WAVE {wave.waveNumber}</span>
+                        <span className="text-xs font-bold text-gray-400">{t('migrationWaves.waveLabel')} {wave.waveNumber}</span>
                         <h4 className="font-semibold text-gray-900">{wave.name}</h4>
                         <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: config.color + '20', color: config.color }}>
                           {config.label}
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        Strategy: {wave.strategy} | {wave.serverCount} servers, {wave.applicationCount} apps | {wave.startDate} → {wave.endDate}
+                        {t('migrationWaves.strategyLabel')}: {wave.strategy} | {wave.serverCount} {t('migrationWaves.serversLabel')}, {wave.applicationCount} {t('migrationWaves.appsLabel')} | {wave.startDate} → {wave.endDate}
                       </p>
                     </div>
                   </div>
@@ -222,7 +222,7 @@ export function MigrationWaves({ waves, onWavesChange }: MigrationWavesProps) {
       {waves.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Wave Capacity Distribution</CardTitle>
+            <CardTitle>{t('migrationWaves.capacityDistribution')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>

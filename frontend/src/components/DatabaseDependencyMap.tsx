@@ -72,11 +72,12 @@ function getDbTypeInfo(name: string, edition?: string): { icon: string; label: s
 
 function getServerTypeInfoDb(name: string): { icon: string; label: string; color: string; bg: string } {
   const s = name.toLowerCase();
-  if (/web|http|nginx|apache|iis|tomcat|www/.test(s)) return { icon: '🌐', label: 'Web',    color: '#0891b2', bg: '#e0f2fe' };
-  if (/mail|exchange|smtp/.test(s))                   return { icon: '📧', label: 'Correo', color: '#1d4ed8', bg: '#dbeafe' };
-  if (/file|ftp|nas|storage/.test(s))                 return { icon: '📁', label: 'Storage',color: '#92400e', bg: '#fef3c7' };
-  if (/auth|ldap|ad[-_]|sso/.test(s))                 return { icon: '🔐', label: 'Auth',   color: '#7c3aed', bg: '#ede9fe' };
-  if (/app|apl|srv|svc/.test(s))                      return { icon: '📦', label: 'App',    color: '#475569', bg: '#f1f5f9' };
+  if (/web|http|nginx|apache|iis|tomcat|www/.test(s)) return { icon: '🖥️', label: 'Web',    color: '#0891b2', bg: '#e0f2fe' };
+  if (/mail|exchange|smtp/.test(s))                   return { icon: '🖥️', label: 'Correo', color: '#1d4ed8', bg: '#dbeafe' };
+  if (/file|ftp|nas|storage/.test(s))                 return { icon: '🗃️', label: 'Storage',color: '#92400e', bg: '#fef3c7' };
+  if (/auth|ldap|ad[-_]|sso/.test(s))                 return { icon: '🖥️', label: 'Auth',   color: '#7c3aed', bg: '#ede9fe' };
+  if (/app|apl/.test(s))                              return { icon: '📱', label: 'App',    color: '#0f766e', bg: '#ccfbf1' };
+  if (/srv|svc/.test(s))                              return { icon: '🖧', label: 'Servicio',color: '#475569', bg: '#f1f5f9' };
   return { icon: '🖥️', label: 'Servidor', color: '#3b82f6', bg: '#dbeafe' };
 }
 

@@ -20,8 +20,6 @@ import { TCOChart } from './TCOChart';
 import { BusinessCaseUploadResponse, BusinessCaseClientData, TCO1YearUploadResponse, CarbonReportUploadResponse } from '@/types/assessment';
 import { Briefcase, TrendingUp, Upload, Building2, ChevronDown, ChevronUp } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-
 export function BusinessCase() {
   const [businessCaseData, setBusinessCaseData] = useState<BusinessCaseUploadResponse | null>(null);
   const [tco1YearData, setTCO1YearData] = useState<TCO1YearUploadResponse | null>(null);

@@ -79,7 +79,7 @@ export class AWSMPAParser extends BaseParser {
         row['numThreadsPerCore'] || row['Threads Per Core'] || 1
       ),
       totalRAM: this.parseNumber(
-        row['totalRAM'] || row['Total RAM (GB)'] || row['RAM (GB)'] || row['Memory (GB)'] || 0
+        row['totalRAM'] || row['totalRAM (GB)'] || row['Total RAM (GB)'] || row['RAM (GB)'] || row['Memory (GB)'] || 0
       ),
       maxCpuUsage: this.parseNumber(
         row['maxCpuUsagePct'] || row['Max CPU Usage'] || row['Peak CPU %'] || 0

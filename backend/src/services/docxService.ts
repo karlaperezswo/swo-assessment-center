@@ -227,6 +227,9 @@ export class DocxService {
 
     const prioritiesList = input.priorities.map(p => priorityLabels[p] || p);
 
+    // Calculate infrastructure statistics
+    const infraStats = this.calculateInfrastructureStats(input.excelData.servers);
+
     return [
       new Paragraph({
         heading: HeadingLevel.HEADING_1,
@@ -276,6 +279,22 @@ export class DocxService {
           input.excelData.servers.reduce((sum, s) => sum + (s.totalDiskSize || 0), 0).toFixed(0)
         ]
       ]),
+      new Paragraph({ spacing: { before: 300 } }),
+      new Paragraph({
+        heading: HeadingLevel.HEADING_3,
+        children: [new TextRun({ text: 'Infrastructure Scope - Detalle' })]
+      }),
+      this.createInfrastructureDetailsTable({
+        totalCpus: infraStats.totalCpus,
+        totalCores: infraStats.totalCores,
+        totalRAM: infraStats.totalRAM
+      }),
+      new Paragraph({ spacing: { before: 300 } }),
+      new Paragraph({
+        heading: HeadingLevel.HEADING_3,
+        children: [new TextRun({ text: 'Distribución de Sistemas Operativos' })]
+      }),
+      this.createOSDistributionTable(infraStats.osVersions),
       new Paragraph({ children: [new PageBreak()] })
     ];
   }
@@ -1219,6 +1238,138 @@ export class DocxService {
         }),
         new TableCell({
           children: [new Paragraph({ children: [new TextRun({ text: hours.toString() })] })]
+        })
+      ]
+    });
+  }
+
+  /**
+   * Calculate infrastructure statistics from servers
+   * Added: 2026-02-25 - Infrastructure Scope enhancement
+   */
+  private calculateInfrastructureStats(servers: any[]): {
+    osVersions: { [version: string]: number };
+    totalCpus: number;
+    totalCores: number;
+    totalRAM: number;
+  } {
+    const osVersions: { [version: string]: number } = {};
+    let totalCpus = 0;
+    let totalCores = 0;
+    let totalRAM = 0;
+
+    servers.forEach(server => {
+      // Count OS versions
+      const osVersion = server.osVersion || 'Unknown';
+      osVersions[osVersion] = (osVersions[osVersion] || 0) + 1;
+
+      // Sum CPUs, Cores, and RAM
+      totalCpus += server.numCpus || 0;
+      totalCores += (server.numCpus || 0) * (server.numCoresPerCpu || 0);
+      totalRAM += server.totalRAM || 0;
+    });
+
+    return {
+      osVersions,
+      totalCpus,
+      totalCores,
+      totalRAM
+    };
+  }
+
+  /**
+   * Create OS distribution table
+   * Added: 2026-02-25 - Infrastructure Scope enhancement
+   */
+  private createOSDistributionTable(osVersions: { [version: string]: number }): Table {
+    const sortedVersions = Object.entries(osVersions).sort((a, b) => b[1] - a[1]);
+
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: [
+        new TableRow({
+          tableHeader: true,
+          children: ['Sistema Operativo', 'Cantidad'].map(
+            header =>
+              new TableCell({
+                shading: { fill: COLORS.primary, type: ShadingType.CLEAR },
+                children: [
+                  new Paragraph({
+                    children: [new TextRun({ text: header, bold: true, color: COLORS.white })]
+                  })
+                ]
+              })
+          )
+        }),
+        ...sortedVersions.map(
+          ([version, count]) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph({ children: [new TextRun({ text: version })] })]
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({ children: [new TextRun({ text: count.toString() })] })
+                  ]
+                })
+              ]
+            })
+        )
+      ]
+    });
+  }
+
+  /**
+   * Create infrastructure details table
+   * Added: 2026-02-25 - Infrastructure Scope enhancement
+   */
+  private createInfrastructureDetailsTable(stats: {
+    totalCpus: number;
+    totalCores: number;
+    totalRAM: number;
+  }): Table {
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 40, type: WidthType.PERCENTAGE },
+              shading: { fill: COLORS.lightGray, type: ShadingType.CLEAR },
+              children: [new Paragraph({ children: [new TextRun({ text: 'Total de CPUs', bold: true })] })]
+            }),
+            new TableCell({
+              width: { size: 60, type: WidthType.PERCENTAGE },
+              children: [new Paragraph({ children: [new TextRun({ text: stats.totalCpus.toString() })] })]
+            })
+          ]
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 40, type: WidthType.PERCENTAGE },
+              shading: { fill: COLORS.lightGray, type: ShadingType.CLEAR },
+              children: [new Paragraph({ children: [new TextRun({ text: 'Total de Cores', bold: true })] })]
+            }),
+            new TableCell({
+              width: { size: 60, type: WidthType.PERCENTAGE },
+              children: [new Paragraph({ children: [new TextRun({ text: stats.totalCores.toString() })] })]
+            })
+          ]
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 40, type: WidthType.PERCENTAGE },
+              shading: { fill: COLORS.lightGray, type: ShadingType.CLEAR },
+              children: [new Paragraph({ children: [new TextRun({ text: 'Total de RAM (GB)', bold: true })] })]
+            }),
+            new TableCell({
+              width: { size: 60, type: WidthType.PERCENTAGE },
+              children: [new Paragraph({ children: [new TextRun({ text: stats.totalRAM.toFixed(2) })] })]
+            })
+          ]
         })
       ]
     });

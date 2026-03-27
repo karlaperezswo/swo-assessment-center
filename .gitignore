@@ -176,9 +176,15 @@ start-portforward.bat
 # Archivos de documentación adicionales
 DYNAMIC_METRICS.md
 ROADMAP.md
+CHANGELOG-LOCAL-DEV.md
 
 # test-data directory
 test-data/
 
 # Backend test outputs
 backend/test-output/
+backend/lambda-function.zip
+backend/start-portforward.bat
+
+# Carpetas temporales locales
+TEMP-DAVE/

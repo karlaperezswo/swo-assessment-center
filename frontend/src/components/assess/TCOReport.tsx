@@ -2,7 +2,7 @@ import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CostBreakdown, ClientFormData, ExcelData } from '@/types/assessment';
-import { DollarSign, TrendingDown, Server, Database, HardDrive, ArrowRight } from 'lucide-react';
+import { DollarSign, TrendingDown, Server, Database, HardDrive, ArrowRight, Cpu, MemoryStick, Layers } from 'lucide-react';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 
 interface TCOReportProps {
@@ -51,6 +51,35 @@ export function TCOReport({ excelData, estimatedCosts, clientData }: TCOReportPr
   const annualSavings = onPremCost - awsAnnual;
   const savingsPercent = onPremCost > 0 ? ((annualSavings / onPremCost) * 100).toFixed(1) : '0';
   const totalStorage = excelData.servers.reduce((sum, s) => sum + (s.totalDiskSize || 0), 0);
+
+  // Calculate infrastructure statistics
+  // Added: 2026-02-25 - Infrastructure Scope enhancement
+  const calculateInfraStats = () => {
+    let totalCpus = 0;
+    let totalCores = 0;
+    let totalRAM = 0;
+    const osVersions: { [version: string]: number } = {};
+
+    excelData.servers.forEach(server => {
+      totalCpus += server.numCpus || 0;
+      totalCores += (server.numCpus || 0) * (server.numCoresPerCpu || 0);
+      totalRAM += server.totalRAM || 0;
+
+      const osVersion = server.osVersion || 'Unknown';
+      osVersions[osVersion] = (osVersions[osVersion] || 0) + 1;
+    });
+
+    return {
+      totalCpus,
+      totalCores,
+      totalRAM,
+      osVersions: Object.entries(osVersions)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5) // Top 5 OS versions
+    };
+  };
+
+  const infraStats = calculateInfraStats();
 
   return (
     <div className="space-y-6">
@@ -148,6 +177,59 @@ export function TCOReport({ excelData, estimatedCosts, clientData }: TCOReportPr
               </div>
             </div>
           </div>
+
+          {/* Infrastructure Details - Added: 2026-02-25 */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <h4 className="text-sm font-semibold text-gray-700 mb-4">Infrastructure Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center gap-3 p-3 bg-cyan-50 rounded-lg border border-cyan-100">
+                <Cpu className="h-8 w-8 text-cyan-600" />
+                <div>
+                  <p className="text-2xl font-bold text-cyan-900">{infraStats.totalCpus.toLocaleString()}</p>
+                  <p className="text-xs text-cyan-600 font-medium">Total CPUs</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                <Layers className="h-8 w-8 text-indigo-600" />
+                <div>
+                  <p className="text-2xl font-bold text-indigo-900">{infraStats.totalCores.toLocaleString()}</p>
+                  <p className="text-xs text-indigo-600 font-medium">Total Cores</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-pink-50 rounded-lg border border-pink-100">
+                <MemoryStick className="h-8 w-8 text-pink-600" />
+                <div>
+                  <p className="text-2xl font-bold text-pink-900">{infraStats.totalRAM.toLocaleString()}</p>
+                  <p className="text-xs text-pink-600 font-medium">GB RAM</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* OS Distribution - Added: 2026-02-25 */}
+          {infraStats.osVersions.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <h4 className="text-sm font-semibold text-gray-700 mb-4">Top Operating Systems</h4>
+              <div className="space-y-2">
+                {infraStats.osVersions.map(([version, count]) => (
+                  <div key={version} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <span className="text-sm font-medium text-gray-700">{version}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-500 h-2 rounded-full"
+                          style={{ width: `${(count / excelData.servers.length) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900 w-12 text-right">{count}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

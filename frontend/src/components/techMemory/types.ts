@@ -19,6 +19,14 @@ export interface DictionaryEntry {
   selected: boolean; // si está seleccionado se incluye en el Word
 }
 
+export interface WellArchPillar {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  recommendations: string[];
+}
+
 export interface TechMemoryData {
   // Project info
   projectName: string;
@@ -29,6 +37,9 @@ export interface TechMemoryData {
   date: string;
   authors: string;
   version: string;
+  consultorName: string;
+  consultorEmail: string;
+  consultorSignature: string;
 
   // Company info (scraped)
   clientMission: string;
@@ -37,7 +48,7 @@ export interface TechMemoryData {
 
   // Document sections
   introduction: string;
-  challenges: string;
+  infraSummary: string;
   conclusions: string;
 
   // AWS Services
@@ -45,6 +56,9 @@ export interface TechMemoryData {
 
   // Dictionary / Knowledge base
   dictionary: DictionaryEntry[];
+
+  // Well-Architected recommendations
+  wellArch: WellArchPillar[];
 
   // Thank you letter
   thankYouLetter: string;

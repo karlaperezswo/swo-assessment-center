@@ -1,34 +1,42 @@
 ﻿import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api';
-import { TechMemoryData, AWSServiceEntry, DictionaryEntry } from './types';
+import { TechMemoryData, AWSServiceEntry, DictionaryEntry, WellArchPillar } from './types';
 import { exportTechMemoryWord } from './wordExporter';
 import {
   Search, Plus, Trash2, Download, Upload, RefreshCw,
   BookOpen, Building2, FileText, Award, ChevronDown, ChevronUp, Loader2,
-  Link, Library, CheckSquare, Square
+  Link, Library, CheckSquare, Square, ShieldCheck
 } from 'lucide-react';
 
 const GRADIENT = 'linear-gradient(135deg, #e91e8c 0%, #9c27b0 50%, #1565c0 100%)';
 const GRADIENT_H = 'linear-gradient(90deg, #e91e8c 0%, #9c27b0 50%, #1565c0 100%)';
 
-const DEFAULT_INTRO = `El presente documento constituye la memoria técnica del proyecto de migración a Amazon Web Services (AWS) desarrollado para [NOMBRE_EMPRESA]. Este proyecto fue ejecutado por SoftwareOne en el marco del programa AWS Migration Acceleration Program (MAP), con el objetivo de modernizar la infraestructura tecnológica del cliente y aprovechar las capacidades de la nube.
+const DEFAULT_INTRO = `[NOMBRE_EMPRESA], empresa con sede en Medellín, se especializa en ofrecer soluciones tecnológicas y de gestión para el sector salud. Su modelo de negocio se caracteriza por un enfoque integral que abarca desde la consultoría y el diseño de procesos hasta la implementación de plataformas digitales que optimizan la operación clínica y administrativa. La compañía se distingue por su compromiso con la innovación, la eficiencia operativa y el bienestar de pacientes y profesionales de la salud.
 
-A lo largo de este documento se describen los servicios AWS implementados, su justificación técnica, ventajas y consideraciones, así como los retos enfrentados durante el proceso de migración y las conclusiones derivadas de la implementación.`;
+En este contexto, la adopción de soluciones tecnológicas en la nube se ha convertido en un pilar estratégico para [NOMBRE_EMPRESA]. Estas iniciativas no solo permiten habilitar herramientas eficientes para sus usuarios, sino también optimizar procesos internos y fortalecer el soporte al talento humano, garantizando seguridad, escalabilidad y cumplimiento normativo en un sector altamente regulado.
 
-const DEFAULT_CONCLUSIONS = `La migración a AWS representa un hito estratégico para [NOMBRE_EMPRESA], permitiendo una mayor agilidad operativa, reducción de costos de infraestructura y mejora en la disponibilidad de los sistemas críticos.
+Con este objetivo, [NOMBRE_EMPRESA] se acercó a SoftwareONE para liderar conjuntamente la implementación de una landing zone en Amazon Web Services (AWS). El propósito principal del proyecto fue establecer una hoja de ruta clara y estructurada que facilitara su transición hacia un entorno cloud seguro, escalable y alineado con sus necesidades operativas y regulatorias.
 
-Los servicios implementados han demostrado cumplir con los requerimientos funcionales y no funcionales establecidos al inicio del proyecto, garantizando la continuidad del negocio durante y después del proceso de migración.
+Durante la fase de implementación, [NOMBRE_EMPRESA] proporcionó los requerimientos técnicos y la información crítica necesaria para definir los servicios a implementar. Gracias a esta colaboración, se logró ejecutar un proceso ordenado y eficiente, culminando en la implementación exitosa de la infraestructura en tres ambientes diferenciados: producción, calidad y desarrollo. Cada servicio fue aprovisionado y validado conforme a los requisitos técnicos establecidos, garantizando su correcto funcionamiento en el nuevo entorno cloud.
 
-SoftwareOne, como partner certificado de AWS, ha acompañado al cliente en cada etapa del proceso, asegurando las mejores prácticas de arquitectura, seguridad y optimización de costos.`;
+Este documento no solo recopila las especificaciones técnicas de los servicios implementados, sino que también ofrece una descripción general de cada solución utilizada. Su objetivo es proporcionar al equipo de [NOMBRE_EMPRESA] una base de conocimiento sólida que facilite futuras decisiones en sus procesos de modernización tecnológica y gobernanza en la nube.
 
-const DEFAULT_CHALLENGES = `Durante el desarrollo del proyecto se identificaron los siguientes retos principales:
+Finalmente, extendemos nuestro agradecimiento al equipo de [NOMBRE_EMPRESA] por su compromiso, colaboración y dedicación durante todas las etapas del proyecto. Su participación activa fue clave para asegurar que la solución implementada esté alineada con la visión de la empresa y con las mejores prácticas de la industria.`;
 
-1. Complejidad en la migración de bases de datos legadas con dependencias críticas.
-2. Necesidad de mantener la continuidad operativa durante el proceso de migración.
-3. Adaptación del equipo técnico del cliente a las nuevas tecnologías cloud.
-4. Optimización de costos manteniendo los niveles de servicio requeridos.
-5. Gestión del cambio organizacional asociado a la adopción de la nube.`;
+const DEFAULT_INFRA = `Durante el proyecto de implementación desarrollado para [NOMBRE_EMPRESA], se llevaron a cabo diversas actividades de re-arquitectura, con el propósito de garantizar que cada componente de la solución operara bajo los estándares de seguridad y cumplimiento requeridos para su entorno específico.
+
+Dado que se trató de una implementación desde cero en el entorno de Amazon Web Services (AWS), el enfoque principal se centró en optimizar la infraestructura, mejorando su organización, segmentación y capacidades de comunicación. Para ello, se diseñó una arquitectura que contempla tres ambientes diferenciados: Producción, Desarrollo y Calidad (QA), además de una cuenta transversal de networking, encargada de conectar todos los ambientes. Cada entorno fue configurado con sus propios recursos y parámetros específicos, asegurando una operación eficiente y segura.
+
+En particular, se implementaron cuatro VPC interconectadas mediante el servicio Resource Access Manager (RAM), lo que permitió establecer una comunicación segura y eficaz entre los ambientes de Desarrollo, Calidad, Networking y Producción. Esta estrategia facilitó una adecuada separación lógica entre los entornos, permitiendo un control granular del tráfico de red y reforzando las buenas prácticas de arquitectura en la nube.
+
+El presente documento detalla los componentes clave de la infraestructura desplegada, incluyendo VPCs, subnets, tablas de ruteo, grupos de seguridad, entre otros elementos críticos. No obstante, el objetivo principal de esta sección es ofrecer una visión de alto nivel de la solución diseñada por el equipo de consultores de SoftwareONE, destacando las decisiones arquitectónicas más relevantes tomadas durante el proceso.`;
+
+const DEFAULT_CONCLUSIONS = `La exitosa configuración de los servicios dentro de la organización de AWS, siguiendo las mejores prácticas desde el inicio, representa un avance estratégico clave para [NOMBRE_EMPRESA]. Esta implementación ha establecido una base sólida para la innovación, la eficiencia operativa y la escalabilidad, traduciéndose en beneficios tangibles y una mayor agilidad para adaptarse a las dinámicas del mercado.
+
+La adopción de AWS Control Tower y la Landing Zone permitió una gestión centralizada y segura del entorno multi-cuenta, aplicando políticas de seguridad, cumplimiento y auditoría desde el primer momento. Se diseñaron arquitecturas de red eficientes y seguras, basadas en VPCs centralizadas, Transit Gateway y segmentación por entornos (producción, desarrollo, pruebas), garantizando conectividad y aislamiento adecuados entre cuentas.
+
+Gracias al uso de herramientas como Terraform, se logró automatizar la creación de recursos y configuraciones, reduciendo errores humanos y acelerando los tiempos de despliegue. Además, la integración con servicios como AWS CloudTrail y GuardDuty permite una supervisión continua del entorno, facilitando la detección temprana de desviaciones y amenazas.`;
 
 const DEFAULT_THANK_YOU = `Estimado equipo de [NOMBRE_EMPRESA],
 
@@ -38,7 +46,76 @@ Ha sido un privilegio trabajar junto a su equipo de TI, cuya dedicación, profes
 
 Estamos convencidos de que esta migración a AWS representa el inicio de una nueva etapa de crecimiento e innovación para su organización. SoftwareOne continuará siendo su aliado estratégico en este camino hacia la transformación digital.
 
-Agradecemos profundamente la oportunidad de haber sido parte de este proyecto y esperamos continuar fortaleciendo nuestra relación en el futuro.`;
+Agradecemos profundamente la oportunidad de haber sido parte de este proyecto y esperamos continuar fortaleciendo nuestra relación en el futuro.
+
+Atentamente,
+[CONSULTOR]
+[FIRMA]
+[CORREO]`;
+
+const DEFAULT_WELL_ARCH: WellArchPillar[] = [
+  {
+    id: 'wa1', name: 'Excelencia Operacional', icon: '⚙️', color: '#0891b2',
+    recommendations: [
+      'Implementar AWS CloudWatch para monitoreo centralizado de métricas y logs.',
+      'Definir runbooks y playbooks para operaciones rutinarias y respuesta a incidentes.',
+      'Adoptar prácticas de Infrastructure as Code (IaC) con AWS CloudFormation o Terraform.',
+      'Establecer pipelines de CI/CD con AWS CodePipeline para automatizar despliegues.',
+      'Realizar revisiones periódicas de operaciones usando AWS Well-Architected Tool.',
+    ],
+  },
+  {
+    id: 'wa2', name: 'Seguridad', icon: '🔐', color: '#7c3aed',
+    recommendations: [
+      'Habilitar AWS GuardDuty para detección continua de amenazas en todas las cuentas.',
+      'Implementar AWS Security Hub para una vista centralizada del estado de seguridad.',
+      'Aplicar el principio de mínimo privilegio en todas las políticas IAM.',
+      'Habilitar AWS CloudTrail en todas las regiones para auditoría completa de actividades.',
+      'Cifrar todos los datos en reposo y en tránsito usando AWS KMS y TLS.',
+      'Configurar AWS Config para evaluar el cumplimiento de políticas de seguridad.',
+    ],
+  },
+  {
+    id: 'wa3', name: 'Confiabilidad', icon: '🛡️', color: '#059669',
+    recommendations: [
+      'Diseñar arquitecturas multi-AZ para garantizar alta disponibilidad.',
+      'Implementar AWS Backup para protección automatizada de datos críticos.',
+      'Configurar Auto Scaling Groups para adaptarse automáticamente a la demanda.',
+      'Establecer y probar regularmente planes de recuperación ante desastres (DR).',
+      'Usar Amazon Route 53 con health checks para failover automático de DNS.',
+    ],
+  },
+  {
+    id: 'wa4', name: 'Eficiencia del Rendimiento', icon: '⚡', color: '#d97706',
+    recommendations: [
+      'Seleccionar los tipos de instancias EC2 adecuados según el perfil de carga de trabajo.',
+      'Implementar Amazon CloudFront para reducir latencia en la entrega de contenido.',
+      'Usar Amazon ElastiCache para cachear datos frecuentemente accedidos.',
+      'Revisar y optimizar consultas de base de datos con Performance Insights en RDS.',
+      'Evaluar el uso de instancias Graviton para mejor relación precio/rendimiento.',
+    ],
+  },
+  {
+    id: 'wa5', name: 'Optimización de Costos', icon: '💰', color: '#e91e8c',
+    recommendations: [
+      'Implementar AWS Cost Explorer y presupuestos con alertas para control de gastos.',
+      'Evaluar el uso de Reserved Instances o Savings Plans para cargas de trabajo estables.',
+      'Configurar políticas de ciclo de vida en S3 para mover datos a clases de almacenamiento más económicas.',
+      'Usar AWS Trusted Advisor para identificar recursos subutilizados o inactivos.',
+      'Revisar y eliminar recursos no utilizados (snapshots, EIPs, volúmenes huérfanos).',
+    ],
+  },
+  {
+    id: 'wa6', name: 'Sostenibilidad', icon: '🌱', color: '#16a34a',
+    recommendations: [
+      'Seleccionar regiones AWS con mayor porcentaje de energía renovable cuando sea posible.',
+      'Optimizar el uso de recursos para reducir la huella de carbono (right-sizing).',
+      'Implementar políticas de apagado automático de recursos en horarios no productivos.',
+      'Usar instancias Graviton que consumen hasta un 60% menos de energía.',
+      'Monitorear el impacto de sostenibilidad con AWS Customer Carbon Footprint Tool.',
+    ],
+  },
+];
 
 const DEFAULT_DICTIONARY: DictionaryEntry[] = [
   { id: 'd1',  term: 'Cloud Computing',      category: 'Conceptos Cloud',  selected: false, definition: 'Modelo de entrega de servicios de TI a través de internet, que permite acceso bajo demanda a recursos computacionales compartidos.' },
@@ -72,21 +149,25 @@ const emptyData = (): TechMemoryData => ({
   date: new Date().toISOString().split('T')[0],
   authors: '',
   version: '1.0',
+  consultorName: '',
+  consultorEmail: '',
+  consultorSignature: '',
   clientMission: '',
   clientVision: '',
   clientAbout: '',
   introduction: DEFAULT_INTRO,
-  challenges: DEFAULT_CHALLENGES,
+  infraSummary: DEFAULT_INFRA,
   conclusions: DEFAULT_CONCLUSIONS,
   services: [],
   dictionary: DEFAULT_DICTIONARY,
+  wellArch: DEFAULT_WELL_ARCH,
   thankYouLetter: DEFAULT_THANK_YOU,
   itTeam: '',
 });
 
 export function TechnicalMemory() {
   const [data, setData] = useState<TechMemoryData>(emptyData());
-  const [activeTab, setActiveTab] = useState<'project'|'company'|'services'|'dictionary'|'document'|'letter'>('project');
+  const [activeTab, setActiveTab] = useState<'project'|'company'|'services'|'dictionary'|'document'|'wellarch'|'letter'>('project');
   const [serviceSearch, setServiceSearch] = useState('');
   const [serviceUrl, setServiceUrl] = useState('');
   const [isSearchingAWS, setIsSearchingAWS] = useState(false);
@@ -270,6 +351,7 @@ export function TechnicalMemory() {
     { id: 'services',   label: 'Servicios AWS',  icon: <BookOpen style={{ width: 14, height: 14 }} /> },
     { id: 'dictionary', label: `Diccionario${selectedCount > 0 ? ` (${selectedCount})` : ''}`, icon: <Library style={{ width: 14, height: 14 }} /> },
     { id: 'document',   label: 'Documento',      icon: <FileText style={{ width: 14, height: 14 }} /> },
+    { id: 'wellarch',   label: 'Recomendaciones', icon: <ShieldCheck style={{ width: 14, height: 14 }} /> },
     { id: 'letter',     label: 'Carta',          icon: <Award style={{ width: 14, height: 14 }} /> },
   ] as const;
 
@@ -324,6 +406,9 @@ export function TechnicalMemory() {
               { label: 'Nombre del Cliente *',  field: 'clientName'   as const, placeholder: 'ej. Empresa XYZ S.A.' },
               { label: 'Autores / Elaborado por', field: 'authors'    as const, placeholder: 'ej. Juan Pérez, María García' },
               { label: 'Versión del Documento',   field: 'version'    as const, placeholder: '1.0' },
+              { label: 'Nombre del Consultor',    field: 'consultorName' as const, placeholder: 'ej. Juan Pérez' },
+              { label: 'Correo del Consultor',    field: 'consultorEmail' as const, placeholder: 'ej. juan.perez@softwareone.com' },
+              { label: 'Firma / Cargo',           field: 'consultorSignature' as const, placeholder: 'ej. Arquitecto Cloud Senior' },
             ].map(f => (
               <div key={f.field}>
                 <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4, fontWeight: 600 }}>{f.label}</label>
@@ -677,11 +762,11 @@ export function TechnicalMemory() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {[
             { label: 'Introducción', field: 'introduction' as const, rows: 10,
-              hint: 'Describe el contexto del proyecto, objetivos y alcance.' },
-            { label: 'Retos del Proyecto', field: 'challenges' as const, rows: 8,
-              hint: 'Describe los principales desafíos enfrentados durante la migración.' },
+              hint: 'Describe el contexto del proyecto, objetivos y alcance. Usa [NOMBRE_EMPRESA], [CONSULTOR], [CORREO] como marcadores.' },
+            { label: 'Resumen de la Infraestructura', field: 'infraSummary' as const, rows: 8,
+              hint: 'Describe la arquitectura implementada, ambientes, VPCs y componentes clave.' },
             { label: 'Conclusiones', field: 'conclusions' as const, rows: 8,
-              hint: 'Resume los logros, beneficios obtenidos y recomendaciones.' },
+              hint: 'Resume los logros, beneficios obtenidos y recomendaciones finales.' },
           ].map(f => (
             <div key={f.field} style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
               <div style={{ background: GRADIENT, padding: '10px 18px' }}>
@@ -694,6 +779,50 @@ export function TechnicalMemory() {
                   style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0',
                     fontSize: 12, outline: 'none', resize: 'vertical', boxSizing: 'border-box',
                     fontFamily: '"Times New Roman", serif', lineHeight: 1.8 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── TAB: Well-Architected ─────────────────────────────────────────── */}
+      {activeTab === 'wellarch' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ padding: '10px 16px', background: '#f3e8ff', borderRadius: 8, border: '1px solid #fce4ec', fontSize: 12, color: '#7b2ff7' }}>
+            <strong>AWS Well-Architected Framework</strong> — Edita las recomendaciones por pilar. Todas se incluirán en el documento Word exportado.
+          </div>
+          {data.wellArch.map(pillar => (
+            <div key={pillar.id} style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
+              <div style={{ background: pillar.color, padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>{pillar.icon}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{pillar.name}</span>
+                <span style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.2)', borderRadius: 10, padding: '1px 8px' }}>
+                  {pillar.recommendations.length} recomendaciones
+                </span>
+              </div>
+              <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {pillar.recommendations.map((rec, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                    <span style={{ color: pillar.color, fontWeight: 700, fontSize: 13, marginTop: 7, flexShrink: 0 }}>•</span>
+                    <input value={rec}
+                      onChange={e => {
+                        const recs = [...pillar.recommendations]; recs[i] = e.target.value;
+                        setData(prev => ({ ...prev, wellArch: prev.wellArch.map(p => p.id === pillar.id ? { ...p, recommendations: recs } : p) }));
+                      }}
+                      style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none' }} />
+                    <button onClick={() => {
+                      const recs = pillar.recommendations.filter((_, j) => j !== i);
+                      setData(prev => ({ ...prev, wellArch: prev.wellArch.map(p => p.id === pillar.id ? { ...p, recommendations: recs } : p) }));
+                    }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: 4, flexShrink: 0 }}>
+                      <Trash2 style={{ width: 13, height: 13 }} />
+                    </button>
+                  </div>
+                ))}
+                <button onClick={() => {
+                  setData(prev => ({ ...prev, wellArch: prev.wellArch.map(p => p.id === pillar.id ? { ...p, recommendations: [...p.recommendations, ''] } : p) }));
+                }} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: pillar.color, background: 'none', border: 'none', cursor: 'pointer', marginTop: 4 }}>
+                  <Plus style={{ width: 11, height: 11 }} /> Agregar recomendación
+                </button>
               </div>
             </div>
           ))}

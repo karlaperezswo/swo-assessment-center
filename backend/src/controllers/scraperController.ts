@@ -1,16 +1,35 @@
 import { Request, Response } from 'express';
 import { scrapeAWSService, scrapeCompanyInfo, getSoftwareOneLogo, scrapeByUrl } from '../services/scraperService';
+import { searchAWSDocumentation } from '../services/awsDocsService';
 
 export class ScraperController {
 
   // POST /api/scraper/aws-service
+  // Intenta MCP server primero, fallback a scraping web
   awsService = async (req: Request, res: Response) => {
     try {
       const { serviceName } = req.body;
       if (!serviceName || typeof serviceName !== 'string') {
         return res.status(400).json({ success: false, error: 'serviceName es requerido' });
       }
-      const data = await scrapeAWSService(serviceName.trim());
+      const name = serviceName.trim();
+
+      let data: any = null;
+
+      // 1. Intentar con MCP server (AWS Documentation oficial)
+      try {
+        console.log(`[Scraper] Intentando MCP server para: ${name}`);
+        data = await searchAWSDocumentation(name);
+        console.log(`[Scraper] MCP server exitoso para: ${name}`);
+      } catch (mcpErr: any) {
+        console.warn(`[Scraper] MCP falló (${mcpErr.message}), usando scraping web...`);
+      }
+
+      // 2. Fallback: scraping web de AWS
+      if (!data) {
+        data = await scrapeAWSService(name);
+      }
+
       res.json({ success: true, data });
     } catch (error: any) {
       console.error('[Scraper] AWS service error:', error.message);

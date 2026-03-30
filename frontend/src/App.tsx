@@ -411,6 +411,12 @@ function App() {
               onImmersionDaysChange={setImmersionDays}
               migrationWaves={migrationWaves}
               onMigrationWavesChange={setMigrationWaves}
+              opportunitySessionId={null}
+              onOpportunitySessionIdChange={() => {}}
+              mraFile={null}
+              onMRAFileChange={() => {}}
+              questionnaireFile={null}
+              onQuestionnaireFileChange={() => {}}
               dependencyData={dependencyData}
             />
           )}

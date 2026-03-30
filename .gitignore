@@ -244,3 +244,14 @@ shared/types/*.d.ts.map
 
 # ── Kiro specs (herramienta de desarrollo local) ─────────────────────────────
 .kiro/specs/
+
+# ── Scripts de diagnóstico numerados (temporales) ────────────────────────────
+4-GENERAR-DATOS-EJEMPLO.bat
+5-PROBAR-CONEXION.bat
+6-DIAGNOSTICO-COMPLETO.bat
+INICIAR-PROYECTO.bat
+
+# ── Archivos temporales de sesión de desarrollo ───────────────────────────────
+lambda-payload.json
+lambda-response.json
+response.json

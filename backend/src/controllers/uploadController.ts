@@ -1,43 +1,15 @@
 import { Request, Response } from 'express';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { fromIni } from '@aws-sdk/credential-providers';
 import { v4 as uuidv4 } from 'uuid';
 
-// Configuración de AWS S3
+// Configuración de AWS S3 — usa IAM Role del Lambda automáticamente
 const AWS_REGION = process.env.AWS_REGION || 'us-east-1';
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'assessment-center-files-assessment-dashboard';
-const AWS_PROFILE = process.env.AWS_PROFILE || 'default';
 
-// Configurar credenciales (igual que en s3Service.ts)
-let credentials;
-const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
-const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+const s3Client = new S3Client({ region: AWS_REGION });
 
-if (AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
-  credentials = {
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  };
-  console.log('🔑 [UploadController] Using AWS credentials from environment variables');
-} else {
-  try {
-    credentials = fromIni({ profile: AWS_PROFILE });
-    console.log(`🔑 [UploadController] Using AWS credentials from profile: ${AWS_PROFILE}`);
-  } catch (error) {
-    console.warn('⚠️  [UploadController] No AWS credentials found');
-  }
-}
-
-const s3Client = new S3Client({
-  region: AWS_REGION,
-  credentials,
-});
-
-console.log(`📦 [UploadController] S3 Configuration:`);
-console.log(`   Region: ${AWS_REGION}`);
-console.log(`   Bucket: ${BUCKET_NAME}`);
-console.log(`   Profile: ${AWS_PROFILE}`);
+console.log(`📦 [UploadController] S3 Configuration: Region=${AWS_REGION}, Bucket=${BUCKET_NAME}`);
 
 export class UploadController {
   /**

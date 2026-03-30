@@ -176,7 +176,7 @@ export class DocumentGeneratorService {
     const filename = `dependencias_${serverName}_${timestamp}.docx`;
     const filepath = path.join(this.outputDir, filename);
 
-    const buffer = await doc.toBuffer();
+    const buffer = await require('docx').Packer.toBuffer(doc);
     fs.writeFileSync(filepath, buffer);
 
     return filename;
@@ -185,23 +185,23 @@ export class DocumentGeneratorService {
   private createDependencyTable(dependencies: any[], type: 'incoming' | 'outgoing'): Table {
     const headerCells = [
       new TableCell({
-        children: [new Paragraph({ text: type === 'incoming' ? 'Servidor Origen' : 'Servidor Destino', bold: true })],
+        children: [new Paragraph({ children: [new TextRun({ text: type === 'incoming' ? 'Servidor Origen' : 'Servidor Destino', bold: true, color: 'FFFFFF' })] })],
         shading: { fill: '2563eb' },
       }),
       new TableCell({
-        children: [new Paragraph({ text: 'Puerto', bold: true })],
+        children: [new Paragraph({ children: [new TextRun({ text: 'Puerto', bold: true, color: 'FFFFFF' })] })],
         shading: { fill: '2563eb' },
       }),
       new TableCell({
-        children: [new Paragraph({ text: 'Protocolo', bold: true })],
+        children: [new Paragraph({ children: [new TextRun({ text: 'Protocolo', bold: true, color: 'FFFFFF' })] })],
         shading: { fill: '2563eb' },
       }),
       new TableCell({
-        children: [new Paragraph({ text: 'Servicio', bold: true })],
+        children: [new Paragraph({ children: [new TextRun({ text: 'Servicio', bold: true, color: 'FFFFFF' })] })],
         shading: { fill: '2563eb' },
       }),
       new TableCell({
-        children: [new Paragraph({ text: 'Aplicación', bold: true })],
+        children: [new Paragraph({ children: [new TextRun({ text: 'Aplicación', bold: true, color: 'FFFFFF' })] })],
         shading: { fill: '2563eb' },
       }),
     ];

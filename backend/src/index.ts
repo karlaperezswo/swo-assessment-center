@@ -5,6 +5,10 @@ import path from 'path';
 import { reportRouter } from './routes/reportRoutes';
 import { dependencyRouter } from './routes/dependencyRoutes';
 import { scraperRouter } from './routes/scraperRoutes';
+import { businessCaseRouter } from './routes/businessCaseRoutes';
+import { i18nRouter } from './routes/i18nRoutes';
+import { opportunityRouter } from './routes/opportunityRoutes';
+import { selectorRouter } from './routes/selectorRoutes';
 
 dotenv.config();
 
@@ -26,6 +30,10 @@ app.use('/downloads', express.static(path.join(__dirname, '../generated')));
 app.use('/api/report', reportRouter);
 app.use('/api/dependencies', dependencyRouter);
 app.use('/api/scraper', scraperRouter);
+app.use('/api/business-case', businessCaseRouter);
+app.use('/api/i18n', i18nRouter);
+app.use('/api/opportunities', opportunityRouter);
+app.use('/api/selector', selectorRouter);
 
 // Health check
 app.get('/health', (req, res) => {

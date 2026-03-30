@@ -191,3 +191,56 @@ test-backend.bat
 test-frontend.bat
 test-portforward.bat
 VER-PROYECTO.bat
+
+# ── Archivos de proceso / análisis temporales (raíz) ─────────────────────────
+ANALISIS-CALCULOS-OPORTUNIDADES.md
+ANALISIS-SERVICIO-COSTOS-ONPREM.md
+ASYNC-IMPLEMENTATION-COMPLETE.md
+DIAGRAMA-CAMBIOS.md
+GUIA-PRUEBA-LOCAL.md
+PLAN-IMPLEMENTACION-DETALLADO.md
+RESUMEN-ANALISIS-COMPLETO.md
+RESUMEN-CAMBIOS-SINGLETON.md
+RESUMEN-EJECUTIVO-CAMBIOS.md
+SINGLETON-READY.txt
+integration-prompt-karyn.txt
+
+# ── Scripts de análisis sueltos en raíz ──────────────────────────────────────
+analyze-all-inputs.js
+analyze-mpa-structure.js
+
+# ── Scripts de arranque local alternativos (no esenciales) ───────────────────
+INICIAR-LOCAL-BACKEND.bat
+INICIAR-LOCAL-COMPLETO.bat
+INICIAR-LOCAL-FRONTEND.bat
+
+# ── Artefactos de build y deploy ─────────────────────────────────────────────
+backend/dist/
+backend/lambda-function.zip
+backend/generated/
+*.zip
+
+# ── Archivos de debug del backend ────────────────────────────────────────────
+backend/debug/
+
+# ── Archivos de input/datos de prueba del backend ────────────────────────────
+backend/input/
+
+# ── Scripts utilitarios del backend (no son parte del core) ──────────────────
+backend/listar-buckets-s3.js
+backend/verificar-aws-config.js
+
+# ── Backups de código ─────────────────────────────────────────────────────────
+*.backup
+*.backup2
+
+# ── Archivos de sesiones de datos (generados en runtime) ─────────────────────
+backend/data/selector/sessions/
+
+# ── Shared types compilados (se generan del source) ──────────────────────────
+shared/types/*.js
+shared/types/*.js.map
+shared/types/*.d.ts.map
+
+# ── Kiro specs (herramienta de desarrollo local) ─────────────────────────────
+.kiro/specs/

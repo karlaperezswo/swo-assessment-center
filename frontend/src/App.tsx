@@ -68,6 +68,9 @@ function App() {
   // Assess phase state
   const [briefingSessions, setBriefingSessions] = useState<BriefingSession[]>([]);
   const [immersionDays, setImmersionDays] = useState<ImmersionDayPlan[]>([]);
+  const [opportunitySessionId, setOpportunitySessionId] = useState<string | null>(null);
+  const [mraFile, setMraFile] = useState<File | null>(null);
+  const [questionnaireFile, setQuestionnaireFile] = useState<File | null>(null);
 
   // Mobilize phase state
   const [migrationWaves, setMigrationWaves] = useState<MigrationWave[]>([]);
@@ -347,6 +350,9 @@ function App() {
     setPhaseStatus({ assess: 'in_progress', mobilize: 'not_started', migrate: 'not_started', 'tech-memory': 'not_started' });
     setBriefingSessions([]);
     setImmersionDays([]);
+    setOpportunitySessionId(null);
+    setMraFile(null);
+    setQuestionnaireFile(null);
     setMigrationWaves([]);
     setSkillAssessments(createDefaultSkillAssessments());
     setLandingZoneChecklist(createDefaultLandingZoneChecklist());
@@ -411,12 +417,12 @@ function App() {
               onImmersionDaysChange={setImmersionDays}
               migrationWaves={migrationWaves}
               onMigrationWavesChange={setMigrationWaves}
-              opportunitySessionId={null}
-              onOpportunitySessionIdChange={() => {}}
-              mraFile={null}
-              onMRAFileChange={() => {}}
-              questionnaireFile={null}
-              onQuestionnaireFileChange={() => {}}
+              opportunitySessionId={opportunitySessionId}
+              onOpportunitySessionIdChange={setOpportunitySessionId}
+              mraFile={mraFile}
+              onMRAFileChange={setMraFile}
+              questionnaireFile={questionnaireFile}
+              onQuestionnaireFileChange={setQuestionnaireFile}
               dependencyData={dependencyData}
             />
           )}

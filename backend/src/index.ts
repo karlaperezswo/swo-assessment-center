@@ -1,38 +1,21 @@
-// Load .env FIRST, before any other imports that might use environment variables
-import dotenv from 'dotenv';
-import path from 'path';
-dotenv.config({ path: path.join(__dirname, '../.env') });
-import { businessCaseRouter } from './routes/businessCaseRoutes';
-import { dependencyRouter } from './routes/dependencyRoutes';
-
-console.log('[ENV] Environment variables loaded');
-console.log('[ENV] BEDROCK_MODEL_ID:', process.env.BEDROCK_MODEL_ID);
-console.log('[ENV] BEDROCK_TIMEOUT_MS:', process.env.BEDROCK_TIMEOUT_MS);
-
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
 import { reportRouter } from './routes/reportRoutes';
-import { selectorRouter } from './routes/selectorRoutes';
-import { opportunityRouter } from './routes/opportunityRoutes';
-import { i18nRouter } from './routes/i18nRoutes';
+import { dependencyRouter } from './routes/dependencyRoutes';
+import { scraperRouter } from './routes/scraperRoutes';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Middleware
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      callback(null, true);
-    } else {
-      callback(null, true);
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  origin: ['http://localhost:3005', 'http://localhost:3006', 'http://localhost:5173', 'http://127.0.0.1:3005', 'http://127.0.0.1:3006'],
+  credentials: true,
 }));
-app.options('*', cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -41,11 +24,8 @@ app.use('/downloads', express.static(path.join(__dirname, '../generated')));
 
 // Routes
 app.use('/api/report', reportRouter);
-app.use('/api/opportunities', opportunityRouter);
-app.use('/api/selector', selectorRouter);
-app.use('/api/i18n', i18nRouter);
-app.use('/api/business-case', businessCaseRouter);
 app.use('/api/dependencies', dependencyRouter);
+app.use('/api/scraper', scraperRouter);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -99,5 +79,3 @@ app.listen(PORT, () => {
   console.log('🔍 Para verificar: curl http://localhost:' + PORT + '/health');
   console.log('');
 });
-
-

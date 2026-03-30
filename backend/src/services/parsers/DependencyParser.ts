@@ -11,6 +11,29 @@ export interface NetworkDependency {
   sourceIP?: string;
   destinationIP?: string;
   targetProcessId?: string;
+  // Server Communication MPA fields
+  sourceHostname?: string;
+  targetHostname?: string;
+  clientProcess?: string;
+  clientGroup?: string;
+  serverProcess?: string;
+  serverGroup?: string;
+  // Application dependency fields (SRC App ID / DEST App ID)
+  srcAppId?: string;
+  destAppId?: string;
+}
+
+// Dependency from "Application Dependency" sheet
+export interface AppDependency {
+  srcAppId: string;
+  destAppId: string;
+  // extra columns if present
+  srcAppName?: string;
+  destAppName?: string;
+  connectionType?: string;
+  port?: number | null;
+  protocol?: string;
+  notes?: string;
 }
 
 export interface DatabaseInfo {
@@ -18,6 +41,9 @@ export interface DatabaseInfo {
   serverId: string;
   databaseId?: string;
   edition?: string;
+  dbInstanceName?: string;
+  totalSizeGb?: number;
+  maxTransactionsPerSecond?: number;
   hasDependencies: boolean;
   dependencies: {
     asSource: NetworkDependency[];
@@ -27,6 +53,7 @@ export interface DatabaseInfo {
 
 export interface DependencyData {
   dependencies: NetworkDependency[];
+  appDependencies: AppDependency[];
   servers: Set<string>;
   applications: Set<string>;
   databases: DatabaseInfo[];
@@ -39,6 +66,7 @@ export interface DependencyData {
     totalDatabases: number;
     databasesWithDependencies: number;
     databasesWithoutDependencies: number;
+    totalAppDependencies: number;
   };
 }
 
@@ -47,6 +75,7 @@ export class DependencyParser {
     const workbook = XLSX.read(buffer, { type: 'buffer' });
     
     const dependencies: NetworkDependency[] = [];
+    const appDependencies: AppDependency[] = [];
     const servers = new Set<string>();
     const applications = new Set<string>();
     const ports = new Set<number>();
@@ -106,11 +135,33 @@ export class DependencyParser {
       throw error;
     }
 
+    // Parse Application Dependency sheet if exists
+    const appDepSheet = sheetNames.find(name =>
+      name.toLowerCase().includes('application dependency') ||
+      name.toLowerCase().includes('app dependency') ||
+      name.toLowerCase().includes('application dep') ||
+      name.toLowerCase() === 'app dep'
+    );
+
+    if (appDepSheet) {
+      try {
+        console.log(`📦 Procesando pestaña de dependencias de aplicaciones: "${appDepSheet}"`);
+        const sheet = workbook.Sheets[appDepSheet];
+        const rawData: any[] = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        const cols = rawData.length > 0 ? Object.keys(rawData[0]) : [];
+        console.log(`📋 Columnas Application Dependency: ${cols.join(', ')}`);
+        const parsed = this.parseAppDependencySheet(rawData);
+        appDependencies.push(...parsed);
+        console.log(`✅ Encontradas ${parsed.length} dependencias de aplicaciones`);
+      } catch (err) {
+        console.warn(`⚠️  Error procesando Application Dependency:`, err);
+      }
+    }
+
     // Parse Databases sheet if exists
     const databaseSheet = sheetNames.find(name => 
       name.toLowerCase().includes('database') || name.toLowerCase().includes('db')
     );
-
     if (databaseSheet) {
       try {
         console.log(`💾 Procesando pestaña de bases de datos: "${databaseSheet}"`);
@@ -146,6 +197,7 @@ export class DependencyParser {
 
     return {
       dependencies,
+      appDependencies,
       servers,
       applications,
       databases,
@@ -158,6 +210,7 @@ export class DependencyParser {
         totalDatabases: databases.length,
         databasesWithDependencies: databasesWithDependencies.length,
         databasesWithoutDependencies: databasesWithoutDependencies.length,
+        totalAppDependencies: appDependencies.length,
       },
     };
   }
@@ -223,6 +276,58 @@ export class DependencyParser {
       'transport protocol'
     ]) || 'TCP';
 
+    // Client (source) hostname, process and group
+    const clientHostname = this.extractValue(row, [
+      'Client Hostname', 'client hostname', 'client_hostname',
+      'Source Hostname', 'source hostname', 'source_hostname',
+      'Client Host', 'client host'
+    ]);
+
+    const clientProcess = this.extractValue(row, [
+      'Client Process', 'client process', 'client_process',
+      'Source Process', 'source process', 'source_process',
+      'Client Process ID', 'client process id'
+    ]);
+
+    const clientGroup = this.extractValue(row, [
+      'Client Group', 'client group', 'client_group',
+      'Source Group', 'source group', 'source_group',
+      'Client Application Group', 'client app group'
+    ]);
+
+    // Server (target) hostname, process and group
+    const serverHostname = this.extractValue(row, [
+      'Server Hostname', 'server hostname', 'server_hostname',
+      'Target Hostname', 'target hostname', 'target_hostname',
+      'Server Host', 'server host'
+    ]);
+
+    const serverProcess = this.extractValue(row, [
+      'Server Process', 'server process', 'server_process',
+      'Target Process', 'target process', 'target_process',
+      'Server Process ID', 'server process id'
+    ]);
+
+    const serverGroup = this.extractValue(row, [
+      'Server Group', 'server group', 'server_group',
+      'Target Group', 'target group', 'target_group',
+      'Server Application Group', 'server app group'
+    ]);
+
+    // Application IDs (SRC App ID / DEST App ID)
+    const srcAppId = this.extractValue(row, [
+      'SRC App ID', 'src app id', 'src_app_id', 'srcappid',
+      'Source App ID', 'source app id', 'source_app_id',
+      'Client App ID', 'client app id', 'src app', 'source app'
+    ]);
+
+    const destAppId = this.extractValue(row, [
+      'DEST App ID', 'dest app id', 'dest_app_id', 'destappid',
+      'Destination App ID', 'destination app id', 'destination_app_id',
+      'Target App ID', 'target app id', 'target_app_id',
+      'Server App ID', 'server app id', 'dest app', 'destination app'
+    ]);
+
     // CRITICAL: Only create dependency if we have both source and target
     // This ensures we only include servers that have actual connections
     if (!sourceServerId || !targetServerId) {
@@ -239,10 +344,72 @@ export class DependencyParser {
       protocol: this.cleanString(protocol).toUpperCase(),
       serviceName: targetProcessId ? this.cleanString(targetProcessId) : undefined,
       targetProcessId: targetProcessId ? this.cleanString(targetProcessId) : undefined,
+      sourceHostname: clientHostname ? this.cleanString(clientHostname) : undefined,
+      targetHostname: serverHostname ? this.cleanString(serverHostname) : undefined,
+      clientProcess: clientProcess ? this.cleanString(clientProcess) : undefined,
+      clientGroup: clientGroup ? this.cleanString(clientGroup) : undefined,
+      serverProcess: serverProcess ? this.cleanString(serverProcess) : undefined,
+      serverGroup: serverGroup ? this.cleanString(serverGroup) : undefined,
+      srcAppId: srcAppId ? this.cleanString(srcAppId) : undefined,
+      destAppId: destAppId ? this.cleanString(destAppId) : undefined,
     };
   }
 
 
+
+  private parseAppDependencySheet(rows: any[]): AppDependency[] {
+    const result: AppDependency[] = [];
+    for (const row of rows) {
+      const srcAppId = this.extractValue(row, [
+        'SRC App ID', 'src app id', 'src_app_id', 'srcappid',
+        'Source App ID', 'source app id', 'source_app_id',
+        'Source Application ID', 'src application id',
+        'App ID Source', 'app id source',
+      ]);
+      const destAppId = this.extractValue(row, [
+        'DEST App ID', 'dest app id', 'dest_app_id', 'destappid',
+        'Destination App ID', 'destination app id', 'destination_app_id',
+        'Target App ID', 'target app id', 'target_app_id',
+        'Dest Application ID', 'App ID Dest', 'app id dest',
+      ]);
+
+      if (!srcAppId || !destAppId) continue;
+
+      const srcAppName = this.extractValue(row, [
+        'SRC App Name', 'src app name', 'Source App Name', 'source app name',
+        'Source Application Name', 'src application name',
+      ]);
+      const destAppName = this.extractValue(row, [
+        'DEST App Name', 'dest app name', 'Destination App Name', 'destination app name',
+        'Target App Name', 'target app name', 'Dest Application Name',
+      ]);
+      const connectionType = this.extractValue(row, [
+        'Connection Type', 'connection type', 'connection_type', 'type', 'tipo',
+        'Dependency Type', 'dependency type',
+      ]);
+      const portRaw = this.extractValue(row, [
+        'Port', 'port', 'puerto', 'Communication Port', 'communication port',
+      ]);
+      const protocol = this.extractValue(row, [
+        'Protocol', 'protocol', 'protocolo', 'proto',
+      ]);
+      const notes = this.extractValue(row, [
+        'Notes', 'notes', 'notas', 'Description', 'description', 'comments',
+      ]);
+
+      result.push({
+        srcAppId: this.cleanString(srcAppId),
+        destAppId: this.cleanString(destAppId),
+        srcAppName: srcAppName ? this.cleanString(srcAppName) : undefined,
+        destAppName: destAppName ? this.cleanString(destAppName) : undefined,
+        connectionType: connectionType ? this.cleanString(connectionType) : undefined,
+        port: portRaw ? this.parsePort(portRaw) : null,
+        protocol: protocol ? this.cleanString(protocol).toUpperCase() : undefined,
+        notes: notes ? this.cleanString(notes) : undefined,
+      });
+    }
+    return result;
+  }
 
   private extractValue(row: any, possibleKeys: string[]): string | null {
     for (const key of possibleKeys) {
@@ -295,23 +462,53 @@ export class DependencyParser {
 
     for (const row of rows) {
       const databaseName = this.extractValue(row, [
-        'database', 'database name', 'db name', 'nombre base de datos',
-        'database_name', 'db_name', 'nombre_bd', 'bd'
+        'DB Name', 'Database Name', 'database name', 'db name',
+        'database', 'nombre base de datos', 'database_name', 'db_name', 'nombre_bd', 'bd'
       ]);
 
       const serverId = this.extractValue(row, [
-        'server', 'server id', 'server name', 'host', 'servidor',
-        'server_id', 'server_name', 'host_name', 'hostname', 'vm name'
+        'Server Id', 'Server ID', 'server id', 'server_id',
+        'server', 'server name', 'host', 'servidor',
+        'server_name', 'host_name', 'hostname', 'vm name'
       ]);
 
       const databaseId = this.extractValue(row, [
-        'database id', 'db id', 'database_id', 'db_id', 'id'
+        'Database Id', 'Database ID', 'database id', 'db id',
+        'database_id', 'db_id', 'id'
       ]);
 
       const edition = this.extractValue(row, [
+        'Engine Edition', 'Engine Type', 'Source Engine Type',
         'edition', 'edicion', 'version', 'db edition', 'database edition',
         'sql edition', 'engine'
       ]);
+
+      const dbInstanceName = this.extractValue(row, [
+        'Instance Name', 'DB Instance Name', 'db instance name',
+        'instance name', 'db instance', 'instance',
+        'database instance', 'db_instance_name', 'instance_name',
+        'sql instance', 'server instance'
+      ]);
+
+      const totalSizeRaw = this.extractValue(row, [
+        'Total Size (GB)', 'Total Size', 'total size (gb)', 'total size gb',
+        'size (gb)', 'size gb', 'database size', 'db size',
+        'total_size_gb', 'total_size', 'size', 'tamaño total', 'tamaño (gb)'
+      ]);
+
+      const totalSizeGb = totalSizeRaw
+        ? parseFloat(String(totalSizeRaw).replace(/[^0-9.]/g, '')) || undefined
+        : undefined;
+
+      const maxTpsRaw = this.extractValue(row, [
+        'Max Transactions per Second', 'Max Transactions Per Second',
+        'max transactions per second', 'max tps', 'Max TPS',
+        'transactions per second', 'tps', 'max_tps', 'max_transactions_per_second'
+      ]);
+
+      const maxTransactionsPerSecond = maxTpsRaw
+        ? parseFloat(String(maxTpsRaw).replace(/[^0-9.]/g, '')) || undefined
+        : undefined;
 
       // Only add if we have at least database name and server
       if (databaseName && serverId) {
@@ -320,11 +517,11 @@ export class DependencyParser {
           serverId: this.cleanString(serverId),
           databaseId: databaseId ? this.cleanString(databaseId) : undefined,
           edition: edition ? this.cleanString(edition) : undefined,
+          dbInstanceName: dbInstanceName ? this.cleanString(dbInstanceName) : undefined,
+          totalSizeGb: totalSizeGb !== undefined && !isNaN(totalSizeGb) ? totalSizeGb : undefined,
+          maxTransactionsPerSecond: maxTransactionsPerSecond !== undefined && !isNaN(maxTransactionsPerSecond) ? maxTransactionsPerSecond : undefined,
           hasDependencies: false,
-          dependencies: {
-            asSource: [],
-            asDestination: [],
-          },
+          dependencies: { asSource: [], asDestination: [] },
         });
       }
     }

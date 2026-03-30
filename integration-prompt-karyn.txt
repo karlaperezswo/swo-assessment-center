@@ -1,0 +1,424 @@
+================================================================================
+PROMPT DE INTEGRACIÓN — RAMA: karyn
+ARCHIVO: integration-prompt-karyn.txt
+VERSIÓN: 1.0.0
+FECHA DE GENERACIÓN: 2026-03-27
+================================================================================
+
+INSTRUCCIÓN PRINCIPAL
+=====================
+Eres un agente de integración de código. Tu única misión es integrar el módulo
+desarrollado en la rama "karyn" al repositorio central (rama "main") de MAP Central.
+
+LA RAMA "karyn" ES LA FUENTE DE VERDAD ABSOLUTA.
+No interpretes. No rediseñes. No optimices. No reemplaces.
+Preserva el módulo 100% idéntico: funcional, visual y estructuralmente.
+
+ANTES DE EJECUTAR CUALQUIER CAMBIO, DEBES LEER ESTE DOCUMENTO COMPLETO.
+
+================================================================================
+SECCIÓN 1 — INVENTARIO EXACTO DEL MÓDULO (rama karyn)
+================================================================================
+
+1.1 ARCHIVOS NUEVOS (solo existen en karyn, no en main)
+-------------------------------------------------------
+FRONTEND — Componentes nuevos:
+  - frontend/src/components/DependencyMap.tsx
+      Componente raíz del módulo de dependencias. Contiene 3 sub-tabs:
+      "Dependencias de Servidores", "Dependencias de Bases de Datos",
+      "Dependencias de Aplicaciones". Incluye grafo D3 force-directed,
+      tabla paginada, búsqueda por servidor, exportación PDF y Word.
+
+  - frontend/src/components/DatabaseDependencyMap.tsx
+      Sub-módulo de dependencias de bases de datos. Incluye:
+      tabla de conexiones BD↔Servidor, inventario de BDs, grafo D3,
+      panel de búsqueda por BD, exportaciones PDF/Word/Excel.
+      Usa funciones de dbExportUtils.ts.
+
+  - frontend/src/components/AppDependencyMap.tsx
+      Sub-módulo de dependencias de aplicaciones. Incluye:
+      tabla de conexiones entre apps, grafo D3 force-directed con
+      leyenda interactiva y filtros por tipo de aplicación,
+      exportaciones PDF y Word.
+
+  - frontend/src/components/dbExportUtils.ts
+      Utilidades de exportación para el módulo de BDs:
+      exportConnectionsPDF, exportConnectionsWord,
+      exportInventoryPDF, exportInventoryExcel,
+      exportDistributionPDF, exportDistributionWord,
+      exportGraphPDF, exportGraphWord.
+      Usa jsPDF con estilos teal/cyan idénticos al módulo.
+
+  - frontend/src/components/MigrationPlanner.tsx
+      Modal de planificación de migración. Calcula waves automáticamente
+      por grafo de dependencias. Usa vis.js (cargado desde CDN).
+      Incluye panel izquierdo con lista de waves, panel derecho con
+      grafo vis.js, exportación CSV y Word.
+      IMPORTANTE: El botón está habilitado sin requerir archivo previo.
+
+  - frontend/src/components/migrate/WavePlannerTool.tsx
+      Modal de planificación de olas. Carga Excel con columnas
+      ServerName/Criticidad/Ambiente. Algoritmo automático:
+      DEV → TEST → UAT → PROD, dentro de cada ambiente: Baja → Media → Alta.
+      Drag & drop manual entre olas. Exportación PDF/CSV/Word.
+      Acepta prop servers como string[] O Server[] (normalización interna).
+
+BACKEND — Archivos nuevos:
+  - backend/src/controllers/dependencyController.ts
+      Endpoints: POST /api/dependencies/parse (con multer, fallback local)
+                 POST /api/dependencies/export (PDF/Word)
+
+  - backend/src/routes/dependencyRoutes.ts
+      Router Express con multer memoryStorage para /parse y /export.
+
+  - backend/src/services/dependencyService.ts
+      Métodos: parseDependencyFile(buffer), calculateMigrationWaves(deps),
+      buildDependencyGraph(deps), searchDependencies().
+
+  - backend/src/services/documentGeneratorService.ts
+      Generación de documentos Word (.docx) para exportación backend.
+
+  - backend/src/services/parsers/DependencyParser.ts
+      Parser de hojas Excel: "Server Communication", "Application Dependency",
+      "Database" / "Databases". Retorna DependencyData con:
+      dependencies[], appDependencies[], servers (Set), applications (Set),
+      databases[], databasesWithoutDependencies[], summary{}.
+
+1.2 ARCHIVOS MODIFICADOS (existen en main pero fueron cambiados en karyn)
+-------------------------------------------------------------------------
+  - frontend/src/App.tsx
+      Agrega estado: dependencyData, _autoCalculatedWaves.
+      handleDataLoaded recibe depData y waves como parámetros opcionales.
+      Pasa dependencyData a AssessPhase como prop.
+
+  - frontend/src/components/phases/AssessPhase.tsx
+      Agrega tab "Mapa de Dependencias" (value: 'dependency-map').
+      Importa y renderiza <DependencyMap dependencyData={dependencyData} />.
+      Pasa dependencyData a <MigrationWaves>.
+      Agrega prop dependencyData?: any a AssessPhaseProps.
+
+  - frontend/src/components/migrate/MigrationWaves.tsx
+      Agrega prop dependencyData?: any.
+      Agrega botones "Migration Planner" y "Migration Planner Tool" (Wave Planner).
+      Importa y renderiza <MigrationPlanner> y <WavePlannerTool> como modales.
+      El botón Migration Planner está SIEMPRE habilitado (sin condición de datos).
+      Eliminado el mensaje de advertencia que lo bloqueaba.
+
+  - frontend/src/components/FileUploader.tsx
+      Agrega fallback automático: intenta S3 primero, si falla usa
+      POST /api/report/upload (local) + POST /api/dependencies/parse.
+      Retorna dependencyData y migrationWaves en onDataLoaded.
+
+  - backend/src/controllers/reportController.ts
+      uploadExcel ahora también retorna dependencyData y migrationWaves.
+      uploadExcelFromS3 ya retornaba ambos (sin cambio).
+
+  - backend/src/index.ts
+      Registra el nuevo router: app.use('/api/dependencies', dependencyRouter).
+
+  - frontend/src/lib/api.ts
+      Fix: String(config.headers['Content-Type'] ?? '').includes(...)
+      para evitar error de tipo en headers de axios.
+
+  - frontend/index.html
+      Agrega translate="no" y <meta name="google" content="notranslate">
+      para prevenir traducción automática del navegador.
+
+  - backend/src/services/parsers/index.ts
+      Exporta DependencyParser junto a los parsers existentes.
+
+1.3 DISEÑO VISUAL — IDENTIDAD EXACTA A PRESERVAR
+-------------------------------------------------
+Paleta de colores principal (degradado teal/cyan):
+  Header panels:    linear-gradient(135deg, #0f766e 0%, #0891b2 60%, #0284c7 100%)
+  Header columnas:  linear-gradient(90deg, #0f766e 0%, #0891b2 55%, #0284c7 100%)
+  Hover filas:      #ccfbf1
+  Bordes:           #99f6e4
+  Fondo stats:      linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)
+  Texto primario:   #0f766e, #0891b2, #0284c7
+  Badges:           background teal con texto blanco
+
+Tipografía:
+  Font-family: Calibri, Arial, sans-serif (en exportaciones Word/PDF)
+  Font-size tabla: 11px-13px
+  Font-weight headers: 700
+
+Componentes visuales clave:
+  - Sticky headers en tablas con degradado teal/cyan
+  - Botones glassmorphism en headers de paneles
+  - Badges de color por tipo de servidor/BD/app
+  - Grafo D3 force-directed con zoom, pan, drag de nodos
+  - Panel de leyenda interactiva con filtros por tipo
+  - Paginación con selector de items por página
+  - Ordenamiento por columna con indicador de dirección
+
+1.4 EXPORTACIONES — COMPORTAMIENTO EXACTO A PRESERVAR
+------------------------------------------------------
+Módulo Dependencias de Servidores:
+  - PDF (jsPDF, A4 landscape): header degradado, stats cards, tabla completa,
+    badges ASCII de color (SRV/WEB/DB/API/etc.) en lugar de emojis,
+    página de grafo D3, página de búsqueda si hay resultado activo.
+  - Word (.doc): mismo contenido con CSS inline, emojis en tabla,
+    imagen del grafo, sección de búsqueda con grid 2 columnas.
+
+Módulo Dependencias de Bases de Datos:
+  - exportConnectionsPDF/Word: tabla de conexiones BD↔Servidor
+  - exportInventoryPDF/Excel: inventario completo de BDs
+  - exportDistributionPDF/Word: distribución por motor
+  - exportGraphPDF/Word: grafo de dependencias de BD
+
+Módulo Dependencias de Aplicaciones:
+  - exportTablePDF/Word: tabla de conexiones entre apps
+  - exportGraphPDF/Word: grafo D3 de apps
+
+Wave Planner Tool:
+  - exportToPDF: genera HTML con estilos teal, abre para imprimir como PDF
+  - exportToCSV: CSV con BOM UTF-8
+  - exportToWord: .doc con degradado teal/cyan, tabla por ola con badges
+
+Migration Planner:
+  - exportToCSV: CSV con columnas Servidor/Tipo/Wave/Dependencias
+  - exportToWord: .doc con header azul/índigo, stats cards, tabla por wave
+
+================================================================================
+SECCIÓN 2 — DEPENDENCIAS CRÍTICAS (frontend)
+================================================================================
+
+Librerías NUEVAS requeridas por karyn (no presentes en main):
+  d3: ^7.9.0                    — grafos force-directed en los 3 módulos
+  @types/d3: ^7.4.3             — tipos TypeScript para d3
+  reactflow: ^11.10.4           — grafo de flujo (usado en DependencyMap)
+  jspdf: ^4.2.0                 — exportación PDF client-side
+  html2canvas: ^1.4.1           — captura de canvas para PDF
+  xlsx: ^0.18.5                 — lectura de Excel en WavePlannerTool
+  vis-network: ^9.1.9           — grafo en MigrationPlanner (también CDN fallback)
+  react-dropzone: ^14.2.3       — drag & drop de archivos en WavePlannerTool
+  recharts: ^2.10.3             — gráfico de barras en MigrationWaves
+  sonner: ^2.0.7                — notificaciones toast
+
+Librerías ya presentes en main (sin cambio de versión):
+  react: ^18.2.0, react-dom: ^18.2.0
+  axios: ^1.6.2
+  lucide-react: ^0.294.0
+  tailwindcss: ^3.3.6
+  typescript: ^5.3.2
+  vite: ^5.0.7
+
+Backend — Librerías NUEVAS:
+  multer: ^1.4.5-lts.1          — upload de archivos en /api/dependencies/parse
+  @types/multer: ^1.4.11        — tipos TypeScript para multer
+  docx: ^8.5.0                  — generación de documentos Word en backend
+
+Backend — Librerías ya presentes:
+  express, cors, dotenv, xlsx, @aws-sdk/*, uuid, zod, ts-node, nodemon
+
+ACCIÓN REQUERIDA:
+  Ejecutar en frontend/: npm install d3 @types/d3 reactflow jspdf html2canvas xlsx vis-network react-dropzone recharts sonner
+  Ejecutar en backend/:  npm install multer @types/multer docx
+
+================================================================================
+SECCIÓN 3 — DIFERENCIAS CONTRA REPOSITORIO CENTRAL (main)
+================================================================================
+
+3.1 ARCHIVOS PRESENTES EN KARYN Y AUSENTES EN MAIN (deben agregarse):
+  frontend/src/components/DependencyMap.tsx         (NUEVO)
+  frontend/src/components/DatabaseDependencyMap.tsx (NUEVO)
+  frontend/src/components/AppDependencyMap.tsx      (NUEVO)
+  frontend/src/components/dbExportUtils.ts          (NUEVO)
+  frontend/src/components/MigrationPlanner.tsx      (NUEVO)
+  frontend/src/components/migrate/WavePlannerTool.tsx (NUEVO)
+  backend/src/controllers/dependencyController.ts   (NUEVO)
+  backend/src/routes/dependencyRoutes.ts            (NUEVO)
+  backend/src/services/dependencyService.ts         (NUEVO)
+  backend/src/services/documentGeneratorService.ts  (NUEVO)
+  backend/src/services/parsers/DependencyParser.ts  (NUEVO)
+
+3.2 ARCHIVOS MODIFICADOS EN KARYN QUE DEBEN ACTUALIZARSE EN MAIN:
+  frontend/src/App.tsx                              (MODIFICADO)
+  frontend/src/components/phases/AssessPhase.tsx    (MODIFICADO)
+  frontend/src/components/migrate/MigrationWaves.tsx (MODIFICADO)
+  frontend/src/components/FileUploader.tsx          (MODIFICADO)
+  frontend/src/lib/api.ts                           (MODIFICADO)
+  frontend/index.html                               (MODIFICADO)
+  backend/src/controllers/reportController.ts       (MODIFICADO)
+  backend/src/index.ts                              (MODIFICADO)
+  backend/src/services/parsers/index.ts             (MODIFICADO)
+  backend/package.json                              (MODIFICADO)
+  frontend/package.json                             (MODIFICADO)
+
+3.3 ARCHIVOS QUE NO DEBEN TOCARSE (solo existen en main, no en karyn):
+  Todos los demás componentes de main que no aparecen en la lista anterior.
+  NO modificar: ServerTable, DatabaseTable, ApplicationTable, ExecutiveSummary,
+  BusinessCaseMetrics, CostSummary, SevenRsChart, ClientForm, ni ningún
+  componente de mobilize/, assess/ (excepto AssessPhase.tsx y RapidDiscovery.tsx).
+
+================================================================================
+SECCIÓN 4 — REGLAS ESTRICTAS DE INTEGRACIÓN
+================================================================================
+
+REGLA 1 — FUENTE DE VERDAD
+  La rama "karyn" es la fuente de verdad absoluta para todos los archivos
+  listados en la Sección 3. En caso de conflicto, karyn siempre gana.
+
+REGLA 2 — PROHIBICIÓN DE REDISEÑO
+  Está PROHIBIDO:
+  - Cambiar colores, fuentes, tamaños, espaciados o cualquier propiedad visual
+  - Reemplazar componentes por alternativas "equivalentes"
+  - Refactorizar la estructura de los componentes
+  - Cambiar nombres de funciones, variables o props
+  - Reinterpretar el diseño visual
+  - Simplificar o "limpiar" código que funciona
+  - Cambiar el comportamiento de exportaciones PDF/Word/CSV/Excel
+
+REGLA 3 — SOLO ACOPLAMIENTO TÉCNICO
+  Los únicos cambios permitidos son:
+  - Ajustar rutas de importación si la estructura de carpetas difiere
+  - Resolver conflictos de merge en archivos compartidos (App.tsx, etc.)
+  - Instalar dependencias faltantes
+  - Registrar rutas nuevas en el backend (index.ts)
+  - Ajustar variables de entorno si el repositorio central usa nombres distintos
+
+REGLA 4 — NO ROMPER EL REPOSITORIO CENTRAL
+  Antes de integrar, verificar que:
+  - Los componentes existentes en main siguen funcionando
+  - No se eliminan props ni interfaces que main ya usa
+  - No se cambia el contrato de API de endpoints existentes
+  - El build (tsc && vite build) pasa sin errores
+
+REGLA 5 — ORDEN DE INTEGRACIÓN
+  Seguir este orden estrictamente:
+  1. Instalar dependencias nuevas (npm install)
+  2. Copiar archivos NUEVOS del backend (controllers, routes, services, parsers)
+  3. Registrar router en backend/src/index.ts
+  4. Copiar archivos NUEVOS del frontend (componentes)
+  5. Aplicar cambios en archivos MODIFICADOS (merge cuidadoso)
+  6. Verificar build: npx tsc --noEmit --skipLibCheck en frontend/ y backend/
+  7. Verificar runtime: iniciar backend (puerto 4000) y frontend (puerto 3005)
+  8. Probar flujo completo: cargar archivo Excel → verificar módulo dependencias
+
+REGLA 6 — MERGE DE ARCHIVOS COMPARTIDOS
+  Para App.tsx:
+    - Agregar estado: const [dependencyData, setDependencyData] = useState<any>(null)
+    - Agregar estado: const [_autoCalculatedWaves, setAutoCalculatedWaves] = useState<any>(null)
+    - En handleDataLoaded: agregar parámetros depData y waves, llamar setDependencyData
+    - Pasar dependencyData como prop a AssessPhase
+
+  Para AssessPhase.tsx:
+    - Agregar import: import { DependencyMap } from '@/components/DependencyMap'
+    - Agregar tab: { value: 'dependency-map', label: 'Mapa de Dependencias', icon: <Network /> }
+    - Agregar render: {activeTab === 'dependency-map' && <DependencyMap dependencyData={dependencyData} />}
+    - Agregar prop dependencyData?: any a la interfaz AssessPhaseProps
+    - Pasar dependencyData a MigrationWaves
+
+  Para MigrationWaves.tsx:
+    - Agregar prop dependencyData?: any
+    - Agregar estados: showPlanner, showWaveTool
+    - Agregar botones "Migration Planner" y "Migration Planner Tool"
+    - Agregar modales <MigrationPlanner> y <WavePlannerTool>
+    - NO agregar mensaje de advertencia que bloquee el botón
+
+  Para FileUploader.tsx:
+    - Reemplazar el flujo de upload por el de karyn (con fallback S3 → local)
+    - Mantener la UI existente del componente sin cambios visuales
+
+  Para backend/src/index.ts:
+    - Agregar: import { dependencyRouter } from './routes/dependencyRoutes'
+    - Agregar: app.use('/api/dependencies', dependencyRouter)
+
+  Para backend/src/controllers/reportController.ts:
+    - En uploadExcel: agregar parseo de dependencias y retornar dependencyData/migrationWaves
+    - No modificar uploadExcelFromS3 (ya lo hace)
+
+REGLA 7 — VARIABLES DE ENTORNO
+  El módulo de dependencias funciona sin AWS configurado (fallback local).
+  No se requieren variables de entorno adicionales para el módulo de dependencias.
+  El backend usa PORT=4000 por defecto.
+
+REGLA 8 — NO REGRESIÓN
+  Después de la integración, verificar que estos flujos siguen funcionando:
+  - Carga de archivo Excel MPA (Descubrimiento Rápido)
+  - Generación de reporte Word/PDF existente
+  - Módulo TCO Report
+  - Módulo Migration Readiness
+  - Módulo Mobilize (todos los sub-módulos)
+  - Navegación entre fases (Assess → Mobilize → Migrate)
+
+REGLA 9 — LIMPIEZA Y .GITIGNORE
+  NO versionar los siguientes tipos de archivos:
+  - Archivos de diagnóstico: diagnostico*.js, debug-*.js, check-*.js, inspect-*.js
+  - Scripts de prueba: test-*.js, test-*.bat
+  - Documentación de proceso: GUIA-*.md, RESUMEN-*.md, SOLUCION-*.md, MEJORAS-*.md
+  - Artefactos compilados: shared/types/*.js, *.js.map, *.d.ts.map
+  - Binarios: *.zip (lambda-function.zip)
+  - Datos de ejemplo: *.csv de prueba
+  El .gitignore de karyn ya incluye todas estas reglas. Copiarlo al repositorio central.
+
+================================================================================
+SECCIÓN 5 — RIESGOS DE INTEGRACIÓN Y MITIGACIONES
+================================================================================
+
+RIESGO 1 — Conflicto de dependencias
+  Riesgo: d3, reactflow, jspdf, xlsx pueden tener conflictos con versiones
+          ya instaladas en main.
+  Mitigación: Verificar package.json de main antes de instalar. Si hay
+              versiones distintas, usar la versión de karyn (^7.9.0 para d3,
+              ^11.10.4 para reactflow, ^4.2.0 para jspdf).
+
+RIESGO 2 — Conflicto en App.tsx y AssessPhase.tsx
+  Riesgo: Estos archivos pueden tener cambios en main que no están en karyn.
+  Mitigación: Hacer merge manual línea por línea. Nunca sobrescribir completo.
+              Priorizar la lógica de karyn para las secciones de dependencyData.
+
+RIESGO 3 — vis-network CDN en MigrationPlanner
+  Riesgo: El grafo de MigrationPlanner carga vis-network desde CDN en runtime.
+          Si no hay internet, el grafo no se renderiza.
+  Mitigación: vis-network también está en package.json como dependencia local.
+              El componente tiene fallback: si window.vis no está disponible,
+              inyecta el script desde CDN automáticamente.
+
+RIESGO 4 — Tamaño del bundle
+  Riesgo: d3 + reactflow + jspdf + xlsx + vis-network aumentan el bundle.
+  Mitigación: Todos usan dynamic import (await import('jspdf')) donde es posible.
+              No requiere configuración adicional de Vite.
+
+RIESGO 5 — CORS en backend local
+  Riesgo: El backend de main puede tener orígenes CORS distintos.
+  Mitigación: backend/src/index.ts de karyn permite:
+              localhost:3005, localhost:3006, localhost:5173, 127.0.0.1:3005/3006
+              Verificar que el repositorio central use los mismos puertos.
+
+RIESGO 6 — Prop servers en WavePlannerTool
+  Riesgo: WavePlannerTool acepta servers como string[] O Server[].
+          Si main pasa un tipo diferente, puede causar error en runtime.
+  Mitigación: El componente normaliza internamente en el useEffect.
+              El guard `if (!serverName) return { apps: [], dbs: [] }` previene crashes.
+
+================================================================================
+SECCIÓN 6 — VERIFICACIÓN FINAL (checklist post-integración)
+================================================================================
+
+[ ] npm install completado sin errores en frontend/ y backend/
+[ ] npx tsc --noEmit --skipLibCheck pasa en frontend/ (0 errores)
+[ ] npx tsc --noEmit --skipLibCheck pasa en backend/ (0 errores)
+[ ] Backend inicia en puerto 4000 sin errores
+[ ] Frontend inicia en puerto 3005 sin errores
+[ ] Tab "Mapa de Dependencias" visible en fase Assess
+[ ] Tab "Dependencias de Servidores" funciona (tabla + grafo)
+[ ] Tab "Dependencias de Bases de Datos" funciona (tabla + inventario + grafo)
+[ ] Tab "Dependencias de Aplicaciones" funciona (tabla + grafo + leyenda)
+[ ] Botón "Migration Planner" en Olas de Migración está habilitado sin archivo
+[ ] Botón "Wave Planner Tool" abre modal correctamente
+[ ] Exportación PDF funciona en módulo Dependencias de Servidores
+[ ] Exportación Word funciona en módulo Dependencias de Servidores
+[ ] Exportación PDF/Word/Excel funciona en módulo Dependencias de BDs
+[ ] Exportación PDF/Word funciona en módulo Dependencias de Aplicaciones
+[ ] Exportación CSV/Word funciona en Wave Planner Tool
+[ ] Exportación CSV/Word funciona en Migration Planner
+[ ] Carga de archivo Excel activa los módulos de dependencias automáticamente
+[ ] Fallback local funciona cuando S3 no está configurado
+[ ] Flujos existentes de main no están rotos (TCO, Mobilize, etc.)
+[ ] .gitignore actualizado con reglas de karyn
+
+================================================================================
+FIN DEL PROMPT DE INTEGRACIÓN — RAMA: karyn
+================================================================================

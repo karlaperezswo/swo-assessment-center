@@ -1,15 +1,16 @@
 import { Router } from 'express';
-import { uploadDependencyFile, searchDependencies, exportDependencies } from '../controllers/dependencyController';
+import multer from 'multer';
+import { DependencyController } from '../controllers/dependencyController';
 
 const router = Router();
+const controller = new DependencyController();
 
-// Upload and parse dependency file
-router.post('/upload', uploadDependencyFile);
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
 
-// Search dependencies by server name
-router.post('/search', searchDependencies);
+// POST /api/dependencies/export  — export as PDF (HTML) or Word (.docx)
+router.post('/export', controller.export);
 
-// Export dependencies to PDF/Word
-router.post('/export', exportDependencies);
+// POST /api/dependencies/parse  — parse dependency data from Excel file (local fallback)
+router.post('/parse', upload.single('file'), controller.parse);
 
 export { router as dependencyRouter };

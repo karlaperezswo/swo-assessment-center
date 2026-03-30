@@ -1,4 +1,4 @@
-import { Document, Paragraph, Table, TableCell, TableRow, TextRun, WidthType, AlignmentType, BorderStyle } from 'docx';
+import { Document, Paragraph, Table, TableCell, TableRow, TextRun, WidthType, AlignmentType, HeadingLevel, ShadingType, Packer } from 'docx';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -6,17 +6,19 @@ export interface DependencyReportData {
   server: string;
   dependencies: {
     incoming: Array<{
-      source: string;
-      port: number;
-      protocol: string;
+      source?: string;
+      destination?: string;
+      port?: number | null;
+      protocol?: string;
       serviceName?: string;
       sourceApp?: string;
       destinationApp?: string;
     }>;
     outgoing: Array<{
-      destination: string;
-      port: number;
-      protocol: string;
+      source?: string;
+      destination?: string;
+      port?: number | null;
+      protocol?: string;
       serviceName?: string;
       sourceApp?: string;
       destinationApp?: string;
@@ -49,123 +51,115 @@ export class DocumentGeneratorService {
         children: [
           // Title
           new Paragraph({
-            text: 'Reporte de Dependencias de Red',
-            heading: 'Heading1',
+            heading: HeadingLevel.HEADING_1,
             alignment: AlignmentType.CENTER,
-            spacing: { after: 400 },
+            spacing: { after: 200 },
+            children: [new TextRun({ text: 'Reporte de Dependencias de Red', bold: true, size: 36, color: '1e3a8a' })],
           }),
 
-          // Server name
+          // Subtitle bar (server name)
           new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 100 },
+            shading: { type: ShadingType.SOLID, fill: 'dbeafe' },
             children: [
-              new TextRun({
-                text: `Servidor Analizado: `,
-                bold: true,
-              }),
-              new TextRun({
-                text: data.server,
-                color: '2563eb',
-                bold: true,
-                size: 28,
-              }),
+              new TextRun({ text: 'Servidor: ', bold: true, color: '1e40af', size: 24 }),
+              new TextRun({ text: data.server, bold: true, color: '1e40af', size: 24 }),
             ],
-            spacing: { after: 200 },
           }),
 
           // Date
           new Paragraph({
-            children: [
-              new TextRun({
-                text: `Fecha de generación: `,
-                bold: true,
-              }),
-              new TextRun({
-                text: new Date().toLocaleString('es-ES'),
-              }),
-            ],
+            alignment: AlignmentType.CENTER,
             spacing: { after: 400 },
+            children: [
+              new TextRun({ text: `Generado: ${new Date().toLocaleString('es-ES')}`, color: '6b7280', size: 18 }),
+            ],
           }),
 
-          // Summary
+          // Summary heading
           new Paragraph({
-            text: 'Resumen Ejecutivo',
-            heading: 'Heading2',
-            spacing: { before: 400, after: 200 },
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+            children: [new TextRun({ text: 'Resumen Ejecutivo', bold: true, color: '1e3a8a' })],
           }),
 
           new Paragraph({
+            spacing: { after: 60 },
             children: [
-              new TextRun({ text: `Total de dependencias: `, bold: true }),
-              new TextRun({ text: data.summary.totalDependencies.toString() }),
+              new TextRun({ text: 'Total de dependencias: ', bold: true, color: '374151' }),
+              new TextRun({ text: data.summary.totalDependencies.toString(), color: '374151' }),
             ],
           }),
           new Paragraph({
+            spacing: { after: 60 },
             children: [
-              new TextRun({ text: `Servidores únicos: `, bold: true }),
-              new TextRun({ text: data.summary.uniqueServers.toString() }),
+              new TextRun({ text: 'Servidores únicos: ', bold: true, color: '374151' }),
+              new TextRun({ text: data.summary.uniqueServers.toString(), color: '374151' }),
             ],
           }),
           new Paragraph({
+            spacing: { after: 60 },
             children: [
-              new TextRun({ text: `Aplicaciones únicas: `, bold: true }),
-              new TextRun({ text: data.summary.uniqueApplications.toString() }),
+              new TextRun({ text: 'Aplicaciones únicas: ', bold: true, color: '374151' }),
+              new TextRun({ text: data.summary.uniqueApplications.toString(), color: '374151' }),
             ],
           }),
           new Paragraph({
-            children: [
-              new TextRun({ text: `Puertos únicos: `, bold: true }),
-              new TextRun({ text: data.summary.uniquePorts.toString() }),
-            ],
             spacing: { after: 400 },
+            children: [
+              new TextRun({ text: 'Puertos únicos: ', bold: true, color: '374151' }),
+              new TextRun({ text: data.summary.uniquePorts.toString(), color: '374151' }),
+            ],
           }),
 
-          // Incoming connections
+          // Incoming
           new Paragraph({
-            text: `Conexiones Entrantes (${data.dependencies.incoming.length})`,
-            heading: 'Heading2',
-            spacing: { before: 400, after: 200 },
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 300, after: 200 },
+            children: [new TextRun({ text: `Conexiones Entrantes (${data.dependencies.incoming.length})`, bold: true, color: '1e3a8a' })],
           }),
-
           this.createDependencyTable(data.dependencies.incoming, 'incoming'),
 
-          // Outgoing connections
+          // Outgoing
           new Paragraph({
-            text: `Conexiones Salientes (${data.dependencies.outgoing.length})`,
-            heading: 'Heading2',
+            heading: HeadingLevel.HEADING_2,
             spacing: { before: 400, after: 200 },
+            children: [new TextRun({ text: `Conexiones Salientes (${data.dependencies.outgoing.length})`, bold: true, color: '1e3a8a' })],
           }),
-
           this.createDependencyTable(data.dependencies.outgoing, 'outgoing'),
 
           // Related servers
-          new Paragraph({
-            text: `Servidores Relacionados (${data.relatedServers.length})`,
-            heading: 'Heading2',
-            spacing: { before: 400, after: 200 },
-          }),
-
-          new Paragraph({
-            text: data.relatedServers.join(', '),
-            spacing: { after: 400 },
-          }),
+          ...(data.relatedServers.length > 0 ? [
+            new Paragraph({
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 400, after: 200 },
+              children: [new TextRun({ text: `Servidores Relacionados (${data.relatedServers.length})`, bold: true, color: '1e3a8a' })],
+            }),
+            new Paragraph({
+              spacing: { after: 400 },
+              children: [new TextRun({ text: data.relatedServers.join(', '), color: '374151' })],
+            }),
+          ] : []),
 
           // Related applications
-          new Paragraph({
-            text: `Aplicaciones Relacionadas (${data.relatedApplications.length})`,
-            heading: 'Heading2',
-            spacing: { before: 400, after: 200 },
-          }),
-
-          new Paragraph({
-            text: data.relatedApplications.join(', '),
-            spacing: { after: 400 },
-          }),
+          ...(data.relatedApplications.length > 0 ? [
+            new Paragraph({
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 400, after: 200 },
+              children: [new TextRun({ text: `Aplicaciones Relacionadas (${data.relatedApplications.length})`, bold: true, color: '1e3a8a' })],
+            }),
+            new Paragraph({
+              spacing: { after: 400 },
+              children: [new TextRun({ text: data.relatedApplications.join(', '), color: '374151' })],
+            }),
+          ] : []),
 
           // Footer
           new Paragraph({
-            text: '© 2024 SoftwareOne - AWS Migration Assessment Platform',
             alignment: AlignmentType.CENTER,
             spacing: { before: 800 },
+            children: [new TextRun({ text: `© ${new Date().getFullYear()} SoftwareOne – AWS Migration Assessment Platform`, color: '9ca3af', size: 16 })],
           }),
         ],
       }],
@@ -176,80 +170,79 @@ export class DocumentGeneratorService {
     const filename = `dependencias_${serverName}_${timestamp}.docx`;
     const filepath = path.join(this.outputDir, filename);
 
-    const buffer = await require('docx').Packer.toBuffer(doc);
+    const buffer = await Packer.toBuffer(doc);
     fs.writeFileSync(filepath, buffer);
 
     return filename;
   }
 
   private createDependencyTable(dependencies: any[], type: 'incoming' | 'outgoing'): Table {
-    const headerCells = [
-      new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: type === 'incoming' ? 'Servidor Origen' : 'Servidor Destino', bold: true, color: 'FFFFFF' })] })],
-        shading: { fill: '2563eb' },
-      }),
-      new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: 'Puerto', bold: true, color: 'FFFFFF' })] })],
-        shading: { fill: '2563eb' },
-      }),
-      new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: 'Protocolo', bold: true, color: 'FFFFFF' })] })],
-        shading: { fill: '2563eb' },
-      }),
-      new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: 'Servicio', bold: true, color: 'FFFFFF' })] })],
-        shading: { fill: '2563eb' },
-      }),
-      new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: 'Aplicación', bold: true, color: 'FFFFFF' })] })],
-        shading: { fill: '2563eb' },
-      }),
-    ];
+    const headerLabel = type === 'incoming' ? 'Servidor Origen' : 'Servidor Destino';
 
-    const rows = [new TableRow({ children: headerCells })];
+    // Column widths in DXA (1440 DXA = 1 inch). Page ~9360 DXA usable.
+    const colWidths = [2808, 749, 936, 2434, 2434];
+    const colHeaders = [headerLabel, 'Puerto', 'Protocolo', 'Servicio / Proceso', 'Aplicación'];
 
-    dependencies.forEach((dep, index) => {
-      const serverName = type === 'incoming' ? dep.source : dep.destination;
-      const app = type === 'incoming' ? dep.sourceApp : dep.destinationApp;
-      
-      rows.push(
-        new TableRow({
-          children: [
-            new TableCell({ children: [new Paragraph(serverName)] }),
-            new TableCell({ children: [new Paragraph(dep.port.toString())] }),
-            new TableCell({ children: [new Paragraph(dep.protocol)] }),
-            new TableCell({ children: [new Paragraph(dep.serviceName || '-')] }),
-            new TableCell({ children: [new Paragraph(app || '-')] }),
-          ],
+    // Header: fondo azul claro (#dbeafe), texto azul oscuro (#1e3a8a) — profesional, sin negro
+    const headerRow = new TableRow({
+      tableHeader: true,
+      children: colHeaders.map((text, i) =>
+        new TableCell({
+          width: { size: colWidths[i], type: WidthType.DXA },
+          shading: { type: ShadingType.SOLID, fill: 'dbeafe' },
+          margins: { top: 100, bottom: 100, left: 120, right: 120 },
+          children: [new Paragraph({
+            children: [new TextRun({ text, bold: true, color: '1e3a8a', size: 18 })],
+          })],
         })
-      );
+      ),
     });
 
-    if (dependencies.length === 0) {
-      rows.push(
-        new TableRow({
-          children: [
+    const dataRows = dependencies.length > 0
+      ? dependencies.map((dep: any, idx: number) => {
+          const serverName = type === 'incoming' ? (dep.source || '-') : (dep.destination || '-');
+          const app = type === 'incoming' ? (dep.sourceApp || '-') : (dep.destinationApp || '-');
+          // Filas alternas: blanco y gris muy suave
+          const fillColor = idx % 2 === 0 ? 'ffffff' : 'f8fafc';
+
+          const makeCell = (text: string, width: number) =>
             new TableCell({
-              children: [new Paragraph({ text: 'No hay conexiones', alignment: AlignmentType.CENTER })],
-              columnSpan: 5,
-            }),
-          ],
+              width: { size: width, type: WidthType.DXA },
+              shading: { type: ShadingType.SOLID, fill: fillColor },
+              margins: { top: 80, bottom: 80, left: 120, right: 120 },
+              children: [new Paragraph({
+                children: [new TextRun({ text: text || '-', size: 18, color: '374151' })],
+                spacing: { line: 276 },
+              })],
+            });
+
+          return new TableRow({
+            cantSplit: false,
+            children: [
+              makeCell(serverName, colWidths[0]),
+              makeCell(dep.port != null ? String(dep.port) : '-', colWidths[1]),
+              makeCell(dep.protocol || '-', colWidths[2]),
+              makeCell(dep.serviceName || '-', colWidths[3]),
+              makeCell(app, colWidths[4]),
+            ],
+          });
         })
-      );
-    }
+      : [new TableRow({
+          children: [new TableCell({
+            columnSpan: 5,
+            shading: { type: ShadingType.SOLID, fill: 'f9fafb' },
+            children: [new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [new TextRun({ text: 'Sin conexiones', color: '9ca3af', italics: true, size: 18 })],
+            })],
+          })],
+        })];
 
     return new Table({
-      rows,
+      rows: [headerRow, ...dataRows],
       width: { size: 100, type: WidthType.PERCENTAGE },
+      columnWidths: colWidths,
     });
-  }
-
-  async generatePDFFromHTML(htmlContent: string, filename: string): Promise<string> {
-    // For now, we'll save as HTML and let the browser convert to PDF
-    // In production, you could use puppeteer or similar
-    const filepath = path.join(this.outputDir, filename);
-    fs.writeFileSync(filepath, htmlContent);
-    return filename;
   }
 
   getFilePath(filename: string): string {

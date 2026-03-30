@@ -38,7 +38,11 @@ export class DocumentGeneratorService {
   private outputDir: string;
 
   constructor() {
-    this.outputDir = path.join(__dirname, '../../generated');
+    // En Lambda el filesystem es read-only excepto /tmp
+    const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+    this.outputDir = isLambda
+      ? '/tmp/generated'
+      : path.join(__dirname, '../../generated');
     if (!fs.existsSync(this.outputDir)) {
       fs.mkdirSync(this.outputDir, { recursive: true });
     }

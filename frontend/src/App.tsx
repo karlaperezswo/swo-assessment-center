@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import apiClient from '@/lib/api';
+import { useTranslation } from '@/i18n/useTranslation';
 import { PhaseNavigator } from '@/components/layout/PhaseNavigator';
 import { PhaseProgressBar } from '@/components/layout/PhaseProgressBar';
 import { AssessPhase } from '@/components/phases/AssessPhase';
@@ -34,6 +35,7 @@ import { Toaster, toast } from 'sonner';
 import { TechnicalMemory } from '@/components/techMemory/TechnicalMemory';
 
 function App() {
+  const { t } = useTranslation();
   const [excelData, setExcelData] = useState<ExcelData | null>(null);
   const [uploadSummary, setUploadSummary] = useState<UploadSummary | null>(null);
   const [clientData, setClientData] = useState<ClientFormData>({
@@ -304,13 +306,140 @@ function App() {
     }
   };
 
-  const handlePhaseComplete = (phase: MigrationPhase) => {
+  const handlePhaseComplete = async (phase: MigrationPhase) => {
+    // If completing Assess phase and both MPA and MRA are available, analyze opportunities
+    if (phase === 'assess' && excelData && mraFile) {
+      const loadingToastId = toast.loading(
+        t('opportunities.analyzing'),
+        { duration: Infinity, description: t('opportunities.analyzing_description') }
+      );
+
+      try {
+        // Step 1: Get presigned URLs
+        const files: { filename: string; contentType: string }[] = [
+          { filename: 'mpa-data.json', contentType: 'application/json' },
+          { filename: mraFile.name, contentType: 'application/pdf' },
+        ];
+        if (questionnaireFile) {
+          files.push({
+            filename: questionnaireFile.name,
+            contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          });
+        }
+
+        const urlResponse = await apiClient.post('/api/opportunities/get-upload-urls', { files });
+        if (!urlResponse.data.success) {
+          throw new Error(urlResponse.data.error || 'Failed to get upload URLs');
+        }
+
+        const { mpaUrl, mpaKey, mraUrl, mraKey, questionnaireUrl, questionnaireKey } = urlResponse.data.data;
+
+        // Step 2: Upload files to S3 in parallel
+        const excelBlob = new Blob([JSON.stringify(excelData)], { type: 'application/json' });
+        const uploadPromises = [
+          fetch(mpaUrl, { method: 'PUT', body: excelBlob, headers: { 'Content-Type': 'application/json' } }),
+          fetch(mraUrl, { method: 'PUT', body: mraFile, headers: { 'Content-Type': 'application/pdf' } }),
+        ];
+        if (questionnaireFile && questionnaireUrl) {
+          uploadPromises.push(
+            fetch(questionnaireUrl, {
+              method: 'PUT',
+              body: questionnaireFile,
+              headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
+            })
+          );
+        }
+        await Promise.all(uploadPromises);
+
+        // Step 3: Analyze with S3 keys
+        const analyzeBody: any = { mpaKey, mraKey };
+        if (questionnaireKey) analyzeBody.questionnaireKey = questionnaireKey;
+
+        const response = await apiClient.post('/api/opportunities/analyze', analyzeBody);
+
+        if (response.status === 202 && response.data.jobId) {
+          const { jobId } = response.data;
+          toast.loading(t('opportunities.polling'), {
+            id: loadingToastId,
+            duration: Infinity,
+            description: t('opportunities.polling_description')
+          });
+
+          let consecutiveFailures = 0;
+          const maxFailures = 3;
+          const pollingInterval = 5000;
+
+          const pollJobStatus = async (): Promise<void> => {
+            try {
+              const statusResponse = await apiClient.get(`/api/opportunities/status/${jobId}`);
+              consecutiveFailures = 0;
+              const { status, progress } = statusResponse.data;
+
+              if (status === 'completed') {
+                const resultResponse = await apiClient.get(`/api/opportunities/result/${jobId}`);
+                if (resultResponse.data.success && resultResponse.data.result) {
+                  const { sessionId, opportunities } = resultResponse.data.result;
+                  setOpportunitySessionId(sessionId);
+                  toast.dismiss(loadingToastId);
+                  toast.success(
+                    `${t('opportunities.completed')} ${opportunities.length} ${t('opportunities.identified')}`,
+                    { duration: 5000, description: t('opportunities.viewDetails') }
+                  );
+                }
+              } else if (status === 'failed') {
+                toast.dismiss(loadingToastId);
+                toast.error(t('opportunities.error'), {
+                  description: statusResponse.data.error || t('opportunities.failed'),
+                  duration: 7000
+                });
+              } else if (status === 'processing' || status === 'pending') {
+                const progressText = progress ? `${progress}%` : t('opportunities.polling');
+                toast.loading(`${t('opportunities.polling')} ${progressText}...`, {
+                  id: loadingToastId,
+                  duration: Infinity,
+                  description: t('opportunities.analyzing_description')
+                });
+                setTimeout(pollJobStatus, pollingInterval);
+              }
+            } catch (pollError: any) {
+              console.error('Error polling job status:', pollError);
+              consecutiveFailures++;
+              if (consecutiveFailures >= maxFailures) {
+                toast.dismiss(loadingToastId);
+                toast.error(t('opportunities.polling_error'), {
+                  description: t('opportunities.polling_error_description', { count: maxFailures }),
+                  duration: 10000
+                });
+              } else {
+                setTimeout(pollJobStatus, pollingInterval);
+              }
+            }
+          };
+          setTimeout(pollJobStatus, pollingInterval);
+
+        } else if (response.data.success) {
+          setOpportunitySessionId(response.data.data.sessionId);
+          toast.dismiss(loadingToastId);
+          toast.success(
+            `¡Análisis completado! ${response.data.data.opportunities.length} oportunidades identificadas`,
+            { duration: 5000, description: 'Ve a la pestaña "Oportunidades de Venta" para ver los detalles' }
+          );
+        }
+      } catch (error: any) {
+        console.error('Error analyzing opportunities:', error);
+        toast.dismiss(loadingToastId);
+        toast.error(t('opportunities.error'), {
+          description: error.response?.data?.error || t('opportunities.retry'),
+          duration: 7000
+        });
+      }
+    }
+
     const phaseOrder: MigrationPhase[] = ['assess', 'mobilize', 'migrate'];
     const currentIndex = phaseOrder.indexOf(phase);
 
     setPhaseStatus((prev) => {
       const updated = { ...prev, [phase]: 'completed' as const };
-      // Auto-advance next phase to in_progress
       if (currentIndex < phaseOrder.length - 1) {
         const nextPhase = phaseOrder[currentIndex + 1];
         if (updated[nextPhase] === 'not_started') {
@@ -320,7 +449,6 @@ function App() {
       return updated;
     });
 
-    // Auto-navigate to next phase
     if (currentIndex < phaseOrder.length - 1) {
       setCurrentPhase(phaseOrder[currentIndex + 1]);
     }

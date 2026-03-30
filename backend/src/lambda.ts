@@ -4,6 +4,10 @@ import cors from 'cors';
 import { reportRouter } from './routes/reportRoutes';
 import { selectorRouter } from './routes/selectorRoutes';
 import { opportunityRouter } from './routes/opportunityRoutes';
+import { businessCaseRouter } from './routes/businessCaseRoutes';
+import { i18nRouter } from './routes/i18nRoutes';
+import { dependencyRouter } from './routes/dependencyRoutes';
+import { scraperRouter } from './routes/scraperRoutes';
 
 const app = express();
 
@@ -29,6 +33,10 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/api/report', reportRouter);
 app.use('/api/opportunities', opportunityRouter);
 app.use('/api/selector', selectorRouter);
+app.use('/api/business-case', businessCaseRouter);
+app.use('/api/i18n', i18nRouter);
+app.use('/api/dependencies', dependencyRouter);
+app.use('/api/scraper', scraperRouter);
 
 // Health check
 app.get('/health', (req, res) => {

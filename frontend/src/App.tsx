@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useTranslation } from '@/i18n/useTranslation';
 import apiClient from '@/lib/api';
+import { useTranslation } from '@/i18n/useTranslation';
 import { PhaseNavigator } from '@/components/layout/PhaseNavigator';
 import { PhaseProgressBar } from '@/components/layout/PhaseProgressBar';
 import { AssessPhase } from '@/components/phases/AssessPhase';
@@ -32,7 +32,7 @@ import {
 } from '@/types/assessment';
 import { RefreshCw, Cloud } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
-import { LanguageSelector } from '@/i18n/LanguageSelector';
+import { TechnicalMemory } from '@/components/techMemory/TechnicalMemory';
 
 function App() {
   const { t } = useTranslation();
@@ -64,13 +64,14 @@ function App() {
     assess: 'in_progress',
     mobilize: 'not_started',
     migrate: 'not_started',
+    'tech-memory': 'not_started',
   });
 
   // Assess phase state
   const [briefingSessions, setBriefingSessions] = useState<BriefingSession[]>([]);
   const [immersionDays, setImmersionDays] = useState<ImmersionDayPlan[]>([]);
   const [opportunitySessionId, setOpportunitySessionId] = useState<string | null>(null);
-  const [mraFile, setMRAFile] = useState<File | null>(null);
+  const [mraFile, setMraFile] = useState<File | null>(null);
   const [questionnaireFile, setQuestionnaireFile] = useState<File | null>(null);
 
   // Mobilize phase state
@@ -85,7 +86,11 @@ function App() {
     createDefaultSecurityChecklist()
   );
 
-  const handleDataLoaded = (data: ExcelData, summary: UploadSummary) => {
+  // Dependency and migration wave data
+  const [dependencyData, setDependencyData] = useState<any>(null);
+  const [_autoCalculatedWaves, setAutoCalculatedWaves] = useState<any>(null);
+
+  const handleDataLoaded = (data: ExcelData, summary: UploadSummary, depData?: any, waves?: any) => {
     setExcelData(data);
     setUploadSummary(summary);
     setClientData(prev => ({
@@ -94,6 +99,40 @@ function App() {
     }));
     setReportResult(null);
     setError(null);
+
+    // Store dependency data
+    if (depData) {
+      setDependencyData(depData);
+      console.log('✅ Dependencias cargadas:', depData.summary);
+    }
+
+    // Store and convert auto-calculated waves to MigrationWave format
+    if (waves) {
+      setAutoCalculatedWaves(waves);
+      
+      // Convert calculated waves to MigrationWave format
+      const convertedWaves: MigrationWave[] = waves.waves.map((wave: any, _index: number) => ({
+        id: `wave-auto-${wave.waveNumber}`,
+        waveNumber: wave.waveNumber,
+        name: `Wave ${wave.waveNumber}${wave.waveNumber === 1 ? ' - Base Infrastructure' : ''}`,
+        startDate: '', // User can fill these later
+        endDate: '',
+        serverCount: wave.serverCount,
+        applicationCount: 0,
+        status: 'planned' as const,
+        strategy: 'Rehost',
+        notes: `Servidores: ${wave.servers.join(', ')}`,
+        servers: wave.servers,
+      }));
+      
+      setMigrationWaves(convertedWaves);
+      console.log(`✅ ${waves.totalWaves} olas de migración generadas automáticamente`);
+      
+      toast.success(`Olas de migración calculadas automáticamente`, {
+        description: `${waves.totalWaves} olas generadas para ${waves.totalServers} servidores`,
+        duration: 5000
+      });
+    }
 
     // Generate simple cost estimate
     estimateCosts(data);
@@ -216,7 +255,7 @@ function App() {
 
   const handleGenerateReport = async () => {
     if (!excelData || !clientData.clientName) {
-      const errorMsg = t('errors.uploadFirst');
+      const errorMsg = 'Please upload an Excel file and enter the client name';
       setError(errorMsg);
       toast.error(errorMsg);
       return;
@@ -225,7 +264,7 @@ function App() {
     setIsGenerating(true);
     setError(null);
 
-    toast.loading(t('report.generating'), { id: 'generate-report' });
+    toast.loading('Generando reporte Word...', { id: 'generate-report' });
 
     try {
       const response = await apiClient.post('/api/report/generate', {
@@ -246,17 +285,18 @@ function App() {
         if (response.data.data.summary.databaseRecommendations) {
           setDbRecommendations(response.data.data.summary.databaseRecommendations);
         }
-        toast.success(t('report.generated'), {
+        toast.success('Reporte generado exitosamente', {
           id: 'generate-report',
+          description: 'El reporte está listo para descargar',
           duration: 5000
         });
       } else {
-        throw new Error(response.data.error || t('report.error'));
+        throw new Error(response.data.error || 'Failed to generate report');
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : t('report.error');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to generate report';
       setError(errorMsg);
-      toast.error(t('report.error'), {
+      toast.error('Error al generar reporte', {
         id: 'generate-report',
         description: errorMsg,
         duration: 7000
@@ -269,180 +309,124 @@ function App() {
   const handlePhaseComplete = async (phase: MigrationPhase) => {
     // If completing Assess phase and both MPA and MRA are available, analyze opportunities
     if (phase === 'assess' && excelData && mraFile) {
-      // Show persistent loading toast
       const loadingToastId = toast.loading(
         t('opportunities.analyzing'),
-        {
-          duration: Infinity, // Don't auto-dismiss
-          description: t('opportunities.analyzing_description')
-        }
+        { duration: Infinity, description: t('opportunities.analyzing_description') }
       );
-      
+
       try {
-        // Step 1: Get presigned URLs from backend
-        const files = [
+        // Step 1: Get presigned URLs
+        const files: { filename: string; contentType: string }[] = [
           { filename: 'mpa-data.json', contentType: 'application/json' },
           { filename: mraFile.name, contentType: 'application/pdf' },
         ];
-        
         if (questionnaireFile) {
-          files.push({ 
-            filename: questionnaireFile.name, 
-            contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+          files.push({
+            filename: questionnaireFile.name,
+            contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
           });
         }
 
         const urlResponse = await apiClient.post('/api/opportunities/get-upload-urls', { files });
-        
         if (!urlResponse.data.success) {
           throw new Error(urlResponse.data.error || 'Failed to get upload URLs');
         }
 
         const { mpaUrl, mpaKey, mraUrl, mraKey, questionnaireUrl, questionnaireKey } = urlResponse.data.data;
 
-        // Step 2: Upload files directly to S3 in parallel
+        // Step 2: Upload files to S3 in parallel
         const excelBlob = new Blob([JSON.stringify(excelData)], { type: 'application/json' });
-        
         const uploadPromises = [
-          fetch(mpaUrl, { 
-            method: 'PUT', 
-            body: excelBlob,
-            headers: { 'Content-Type': 'application/json' }
-          }),
-          fetch(mraUrl, { 
-            method: 'PUT', 
-            body: mraFile,
-            headers: { 'Content-Type': 'application/pdf' }
-          }),
+          fetch(mpaUrl, { method: 'PUT', body: excelBlob, headers: { 'Content-Type': 'application/json' } }),
+          fetch(mraUrl, { method: 'PUT', body: mraFile, headers: { 'Content-Type': 'application/pdf' } }),
         ];
-
         if (questionnaireFile && questionnaireUrl) {
           uploadPromises.push(
-            fetch(questionnaireUrl, { 
-              method: 'PUT', 
+            fetch(questionnaireUrl, {
+              method: 'PUT',
               body: questionnaireFile,
               headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
             })
           );
         }
-
         await Promise.all(uploadPromises);
 
         // Step 3: Analyze with S3 keys
         const analyzeBody: any = { mpaKey, mraKey };
-        if (questionnaireKey) {
-          analyzeBody.questionnaireKey = questionnaireKey;
-        }
+        if (questionnaireKey) analyzeBody.questionnaireKey = questionnaireKey;
 
         const response = await apiClient.post('/api/opportunities/analyze', analyzeBody);
 
-        // Check if response is 202 Accepted (async processing)
         if (response.status === 202 && response.data.jobId) {
           const { jobId } = response.data;
-          
-          // Update toast to show polling status
-          toast.loading(
-            t('opportunities.polling'),
-            {
-              id: loadingToastId,
-              duration: Infinity,
-              description: t('opportunities.polling_description')
-            }
-          );
-          
-          // Start polling for job status
+          toast.loading(t('opportunities.polling'), {
+            id: loadingToastId,
+            duration: Infinity,
+            description: t('opportunities.polling_description')
+          });
+
           let consecutiveFailures = 0;
           const maxFailures = 3;
-          const pollingInterval = 5000; // 5 seconds
-          
+          const pollingInterval = 5000;
+
           const pollJobStatus = async (): Promise<void> => {
             try {
               const statusResponse = await apiClient.get(`/api/opportunities/status/${jobId}`);
-              
-              // Reset failure counter on successful request
               consecutiveFailures = 0;
-              
               const { status, progress } = statusResponse.data;
-              
+
               if (status === 'completed') {
-                // Job completed, fetch result
                 const resultResponse = await apiClient.get(`/api/opportunities/result/${jobId}`);
-                
                 if (resultResponse.data.success && resultResponse.data.result) {
                   const { sessionId, opportunities } = resultResponse.data.result;
                   setOpportunitySessionId(sessionId);
-                  
-                  // Dismiss loading toast and show success
                   toast.dismiss(loadingToastId);
                   toast.success(
                     `${t('opportunities.completed')} ${opportunities.length} ${t('opportunities.identified')}`,
-                    {
-                      duration: 5000,
-                      description: t('opportunities.viewDetails')
-                    }
+                    { duration: 5000, description: t('opportunities.viewDetails') }
                   );
                 }
               } else if (status === 'failed') {
-                // Job failed
-                const errorMsg = statusResponse.data.error || t('opportunities.failed');
                 toast.dismiss(loadingToastId);
                 toast.error(t('opportunities.error'), {
-                  description: errorMsg,
+                  description: statusResponse.data.error || t('opportunities.failed'),
                   duration: 7000
                 });
               } else if (status === 'processing' || status === 'pending') {
-                // Still processing, update toast with progress
                 const progressText = progress ? `${progress}%` : t('opportunities.polling');
-                toast.loading(
-                  `${t('opportunities.polling')} ${progressText}...`,
-                  {
-                    id: loadingToastId,
-                    duration: Infinity,
-                    description: t('opportunities.analyzing_description')
-                  }
-                );
-                
-                // Continue polling
+                toast.loading(`${t('opportunities.polling')} ${progressText}...`, {
+                  id: loadingToastId,
+                  duration: Infinity,
+                  description: t('opportunities.analyzing_description')
+                });
                 setTimeout(pollJobStatus, pollingInterval);
               }
             } catch (pollError: any) {
               console.error('Error polling job status:', pollError);
               consecutiveFailures++;
-              
               if (consecutiveFailures >= maxFailures) {
-                // Too many failures, stop polling and notify user
                 toast.dismiss(loadingToastId);
                 toast.error(t('opportunities.polling_error'), {
                   description: t('opportunities.polling_error_description', { count: maxFailures }),
                   duration: 10000
                 });
               } else {
-                // Retry after interval
                 setTimeout(pollJobStatus, pollingInterval);
               }
             }
           };
-          
-          // Start polling
           setTimeout(pollJobStatus, pollingInterval);
-          
+
         } else if (response.data.success) {
-          // Old synchronous response (backward compatibility)
           setOpportunitySessionId(response.data.data.sessionId);
-          
           toast.dismiss(loadingToastId);
           toast.success(
             `¡Análisis completado! ${response.data.data.opportunities.length} oportunidades identificadas`,
-            {
-              duration: 5000,
-              description: 'Ve a la pestaña "Oportunidades de Venta" para ver los detalles'
-            }
+            { duration: 5000, description: 'Ve a la pestaña "Oportunidades de Venta" para ver los detalles' }
           );
         }
-            } catch (error: any) {
+      } catch (error: any) {
         console.error('Error analyzing opportunities:', error);
-
-        // Dismiss loading toast and show error
         toast.dismiss(loadingToastId);
         toast.error(t('opportunities.error'), {
           description: error.response?.data?.error || t('opportunities.retry'),
@@ -456,7 +440,6 @@ function App() {
 
     setPhaseStatus((prev) => {
       const updated = { ...prev, [phase]: 'completed' as const };
-      // Auto-advance next phase to in_progress
       if (currentIndex < phaseOrder.length - 1) {
         const nextPhase = phaseOrder[currentIndex + 1];
         if (updated[nextPhase] === 'not_started') {
@@ -466,7 +449,6 @@ function App() {
       return updated;
     });
 
-    // Auto-navigate to next phase
     if (currentIndex < phaseOrder.length - 1) {
       setCurrentPhase(phaseOrder[currentIndex + 1]);
     }
@@ -493,9 +475,12 @@ function App() {
     });
     // Reset phase state
     setCurrentPhase('assess');
-    setPhaseStatus({ assess: 'in_progress', mobilize: 'not_started', migrate: 'not_started' });
+    setPhaseStatus({ assess: 'in_progress', mobilize: 'not_started', migrate: 'not_started', 'tech-memory': 'not_started' });
     setBriefingSessions([]);
     setImmersionDays([]);
+    setOpportunitySessionId(null);
+    setMraFile(null);
+    setQuestionnaireFile(null);
     setMigrationWaves([]);
     setSkillAssessments(createDefaultSkillAssessments());
     setLandingZoneChecklist(createDefaultLandingZoneChecklist());
@@ -505,7 +490,7 @@ function App() {
   const handleDownload = () => {
     if (reportResult?.downloadUrl) {
       window.open(reportResult.downloadUrl, '_blank');
-      toast.success(t('common.downloadStarting'));
+      toast.success('Iniciando descarga del reporte');
     }
   };
 
@@ -519,17 +504,16 @@ function App() {
             <Cloud className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-xl font-bold text-gray-900">
-                {t('header.title')}
+                Centro de Evaluación de Migración AWS
               </h1>
               <p className="text-sm text-gray-500">
-                {t('header.subtitle')}
+                Evaluar → Movilizar → Migrar y Modernizar
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">{t('common.developedBy')}</span>
-            <span className="font-bold text-orange-500">{t('header.brand')}</span>
-            <LanguageSelector />
+            <span className="text-sm text-gray-500">Desarrollado por</span>
+            <span className="font-bold text-orange-500">SoftwareOne</span>
           </div>
         </div>
       </header>
@@ -564,9 +548,10 @@ function App() {
               opportunitySessionId={opportunitySessionId}
               onOpportunitySessionIdChange={setOpportunitySessionId}
               mraFile={mraFile}
-              onMRAFileChange={setMRAFile}
+              onMRAFileChange={setMraFile}
               questionnaireFile={questionnaireFile}
               onQuestionnaireFileChange={setQuestionnaireFile}
+              dependencyData={dependencyData}
             />
           )}
 
@@ -609,6 +594,10 @@ function App() {
               isGenerating={isGenerating}
             />
           )}
+
+          {currentPhase === 'tech-memory' && (
+            <TechnicalMemory />
+          )}
         </PhaseNavigator>
 
         {/* Error Message */}
@@ -624,7 +613,7 @@ function App() {
         <div className="flex justify-center">
           <Button variant="outline" onClick={handleReset}>
             <RefreshCw className="h-4 w-4 mr-2" />
-            {t('common.reset')}
+            Reiniciar Todo
           </Button>
         </div>
       </main>
@@ -632,7 +621,7 @@ function App() {
       {/* Footer */}
       <footer className="bg-white border-t mt-12">
         <div className="max-w-7xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
-          {t('footer.copyright')} &copy; {new Date().getFullYear()} {t('header.brand')}
+          AWS Assessment Report Generator &copy; {new Date().getFullYear()} SoftwareOne
         </div>
       </footer>
     </div>

@@ -3,8 +3,13 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 
-const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+// Configuración de AWS S3 — usa IAM Role del Lambda automáticamente
+const AWS_REGION = process.env.AWS_REGION || 'us-east-1';
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'assessment-center-files-assessment-dashboard';
+
+const s3Client = new S3Client({ region: AWS_REGION });
+
+console.log(`📦 [UploadController] S3 Configuration: Region=${AWS_REGION}, Bucket=${BUCKET_NAME}`);
 
 export class UploadController {
   /**

@@ -10,7 +10,7 @@ import { Upload, Building2, CheckCircle, FileText, FileQuestion } from 'lucide-r
 interface RapidDiscoveryProps {
   excelData: ExcelData | null;
   clientData: ClientFormData;
-  onDataLoaded: (data: ExcelData, summary: UploadSummary) => void;
+  onDataLoaded: (data: ExcelData, summary: UploadSummary, dependencyData?: any, migrationWaves?: any) => void;
   onFormChange: (data: ClientFormData) => void;
   mraFile: File | null;
   onMRAFileChange: (file: File | null) => void;

@@ -1,7 +1,6 @@
 import { MigrationPhase, PhaseStatus } from '@/types/assessment';
-import { CheckCircle, Search, Rocket, Zap } from 'lucide-react';
+import { CheckCircle, Search, Rocket, Zap, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTranslation } from '@/i18n/useTranslation';
 
 interface PhaseNavigatorProps {
   currentPhase: MigrationPhase;
@@ -9,63 +8,76 @@ interface PhaseNavigatorProps {
   phaseStatus: PhaseStatus;
 }
 
-export function PhaseNavigator({ currentPhase, onPhaseChange, phaseStatus, children }: PhaseNavigatorProps & { children: React.ReactNode }) {
-  const { t } = useTranslation();
+const phaseConfig = [
+  {
+    key: 'assess' as MigrationPhase,
+    number: 1,
+    label: 'EVALUAR',
+    subtitle: 'Crear un caso de cambio',
+    icon: Search,
+    colors: {
+      active: 'border-fuchsia-600 bg-gradient-to-br from-fuchsia-50 to-pink-50 text-fuchsia-900',
+      completed: 'border-green-500 bg-green-50 text-green-800 hover:bg-green-100',
+      default: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:border-gray-300',
+      number: 'text-fuchsia-600 bg-fuchsia-100',
+      borderBottom: 'bg-fuchsia-600',
+    },
+  },
+  {
+    key: 'mobilize' as MigrationPhase,
+    number: 2,
+    label: 'MOVILIZAR',
+    subtitle: 'Construir preparación a través de experiencias',
+    icon: Rocket,
+    colors: {
+      active: 'border-violet-600 bg-gradient-to-br from-violet-50 to-purple-50 text-violet-900',
+      completed: 'border-green-500 bg-green-50 text-green-800 hover:bg-green-100',
+      default: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:border-gray-300',
+      number: 'text-violet-600 bg-violet-100',
+      borderBottom: 'bg-violet-600',
+    },
+  },
+  {
+    key: 'migrate' as MigrationPhase,
+    number: 3,
+    label: 'MIGRAR Y MODERNIZAR',
+    subtitle: 'Acelerar la transformación a escala',
+    icon: Zap,
+    colors: {
+      active: 'border-amber-600 bg-gradient-to-br from-amber-50 to-orange-50 text-amber-900',
+      completed: 'border-green-500 bg-green-50 text-green-800 hover:bg-green-100',
+      default: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:border-gray-300',
+      number: 'text-amber-600 bg-amber-100',
+      borderBottom: 'bg-amber-600',
+    },
+  },
+  {
+    key: 'tech-memory' as MigrationPhase,
+    number: 4,
+    label: 'MEMORIA TÉCNICA',
+    subtitle: 'Documentación técnica AWS con normas APA',
+    icon: BookOpen,
+    colors: {
+      active: 'border-pink-500 bg-gradient-to-br from-pink-50 to-blue-50 text-pink-900',
+      completed: 'border-green-500 bg-green-50 text-green-800 hover:bg-green-100',
+      default: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:border-gray-300',
+      number: 'text-pink-600 bg-pink-100',
+      borderBottom: 'bg-gradient-to-r from-pink-500 to-blue-600',
+    },
+  },
+];
 
-  const phaseConfig = [
-    {
-      key: 'assess' as MigrationPhase,
-      number: 1,
-      label: t('nav.assess.label'),
-      subtitle: t('nav.assess.subtitle'),
-      icon: Search,
-      colors: {
-        active: 'border-fuchsia-600 bg-gradient-to-br from-fuchsia-50 to-pink-50 text-fuchsia-900',
-        completed: 'border-green-500 bg-green-50 text-green-800 hover:bg-green-100',
-        default: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:border-gray-300',
-        number: 'text-fuchsia-600 bg-fuchsia-100',
-        borderBottom: 'bg-fuchsia-600',
-      },
-    },
-    {
-      key: 'mobilize' as MigrationPhase,
-      number: 2,
-      label: t('nav.mobilize.label'),
-      subtitle: t('nav.mobilize.subtitle'),
-      icon: Rocket,
-      colors: {
-        active: 'border-violet-600 bg-gradient-to-br from-violet-50 to-purple-50 text-violet-900',
-        completed: 'border-green-500 bg-green-50 text-green-800 hover:bg-green-100',
-        default: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:border-gray-300',
-        number: 'text-violet-600 bg-violet-100',
-        borderBottom: 'bg-violet-600',
-      },
-    },
-    {
-      key: 'migrate' as MigrationPhase,
-      number: 3,
-      label: t('nav.migrate.label'),
-      subtitle: t('nav.migrate.subtitle'),
-      icon: Zap,
-      colors: {
-        active: 'border-amber-600 bg-gradient-to-br from-amber-50 to-orange-50 text-amber-900',
-        completed: 'border-green-500 bg-green-50 text-green-800 hover:bg-green-100',
-        default: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:border-gray-300',
-        number: 'text-amber-600 bg-amber-100',
-        borderBottom: 'bg-amber-600',
-      },
-    },
-  ];
+export function PhaseNavigator({ currentPhase, onPhaseChange, phaseStatus, children }: PhaseNavigatorProps & { children: React.ReactNode }) {
   return (
     <div className="space-y-6">
       {/* Phase tabs */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         {phaseConfig.map((phase) => {
           const status = phaseStatus[phase.key];
           const isActive = currentPhase === phase.key;
           const Icon = phase.icon;
 
-          const canNavigate = status !== 'not_started' || phase.key === 'assess';
+          const canNavigate = phase.key === 'tech-memory' || status !== 'not_started' || phase.key === 'assess';
 
           return (
             <button

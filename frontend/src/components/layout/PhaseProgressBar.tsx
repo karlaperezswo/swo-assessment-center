@@ -12,6 +12,7 @@ const phaseColors = {
   assess: { circle: 'bg-fuchsia-600', ring: 'ring-fuchsia-300', text: 'text-fuchsia-700' },
   mobilize: { circle: 'bg-violet-600', ring: 'ring-violet-300', text: 'text-violet-700' },
   migrate: { circle: 'bg-amber-600', ring: 'ring-amber-300', text: 'text-amber-700' },
+  'tech-memory': { circle: 'bg-cyan-600', ring: 'ring-cyan-300', text: 'text-cyan-700' },
 };
 
 export function PhaseProgressBar({ phaseStatus, currentPhase }: PhaseProgressBarProps) {

@@ -8,6 +8,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30 segundos de timeout
 });
 
 // Interceptor para logging (opcional, útil para debug)
@@ -17,6 +18,12 @@ apiClient.interceptors.request.use(
       ? `${config.baseURL}${config.url}`
       : config.url;
     console.log(`📡 API Request: ${config.method?.toUpperCase()} ${url}`);
+    
+    // Log adicional para multipart/form-data
+    if (String(config.headers['Content-Type'] ?? '').includes('multipart/form-data')) {
+      console.log('📎 Enviando archivo...');
+    }
+    
     return config;
   },
   (error) => {
@@ -31,7 +38,17 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('❌ API Response Error:', error.response?.status, error.config?.url);
+    if (error.code === 'ECONNABORTED') {
+      console.error('⏱️ Timeout: La petición tardó demasiado');
+    } else if (error.code === 'ERR_NETWORK') {
+      console.error('🔌 Error de Red: No se pudo conectar con el servidor');
+      console.error('   Verifica que el backend esté ejecutándose en http://localhost:4000');
+    } else if (error.response) {
+      console.error('❌ API Response Error:', error.response?.status, error.config?.url);
+      console.error('   Mensaje:', error.response?.data);
+    } else {
+      console.error('❌ Error desconocido:', error.message);
+    }
     return Promise.reject(error);
   }
 );

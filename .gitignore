@@ -38,10 +38,6 @@ Thumbs.db
 uploads/
 generated/
 *.docx
-*.xlsx
-
-# Debug files
-backend/debug/
 
 # Testing
 coverage/
@@ -51,140 +47,211 @@ coverage/
 *.tsbuildinfo
 .eslintcache
 
-# Archivos de documentación local
-BIENVENIDA.txt
-EMPIEZA-AQUI.txt
-GUIA-VISUAL.html
-INICIAR-PROYECTO.bat
-INSTRUCCIONES-RAPIDAS.txt
-LEEME.md
-RESUMEN-ARCHIVOS.md
-detener-servidores.bat
-verificar-sistema.bat
-base_docs_selector/
+# ── Archivos temporales de TypeScript check ──────────────────────────────────
+tsc-*.txt
+tsc-check.txt
+debug_segment.txt
 
-# Documentación temporal de desarrollo
-AMPLIFY-SECURITY-SETUP.md
-AMPLIFY-STEP-BY-STEP.md
-AMPLIFY-VISUAL-GUIDE.txt
-AUTO-GUARDADO-IMPLEMENTADO.md
-AWS-COST-COMPARISON.md
-AWS-DEPLOYMENT-GUIDE.md
-AWS-QUICK-START.md
-BEDROCK-FIX-APPLIED.md
-BEDROCK-MODEL-COMPARISON.md
-BEDROCK-TIMEOUT-DIAGNOSIS.md
-BUGFIX-500-ERROR.md
-DEPLOYMENT-COMPLETED.md
-DEPLOYMENT-INSTRUCTIONS.md
-FINAL-STATUS.md
-INSTRUCCIONES-VISUALES.txt
-INTEGRATION-COMPLETE.md
-LANDING-ZONE-TEMPLATES.md
-LOCAL-SETUP-COMPLETADO.md
-MEJORAS-EJECUTIVAS.md
-MEJORAS-VISUALIZACION-7RS.md
-MULTI-SOURCE-PARSER.md
-MVP-SECURITY-SUMMARY.md
-PORTFORWARDING.md
-PROMPT-HISTORY.md
-READY-TO-DEPLOY.md
-RESTART-COMPLETE.md
-SECURITY-GROUP-MAPPING-ANALYSIS.md
-SIGUIENTES-PASOS.md
-TEST-SELECTOR-API.md
-TIMEOUT-AND-TOKENS-GUIDE.md
-TIMEOUT-FIX.md
-UX-IMPROVEMENTS.md
-
-# Scripts de testing y debug temporales
+# ── Scripts de diagnóstico y prueba (no son parte del core) ──────────────────
 check-columns.js
+create-dependency-sample.js
 debug-classification.js
+diagnostico-completo.js
+diagnostico-upload-s3.js
 inspect-rows.js
+test-backend-connection.js
 test-backend-parser.js
 test-concierto-parser.js
 test-format-detection.js
 test-frontend-logic.js
+verificar-servidor-funcionando.js
 
-# Scripts BAT temporales
-clean-and-restart.bat
+# ── Documentación de proceso / changelogs internos (no son código) ───────────
+# NOTA: README.md, amplify.yml, amplify-setup.json, s3-cors-config.json,
+#       docker-compose.yml y aws/ se mantienen (son infraestructura activa)
+AGREGAR-CARGA-EXCEL-WAVE-PLANNER.md
+ALGORITMO-WAVES-MEJORADO-GRANULAR.md
+ALGORITMO-WAVES-MEJORADO.md
+AMPLIFY-SECURITY-SETUP.md
+AMPLIFY-STEP-BY-STEP.md
+AMPLIFY-VISUAL-GUIDE.txt
+ANALISIS-ERROR-CONEXION.md
+ANALISIS-MODULO-DEPENDENCIAS-FUNCIONAL.md
+ARQUITECTURA-DEPENDENCIAS.txt
+AWS-COST-COMPARISON.md
+AWS-DEPLOYMENT-GUIDE.md
+AWS-QUICK-START.md
+BOTON-MIGRATION-PLANNER.md
+CAMBIOS-MODULO-DEPENDENCIAS.md
+CAMBIOS-PARSER-SERVER-COMMUNICATION.md
+CHANGELOG.md
+COMO-ARREGLAR-CONEXION.md
+COMO-USAR-MODULO-DEPENDENCIAS.md
+CONFIGURACION-AWS-COMPLETADA.md
+CONFIRMACION-DRAG-DROP-COMPLETO.md
+DEPENDENCY-MAP-GUIDE.md
+DEPENDENCY-MODULE-README.md
+DEPLOYMENT-COMPLETED.md
+DEPLOYMENT-INSTRUCTIONS.md
+DIAGNOSTICO-CARGA-ARCHIVOS.md
+DIAGRAMAS-WAVE-COMPLETADO.md
+DIAGRAMAS-WAVE-INTERACTIVOS.md
+DRAG-DROP-WAVE-PLANNER-COMPLETADO.md
+ESTADO-SERVIDORES.md
+EXPORTACION-DEPENDENCIAS-ACTIVADA.md
+EXPORTACION-MEJORADA.md
+FUNCIONALIDAD-AUTO-DEPENDENCIAS-OLAS.md
+FUNCIONALIDADES-MIGRATION-PLANNER.md
+GUIA-COMPLETA-CARGA-ARCHIVOS.md
+GUIA-CONFIGURACION-AWS-S3.md
+GUIA-INICIO-MODULO.md
+GUIA-PRUEBA-SERVER-COMMUNICATION.md
+GUIA-RAPIDA-DRAG-DROP-WAVES.md
+GUIA-RAPIDA-REINICIO.md
+GUIA-RAPIDA-SOLUCION-UPLOAD.md
+GUIA-RAPIDA.md
+GUIA-USO-DIAGRAMAS-WAVE.md
+GUIA-USO-WAVE-PLANNER-EXCEL.md
+GUIA-VISUAL-USO-MODULO.md
+GUIA-WAVES-TEST-DEV-PROD.md
+IMPLEMENTACION-EXCEL-WAVE-PLANNER-COMPLETADA.md
+INICIO-RAPIDO-AWS-CLI.md
+INICIO-RAPIDO-DEPENDENCIAS.md
+INSTRUCCIONES-INSTALACION-MANUAL.md
+INSTRUCCIONES-VISUALES.txt
+LANDING-ZONE-TEMPLATES.md
+LEEME-PRIMERO-DEPENDENCIAS.md
+MEJORAS-EJECUTIVAS.md
+MEJORAS-FINALES-MIGRATION-PLANNER.md
+MEJORAS-GRAFICO-VISUAL.md
+MEJORAS-MODULO-COMPLETADAS.md
+MEJORAS-VISUALES-DRAG-DROP.md
+MEJORAS-VISUALES-MAPA-DEPENDENCIAS.md
+MEJORAS-VISUALES-MIGRATION-PLANNER.md
+MEJORAS-VISUALIZACION-7RS.md
+MIGRATION-PLANNER-CONECTADO.md
+MIGRATION-PLANNER-GUIDE.md
+MODULO-DEPENDENCIAS-COMPLETADO.md
+MODULO-LISTO-PARA-USAR.txt
+MULTI-SOURCE-PARSER.md
+MVP-SECURITY-SUMMARY.md
+PASOS-INSTALACION.txt
+PORTFORWARDING.md
+PROMPT-HISTORY.md
+PROYECTO-CORRIENDO.md
+README-SCRIPTS.md
+READY-TO-DEPLOY.md
+RESUMEN-CAMBIOS-FINALES.md
+RESUMEN-DIAGRAMAS-WAVE.md
+RESUMEN-EJECUTIVO-FINAL.md
+RESUMEN-EJECUTIVO.md
+RESUMEN-FINAL-WAVES.md
+RESUMEN-MIGRATION-PLANNER.md
+SECURITY-GROUP-MAPPING-ANALYSIS.md
+SEPARACION-TEST-DEV-PROD.md
+SIGUIENTES-PASOS.md
+SINCRONIZACION-WAVES-MODULO.md
+SINCRONIZACION-WAVES.md
+SOLUCION-CONEXION-SERVIDOR.md
+SOLUCION-ERROR-CARGA.md
+SOLUCION-ERROR-REACT-DOM.md
+SOLUCION-ERROR-UPLOAD-S3.md
+SOLUCION-ERROR-VIS-NETWORK.md
+SOLUCION-FINAL-UPLOAD.md
+SOLUCION-MODULOS-VACIOS.md
+TABLA-DEPENDENCIAS-MEJORADA.md
+UX-IMPROVEMENTS.md
+VISUALIZACION-FINAL-MIGRATION-PLANNER.md
+WAVE-PLANNER-TOOL.md
+
+# ── Archivos de datos de ejemplo / prueba ────────────────────────────────────
+ejemplo-servidores-wave-planner.csv
+sample-dependencies.xlsx
+
+# ── Scripts .bat auxiliares (se mantienen solo los esenciales de arranque) ───
+# Mantenidos: INICIAR-TODO.bat, 1-INSTALAR-NODEJS.bat, 2-INSTALAR-DEPENDENCIAS.bat,
+#             3-INICIAR-PROYECTO.bat, iniciar-backend.bat, iniciar-frontend.bat
+ARREGLAR-CONEXION.bat
+CONFIGURAR-AWS-S3.bat
 create-sample-data.bat
-deploy-lambda.bat
+DETENER-TODO.bat
 diagnostico.bat
+INICIO-LIMPIO.bat
+INICIO-RAPIDO.bat
+INICIAR-MODULO-DEPENDENCIAS.bat
+INSTALAR-CON-DEPENDENCIAS.bat
+INSTALAR-VIS-NETWORK.bat
+instalar-ahora.bat
+REINICIAR-SERVIDOR.bat
+REINICIAR-TODO.bat
+SOLUCION-RAPIDA.bat
+start-dev.bat
+start-portforward.bat
 test-backend.bat
 test-frontend.bat
 test-portforward.bat
-ver-versiones-lambda.bat
+VER-PROYECTO.bat
 
-# Archivos de configuración temporal
-amplify-setup.json
-s3-cors-config.json
-
-# Backend - Archivos temporales
-backend/data/
-backend/lambda-temp/
-backend/test-output/
-backend/docs/
-backend/.trigger
-backend/deploy-lambda.ps1
-backend/test-bedrock-permissions.ps1
-backend/test-upload.sh
-backend/translate-doc.bat
-backend/verify-anonymization.ts
-
-# Scripts de deployment temporales
-EJECUTAR-DEPLOYMENT.bat
-verificar-deployment.bat
-
-# Specs y documentación de desarrollo
-.kiro/specs/
-
-# Temporary script files
-replace-*.ps1
-replace-*.js
-frontend-async-polling.txt
-CONTROLLER-CHANGES.md
-backend/src/controllers/OpportunityController.NEW_METHODS.ts
-backend/src/controllers/OpportunityController.ts.backup*
-
-# Scripts de prueba local
-INICIAR-LOCAL-*.bat
-GUIA-PRUEBA-LOCAL.md
-
-# Archivos temporales de implementación singleton
-SINGLETON-READY.txt
-RESUMEN-CAMBIOS-SINGLETON.md
-ASYNC-IMPLEMENTATION-COMPLETE.md
-
-# Archivos de análisis temporales
+# ── Archivos de proceso / análisis temporales (raíz) ─────────────────────────
 ANALISIS-CALCULOS-OPORTUNIDADES.md
 ANALISIS-SERVICIO-COSTOS-ONPREM.md
+ASYNC-IMPLEMENTATION-COMPLETE.md
 DIAGRAMA-CAMBIOS.md
+GUIA-PRUEBA-LOCAL.md
 PLAN-IMPLEMENTACION-DETALLADO.md
 RESUMEN-ANALISIS-COMPLETO.md
+RESUMEN-CAMBIOS-SINGLETON.md
 RESUMEN-EJECUTIVO-CAMBIOS.md
-BASELINE-V2.md
+SINGLETON-READY.txt
+integration-prompt-karyn.txt
 
-# Scripts de análisis temporales
+# ── Scripts de análisis sueltos en raíz ──────────────────────────────────────
 analyze-all-inputs.js
 analyze-mpa-structure.js
 
-# Scripts BAT adicionales
-start-dev.bat
-start-portforward.bat
+# ── Scripts de arranque local alternativos (no esenciales) ───────────────────
+INICIAR-LOCAL-BACKEND.bat
+INICIAR-LOCAL-COMPLETO.bat
+INICIAR-LOCAL-FRONTEND.bat
 
-# Archivos de documentación adicionales
-DYNAMIC_METRICS.md
-ROADMAP.md
-CHANGELOG-LOCAL-DEV.md
-
-# test-data directory
-test-data/
-
-# Backend test outputs
-backend/test-output/
+# ── Artefactos de build y deploy ─────────────────────────────────────────────
+backend/dist/
 backend/lambda-function.zip
-backend/start-portforward.bat
+backend/generated/
+*.zip
 
-# Carpetas temporales locales
-TEMP-DAVE/
+# ── Archivos de debug del backend ────────────────────────────────────────────
+backend/debug/
+
+# ── Archivos de input/datos de prueba del backend ────────────────────────────
+backend/input/
+
+# ── Scripts utilitarios del backend (no son parte del core) ──────────────────
+backend/listar-buckets-s3.js
+backend/verificar-aws-config.js
+
+# ── Backups de código ─────────────────────────────────────────────────────────
+*.backup
+*.backup2
+
+# ── Archivos de sesiones de datos (generados en runtime) ─────────────────────
+backend/data/selector/sessions/
+
+# ── Shared types compilados (se generan del source) ──────────────────────────
+shared/types/*.js
+shared/types/*.js.map
+shared/types/*.d.ts.map
+
+# ── Kiro specs (herramienta de desarrollo local) ─────────────────────────────
+.kiro/specs/
+
+# ── Scripts de diagnóstico numerados (temporales) ────────────────────────────
+4-GENERAR-DATOS-EJEMPLO.bat
+5-PROBAR-CONEXION.bat
+6-DIAGNOSTICO-COMPLETO.bat
+INICIAR-PROYECTO.bat
+
+# ── Archivos temporales de sesión de desarrollo ───────────────────────────────
+lambda-payload.json
+lambda-response.json
+response.json

@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { useTranslation } from '@/i18n/useTranslation';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileSpreadsheet, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +8,7 @@ import apiClient from '@/lib/api';
 import { toast } from 'sonner';
 
 interface FileUploaderProps {
-  onDataLoaded: (data: ExcelData, summary: UploadSummary) => void;
+  onDataLoaded: (data: ExcelData, summary: UploadSummary, dependencyData?: any, migrationWaves?: any) => void;
 }
 
 // Helper function to get data source label
@@ -29,7 +28,6 @@ const getDataSourceLabel = (dataSource?: string): string => {
 };
 
 export function FileUploader({ onDataLoaded }: FileUploaderProps) {
-  const { t } = useTranslation();
   const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [fileName, setFileName] = useState<string>('');
   const [fileSize, setFileSize] = useState<string>('');
@@ -46,44 +44,13 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
     setUploadState('uploading');
     setErrorMessage('');
 
-    toast.loading(`${t('fileUploader.uploadingMessage')}...`, { id: 'file-upload' });
+    toast.loading(`Cargando ${file.name}...`, { id: 'file-upload' });
 
     try {
-      // Detectar modo: local (sin S3) o producción (con S3)
-      const useLocalUpload = import.meta.env.VITE_USE_LOCAL_UPLOAD === 'true';
+      // Intentar primero con S3, si falla usar upload directo local
+      let excelData: any, summary: any, dependencyData: any, migrationWaves: any;
 
-      if (useLocalUpload) {
-        // ========== MODO LOCAL: Upload directo sin S3 ==========
-        setUploadProgress('Subiendo archivo...');
-        
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await apiClient.post('/api/report/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-
-        if (response.data.success) {
-          const { excelData, summary } = response.data.data;
-          setSummary(summary);
-          setUploadState('success');
-          onDataLoaded(excelData, summary);
-
-          // Create success message with data source info
-          const dataSourceLabel = getDataSourceLabel(summary.dataSource);
-          const successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos${
-            summary.communicationCount ? `, ${summary.communicationCount} conexiones` : ''
-          }`;
-
-          toast.success(successMsg, {
-            id: 'file-upload',
-            duration: 5000
-          });
-        } else {
-          throw new Error(response.data.error || 'Upload failed');
-        }
-      } else {
-        // ========== MODO PRODUCCIÓN: Upload con S3 ==========
+      try {
         // Step 1: Get pre-signed URL for S3 upload
         setUploadProgress('Preparando carga...');
         const urlResponse = await apiClient.post('/api/report/get-upload-url', {
@@ -91,9 +58,7 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
           contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         });
 
-        if (!urlResponse.data.success) {
-          throw new Error(urlResponse.data.error || 'Failed to get upload URL');
-        }
+        if (!urlResponse.data.success) throw new Error('S3 URL failed');
 
         const { uploadUrl, key } = urlResponse.data.data;
 
@@ -109,41 +74,80 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
 
         // Step 3: Process file from S3
         setUploadProgress('Analizando datos...');
-        const response = await apiClient.post('/api/report/upload-from-s3', {
-          key
+        const response = await apiClient.post('/api/report/upload-from-s3', { key });
+        if (!response.data.success) throw new Error(response.data.error || 'S3 processing failed');
+
+        ({ excelData, summary, dependencyData, migrationWaves } = response.data.data);
+
+      } catch (_s3Error) {
+        // Fallback: upload directo al backend sin S3
+        console.warn('S3 no disponible, usando upload directo...');
+        setUploadProgress('Analizando datos (modo local)...');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const localResponse = await apiClient.post('/api/report/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 120000,
         });
 
-        if (response.data.success) {
-          const { excelData, summary } = response.data.data;
-          setSummary(summary);
-          setUploadState('success');
-          onDataLoaded(excelData, summary);
+        if (!localResponse.data.success) {
+          throw new Error(localResponse.data.error || 'Upload failed');
+        }
 
-          // Create success message with data source info
-          const dataSourceLabel = getDataSourceLabel(summary.dataSource);
-          const successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos${
-            summary.communicationCount ? `, ${summary.communicationCount} conexiones` : ''
-          }`;
+        ({ excelData, summary } = localResponse.data.data);
 
-          toast.success(successMsg, {
-            id: 'file-upload',
-            duration: 5000
+        // Parsear dependencias en el backend usando el endpoint de dependencias
+        try {
+          const depFormData = new FormData();
+          depFormData.append('file', file);
+          const depResponse = await apiClient.post('/api/dependencies/parse', depFormData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: 60000,
           });
-        } else {
-          throw new Error(response.data.error || 'Upload failed');
+          if (depResponse.data.success) {
+            dependencyData = depResponse.data.data.dependencyData;
+            migrationWaves = depResponse.data.data.migrationWaves;
+          }
+        } catch (_depErr) {
+          console.warn('No se pudieron parsear dependencias:', _depErr);
         }
       }
+
+      setSummary(summary);
+      setUploadState('success');
+
+      // Pass all data including dependencies and waves
+      onDataLoaded(excelData, summary, dependencyData, migrationWaves);
+
+      // Create success message with data source info
+      const dataSourceLabel = getDataSourceLabel(summary.dataSource);
+      let successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos`;
+
+      if (summary.communicationCount) {
+        successMsg += `, ${summary.communicationCount} conexiones`;
+      }
+
+      if (migrationWaves) {
+        successMsg += `, ${migrationWaves.totalWaves} olas de migración calculadas`;
+      }
+
+      toast.success(successMsg, {
+        id: 'file-upload',
+        duration: 5000
+      });
+
     } catch (error) {
       setUploadState('error');
       const message = error instanceof Error ? error.message : 'Failed to upload file';
       setErrorMessage(message);
-      toast.error(t('upload.error'), {
+      toast.error(`Error al cargar archivo: ${message}`, {
         id: 'file-upload',
-        duration: 7000,
-        description: message
+        duration: 7000
       });
     }
-  }, [onDataLoaded, t]);
+  }, [onDataLoaded]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -158,7 +162,7 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileSpreadsheet className="h-5 w-5" />
-          {t('fileUploader.title')}
+          Cargar Excel MPA
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -178,10 +182,10 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
             <>
               <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
               <p className="text-lg font-medium">
-                {isDragActive ? t('fileUploader.dragDropActive') : t('fileUploader.dragDrop')}
+                {isDragActive ? 'Suelta el archivo Excel aquí' : 'Arrastra y suelta el archivo Excel aquí'}
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                {t('common.loading')}
+                o haz clic para seleccionar archivo (.xlsx)
               </p>
             </>
           )}
@@ -237,30 +241,30 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
               <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.serverCount}</span>
-                  <p className="text-gray-600">{t('fileUploader.summary.servers')}</p>
+                  <p className="text-gray-600">Servidores</p>
                 </div>
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.databaseCount}</span>
-                  <p className="text-gray-600">{t('fileUploader.summary.databases')}</p>
+                  <p className="text-gray-600">Bases de Datos</p>
                 </div>
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.applicationCount}</span>
-                  <p className="text-gray-600">{t('fileUploader.summary.applications')}</p>
+                  <p className="text-gray-600">Aplicaciones</p>
                 </div>
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.totalStorageGB.toFixed(0)}</span>
-                  <p className="text-gray-600">{t('fileUploader.summary.totalGb')}</p>
+                  <p className="text-gray-600">GB Totales</p>
                 </div>
                 {summary.communicationCount !== undefined && summary.communicationCount > 0 && (
                   <div className="bg-white rounded p-2">
                     <span className="font-bold text-2xl text-primary">{summary.communicationCount}</span>
-                    <p className="text-gray-600">{t('fileUploader.summary.connections')}</p>
+                    <p className="text-gray-600">Conexiones</p>
                   </div>
                 )}
                 {summary.securityGroupCount !== undefined && summary.securityGroupCount > 0 && (
                   <div className="bg-white rounded p-2">
                     <span className="font-bold text-2xl text-primary">{summary.securityGroupCount}</span>
-                    <p className="text-gray-600">{t('fileUploader.summary.securityGroups')}</p>
+                    <p className="text-gray-600">Grupos Seg.</p>
                   </div>
                 )}
               </div>
@@ -270,9 +274,9 @@ export function FileUploader({ onDataLoaded }: FileUploaderProps) {
           {uploadState === 'error' && (
             <>
               <XCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
-              <p className="text-lg font-medium text-red-700">{t('fileUploader.error')}</p>
+              <p className="text-lg font-medium text-red-700">Carga Fallida</p>
               <p className="text-sm text-red-600 mt-2">{errorMessage}</p>
-              <p className="text-sm text-gray-500 mt-2">{t('fileUploader.errorRetry')}</p>
+              <p className="text-sm text-gray-500 mt-2">Haz clic para intentar de nuevo</p>
             </>
           )}
         </div>

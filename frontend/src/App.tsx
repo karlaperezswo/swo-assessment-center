@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import apiClient from '@/lib/api';
 import { useTranslation } from '@/i18n/useTranslation';
+import { LanguageSelector } from '@/i18n/LanguageSelector';
 import { PhaseNavigator } from '@/components/layout/PhaseNavigator';
 import { PhaseProgressBar } from '@/components/layout/PhaseProgressBar';
 import { AssessPhase } from '@/components/phases/AssessPhase';
@@ -512,6 +513,7 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSelector />
             <span className="text-sm text-gray-500">Desarrollado por</span>
             <span className="font-bold text-orange-500">SoftwareOne</span>
           </div>

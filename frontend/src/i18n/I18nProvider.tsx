@@ -47,8 +47,16 @@ export function I18nProvider({ children }: Props) {
   // Initialize i18next once on mount
   useEffect(() => {
     initializeI18n().then(() => {
-      setCurrentLanguage(i18next.language || DEFAULT_LANGUAGE)
-      setIsLoading(false)
+      // Wait for resources to actually be loaded, not just initialized
+      if (i18next.isInitialized && i18next.hasLoadedNamespace('translation')) {
+        setCurrentLanguage(i18next.language || DEFAULT_LANGUAGE)
+        setIsLoading(false)
+      } else {
+        i18next.on('loaded', () => {
+          setCurrentLanguage(i18next.language || DEFAULT_LANGUAGE)
+          setIsLoading(false)
+        })
+      }
     })
   }, [])
 
@@ -77,7 +85,7 @@ export function I18nProvider({ children }: Props) {
     if (!keyOrText) return keyOrText
     const { defaultValue, interpolation, namespace, ...rest } = options ?? {}
     const result = i18next.t(keyOrText, {
-      lng: currentLanguage,
+      // No pasar lng explícito — i18next usa el idioma activo internamente
       defaultValue: defaultValue ?? keyOrText,
       ns: namespace,
       ...(interpolation ?? {}),
@@ -104,5 +112,9 @@ export function I18nProvider({ children }: Props) {
     translateAsync,
   }
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
+  return (
+    <I18nContext.Provider value={value}>
+      {isLoading ? null : children}
+    </I18nContext.Provider>
+  )
 }

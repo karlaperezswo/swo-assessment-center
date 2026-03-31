@@ -505,17 +505,17 @@ function App() {
             <Cloud className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-xl font-bold text-gray-900">
-                Centro de Evaluación de Migración AWS
+                {t('header.title')}
               </h1>
               <p className="text-sm text-gray-500">
-                Evaluar → Movilizar → Migrar y Modernizar
+                {t('header.subtitle')}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <LanguageSelector />
-            <span className="text-sm text-gray-500">Desarrollado por</span>
-            <span className="font-bold text-orange-500">SoftwareOne</span>
+            <span className="text-sm text-gray-500">{t('common.developedBy')}</span>
+            <span className="font-bold text-orange-500">{t('header.brand')}</span>
           </div>
         </div>
       </header>
@@ -623,7 +623,7 @@ function App() {
       {/* Footer */}
       <footer className="bg-white border-t mt-12">
         <div className="max-w-7xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
-          AWS Assessment Report Generator &copy; {new Date().getFullYear()} SoftwareOne
+          {t('footer.copyright')} &copy; {new Date().getFullYear()} {t('header.brand')}
         </div>
       </footer>
     </div>

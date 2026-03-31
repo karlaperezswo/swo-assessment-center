@@ -1,6 +1,7 @@
 ﻿import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api';
+import { useTranslation } from '@/i18n/useTranslation';
 import { TechMemoryData, AWSServiceEntry, DictionaryEntry, WellArchPillar } from './types';
 import { exportTechMemoryWord } from './wordExporter';
 import {
@@ -167,6 +168,7 @@ const emptyData = (): TechMemoryData => ({
 });
 
 export function TechnicalMemory() {
+  const { t } = useTranslation();
   const [data, setData] = useState<TechMemoryData>(emptyData());
   const [activeTab, setActiveTab] = useState<'project'|'company'|'services'|'dictionary'|'document'|'wellarch'|'letter'>('project');
   const [serviceSearch, setServiceSearch] = useState('');
@@ -362,12 +364,12 @@ export function TechnicalMemory() {
   // ── Tabs config ────────────────────────────────────────────────────────────
   const tabs = [
     { id: 'project',    label: 'Proyecto',      icon: <FileText style={{ width: 14, height: 14 }} /> },
-    { id: 'company',    label: 'Empresa',        icon: <Building2 style={{ width: 14, height: 14 }} /> },
-    { id: 'services',   label: 'Servicios AWS',  icon: <BookOpen style={{ width: 14, height: 14 }} /> },
-    { id: 'dictionary', label: `Diccionario${selectedCount > 0 ? ` (${selectedCount})` : ''}`, icon: <Library style={{ width: 14, height: 14 }} /> },
-    { id: 'document',   label: 'Documento',      icon: <FileText style={{ width: 14, height: 14 }} /> },
-    { id: 'wellarch',   label: 'Recomendaciones', icon: <ShieldCheck style={{ width: 14, height: 14 }} /> },
-    { id: 'letter',     label: 'Carta',          icon: <Award style={{ width: 14, height: 14 }} /> },
+    { id: 'company',    label: t('techMemory.tabs.client'),        icon: <Building2 style={{ width: 14, height: 14 }} /> },
+    { id: 'services',   label: t('techMemory.tabs.services'),  icon: <BookOpen style={{ width: 14, height: 14 }} /> },
+    { id: 'dictionary', label: `${t('techMemory.tabs.dictionary')}${selectedCount > 0 ? ` (${selectedCount})` : ''}`, icon: <Library style={{ width: 14, height: 14 }} /> },
+    { id: 'document',   label: t('techMemory.tabs.document'),      icon: <FileText style={{ width: 14, height: 14 }} /> },
+    { id: 'wellarch',   label: t('techMemory.tabs.wellarch'), icon: <ShieldCheck style={{ width: 14, height: 14 }} /> },
+    { id: 'letter',     label: t('techMemory.tabs.letter'),          icon: <Award style={{ width: 14, height: 14 }} /> },
   ] as const;
 
   return (
@@ -380,7 +382,7 @@ export function TechnicalMemory() {
             <BookOpen style={{ width: 20, height: 20, color: '#fff' }} />
           </div>
           <div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>Memoria Técnica AWS</div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>{t('techMemory.title')}</div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
               Generación de documentación técnica profesional con normas APA
             </div>
@@ -391,7 +393,7 @@ export function TechnicalMemory() {
             borderRadius: 8, border: '1px solid rgba(255,255,255,0.4)',
             background: 'rgba(255,255,255,0.15)', color: '#fff',
             fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-          <Download style={{ width: 14, height: 14 }} /> Exportar Word
+          <Download style={{ width: 14, height: 14 }} /> {t('techMemory.exportWord')}
         </button>
       </div>
 
@@ -474,7 +476,7 @@ export function TechnicalMemory() {
       {activeTab === 'company' && (
         <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
           <div style={{ background: GRADIENT, padding: '10px 18px' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Información de la Empresa Cliente</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t('techMemory.client.title')}</div>
           </div>
           <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
@@ -489,18 +491,18 @@ export function TechnicalMemory() {
                   style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 7,
                     border: 'none', background: GRADIENT_H, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   {isSearchingCompany ? <Loader2 style={{ width: 13, height: 13 }} className="animate-spin" /> : <Search style={{ width: 13, height: 13 }} />}
-                  {isSearchingCompany ? 'Buscando...' : 'Buscar en web'}
+                  {isSearchingCompany ? t('techMemory.client.searching') : t('techMemory.client.searchWeb')}
                 </button>
               </div>
               <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>
-                Se extraerá automáticamente la misión y visión del sitio web del cliente.
+                {t('techMemory.client.autoExtract')}
               </div>
             </div>
 
             {[
-              { label: 'Misión', field: 'clientMission' as const },
-              { label: 'Visión', field: 'clientVision' as const },
-              { label: 'Acerca de la Empresa', field: 'clientAbout' as const },
+              { label: t('techMemory.client.mission'), field: 'clientMission' as const },
+              { label: t('techMemory.client.vision'), field: 'clientVision' as const },
+              { label: t('techMemory.client.about'), field: 'clientAbout' as const },
             ].map(f => (
               <div key={f.field}>
                 <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4, fontWeight: 600 }}>{f.label}</label>
@@ -520,17 +522,16 @@ export function TechnicalMemory() {
           {/* Search bar */}
           <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
             <div style={{ background: GRADIENT, padding: '10px 18px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Buscar Servicio AWS</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t('techMemory.services.title')}</div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
-                Busca en la documentación oficial de AWS y agrega al documento
+                {t('techMemory.services.subtitle')}
               </div>
             </div>
             <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
               {/* Buscar por nombre */}
               <div>
                 <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>
-                  Buscar por nombre de servicio AWS
-                </label>
+                  Buscar por nombre de servicio AWS                </label>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <input value={serviceSearch} onChange={e => setServiceSearch(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && searchAWSService()}
@@ -542,7 +543,7 @@ export function TechnicalMemory() {
                       border: 'none', background: isSearchingAWS ? '#f1f5f9' : GRADIENT_H,
                       color: isSearchingAWS ? '#94a3b8' : '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                     {isSearchingAWS ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Search style={{ width: 14, height: 14 }} />}
-                    {isSearchingAWS ? 'Buscando...' : 'Buscar en AWS'}
+                    {isSearchingAWS ? t('techMemory.services.searching') : t('techMemory.services.searchBtn')}
                   </button>
                 </div>
               </div>
@@ -562,7 +563,7 @@ export function TechnicalMemory() {
                       border: 'none', background: isScrapingUrl ? '#f1f5f9' : GRADIENT_H,
                       color: isScrapingUrl ? '#94a3b8' : '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                     {isScrapingUrl ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Link style={{ width: 14, height: 14 }} />}
-                    {isScrapingUrl ? 'Extrayendo...' : 'Extraer de URL'}
+                    {isScrapingUrl ? t('techMemory.services.extracting') : t('techMemory.services.extractBtn')}
                   </button>
                 </div>
               </div>
@@ -577,7 +578,7 @@ export function TechnicalMemory() {
               <div style={{ fontSize: 14, fontWeight: 600, color: '#e91e8c', marginBottom: 4 }}>
                 No hay servicios agregados
               </div>
-              <div style={{ fontSize: 12 }}>Busca un servicio AWS para comenzar</div>
+              <div style={{ fontSize: 12 }}>{t('techMemory.services.noServicesHint')}</div>
             </div>
           ) : (
             data.services.map(svc => (
@@ -606,7 +607,7 @@ export function TechnicalMemory() {
                 {expandedService === svc.id && (
                   <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div>
-                      <label style={{ fontSize: 11, color: '#475569', fontWeight: 600, display: 'block', marginBottom: 4 }}>Descripción (editable)</label>
+                      <label style={{ fontSize: 11, color: '#475569', fontWeight: 600, display: 'block', marginBottom: 4 }}>{t('techMemory.services.description')}</label>
                       <textarea value={svc.description} onChange={e => updateService(svc.id, 'description', e.target.value)}
                         rows={3} style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #e2e8f0',
                           fontSize: 12, outline: 'none', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
@@ -622,7 +623,7 @@ export function TechnicalMemory() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <div>
-                        <label style={{ fontSize: 11, color: '#475569', fontWeight: 600, display: 'block', marginBottom: 4 }}>Ventajas</label>
+                        <label style={{ fontSize: 11, color: '#475569', fontWeight: 600, display: 'block', marginBottom: 4 }}>{t('techMemory.services.advantages')}</label>
                         {svc.advantages.map((adv, i) => (
                           <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 4 }}>
                             <input value={adv} onChange={e => {
@@ -637,11 +638,11 @@ export function TechnicalMemory() {
                         ))}
                         <button onClick={() => updateService(svc.id, 'advantages', [...svc.advantages, ''])}
                           style={{ fontSize: 11, color: '#e91e8c', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <Plus style={{ width: 11, height: 11 }} /> Agregar ventaja
+                          <Plus style={{ width: 11, height: 11 }} /> {t('techMemory.services.addAdvantage')}
                         </button>
                       </div>
                       <div>
-                        <label style={{ fontSize: 11, color: '#475569', fontWeight: 600, display: 'block', marginBottom: 4 }}>Desventajas</label>
+                        <label style={{ fontSize: 11, color: '#475569', fontWeight: 600, display: 'block', marginBottom: 4 }}>{t('techMemory.services.disadvantages')}</label>
                         {svc.disadvantages.map((dis, i) => (
                           <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 4 }}>
                             <input value={dis} onChange={e => {
@@ -656,12 +657,12 @@ export function TechnicalMemory() {
                         ))}
                         <button onClick={() => updateService(svc.id, 'disadvantages', [...svc.disadvantages, ''])}
                           style={{ fontSize: 11, color: '#e91e8c', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <Plus style={{ width: 11, height: 11 }} /> Agregar desventaja
+                          <Plus style={{ width: 11, height: 11 }} /> {t('techMemory.services.addDisadvantage')}
                         </button>
                       </div>
                     </div>
                     <div style={{ fontSize: 10, color: '#94a3b8' }}>
-                      Fuente: <a href={svc.docsUrl} target="_blank" rel="noreferrer" style={{ color: '#9c27b0' }}>{svc.docsUrl}</a>
+                      {t('techMemory.services.source')}: <a href={svc.docsUrl} target="_blank" rel="noreferrer" style={{ color: '#9c27b0' }}>{svc.docsUrl}</a>
                     </div>
                   </div>
                 )}
@@ -677,34 +678,34 @@ export function TechnicalMemory() {
           {/* Agregar término nuevo */}
           <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
             <div style={{ background: GRADIENT, padding: '10px 18px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Agregar Término al Diccionario</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t('techMemory.dictionary.title')}</div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
-                Los términos seleccionados se incluyen automáticamente en el Word como Glosario
+                {t('techMemory.dictionary.subtitle')}
               </div>
             </div>
             <div style={{ padding: '16px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 10, alignItems: 'end' }}>
               <div>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>Término *</label>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>{t('techMemory.dictionary.term')}</label>
                 <input value={newTerm.term} onChange={e => setNewTerm(p => ({ ...p, term: e.target.value }))}
-                  placeholder="ej. Kubernetes"
+                  placeholder={t('techMemory.dictionary.termPlaceholder')}
                   style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>Categoría</label>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>{t('techMemory.dictionary.category')}</label>
                 <input value={newTerm.category} onChange={e => setNewTerm(p => ({ ...p, category: e.target.value }))}
-                  placeholder="ej. Tecnologías"
+                  placeholder={t('techMemory.dictionary.categoryPlaceholder')}
                   style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>Definición *</label>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>{t('techMemory.dictionary.definition')}</label>
                 <input value={newTerm.definition} onChange={e => setNewTerm(p => ({ ...p, definition: e.target.value }))}
-                  placeholder="Definición del término..."
+                  placeholder={t('techMemory.dictionary.definitionPlaceholder')}
                   style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <button onClick={addDictEntry}
                 style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 16px', borderRadius: 7,
                   border: 'none', background: GRADIENT_H, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                <Plus style={{ width: 13, height: 13 }} /> Agregar
+                <Plus style={{ width: 13, height: 13 }} /> {t('techMemory.dictionary.addBtn')}
               </button>
             </div>
           </div>
@@ -714,10 +715,10 @@ export function TechnicalMemory() {
             <div style={{ padding: '12px 16px', borderBottom: '1px solid #fce4ec', display: 'flex', alignItems: 'center', gap: 10 }}>
               <Search style={{ width: 14, height: 14, color: '#9c27b0' }} />
               <input value={dictSearch} onChange={e => setDictSearch(e.target.value)}
-                placeholder="Filtrar términos..."
+                placeholder={t('techMemory.dictionary.filterPlaceholder')}
                 style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, color: '#374151' }} />
               <span style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, background: '#f3e8ff', borderRadius: 10, padding: '2px 10px' }}>
-                {selectedCount} seleccionados → Word
+                {t('techMemory.dictionary.selectedCount', { count: selectedCount })}
               </span>
             </div>
 
@@ -767,7 +768,7 @@ export function TechnicalMemory() {
           </div>
 
           <div style={{ fontSize: 11, color: '#9c27b0', padding: '8px 12px', background: '#f3e8ff', borderRadius: 8, border: '1px solid #fce4ec' }}>
-            Haz clic en cualquier término para seleccionarlo/deseleccionarlo. Los términos seleccionados aparecerán en la sección "Glosario" del documento Word exportado.
+            {t('techMemory.dictionary.clickHint')}
           </div>
         </div>
       )}
@@ -776,12 +777,12 @@ export function TechnicalMemory() {
       {activeTab === 'document' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {[
-            { label: 'Introducción', field: 'introduction' as const, rows: 10,
-              hint: 'Describe el contexto del proyecto, objetivos y alcance. Usa [NOMBRE_EMPRESA], [CONSULTOR], [CORREO] como marcadores.' },
-            { label: 'Resumen de la Infraestructura', field: 'infraSummary' as const, rows: 8,
-              hint: 'Describe la arquitectura implementada, ambientes, VPCs y componentes clave.' },
-            { label: 'Conclusiones', field: 'conclusions' as const, rows: 8,
-              hint: 'Resume los logros, beneficios obtenidos y recomendaciones finales.' },
+            { label: t('techMemory.document.introduction'), field: 'introduction' as const, rows: 10,
+              hint: t('techMemory.document.introHint') },
+            { label: t('techMemory.document.infraSummary'), field: 'infraSummary' as const, rows: 8,
+              hint: t('techMemory.document.infraHint') },
+            { label: t('techMemory.document.conclusions'), field: 'conclusions' as const, rows: 8,
+              hint: t('techMemory.document.conclusionsHint') },
           ].map(f => (
             <div key={f.field} style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
               <div style={{ background: GRADIENT, padding: '10px 18px' }}>
@@ -804,7 +805,7 @@ export function TechnicalMemory() {
       {activeTab === 'wellarch' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ padding: '10px 16px', background: '#f3e8ff', borderRadius: 8, border: '1px solid #fce4ec', fontSize: 12, color: '#7b2ff7' }}>
-            <strong>AWS Well-Architected Framework</strong> — Edita las recomendaciones por pilar. Todas se incluirán en el documento Word exportado.
+            <strong>AWS Well-Architected Framework</strong> — {t('techMemory.wellarch.hint')}
           </div>
           {data.wellArch.map(pillar => (
             <div key={pillar.id} style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
@@ -812,7 +813,7 @@ export function TechnicalMemory() {
                 <span style={{ fontSize: 16 }}>{pillar.icon}</span>
                 <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{pillar.name}</span>
                 <span style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.2)', borderRadius: 10, padding: '1px 8px' }}>
-                  {pillar.recommendations.length} recomendaciones
+                  {t('techMemory.wellarch.recommendations', { count: pillar.recommendations.length })}
                 </span>
               </div>
               <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -836,7 +837,7 @@ export function TechnicalMemory() {
                 <button onClick={() => {
                   setData(prev => ({ ...prev, wellArch: prev.wellArch.map(p => p.id === pillar.id ? { ...p, recommendations: [...p.recommendations, ''] } : p) }));
                 }} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: pillar.color, background: 'none', border: 'none', cursor: 'pointer', marginTop: 4 }}>
-                  <Plus style={{ width: 11, height: 11 }} /> Agregar recomendación
+                  <Plus style={{ width: 11, height: 11 }} /> {t('techMemory.wellarch.addRecommendation')}
                 </button>
               </div>
             </div>
@@ -851,36 +852,36 @@ export function TechnicalMemory() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
             <div style={{ background: GRADIENT, padding: '10px 18px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Datos de la Carta</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>Todos los campos son editables. La fecha se genera automaticamente si no la modificas.</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t('techMemory.letter.title')}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{t('techMemory.letter.subtitle')}</div>
             </div>
             <div style={{ padding: '16px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>Fecha de la Carta</label>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>{t('techMemory.letter.date')}</label>
                 <input value={data.thankYouDate} onChange={e => set('thankYouDate', e.target.value)}
                   placeholder="ej. 27 de marzo de 2026"
                   style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>Equipo de TI Destinatario</label>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>{t('techMemory.letter.itTeam')}</label>
                 <input value={data.itTeam} onChange={e => set('itTeam', e.target.value)}
                   placeholder="ej. Equipo de Infraestructura y Arquitectura Cloud"
                   style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>Nombre del Consultor (SoftwareOne)</label>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>{t('techMemory.letter.consultorName')}</label>
                 <input value={data.consultorName} onChange={e => set('consultorName', e.target.value)}
                   placeholder="ej. Juan Perez"
                   style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>Cargo / Firma</label>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>{t('techMemory.letter.signature')}</label>
                 <input value={data.consultorSignature} onChange={e => set('consultorSignature', e.target.value)}
                   placeholder="ej. Arquitecto Cloud Senior"
                   style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>Correo del Consultor</label>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>{t('techMemory.letter.email')}</label>
                 <input value={data.consultorEmail} onChange={e => set('consultorEmail', e.target.value)}
                   placeholder="ej. juan.perez@softwareone.com"
                   style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />

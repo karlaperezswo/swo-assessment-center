@@ -60,7 +60,7 @@ export function AssessPhase({
     {
       tabs: [
         { value: 'rapid-discovery', label: t('assess.tabs.rapidDiscovery'), icon: <Upload className="h-4 w-4" /> },
-        { value: 'dependency-map', label: 'Mapa de Dependencias', icon: <Network className="h-4 w-4" /> },
+        { value: 'dependency-map', label: t('assess.tabs.dependencyMap'), icon: <Network className="h-4 w-4" /> },
         { value: 'tco-report', label: t('assess.tabs.tcoReport'), icon: <DollarSign className="h-4 w-4" /> },
         { value: 'migration-readiness', label: t('assess.tabs.migrationReadiness'), icon: <Gauge className="h-4 w-4" /> },
         { value: 'opportunities', label: t('assess.tabs.opportunities'), icon: <Target className="h-4 w-4" /> },
@@ -68,7 +68,7 @@ export function AssessPhase({
         { value: 'briefings-workshops', label: t('assess.tabs.briefings'), icon: <Presentation className="h-4 w-4" /> },
         { value: 'immersion-day', label: t('assess.tabs.immersionDay'), icon: <GraduationCap className="h-4 w-4" /> },
         { value: 'selector', label: t('assess.tabs.selector'), icon: <Target className="h-4 w-4" /> },
-        { value: 'business-case', label: 'Caso de Negocio', icon: <Briefcase className="h-4 w-4" /> },
+        { value: 'business-case', label: t('assess.tabs.businessCase'), icon: <Briefcase className="h-4 w-4" /> },
       ],
     },
   ];
@@ -145,7 +145,10 @@ export function AssessPhase({
         nextPhaseLabel="Mobilize"
         canComplete={canComplete}
         isCompleted={phaseStatus.assess === 'completed'}
-        onComplete={onCompletePhase}
+        onComplete={() => {
+          setActiveTab('dependency-map');
+          onCompletePhase();
+        }}
         completionRequirements={[
           t('assess.requirements.excelFile'),
           t('assess.requirements.clientName'),

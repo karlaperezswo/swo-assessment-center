@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,8 +23,13 @@ interface ClientFormProps {
   initialData?: Partial<ClientFormData>;
 }
 
+const VERTICALS = [
+  'Energy', 'Insurance', 'Healthcare', 'Financial',
+  'Retail', 'Manufacturing', 'Technology', 'Other',
+] as const;
+
 export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
 
   const formSchema = z.object({
     clientName: z.string().min(1, t('clientForm.validation.clientNameRequired')),
@@ -37,27 +43,16 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
     migrationReadiness: z.enum(['ready', 'evaluating', 'not_ready']),
   });
 
-  const PRIORITIES: { value: ClientPriority; label: string }[] = [
-    { value: 'reduced_costs', label: t('clientForm.priorities.reduceCosts') },
-    { value: 'operational_resilience', label: t('clientForm.priorities.improveResiliency') },
-    { value: 'business_agility', label: t('clientForm.priorities.businessAgility') },
-    { value: 'environment_updated', label: t('clientForm.priorities.innovationAcceleration') },
-    { value: 'modernize_databases', label: t('clientForm.priorities.legacyModernization') },
-    { value: 'security_compliance', label: t('clientForm.priorities.securityCompliance') },
-  ];
+  const PRIORITIES = useMemo(() => [
+    { value: 'reduced_costs' as ClientPriority, label: t('clientForm.priorities.reduceCosts') },
+    { value: 'operational_resilience' as ClientPriority, label: t('clientForm.priorities.improveResiliency') },
+    { value: 'business_agility' as ClientPriority, label: t('clientForm.priorities.businessAgility') },
+    { value: 'environment_updated' as ClientPriority, label: t('clientForm.priorities.innovationAcceleration') },
+    { value: 'modernize_databases' as ClientPriority, label: t('clientForm.priorities.legacyModernization') },
+    { value: 'security_compliance' as ClientPriority, label: t('clientForm.priorities.securityCompliance') },
+  ], [currentLanguage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const VERTICALS = [
-    'Energy',
-    'Insurance',
-    'Healthcare',
-    'Financial',
-    'Retail',
-    'Manufacturing',
-    'Technology',
-    'Other',
-  ] as const;
-
-  const AWS_REGIONS = [
+  const AWS_REGIONS = useMemo(() => [
     { value: 'us-east-1', label: t('clientForm.awsRegions.usEast1') },
     { value: 'us-east-2', label: t('clientForm.awsRegions.usEast2') },
     { value: 'us-west-1', label: t('clientForm.awsRegions.usWest1') },
@@ -69,13 +64,13 @@ export function ClientForm({ onFormChange, initialData }: ClientFormProps) {
     { value: 'ap-southeast-2', label: t('clientForm.awsRegions.apSoutheast2') },
     { value: 'ap-northeast-1', label: t('clientForm.awsRegions.apNortheast1') },
     { value: 'sa-east-1', label: t('clientForm.awsRegions.saEast1') },
-  ] as const;
+  ], [currentLanguage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const READINESS_OPTIONS = [
+  const READINESS_OPTIONS = useMemo(() => [
     { value: 'ready', label: t('clientForm.readiness.ready') },
     { value: 'evaluating', label: t('clientForm.readiness.evaluating') },
     { value: 'not_ready', label: t('clientForm.readiness.notReady') },
-  ] as const;
+  ], [currentLanguage]); // eslint-disable-line react-hooks/exhaustive-deps
   const { register, watch, setValue, formState: { errors } } = useForm<ClientFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {

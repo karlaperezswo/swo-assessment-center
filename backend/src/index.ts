@@ -1,7 +1,10 @@
-import express from 'express';
-import cors from 'cors';
+// Load .env FIRST, before any other imports that might use environment variables
 import dotenv from 'dotenv';
 import path from 'path';
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
+import express from 'express';
+import cors from 'cors';
 import { reportRouter } from './routes/reportRoutes';
 import { dependencyRouter } from './routes/dependencyRoutes';
 import { scraperRouter } from './routes/scraperRoutes';
@@ -9,8 +12,6 @@ import { businessCaseRouter } from './routes/businessCaseRoutes';
 import { i18nRouter } from './routes/i18nRoutes';
 import { opportunityRouter } from './routes/opportunityRoutes';
 import { selectorRouter } from './routes/selectorRoutes';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;

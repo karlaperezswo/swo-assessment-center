@@ -3,7 +3,7 @@
  */
 
 import i18next from 'i18next'
-import HttpBackend from 'i18next-http-backend'
+import HttpBackend from 'i18next-http-backend/cjs'
 import { initReactI18next } from 'react-i18next'
 
 export const DEFAULT_LANGUAGE = 'es-MX'
@@ -43,18 +43,14 @@ export async function initializeI18n(): Promise<void> {
   if (initialized) return
   initialized = true
 
-  // Priority: saved preference → browser language → default
+  // Priority: saved preference → default (es-MX)
+  // Browser language is intentionally ignored — app defaults to Spanish
   const savedLang = (() => {
     try { return localStorage.getItem(LANG_STORAGE_KEY) } catch { return null }
   })()
 
-  const browserLang = typeof navigator !== 'undefined'
-    ? (navigator.language || (navigator.languages?.[0] ?? undefined))
-    : undefined
-
   const initialLang =
     (savedLang && SUPPORTED_LANGUAGE_CODES.includes(savedLang) ? savedLang : null) ??
-    findBestMatch(browserLang) ??
     DEFAULT_LANGUAGE
 
   await i18next

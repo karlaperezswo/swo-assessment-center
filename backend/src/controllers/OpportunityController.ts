@@ -12,6 +12,7 @@ import { ExportService } from '../services/ExportService';
 import { KnowledgeBaseService } from '../services/KnowledgeBaseService';
 import { QuestionnaireParserService } from '../services/QuestionnaireParserService';
 import { OpportunityJobService } from '../services/OpportunityJobService';
+import { classifyAWSError, logAWSError } from '../utils/awsErrorHandler';
 import {
   AnalyzeResponseBody,
   ListResponseBody,
@@ -203,12 +204,22 @@ export class OpportunityController {
       res.status(202).json(response);
     } catch (error) {
       console.error('[ANALYZE] Error creating job:', error);
-      console.error('[ANALYZE] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to start analysis',
-      });
+      const awsInfo = classifyAWSError(error);
+      if (awsInfo.isCredentialError || awsInfo.isPermissionError) {
+        logAWSError('ANALYZE', error);
+        res.status(500).json({
+          success: false,
+          error: awsInfo.userMessage,
+          hint: awsInfo.isCredentialError
+            ? 'Run "aws configure" locally or assign an IAM Role in production.'
+            : 'Add s3:PutObject, s3:GetObject and bedrock:InvokeModel permissions to your IAM user/role.',
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to start analysis',
+        });
+      }
     }
   };
 

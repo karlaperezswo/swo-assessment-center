@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Input } from '@/components/ui/input';
 import { MigrationPlanner } from '@/components/MigrationPlanner';
 import { WavePlannerTool } from '@/components/migrate/WavePlannerTool';
@@ -25,6 +26,7 @@ const statusConfig = {
 };
 
 export function MigrationWaves({ waves, onWavesChange, dependencyData }: MigrationWavesProps) {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [showPlanner, setShowPlanner] = useState(false);
   const [showWaveTool, setShowWaveTool] = useState(false);
@@ -111,10 +113,10 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
         <div style={{ background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)', padding: '12px 20px',
           borderTop: '1px solid #99f6e4', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
           {[
-            { value: waves.length, label: 'Olas', icon: '🌊' },
-            { value: waves.reduce((s, w) => s + w.serverCount, 0), label: 'Servidores', icon: '🖥' },
-            { value: waves.reduce((s, w) => s + w.applicationCount, 0), label: 'Aplicaciones', icon: '📦' },
-            { value: waves.filter(w => w.status === 'completed').length, label: 'Completadas', icon: '✅' },
+            { value: waves.length, label: t('migrationWaves.waveLabel'), icon: '🌊' },
+            { value: waves.reduce((s, w) => s + w.serverCount, 0), label: t('migrationWaves.serversLabel'), icon: '🖥' },
+            { value: waves.reduce((s, w) => s + w.applicationCount, 0), label: t('migrationWaves.appsLabel'), icon: '📦' },
+            { value: waves.filter(w => w.status === 'completed').length, label: t('migrationWaves.statuses.completed'), icon: '✅' },
           ].map((s, i) => (
             <div key={i} style={{ textAlign: 'center', minWidth: 60 }}>
               <div style={{ fontSize: 10, marginBottom: 1 }}>{s.icon}</div>
@@ -150,17 +152,17 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
       {showForm && (
         <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #99f6e4', boxShadow: '0 2px 8px rgba(8,145,178,0.08)' }}>
           <div style={{ background: 'linear-gradient(135deg, #0f766e 0%, #0891b2 60%, #0284c7 100%)', padding: '12px 20px' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Nueva Ola de Migración</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t('migrationWaves.createNew')}</div>
           </div>
           <div style={{ padding: '16px 20px', background: '#fff' }}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Nombre de la Ola</label>
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>{t('migrationWaves.waveName')}</label>
                 <Input value={newWave.name} onChange={(e) => setNewWave({ ...newWave, name: e.target.value })}
                   placeholder="ej. Dev/Test Workloads" className="text-sm" />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Estrategia</label>
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>{t('migrationWaves.strategy')}</label>
                 <select value={newWave.strategy} onChange={(e) => setNewWave({ ...newWave, strategy: e.target.value })}
                   style={{ width: '100%', fontSize: 13, border: '1px solid #e2e8f0', borderRadius: 6, padding: '7px 10px', color: '#374151' }}>
                   <option>Rehost</option><option>Replatform</option><option>Refactor</option>
@@ -168,19 +170,19 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Fecha Inicio</label>
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>{t('migrationWaves.startDate')}</label>
                 <Input type="date" value={newWave.startDate} onChange={(e) => setNewWave({ ...newWave, startDate: e.target.value })} className="text-sm" />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Fecha Fin</label>
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>{t('migrationWaves.endDate')}</label>
                 <Input type="date" value={newWave.endDate} onChange={(e) => setNewWave({ ...newWave, endDate: e.target.value })} className="text-sm" />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Servidores</label>
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>{t('migrationWaves.serverCount')}</label>
                 <Input type="number" value={newWave.serverCount} onChange={(e) => setNewWave({ ...newWave, serverCount: parseInt(e.target.value) || 0 })} className="text-sm" />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>Aplicaciones</label>
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4 }}>{t('migrationWaves.applicationCount')}</label>
                 <Input type="number" value={newWave.applicationCount} onChange={(e) => setNewWave({ ...newWave, applicationCount: parseInt(e.target.value) || 0 })} className="text-sm" />
               </div>
             </div>
@@ -243,9 +245,9 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
               <div style={{ background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)',
                 padding: '8px 16px', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                 {[
-                  { label: 'Servidores', value: wave.serverCount, icon: '🖥' },
-                  { label: 'Aplicaciones', value: wave.applicationCount, icon: '📦' },
-                  { label: 'Estrategia', value: wave.strategy, icon: '🎯' },
+                  { label: t('migrationWaves.serversLabel'), value: wave.serverCount, icon: '🖥' },
+                  { label: t('migrationWaves.appsLabel'), value: wave.applicationCount, icon: '📦' },
+                  { label: t('migrationWaves.strategyLabel'), value: wave.strategy, icon: '🎯' },
                 ].map((s, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#0c4a6e' }}>
                     <span>{s.icon}</span>
@@ -263,8 +265,8 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
       {waves.length > 0 && (
         <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #99f6e4', boxShadow: '0 2px 8px rgba(8,145,178,0.08)' }}>
           <div style={{ background: 'linear-gradient(135deg, #0f766e 0%, #0891b2 60%, #0284c7 100%)', padding: '12px 20px' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Distribución de Capacidad por Ola</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>Servidores y aplicaciones por ola de migración</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t('migrationWaves.capacityDistribution')}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{t('migrationWaves.serversLabel')} {t('common.and', { defaultValue: 'y' })} {t('migrationWaves.appsLabel')}</div>
           </div>
           <div style={{ padding: '16px', background: '#fff' }}>
             <ResponsiveContainer width="100%" height={260}>
@@ -273,12 +275,12 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
                 <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} />
                 <YAxis tick={{ fontSize: 11, fill: '#64748b' }} />
                 <Tooltip contentStyle={{ fontSize: 11, borderRadius: 6, border: '1px solid #99f6e4' }} />
-                <Bar dataKey="servers" name="Servidores" radius={[4,4,0,0]}>
+                <Bar dataKey="servers" name={t('migrationWaves.serversLabel')} radius={[4,4,0,0]}>
                   {chartData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill="#0f766e" />
                   ))}
                 </Bar>
-                <Bar dataKey="apps" name="Aplicaciones" radius={[4,4,0,0]}>
+                <Bar dataKey="apps" name={t('migrationWaves.appsLabel')} radius={[4,4,0,0]}>
                   {chartData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill="#0891b2" opacity={0.7} />
                   ))}

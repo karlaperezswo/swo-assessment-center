@@ -25,20 +25,7 @@
     "developedBy": "Developed by",
     "tip": "Tip",
     "savings": "savings",
-    "downloadStarting": "Starting report download",
-    "filterByEnvironment": "Filter by environment",
-  "applicationTable": {
-    "title": "Applications ({{count}})",
-    "filterByEnvironment": "Filter by environment",
-    "allEnvironments": "All Environments",
-    "appName": "Application Name",
-    "type": "Type",
-    "totalConnections": "Total Connections",
-    "inbound": "Inbound",
-    "outbound": "Outbound",
-    "environment": "Environment",
-    "noApps": "No applications found for the selected environment"
-  }
+    "downloadStarting": "Starting report download"
   },
   "header": {
     "title": "AWS Migration Assessment Center",
@@ -133,24 +120,60 @@
       "modernization": "Architecture Modernization"
     },
     "rightSizing": {
-      "op1": { "title": "CPU/RAM Utilization Analysis", "description": "Identify oversized instances using CloudWatch metrics and recommend smaller instance types." },
-      "op2": { "title": "Migration to Graviton (ARM)", "description": "AWS Graviton3 instances offer up to 40% better price/performance vs equivalent x86 instances." },
-      "op3": { "title": "Dynamic Auto Scaling", "description": "Implement automatic scaling policies to adjust capacity based on real demand." }
+      "op1": {
+        "title": "CPU/RAM Utilization Analysis",
+        "description": "Identify oversized instances using CloudWatch metrics and recommend smaller instance types."
+      },
+      "op2": {
+        "title": "Migration to Graviton (ARM)",
+        "description": "AWS Graviton3 instances offer up to 40% better price/performance vs equivalent x86 instances."
+      },
+      "op3": {
+        "title": "Dynamic Auto Scaling",
+        "description": "Implement automatic scaling policies to adjust capacity based on real demand."
+      }
     },
     "reservedInstances": {
-      "op1": { "title": "3-Year Reserved Instances (No Upfront)", "description": "3-year commitment with no upfront payment. Ideal for stable and predictable workloads." },
-      "op2": { "title": "1-Year Reserved Instances", "description": "Balance between flexibility and savings. Recommended for workloads with moderate growth." },
-      "op3": { "title": "Savings Plans (Compute)", "description": "Flexibility to switch between instance families, regions and operating systems." }
+      "op1": {
+        "title": "3-Year Reserved Instances (No Upfront)",
+        "description": "3-year commitment with no upfront payment. Ideal for stable and predictable workloads."
+      },
+      "op2": {
+        "title": "1-Year Reserved Instances",
+        "description": "Balance between flexibility and savings. Recommended for workloads with moderate growth."
+      },
+      "op3": {
+        "title": "Savings Plans (Compute)",
+        "description": "Flexibility to switch between instance families, regions and operating systems."
+      }
     },
     "storage": {
-      "op1": { "title": "S3 Intelligent-Tiering", "description": "Automatically moves data between frequent and infrequent access tiers based on usage patterns." },
-      "op2": { "title": "EBS Volume Optimization", "description": "Migrate from gp2 to gp3 for better performance at lower cost. gp3 is 20% cheaper than gp2." },
-      "op3": { "title": "Lifecycle Policies", "description": "Archive old data to S3 Glacier to reduce long-term storage costs." }
+      "op1": {
+        "title": "S3 Intelligent-Tiering",
+        "description": "Automatically moves data between frequent and infrequent access tiers based on usage patterns."
+      },
+      "op2": {
+        "title": "EBS Volume Optimization",
+        "description": "Migrate from gp2 to gp3 for better performance at lower cost. gp3 is 20% cheaper than gp2."
+      },
+      "op3": {
+        "title": "Lifecycle Policies",
+        "description": "Archive old data to S3 Glacier to reduce long-term storage costs."
+      }
     },
     "modernization": {
-      "op1": { "title": "Serverless with AWS Lambda", "description": "Eliminate idle server costs. Pay only per execution. Ideal for intermittent workloads." },
-      "op2": { "title": "Containers with ECS/EKS", "description": "Higher workload density per server. Reduces number of instances needed." },
-      "op3": { "title": "Managed Services (RDS, ElastiCache)", "description": "Reduces operational overhead and optimizes database licensing costs." }
+      "op1": {
+        "title": "Serverless with AWS Lambda",
+        "description": "Eliminate idle server costs. Pay only per execution. Ideal for intermittent workloads."
+      },
+      "op2": {
+        "title": "Containers with ECS/EKS",
+        "description": "Higher workload density per server. Reduces number of instances needed."
+      },
+      "op3": {
+        "title": "Managed Services (RDS, ElastiCache)",
+        "description": "Reduces operational overhead and optimizes database licensing costs."
+      }
     }
   },
   "modernization": {
@@ -158,33 +181,78 @@
     "description": "Structured plan to modernize your infrastructure leveraging native AWS services.",
     "benefits": {
       "title": "Key Modernization Benefits",
-      "innovation": { "title": "Innovation Speed", "description": "Faster development cycles with managed services and modern architectures." },
-      "performance": { "title": "Optimized Performance", "description": "Native AWS services designed to scale automatically on demand." },
-      "capabilities": { "title": "New Capabilities", "description": "Access to AI/ML, advanced analytics and next-generation services." }
+      "innovation": {
+        "title": "Innovation Speed",
+        "description": "Faster development cycles with managed services and modern architectures."
+      },
+      "performance": {
+        "title": "Optimized Performance",
+        "description": "Native AWS services designed to scale automatically on demand."
+      },
+      "capabilities": {
+        "title": "New Capabilities",
+        "description": "Access to AI/ML, advanced analytics and next-generation services."
+      }
     },
     "phase1": {
       "title": "Phase 1: Cloud-Ready Foundations",
-      "init1": { "title": "Database Optimization", "description": "Migrate to Amazon RDS/Aurora to reduce operational overhead and improve availability." },
-      "init2": { "title": "CI/CD Implementation", "description": "Automate deployment pipelines with AWS CodePipeline, CodeBuild and CodeDeploy." },
-      "init3": { "title": "Monitoring & Observability", "description": "Implement CloudWatch, X-Ray and AWS Config for full system visibility." }
+      "init1": {
+        "title": "Database Optimization",
+        "description": "Migrate to Amazon RDS/Aurora to reduce operational overhead and improve availability."
+      },
+      "init2": {
+        "title": "CI/CD Implementation",
+        "description": "Automate deployment pipelines with AWS CodePipeline, CodeBuild and CodeDeploy."
+      },
+      "init3": {
+        "title": "Monitoring & Observability",
+        "description": "Implement CloudWatch, X-Ray and AWS Config for full system visibility."
+      }
     },
     "phase2": {
       "title": "Phase 2: Containerization",
-      "init1": { "title": "Application Containerization", "description": "Migrate monolithic applications to Docker containers for greater portability." },
-      "init2": { "title": "Orchestration with ECS/EKS", "description": "Implement container orchestration for scalability and high availability." },
-      "init3": { "title": "Service Mesh & Istio", "description": "Implement secure and observable communication between microservices." }
+      "init1": {
+        "title": "Application Containerization",
+        "description": "Migrate monolithic applications to Docker containers for greater portability."
+      },
+      "init2": {
+        "title": "Orchestration with ECS/EKS",
+        "description": "Implement container orchestration for scalability and high availability."
+      },
+      "init3": {
+        "title": "Service Mesh & Istio",
+        "description": "Implement secure and observable communication between microservices."
+      }
     },
     "phase3": {
       "title": "Phase 3: Microservices Architecture",
-      "init1": { "title": "Monolith Decomposition", "description": "Identify and extract bounded contexts to create independent microservices." },
-      "init2": { "title": "Event-Driven Architecture", "description": "Implement asynchronous communication with Amazon SQS, SNS and EventBridge." },
-      "init3": { "title": "API Gateway & GraphQL", "description": "Centralize API management with Amazon API Gateway and AWS AppSync." }
+      "init1": {
+        "title": "Monolith Decomposition",
+        "description": "Identify and extract bounded contexts to create independent microservices."
+      },
+      "init2": {
+        "title": "Event-Driven Architecture",
+        "description": "Implement asynchronous communication with Amazon SQS, SNS and EventBridge."
+      },
+      "init3": {
+        "title": "API Gateway & GraphQL",
+        "description": "Centralize API management with Amazon API Gateway and AWS AppSync."
+      }
     },
     "phase4": {
       "title": "Phase 4: Cloud-Native & AI",
-      "init1": { "title": "Serverless with Lambda", "description": "Migrate appropriate workloads to serverless architecture for maximum efficiency." },
-      "init2": { "title": "ML/AI Integration", "description": "Incorporate Amazon SageMaker, Rekognition and Bedrock for AI capabilities." },
-      "init3": { "title": "Data Lake & Analytics", "description": "Implement modern data architecture with S3, Glue, Athena and QuickSight." }
+      "init1": {
+        "title": "Serverless with Lambda",
+        "description": "Migrate appropriate workloads to serverless architecture for maximum efficiency."
+      },
+      "init2": {
+        "title": "ML/AI Integration",
+        "description": "Incorporate Amazon SageMaker, Rekognition and Bedrock for AI capabilities."
+      },
+      "init3": {
+        "title": "Data Lake & Analytics",
+        "description": "Implement modern data architecture with S3, Glue, Athena and QuickSight."
+      }
     },
     "metrics": {
       "title": "Expected Success Metrics",
@@ -245,7 +313,9 @@
       "migrationWaves": "Migration Waves Planning",
       "briefings": "Briefings & Workshops",
       "immersionDay": "Immersion Day",
-      "selector": "Tool Selector"
+      "selector": "Tool Selector",
+      "dependencyMap": "Dependency Map",
+      "businessCase": "Business Case"
     },
     "requirements": {
       "excelFile": "Upload MPA Excel file",
@@ -781,5 +851,102 @@
       "unansweredCount": "{{count}} questions still unanswered",
       "calculateButton": "Calculate Recommendation"
     }
+  },
+  "techMemory": {
+    "title": "Technical Memory",
+    "subtitle": "AWS Migration — SoftwareOne",
+    "exportWord": "Export Word",
+    "tabs": {
+      "letter": "Cover Letter",
+      "client": "Client",
+      "services": "AWS Services",
+      "dictionary": "Dictionary",
+      "document": "Document",
+      "wellarch": "Well-Architected"
+    },
+    "letter": {
+      "title": "Letter Data",
+      "subtitle": "All fields are editable. Date is auto-generated if not modified.",
+      "date": "Letter Date",
+      "itTeam": "Recipient IT Team",
+      "consultorName": "Consultant Name (SoftwareOne)",
+      "signature": "Title / Signature",
+      "email": "Consultant Email"
+    },
+    "client": {
+      "title": "Client Information",
+      "subtitle": "Basic data that will appear in the document header",
+      "name": "Client Name",
+      "industry": "Industry / Vertical",
+      "country": "Country",
+      "website": "Website (optional)",
+      "searchWeb": "Search web",
+      "searching": "Searching...",
+      "autoExtract": "Mission and vision will be automatically extracted from the client website.",
+      "mission": "Mission",
+      "vision": "Vision",
+      "about": "About the Company"
+    },
+    "services": {
+      "title": "Search AWS Service",
+      "subtitle": "Search official AWS documentation and add to document",
+      "searchByName": "Search by AWS service name",
+      "searchPlaceholder": "e.g. Amazon S3, AWS Lambda, Amazon RDS...",
+      "searchBtn": "Search AWS",
+      "searching": "Searching...",
+      "searchByUrl": "Or paste a URL and extract automatically",
+      "urlPlaceholder": "e.g. https://aws.amazon.com/s3/ or any documentation URL...",
+      "extractBtn": "Extract from URL",
+      "extracting": "Extracting...",
+      "noServices": "No services added",
+      "noServicesHint": "Search an AWS service to start",
+      "description": "Description (editable)",
+      "whyUsed": "Why is this service used in the project? *",
+      "whyUsedPlaceholder": "Describe the technical justification for this service in the project context...",
+      "advantages": "Advantages",
+      "disadvantages": "Disadvantages",
+      "addAdvantage": "Add advantage",
+      "addDisadvantage": "Add disadvantage",
+      "source": "Source"
+    },
+    "dictionary": {
+      "title": "Add Term to Dictionary",
+      "subtitle": "Selected terms are automatically included in the Word as Glossary",
+      "term": "Term *",
+      "termPlaceholder": "e.g. Kubernetes",
+      "category": "Category",
+      "categoryPlaceholder": "e.g. Technologies",
+      "definition": "Definition *",
+      "definitionPlaceholder": "Term definition...",
+      "addBtn": "Add",
+      "filterPlaceholder": "Filter terms...",
+      "selectedCount": "{{count}} selected → Word",
+      "clickHint": "Click any term to select/deselect it. Selected terms will appear in the 'Glossary' section of the exported Word document."
+    },
+    "document": {
+      "introduction": "Introduction",
+      "introHint": "Describe the project context, objectives and scope. Use [COMPANY_NAME], [CONSULTANT], [EMAIL] as markers.",
+      "infraSummary": "Infrastructure Summary",
+      "infraHint": "Describe the implemented architecture, environments, VPCs and key components.",
+      "conclusions": "Conclusions",
+      "conclusionsHint": "Summarize achievements, benefits obtained and final recommendations."
+    },
+    "wellarch": {
+      "hint": "Edit recommendations by pillar. All will be included in the exported Word document.",
+      "recommendations": "{{count}} recommendations",
+      "addRecommendation": "Add recommendation"
+    }
+  },
+  "applicationTable": {
+    "title": "Applications ({{count}})",
+    "filterByEnvironment": "Filter by environment",
+    "allEnvironments": "All Environments",
+    "appName": "Application Name",
+    "type": "Type",
+    "totalConnections": "Total Connections",
+    "inbound": "Inbound",
+    "outbound": "Outbound",
+    "environment": "Environment",
+    "noApps": "No applications found for the selected environment"
   }
 }

@@ -85,7 +85,17 @@ export function RapidDiscovery({
               <Upload className="h-5 w-5 text-fuchsia-600" />
               <h3 className="font-semibold text-gray-800">{t('rapidDiscovery.mpaExcelUpload')}</h3>
             </div>
-            <FileUploader onDataLoaded={onDataLoaded} />
+            <FileUploader
+              onDataLoaded={onDataLoaded}
+              persistedSummary={excelData ? {
+                serverCount: excelData.servers.length,
+                databaseCount: excelData.databases.length,
+                applicationCount: excelData.applications.length,
+                totalStorageGB: excelData.servers.reduce((s, srv) => s + (srv.totalDiskSize || 0), 0),
+                communicationCount: excelData.serverCommunications?.length,
+                dataSource: excelData.dataSource,
+              } : null}
+            />
           </div>
 
           <div>

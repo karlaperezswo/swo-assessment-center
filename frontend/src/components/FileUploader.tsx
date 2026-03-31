@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 
 interface FileUploaderProps {
   onDataLoaded: (data: ExcelData, summary: UploadSummary, dependencyData?: any, migrationWaves?: any) => void;
+  persistedSummary?: UploadSummary | null;
+  persistedFileName?: string;
 }
 
 // Helper function to get data source label
@@ -27,12 +29,14 @@ const getDataSourceLabel = (dataSource?: string): string => {
   }
 };
 
-export function FileUploader({ onDataLoaded }: FileUploaderProps) {
-  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
-  const [fileName, setFileName] = useState<string>('');
+export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName }: FileUploaderProps) {
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>(
+    persistedSummary ? 'success' : 'idle'
+  );
+  const [fileName, setFileName] = useState<string>(persistedFileName ?? '');
   const [fileSize, setFileSize] = useState<string>('');
   const [uploadProgress, setUploadProgress] = useState<string>('');
-  const [summary, setSummary] = useState<UploadSummary | null>(null);
+  const [summary, setSummary] = useState<UploadSummary | null>(persistedSummary ?? null);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {

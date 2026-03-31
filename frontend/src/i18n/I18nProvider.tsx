@@ -77,7 +77,7 @@ export function I18nProvider({ children }: Props) {
     if (!keyOrText) return keyOrText
     const { defaultValue, interpolation, namespace, ...rest } = options ?? {}
     const result = i18next.t(keyOrText, {
-      lng: currentLanguage,
+      // No pasar lng explícito — i18next usa el idioma activo internamente
       defaultValue: defaultValue ?? keyOrText,
       ns: namespace,
       ...(interpolation ?? {}),

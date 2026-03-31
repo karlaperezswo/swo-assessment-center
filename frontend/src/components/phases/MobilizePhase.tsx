@@ -4,7 +4,6 @@ import { SubTabLayout, SubTabGroup } from '@/components/layout/SubTabLayout';
 import { PhaseCompleteButton } from '@/components/shared/PhaseCompleteButton';
 import { DiscoveryPlanning } from '@/components/mobilize/DiscoveryPlanning';
 import { MigrationPlan } from '@/components/mobilize/MigrationPlan';
-import { BusinessCase } from '@/components/mobilize/BusinessCase';
 import { SkillsCoE } from '@/components/mobilize/SkillsCoE';
 import { LandingZone } from '@/components/mobilize/LandingZone';
 import { SecurityCompliance } from '@/components/mobilize/SecurityCompliance';
@@ -16,7 +15,7 @@ import {
   GenerateReportResponse, EC2Recommendation, DatabaseRecommendation,
 } from '@/types/assessment';
 import {
-  AppWindow, Waves, Sparkles, GraduationCap, Cloud, Shield, Network,
+  AppWindow, Waves, GraduationCap, Cloud, Shield, Network,
 } from 'lucide-react';
 
 interface MobilizePhaseProps {
@@ -48,7 +47,7 @@ export function MobilizePhase({
   phaseStatus, onCompletePhase,
 }: MobilizePhaseProps) {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState('business-case');
+  const [activeTab, setActiveTab] = useState('discovery-planning');
 
   const groups: SubTabGroup[] = [
     {
@@ -56,7 +55,6 @@ export function MobilizePhase({
       tabs: [
         { value: 'discovery-planning', label: t('mobilize.tabs.discoveryPlanning'), icon: <AppWindow className="h-4 w-4" /> },
         { value: 'migration-plan', label: t('mobilize.tabs.migrationPlan'), icon: <Waves className="h-4 w-4" /> },
-        { value: 'business-case', label: t('mobilize.tabs.businessCase'), icon: <Sparkles className="h-4 w-4" /> },
       ],
     },
     {
@@ -97,9 +95,6 @@ export function MobilizePhase({
             waves={migrationWaves}
             onWavesChange={onMigrationWavesChange}
           />
-        )}
-        {activeTab === 'business-case' && (
-          <BusinessCase />
         )}
         {activeTab === 'skills-coe' && (
           <SkillsCoE

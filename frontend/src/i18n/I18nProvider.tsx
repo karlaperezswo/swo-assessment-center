@@ -47,8 +47,16 @@ export function I18nProvider({ children }: Props) {
   // Initialize i18next once on mount
   useEffect(() => {
     initializeI18n().then(() => {
-      setCurrentLanguage(i18next.language || DEFAULT_LANGUAGE)
-      setIsLoading(false)
+      // Wait for resources to actually be loaded, not just initialized
+      if (i18next.isInitialized && i18next.hasLoadedNamespace('translation')) {
+        setCurrentLanguage(i18next.language || DEFAULT_LANGUAGE)
+        setIsLoading(false)
+      } else {
+        i18next.on('loaded', () => {
+          setCurrentLanguage(i18next.language || DEFAULT_LANGUAGE)
+          setIsLoading(false)
+        })
+      }
     })
   }, [])
 

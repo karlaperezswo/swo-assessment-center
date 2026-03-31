@@ -3,7 +3,7 @@
  */
 
 import i18next from 'i18next'
-import HttpBackend from 'i18next-http-backend'
+import HttpBackend from 'i18next-http-backend/cjs'
 import { initReactI18next } from 'react-i18next'
 
 export const DEFAULT_LANGUAGE = 'es-MX'

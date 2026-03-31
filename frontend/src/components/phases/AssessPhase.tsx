@@ -145,7 +145,10 @@ export function AssessPhase({
         nextPhaseLabel="Mobilize"
         canComplete={canComplete}
         isCompleted={phaseStatus.assess === 'completed'}
-        onComplete={onCompletePhase}
+        onComplete={() => {
+          setActiveTab('dependency-map');
+          onCompletePhase();
+        }}
         completionRequirements={[
           t('assess.requirements.excelFile'),
           t('assess.requirements.clientName'),

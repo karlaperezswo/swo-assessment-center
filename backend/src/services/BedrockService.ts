@@ -4,6 +4,7 @@ import {
   InvokeModelCommandInput,
 } from '@aws-sdk/client-bedrock-runtime';
 import { AnonymizedData } from '../../../shared/types/opportunity.types';
+import { logAWSError, classifyAWSError } from '../utils/awsErrorHandler';
 
 export interface BedrockResponse {
   content: string;
@@ -1002,7 +1003,7 @@ Example format:
       console.error('[BEDROCK] Error name:', (error as any)?.name);
       console.error('[BEDROCK] Error code:', (error as any)?.code);
       console.error('[BEDROCK] Error message:', (error as any)?.message);
-      console.error('[BEDROCK] Full error:', JSON.stringify(error, null, 2));
+      logAWSError('BEDROCK', error);
       throw error;
     }
   }

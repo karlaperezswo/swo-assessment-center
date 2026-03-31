@@ -176,6 +176,7 @@ export function TechnicalMemory() {
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
   const [isLoadingLogo, setIsLoadingLogo] = useState(false);
   const [expandedService, setExpandedService] = useState<string|null>(null);
+  const [searchPreview, setSearchPreview] = useState<any>(null); // resultado previo antes de agregar
   const [dictSearch, setDictSearch] = useState('');
   const [newTerm, setNewTerm] = useState({ term: '', definition: '', category: '' });
   const clientLogoRef = useRef<HTMLInputElement>(null);
@@ -229,54 +230,69 @@ export function TechnicalMemory() {
     } finally { setIsSearchingCompany(false); }
   };
 
-  // ── Search AWS service ─────────────────────────────────────────────────────
+  // ── Search AWS service — muestra preview antes de agregar ─────────────────
   const searchAWSService = async () => {
     if (!serviceSearch.trim()) { toast.error('Ingresa el nombre del servicio AWS'); return; }
-    if (data.services.find(s => s.serviceName.toLowerCase() === serviceSearch.toLowerCase())) {
-      toast.warning('Este servicio ya fue agregado'); return;
-    }
     setIsSearchingAWS(true);
-    toast.loading(`Buscando ${serviceSearch} en AWS...`, { id: 'aws-search' });
+    setSearchPreview(null);
+    toast.loading(`Buscando en docs.aws.amazon.com...`, { id: 'aws-search' });
     try {
       const res = await apiClient.post('/api/scraper/aws-service', { serviceName: serviceSearch });
       if (res.data.success) {
         const d = res.data.data;
-        const newSvc: AWSServiceEntry = {
-          id: `svc-${Date.now()}`,
-          serviceName: serviceSearch,
-          title: d.title,
-          description: d.description,
-          advantages: d.advantages,
-          disadvantages: d.disadvantages,
-          useCases: d.useCases,
-          keyPoints: d.useCases || [],
-          whyUsed: '',
-          docsUrl: d.docsUrl,
-        };
-        const dictEntry: DictionaryEntry = {
-          id: `dict-svc-${Date.now()}`,
-          term: d.title,
-          definition: d.description.slice(0, 300) + (d.description.length > 300 ? '...' : ''),
-          category: 'Servicios AWS',
-          selected: false,
-        };
-        setData(prev => ({
-          ...prev,
-          services: [...prev.services, newSvc],
-          dictionary: prev.dictionary.some(e => e.term.toLowerCase() === d.title.toLowerCase())
-            ? prev.dictionary
-            : [...prev.dictionary, dictEntry],
-        }));
-        setServiceSearch('');
-        setExpandedService(newSvc.id);
-        toast.success(`${d.title} agregado al documento y al diccionario`, { id: 'aws-search' });
+        if (d.error) { toast.error(d.error, { id: 'aws-search' }); return; }
+        setSearchPreview({ ...d, _searchTerm: serviceSearch });
+        toast.success(`Informacion encontrada - revisa y agrega al documento`, { id: 'aws-search' });
       } else {
-        toast.error(res.data.error || 'No se encontró el servicio', { id: 'aws-search' });
+        toast.error(res.data.error || 'Error de sincronizacion con la fuente oficial. Por favor, verifica el nombre del servicio.', { id: 'aws-search' });
       }
     } catch {
-      toast.error('Error al buscar el servicio AWS', { id: 'aws-search' });
+      toast.error('Error de sincronizacion con la fuente oficial. Por favor, verifica el nombre del servicio.', { id: 'aws-search' });
     } finally { setIsSearchingAWS(false); }
   };
+
+  const addServiceFromPreview = () => {
+    if (!searchPreview) return;
+    const d = searchPreview;
+    if (data.services.find(s => s.serviceName.toLowerCase() === (d._searchTerm || d.title).toLowerCase())) {
+      toast.warning('Este servicio ya fue agregado'); return;
+    }
+    const newSvc: AWSServiceEntry = {
+      id: `svc-${Date.now()}`,
+      serviceName: d._searchTerm || d.title,
+      title: d.title,
+      description: d.summary || d.description || '',
+      advantages: d.features || d.advantages || [],
+      disadvantages: d.disadvantages || [],
+      useCases: d.useCases || [],
+      keyPoints: d.useCases || [],
+      whyUsed: '',
+      docsUrl: d.docsUrl || '',
+      summary: d.summary,
+      features: d.features,
+      security: d.security,
+      cost: d.cost,
+      quotas: d.quotas,
+    };
+    const dictEntry: DictionaryEntry = {
+      id: `dict-svc-${Date.now()}`,
+      term: d.title,
+      definition: (d.summary || d.description || '').slice(0, 300),
+      category: 'Servicios AWS',
+      selected: false,
+    };
+    setData(prev => ({
+      ...prev,
+      services: [...prev.services, newSvc],
+      dictionary: prev.dictionary.some(e => e.term.toLowerCase() === d.title.toLowerCase())
+        ? prev.dictionary : [...prev.dictionary, dictEntry],
+    }));
+    setSearchPreview(null);
+    setServiceSearch('');
+    setExpandedService(newSvc.id);
+    toast.success(`${d.title} agregado al documento`);
+  };
+
 
   const removeService = (id: string) =>
     setData(prev => ({ ...prev, services: prev.services.filter(s => s.id !== id) }));
@@ -568,6 +584,106 @@ export function TechnicalMemory() {
               </div>
             </div>
           </div>
+
+          {/* Panel de resultados de búsqueda — preview antes de agregar */}
+          {searchPreview && (
+            <div style={{ background: '#fff', borderRadius: 10, border: '2px solid #e91e8c', overflow: 'hidden' }}>
+              {/* Header resultado */}
+              <div style={{ background: GRADIENT, padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>🛠️ {searchPreview.title}</div>
+                  <a href={searchPreview.docsUrl} target="_blank" rel="noreferrer"
+                    style={{ fontSize: 10, color: 'rgba(255,255,255,0.85)', textDecoration: 'underline' }}>
+                    {searchPreview.docsUrl}
+                  </a>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={addServiceFromPreview}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 16px', borderRadius: 7,
+                      border: '2px solid #fff', background: 'rgba(255,255,255,0.2)', color: '#fff',
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                    <Plus style={{ width: 13, height: 13 }} /> Agregar al documento
+                  </button>
+                  <button onClick={() => setSearchPreview(null)}
+                    style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 6,
+                      padding: '6px 10px', cursor: 'pointer', color: '#fff', fontSize: 12 }}>✕</button>
+                </div>
+              </div>
+
+              <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {/* 1. Resumen Técnico */}
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#e91e8c', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ background: GRADIENT_H, color: '#fff', borderRadius: 4, padding: '1px 8px', fontSize: 11 }}>1</span>
+                    Resumen Técnico
+                  </div>
+                  <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.6, margin: 0 }}>
+                    {searchPreview.summary || searchPreview.description}
+                  </p>
+                </div>
+
+                {/* 2. Características */}
+                {(searchPreview.features || searchPreview.advantages || []).length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#e91e8c', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ background: GRADIENT_H, color: '#fff', borderRadius: 4, padding: '1px 8px', fontSize: 11 }}>2</span>
+                      Características y Capacidades Clave
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      {(searchPreview.features || searchPreview.advantages || []).slice(0, 6).map((f: string, i: number) => (
+                        <li key={i} style={{ fontSize: 12, color: '#374151', lineHeight: 1.5 }}>{f}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* 3. Well-Architected */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  {(searchPreview.security || []).length > 0 && (
+                    <div style={{ background: '#fdf4ff', borderRadius: 8, padding: '10px 14px', border: '1px solid #fce4ec' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#9c27b0', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <span style={{ background: GRADIENT_H, color: '#fff', borderRadius: 4, padding: '1px 8px', fontSize: 10 }}>3</span>
+                        🔐 Seguridad
+                      </div>
+                      {(searchPreview.security || []).slice(0, 3).map((s: string, i: number) => (
+                        <div key={i} style={{ fontSize: 11, color: '#374151', marginBottom: 3 }}>• {s}</div>
+                      ))}
+                    </div>
+                  )}
+                  {(searchPreview.cost || []).length > 0 && (
+                    <div style={{ background: '#fdf4ff', borderRadius: 8, padding: '10px 14px', border: '1px solid #fce4ec' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#9c27b0', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <span style={{ background: GRADIENT_H, color: '#fff', borderRadius: 4, padding: '1px 8px', fontSize: 10 }}>3</span>
+                        💰 Costos
+                      </div>
+                      {(searchPreview.cost || []).slice(0, 3).map((c: string, i: number) => (
+                        <div key={i} style={{ fontSize: 11, color: '#374151', marginBottom: 3 }}>• {c}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 4. Límites y Cuotas */}
+                {(searchPreview.quotas || []).length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#e91e8c', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ background: GRADIENT_H, color: '#fff', borderRadius: 4, padding: '1px 8px', fontSize: 11 }}>4</span>
+                      Límites y Cuotas (Service Quotas)
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      {(searchPreview.quotas || []).slice(0, 4).map((q: string, i: number) => (
+                        <li key={i} style={{ fontSize: 12, color: '#374151', lineHeight: 1.5 }}>{q}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div style={{ fontSize: 10, color: '#9c27b0', padding: '6px 10px', background: '#fdf4ff', borderRadius: 6, border: '1px solid #fce4ec' }}>
+                  Fuente oficial: <a href={searchPreview.docsUrl} target="_blank" rel="noreferrer" style={{ color: '#e91e8c' }}>{searchPreview.docsUrl}</a>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Services list */}
           {data.services.length === 0 ? (

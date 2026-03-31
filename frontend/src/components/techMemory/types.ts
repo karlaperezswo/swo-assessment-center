@@ -9,6 +9,12 @@ export interface AWSServiceEntry {
   keyPoints: string[];
   whyUsed: string;
   docsUrl: string;
+  // Campos extendidos del protocolo Well-Architected
+  summary?: string;
+  features?: string[];
+  security?: string[];
+  cost?: string[];
+  quotas?: string[];
 }
 
 export interface DictionaryEntry {

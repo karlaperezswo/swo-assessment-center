@@ -20,27 +20,38 @@ export async function searchAWSDocumentation(serviceName: string): Promise<{
   disadvantages: string[];
   useCases: string[];
   docsUrl: string;
+  summary?: string;
+  features?: string[];
+  security?: string[];
+  cost?: string[];
+  quotas?: string[];
 }> {
   const available = await isPythonApiAvailable();
+  if (!available) throw new Error('Python AWS Docs API no disponible en puerto 8001');
 
-  if (!available) {
-    throw new Error('Python AWS Docs API no disponible en puerto 8001');
-  }
-
-  // Usar el endpoint /servicio que retorna datos estructurados para Memoria Técnica
   const res = await axios.get(`${PYTHON_API}/servicio`, {
     params: { nombre: serviceName },
-    timeout: 35000,
+    timeout: 40000,
   });
 
   const d = res.data;
+
+  // Si el protocolo retornó error
+  if (d.error) throw new Error(d.error);
+
   return {
-    title: d.title || serviceName,
-    description: d.description || '',
-    advantages: d.advantages || [],
+    title:        d.title        || serviceName,
+    description:  d.summary      || d.description || '',
+    advantages:   d.features     || d.advantages  || [],
     disadvantages: d.disadvantages || [],
-    useCases: d.useCases || [],
-    docsUrl: d.docsUrl || `https://aws.amazon.com/`,
+    useCases:     d.useCases     || [],
+    docsUrl:      d.docsUrl      || `https://docs.aws.amazon.com/`,
+    // Campos extendidos del protocolo
+    summary:   d.summary,
+    features:  d.features,
+    security:  d.security,
+    cost:      d.cost,
+    quotas:    d.quotas,
   };
 }
 

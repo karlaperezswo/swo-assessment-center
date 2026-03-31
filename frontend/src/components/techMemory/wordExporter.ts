@@ -198,14 +198,35 @@ function buildServiceSection(svc: AWSServiceEntry, num: number): string {
   const advList = svc.advantages.map(a => `<li>${escHtml(a)}</li>`).join('');
   const disList = svc.disadvantages.map(d => `<li>${escHtml(d)}</li>`).join('');
   const ucList  = (svc.useCases || []).map(u => `<li>${escHtml(u)}</li>`).join('');
+  const featList = (svc.features || []).map(f => `<li>${escHtml(f)}</li>`).join('');
+  const secList  = (svc.security || []).map(s => `<li>${escHtml(s)}</li>`).join('');
+  const costList = (svc.cost || []).map(c => `<li>${escHtml(c)}</li>`).join('');
+  const quotaList = (svc.quotas || []).map(q => `<li>${escHtml(q)}</li>`).join('');
+
   return `
   <div class="service-block">
     <div class="service-title">4.${num} ${escHtml(svc.title)}</div>
-    <h3>Descripción</h3><p>${escHtml(svc.description)}</p>
+
+    <h3>1. Resumen Técnico</h3>
+    <p>${escHtml(svc.summary || svc.description)}</p>
+
     ${svc.whyUsed ? `<h3>Justificación de Uso en el Proyecto</h3><p>${escHtml(svc.whyUsed)}</p>` : ''}
-    <h3>Ventajas</h3><ul>${advList}</ul>
-    <h3>Desventajas</h3><ul>${disList}</ul>
+
+    <h3>2. Características y Capacidades Clave</h3>
+    <ul>${featList || advList || '<li>Consulte la documentación oficial.</li>'}</ul>
+
+    <h3>3. Consideraciones de Implementación (Well-Architected)</h3>
+    <p><strong>Seguridad:</strong></p>
+    <ul>${secList || '<li>Consulte la documentación oficial para detalles de IAM y cifrado.</li>'}</ul>
+    <p><strong>Costos:</strong></p>
+    <ul>${costList || '<li>Modelo de pago por uso. Consulte la calculadora de precios de AWS.</li>'}</ul>
+
+    ${quotaList ? `<h3>4. Límites y Cuotas (Service Quotas)</h3><ul>${quotaList}</ul>` : ''}
+
     ${ucList ? `<h3>Casos de Uso</h3><ul>${ucList}</ul>` : ''}
+
+    ${disList ? `<h3>Consideraciones Adicionales</h3><ul>${disList}</ul>` : ''}
+
     <p class="no-indent" style="font-size:10pt;color:#555">
       Fuente: Amazon Web Services. (${new Date().getFullYear()}). <em>${escHtml(svc.title)}</em>.
       Recuperado de <a href="${escHtml(svc.docsUrl)}">${escHtml(svc.docsUrl)}</a>

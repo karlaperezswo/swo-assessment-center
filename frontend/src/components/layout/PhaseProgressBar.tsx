@@ -13,10 +13,11 @@ const phases: { key: MigrationPhase; label: string; subtitle: string }[] = [
   { key: 'migrate', label: 'Migrar y Modernizar', subtitle: 'Acelerar la transformación' },
 ];
 
-const phaseColors = {
-  assess: { circle: 'bg-fuchsia-600', ring: 'ring-fuchsia-300', text: 'text-fuchsia-700' },
-  mobilize: { circle: 'bg-violet-600', ring: 'ring-violet-300', text: 'text-violet-700' },
-  migrate: { circle: 'bg-amber-600', ring: 'ring-amber-300', text: 'text-amber-700' },
+const phaseColors: Record<MigrationPhase, { circle: string; ring: string; text: string }> = {
+  assess:       { circle: 'bg-fuchsia-600', ring: 'ring-fuchsia-300', text: 'text-fuchsia-700' },
+  mobilize:     { circle: 'bg-violet-600',  ring: 'ring-violet-300',  text: 'text-violet-700'  },
+  migrate:      { circle: 'bg-amber-600',   ring: 'ring-amber-300',   text: 'text-amber-700'   },
+  'tech-memory':{ circle: 'bg-pink-600',    ring: 'ring-pink-300',    text: 'text-pink-700'    },
 };
 
 export function PhaseProgressBar({ phaseStatus, currentPhase }: PhaseProgressBarProps) {

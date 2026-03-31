@@ -104,5 +104,9 @@ export function I18nProvider({ children }: Props) {
     translateAsync,
   }
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
+  return (
+    <I18nContext.Provider value={value}>
+      {isLoading ? null : children}
+    </I18nContext.Provider>
+  )
 }

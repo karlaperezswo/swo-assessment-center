@@ -245,7 +245,9 @@
       "migrationWaves": "Planificación de Olas",
       "briefings": "Briefings y Talleres",
       "immersionDay": "Día de Inmersión",
-      "selector": "Selector"
+      "selector": "Selector",
+      "dependencyMap": "Mapa de Dependencias",
+      "businessCase": "Caso de Negocio"
     },
     "requirements": {
       "excelFile": "Cargar archivo Excel MPA",
@@ -781,5 +783,91 @@
       "unansweredCount": "Faltan {{count}} preguntas por responder",
       "calculateButton": "Calcular Recomendación"
     }
+  },
+  "techMemory": {
+    "title": "Memoria Técnica",
+    "subtitle": "Migración AWS — SoftwareOne",
+    "exportWord": "Exportar Word",
+    "tabs": {
+      "letter": "Carta",
+      "client": "Cliente",
+      "services": "Servicios AWS",
+      "dictionary": "Diccionario",
+      "document": "Documento",
+      "wellarch": "Well-Architected"
+    },
+    "letter": {
+      "title": "Datos de la Carta",
+      "subtitle": "Todos los campos son editables. La fecha se genera automáticamente si no la modificas.",
+      "date": "Fecha de la Carta",
+      "itTeam": "Equipo de TI Destinatario",
+      "consultorName": "Nombre del Consultor (SoftwareOne)",
+      "signature": "Cargo / Firma",
+      "email": "Correo del Consultor"
+    },
+    "client": {
+      "title": "Información del Cliente",
+      "subtitle": "Datos básicos que aparecerán en el encabezado del documento",
+      "name": "Nombre del Cliente",
+      "industry": "Industria / Vertical",
+      "country": "País",
+      "website": "Sitio web (opcional)",
+      "searchWeb": "Buscar en web",
+      "searching": "Buscando...",
+      "autoExtract": "Se extraerá automáticamente la misión y visión del sitio web del cliente.",
+      "mission": "Misión",
+      "vision": "Visión",
+      "about": "Acerca de la Empresa"
+    },
+    "services": {
+      "title": "Buscar Servicio AWS",
+      "subtitle": "Busca en la documentación oficial de AWS y agrega al documento",
+      "searchByName": "Buscar por nombre de servicio AWS",
+      "searchPlaceholder": "ej. Amazon S3, AWS Lambda, Amazon RDS, Amazon EC2...",
+      "searchBtn": "Buscar en AWS",
+      "searching": "Buscando...",
+      "searchByUrl": "O pega una URL y extrae automáticamente",
+      "urlPlaceholder": "ej. https://aws.amazon.com/s3/ o cualquier URL de documentación...",
+      "extractBtn": "Extraer de URL",
+      "extracting": "Extrayendo...",
+      "noServices": "No hay servicios agregados",
+      "noServicesHint": "Busca un servicio AWS para comenzar",
+      "description": "Descripción (editable)",
+      "whyUsed": "¿Por qué se usa este servicio en el proyecto? *",
+      "whyUsedPlaceholder": "Describe la justificación técnica de este servicio en el contexto del proyecto...",
+      "advantages": "Ventajas",
+      "disadvantages": "Desventajas",
+      "addAdvantage": "Agregar ventaja",
+      "addDisadvantage": "Agregar desventaja",
+      "source": "Fuente"
+    },
+    "dictionary": {
+      "title": "Agregar Término al Diccionario",
+      "subtitle": "Los términos seleccionados se incluyen automáticamente en el Word como Glosario",
+      "term": "Término *",
+      "termPlaceholder": "ej. Kubernetes",
+      "category": "Categoría",
+      "categoryPlaceholder": "ej. Tecnologías",
+      "definition": "Definición *",
+      "definitionPlaceholder": "Definición del término...",
+      "addBtn": "Agregar",
+      "filterPlaceholder": "Filtrar términos...",
+      "selectedCount": "{{count}} seleccionados → Word",
+      "clickHint": "Haz clic en cualquier término para seleccionarlo/deseleccionarlo. Los términos seleccionados aparecerán en la sección 'Glosario' del documento Word exportado."
+    },
+    "document": {
+      "introduction": "Introducción",
+      "introHint": "Describe el contexto del proyecto, objetivos y alcance. Usa [NOMBRE_EMPRESA], [CONSULTOR], [CORREO] como marcadores.",
+      "infraSummary": "Resumen de la Infraestructura",
+      "infraHint": "Describe la arquitectura implementada, ambientes, VPCs y componentes clave.",
+      "conclusions": "Conclusiones",
+      "conclusionsHint": "Resume los logros, beneficios obtenidos y recomendaciones finales."
+    },
+    "wellarch": {
+      "hint": "Edita las recomendaciones por pilar. Todas se incluirán en el documento Word exportado.",
+      "recommendations": "{{count}} recomendaciones",
+      "addRecommendation": "Agregar recomendación"
+    }
+  }
   }
 }

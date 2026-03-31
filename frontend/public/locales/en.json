@@ -245,7 +245,9 @@
       "migrationWaves": "Migration Waves Planning",
       "briefings": "Briefings & Workshops",
       "immersionDay": "Immersion Day",
-      "selector": "Tool Selector"
+      "selector": "Tool Selector",
+      "dependencyMap": "Dependency Map",
+      "businessCase": "Business Case"
     },
     "requirements": {
       "excelFile": "Upload MPA Excel file",
@@ -780,6 +782,91 @@
       "mustAnswerAll": "You must answer all questions",
       "unansweredCount": "{{count}} questions still unanswered",
       "calculateButton": "Calculate Recommendation"
+    }
+  },
+  "techMemory": {
+    "title": "Technical Memory",
+    "subtitle": "AWS Migration — SoftwareOne",
+    "exportWord": "Export Word",
+    "tabs": {
+      "letter": "Cover Letter",
+      "client": "Client",
+      "services": "AWS Services",
+      "dictionary": "Dictionary",
+      "document": "Document",
+      "wellarch": "Well-Architected"
+    },
+    "letter": {
+      "title": "Letter Data",
+      "subtitle": "All fields are editable. Date is auto-generated if not modified.",
+      "date": "Letter Date",
+      "itTeam": "Recipient IT Team",
+      "consultorName": "Consultant Name (SoftwareOne)",
+      "signature": "Title / Signature",
+      "email": "Consultant Email"
+    },
+    "client": {
+      "title": "Client Information",
+      "subtitle": "Basic data that will appear in the document header",
+      "name": "Client Name",
+      "industry": "Industry / Vertical",
+      "country": "Country",
+      "website": "Website (optional)",
+      "searchWeb": "Search web",
+      "searching": "Searching...",
+      "autoExtract": "Mission and vision will be automatically extracted from the client website.",
+      "mission": "Mission",
+      "vision": "Vision",
+      "about": "About the Company"
+    },
+    "services": {
+      "title": "Search AWS Service",
+      "subtitle": "Search official AWS documentation and add to document",
+      "searchByName": "Search by AWS service name",
+      "searchPlaceholder": "e.g. Amazon S3, AWS Lambda, Amazon RDS...",
+      "searchBtn": "Search AWS",
+      "searching": "Searching...",
+      "searchByUrl": "Or paste a URL and extract automatically",
+      "urlPlaceholder": "e.g. https://aws.amazon.com/s3/ or any documentation URL...",
+      "extractBtn": "Extract from URL",
+      "extracting": "Extracting...",
+      "noServices": "No services added",
+      "noServicesHint": "Search an AWS service to start",
+      "description": "Description (editable)",
+      "whyUsed": "Why is this service used in the project? *",
+      "whyUsedPlaceholder": "Describe the technical justification for this service in the project context...",
+      "advantages": "Advantages",
+      "disadvantages": "Disadvantages",
+      "addAdvantage": "Add advantage",
+      "addDisadvantage": "Add disadvantage",
+      "source": "Source"
+    },
+    "dictionary": {
+      "title": "Add Term to Dictionary",
+      "subtitle": "Selected terms are automatically included in the Word as Glossary",
+      "term": "Term *",
+      "termPlaceholder": "e.g. Kubernetes",
+      "category": "Category",
+      "categoryPlaceholder": "e.g. Technologies",
+      "definition": "Definition *",
+      "definitionPlaceholder": "Term definition...",
+      "addBtn": "Add",
+      "filterPlaceholder": "Filter terms...",
+      "selectedCount": "{{count}} selected → Word",
+      "clickHint": "Click any term to select/deselect it. Selected terms will appear in the 'Glossary' section of the exported Word document."
+    },
+    "document": {
+      "introduction": "Introduction",
+      "introHint": "Describe the project context, objectives and scope. Use [COMPANY_NAME], [CONSULTANT], [EMAIL] as markers.",
+      "infraSummary": "Infrastructure Summary",
+      "infraHint": "Describe the implemented architecture, environments, VPCs and key components.",
+      "conclusions": "Conclusions",
+      "conclusionsHint": "Summarize achievements, benefits obtained and final recommendations."
+    },
+    "wellarch": {
+      "hint": "Edit recommendations by pillar. All will be included in the exported Word document.",
+      "recommendations": "{{count}} recommendations",
+      "addRecommendation": "Add recommendation"
     }
   }
 }

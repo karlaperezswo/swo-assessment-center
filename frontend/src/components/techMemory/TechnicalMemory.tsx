@@ -177,6 +177,10 @@ export function TechnicalMemory() {
   const [isLoadingLogo, setIsLoadingLogo] = useState(false);
   const [expandedService, setExpandedService] = useState<string|null>(null);
   const [searchPreview, setSearchPreview] = useState<any>(null); // resultado previo antes de agregar
+  const [urlPreview, setUrlPreview] = useState<any>(null);       // resultado de extracción de URL
+  const [urlCacheList, setUrlCacheList] = useState<string[]>(    // cache local de URLs consultadas
+    () => { try { return JSON.parse(localStorage.getItem('tm_url_cache') || '[]'); } catch { return []; } }
+  );
   const [dictSearch, setDictSearch] = useState('');
   const [newTerm, setNewTerm] = useState({ term: '', definition: '', category: '' });
   const clientLogoRef = useRef<HTMLInputElement>(null);
@@ -303,37 +307,75 @@ export function TechnicalMemory() {
       services: prev.services.map(s => s.id === id ? { ...s, [field]: value } : s),
     }));
 
-  // ── Scrape by URL ──────────────────────────────────────────────────────────
-  const scrapeByUrl = async () => {
+  // ── Extraer por URL — muestra preview + alimenta diccionario ─────────────
+  const scrapeByUrl = async (forceRefresh = false) => {
     if (!serviceUrl.trim()) { toast.error('Ingresa una URL'); return; }
+    if (!serviceUrl.startsWith('http')) { toast.error('La URL debe comenzar con http:// o https://'); return; }
     setIsScrapingUrl(true);
-    toast.loading('Extrayendo información de la URL...', { id: 'url-scrape' });
+    setUrlPreview(null);
+    toast.loading('Conectando y extrayendo información...', { id: 'url-scrape' });
     try {
-      const res = await apiClient.post('/api/scraper/by-url', { url: serviceUrl });
-      if (res.data.success) {
-        const d = res.data.data;
-        const newSvc: AWSServiceEntry = {
-          id: `svc-${Date.now()}`,
-          serviceName: d.title,
-          title: d.title,
-          description: d.description,
-          advantages: d.advantages,
-          disadvantages: d.disadvantages,
-          useCases: d.keyPoints,
-          keyPoints: d.keyPoints,
-          whyUsed: '',
-          docsUrl: serviceUrl,
-        };
-        setData(prev => ({ ...prev, services: [...prev.services, newSvc] }));
-        setServiceUrl('');
-        setExpandedService(newSvc.id);
-        toast.success(`"${d.title}" agregado desde URL`, { id: 'url-scrape' });
+      const res = await apiClient.get('/api/scraper/extraer', {
+        params: { url: serviceUrl, force: forceRefresh ? '1' : '0' },
+      });
+      if (res.data) {
+        const d = res.data;
+        setUrlPreview({ ...d, _sourceUrl: serviceUrl });
+        const cacheMsg = d.fromCache ? ' (desde caché)' : '';
+        toast.success(`Información extraída${cacheMsg} — revisa y guarda`, { id: 'url-scrape' });
+
+        // Guardar URL en cache local del navegador
+        const cached = JSON.parse(localStorage.getItem('tm_url_cache') || '[]') as string[];
+        if (!cached.includes(serviceUrl)) {
+          const updated = [serviceUrl, ...cached].slice(0, 20);
+          localStorage.setItem('tm_url_cache', JSON.stringify(updated));
+          setUrlCacheList(updated);
+        }
       } else {
-        toast.error(res.data.error || 'No se pudo extraer información', { id: 'url-scrape' });
+        toast.error('No se pudo extraer información de la URL', { id: 'url-scrape' });
       }
-    } catch {
-      toast.error('Error al conectar con el servidor', { id: 'url-scrape' });
+    } catch (err: any) {
+      const msg = err?.response?.data?.detail || 'Error al conectar con el servidor';
+      toast.error(msg, { id: 'url-scrape' });
     } finally { setIsScrapingUrl(false); }
+  };
+
+  // Agregar contenido de URL al documento y al diccionario
+  const addUrlToDocument = () => {
+    if (!urlPreview) return;
+    const d = urlPreview;
+    const newSvc: AWSServiceEntry = {
+      id: `svc-${Date.now()}`,
+      serviceName: d.title,
+      title: d.title,
+      description: d.description,
+      advantages: d.keyPoints || [],
+      disadvantages: ['Verificar compatibilidad con el entorno del proyecto.'],
+      useCases: (d.sections || []).slice(0, 4).map((s: any) => s.heading).filter(Boolean),
+      keyPoints: d.keyPoints || [],
+      whyUsed: '',
+      docsUrl: d.docsUrl || d._sourceUrl,
+    };
+    // Auto-alimentar diccionario con términos clave extraídos
+    const newDictEntries: DictionaryEntry[] = (d.keyTerms || [])
+      .filter((kt: any) => !data.dictionary.some(e => e.term.toLowerCase() === kt.term.toLowerCase()))
+      .map((kt: any, i: number) => ({
+        id: `dict-url-${Date.now()}-${i}`,
+        term: kt.term,
+        definition: kt.context || `Término extraído de: ${d.docsUrl || d._sourceUrl}`,
+        category: 'Extraído de URL',
+        selected: false,
+      }));
+
+    setData(prev => ({
+      ...prev,
+      services: [...prev.services, newSvc],
+      dictionary: [...prev.dictionary, ...newDictEntries],
+    }));
+    setUrlPreview(null);
+    setServiceUrl('');
+    setExpandedService(newSvc.id);
+    toast.success(`"${d.title}" agregado — ${newDictEntries.length} términos al diccionario`);
   };
 
   // ── Dictionary helpers ─────────────────────────────────────────────────────
@@ -681,6 +723,111 @@ export function TechnicalMemory() {
                 <div style={{ fontSize: 10, color: '#9c27b0', padding: '6px 10px', background: '#fdf4ff', borderRadius: 6, border: '1px solid #fce4ec' }}>
                   Fuente oficial: <a href={searchPreview.docsUrl} target="_blank" rel="noreferrer" style={{ color: '#e91e8c' }}>{searchPreview.docsUrl}</a>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Panel preview de URL extraída */}
+          {urlPreview && (
+            <div style={{ background: '#fff', borderRadius: 10, border: '2px solid #9c27b0', overflow: 'hidden' }}>
+              <div style={{ background: GRADIENT, padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
+                    🔗 {urlPreview.title}
+                    {urlPreview.fromCache && <span style={{ marginLeft: 8, fontSize: 10, background: 'rgba(255,255,255,0.2)', borderRadius: 10, padding: '1px 8px' }}>⚡ caché</span>}
+                  </div>
+                  <a href={urlPreview.docsUrl || urlPreview._sourceUrl} target="_blank" rel="noreferrer"
+                    style={{ fontSize: 10, color: 'rgba(255,255,255,0.85)', textDecoration: 'underline' }}>
+                    {urlPreview.docsUrl || urlPreview._sourceUrl}
+                  </a>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => scrapeByUrl(true)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 6,
+                      border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 11, cursor: 'pointer' }}>
+                    <RefreshCw style={{ width: 11, height: 11 }} /> Actualizar
+                  </button>
+                  <button onClick={addUrlToDocument}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 16px', borderRadius: 7,
+                      border: '2px solid #fff', background: 'rgba(255,255,255,0.2)', color: '#fff',
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                    <Plus style={{ width: 13, height: 13 }} /> Guardar en documento
+                  </button>
+                  <button onClick={() => setUrlPreview(null)}
+                    style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 6,
+                      padding: '6px 10px', cursor: 'pointer', color: '#fff', fontSize: 12 }}>✕</button>
+                </div>
+              </div>
+
+              <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* Descripción */}
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#9c27b0', marginBottom: 5 }}>Descripción</div>
+                  <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.6, margin: 0 }}>{urlPreview.description}</p>
+                </div>
+
+                {/* Puntos clave */}
+                {(urlPreview.keyPoints || []).length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9c27b0', marginBottom: 5 }}>Puntos Clave Extraídos</div>
+                    <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      {(urlPreview.keyPoints || []).slice(0, 8).map((p: string, i: number) => (
+                        <li key={i} style={{ fontSize: 12, color: '#374151', lineHeight: 1.5 }}>{p}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Secciones */}
+                {(urlPreview.sections || []).length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9c27b0', marginBottom: 5 }}>Secciones del Documento</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {(urlPreview.sections || []).slice(0, 10).map((s: any, i: number) => (
+                        <span key={i} style={{ fontSize: 10, background: '#f3e8ff', color: '#7b2ff7',
+                          border: '1px solid #fce4ec', borderRadius: 12, padding: '2px 10px' }}>
+                          {s.heading}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Términos clave → diccionario */}
+                {(urlPreview.keyTerms || []).length > 0 && (
+                  <div style={{ background: '#fdf4ff', borderRadius: 8, padding: '10px 14px', border: '1px solid #fce4ec' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9c27b0', marginBottom: 6 }}>
+                      📚 {urlPreview.keyTerms.length} términos detectados → se agregarán al Diccionario
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                      {(urlPreview.keyTerms || []).slice(0, 12).map((kt: any, i: number) => (
+                        <span key={i} style={{ fontSize: 10, background: '#fff', color: '#e91e8c',
+                          border: '1px solid #fce4ec', borderRadius: 10, padding: '2px 8px', fontWeight: 600 }}>
+                          {kt.term}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* URLs en caché */}
+                {urlCacheList.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9c27b0', marginBottom: 5 }}>
+                      ⚡ URLs en caché ({urlCacheList.length})
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, maxHeight: 80, overflowY: 'auto' }}>
+                      {urlCacheList.slice(0, 5).map((u, i) => (
+                        <button key={i} onClick={() => { setServiceUrl(u); }}
+                          style={{ textAlign: 'left', fontSize: 10, color: '#7b2ff7', background: 'none',
+                            border: 'none', cursor: 'pointer', padding: '2px 0', textDecoration: 'underline',
+                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {u}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

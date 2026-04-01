@@ -36,9 +36,32 @@ export class ScraperController {
     }
   };
 
-  // POST /api/scraper/by-url
-  // Intenta Python FastAPI+MCP primero, fallback a scraping web
-  byUrl = async (req: Request, res: Response) => {
+  // GET /api/scraper/extraer — extrae cualquier URL con cache
+  extraer = async (req: Request, res: Response) => {
+    try {
+      const { url, force } = req.query;
+      if (!url || typeof url !== 'string') {
+        return res.status(400).json({ success: false, error: 'url es requerida' });
+      }
+      // force puede llegar como '1', 'true', o '0'/'false'
+      const forceRefresh = force === '1' || force === 'true';
+      let data: any = null;
+      try {
+        const pyRes = await require('axios').default.get(
+          `${process.env.AWS_DOCS_API_URL || 'http://localhost:8001'}/extraer`,
+          { params: { url: url.trim(), force: forceRefresh }, timeout: 40000 }
+        );
+        data = pyRes.data;
+      } catch (pyErr: any) {
+        console.warn(`[Scraper] Python API falló para /extraer (${pyErr.message}), usando scraping...`);
+        data = await scrapeByUrl(url.trim());
+      }
+      res.json(data);
+    } catch (error: any) {
+      console.error('[Scraper] extraer error:', error.message);
+      res.status(500).json({ error: error.message || 'Error al extraer la URL' });
+    }
+  };
     try {
       const { url } = req.body;
       if (!url || typeof url !== 'string') {

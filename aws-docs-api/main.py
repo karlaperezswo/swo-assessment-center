@@ -351,3 +351,206 @@ async def servicio_completo(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
+
+# ── /extraer — extrae cualquier URL, sin restricción de dominio ───────────────
+
+import hashlib
+import time
+
+# Cache en memoria (TTL 1 hora)
+_url_cache: dict = {}
+CACHE_TTL = 3600  # segundos
+
+
+def _cache_key(url: str) -> str:
+    return hashlib.md5(url.encode()).hexdigest()
+
+
+def _extract_key_terms(text: str, max_terms: int = 15) -> list:
+    """
+    Extrae términos clave del texto para alimentar el diccionario.
+    Busca: definiciones, acrónimos, términos técnicos en negrita/código.
+    """
+    terms = []
+    seen = set()
+
+    for line in text.split("\n"):
+        line = line.strip()
+        # Términos en negrita **Término**
+        bold = re.findall(r'\*\*([^*]{3,40})\*\*', line)
+        for t in bold:
+            if t.lower() not in seen and len(t) > 3:
+                terms.append({"term": t, "context": line[:200]})
+                seen.add(t.lower())
+        # Acrónimos (2-6 letras mayúsculas)
+        acronyms = re.findall(r'\b([A-Z]{2,6})\b', line)
+        for a in acronyms:
+            if a.lower() not in seen and a not in ("AWS", "URL", "API", "HTTP", "HTTPS"):
+                terms.append({"term": a, "context": line[:200]})
+                seen.add(a.lower())
+        # Definiciones "X is a ..." o "X es un ..."
+        defn = re.match(r'^([A-Z][a-zA-Z\s]{3,30})\s+(?:is|are|es|son)\s+(.{20,200})', line)
+        if defn and defn.group(1).lower() not in seen:
+            terms.append({"term": defn.group(1).strip(), "context": defn.group(2).strip()[:200]})
+            seen.add(defn.group(1).lower())
+        if len(terms) >= max_terms:
+            break
+
+    return terms[:max_terms]
+
+
+def _extract_structured(text: str, url: str) -> dict:
+    """Extrae estructura completa de cualquier página."""
+    lines = text.split("\n")
+    title = ""
+    description = ""
+    sections = []
+    key_points = []
+    current_section = {"heading": "", "content": ""}
+
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("# ") and not title:
+            title = stripped[2:].strip()
+            continue
+        if stripped.startswith("##"):
+            if current_section["content"].strip():
+                sections.append(dict(current_section))
+            current_section = {"heading": stripped.lstrip("#").strip(), "content": ""}
+            continue
+        if not description and len(stripped) > 80 and not stripped.startswith("#"):
+            description = stripped[:600]
+        if stripped.startswith(("- ", "* ", "• ")) and len(stripped) > 20:
+            key_points.append(stripped[2:].strip())
+        current_section["content"] += stripped + " "
+
+    if current_section["content"].strip():
+        sections.append(current_section)
+
+    key_terms = _extract_key_terms(text)
+
+    return {
+        "title": title or url,
+        "description": description or "Contenido extraído de la URL.",
+        "sections": sections[:20],
+        "keyPoints": key_points[:10],
+        "keyTerms": key_terms,
+        "wordCount": len(text.split()),
+        "rawText": text[:5000],  # primeros 5000 chars para edición
+        "docsUrl": url,
+        "extractedAt": int(time.time()),
+    }
+
+
+@app.get("/extraer")
+async def extraer_url(
+    url: str = Query(..., description="Cualquier URL a extraer"),
+    force: bool = Query(False, description="Forzar re-extracción ignorando cache"),
+):
+    """
+    Extrae contenido de cualquier URL.
+    - Soporta docs.aws.amazon.com (via MCP) y cualquier otro sitio (via scraping)
+    - Cache en memoria por 1 hora
+    - Retorna estructura + términos clave para el diccionario
+    """
+    if not url.startswith("http"):
+        raise HTTPException(status_code=400, detail="La URL debe comenzar con http:// o https://")
+
+    cache_key = _cache_key(url)
+
+    # Verificar cache
+    if not force and cache_key in _url_cache:
+        cached = _url_cache[cache_key]
+        if time.time() - cached["extractedAt"] < CACHE_TTL:
+            return {**cached, "fromCache": True}
+
+    # Extraer según el dominio
+    text = ""
+    is_aws = "docs.aws.amazon.com" in url or "aws.amazon.com" in url
+
+    if is_aws:
+        # Usar MCP para AWS docs
+        try:
+            result = await call_mcp_tool("read_documentation", {"url": url}, timeout=35.0)
+            text = extract_text(result)
+        except Exception as e:
+            # Fallback a scraping si MCP falla
+            text = await _scrape_url_fallback(url)
+    else:
+        text = await _scrape_url_fallback(url)
+
+    if not text or len(text) < 50:
+        raise HTTPException(
+            status_code=404,
+            detail="Error de sincronización con la fuente oficial. Por favor, verifica el nombre del servicio."
+        )
+
+    structured = _extract_structured(text, url)
+
+    # Guardar en cache
+    _url_cache[cache_key] = structured
+
+    return {**structured, "fromCache": False}
+
+
+@app.get("/cache")
+async def list_cache():
+    """Lista las URLs en cache."""
+    now = int(time.time())
+    return {
+        "cached": [
+            {
+                "url": v["docsUrl"],
+                "title": v["title"],
+                "extractedAt": v["extractedAt"],
+                "ageMinutes": round((now - v["extractedAt"]) / 60, 1),
+                "expired": (now - v["extractedAt"]) > CACHE_TTL,
+            }
+            for v in _url_cache.values()
+        ],
+        "total": len(_url_cache),
+    }
+
+
+@app.delete("/cache")
+async def clear_cache(url: str = Query(None, description="URL específica a limpiar, o vacío para limpiar todo")):
+    """Limpia el cache."""
+    if url:
+        key = _cache_key(url)
+        removed = _url_cache.pop(key, None)
+        return {"cleared": bool(removed), "url": url}
+    _url_cache.clear()
+    return {"cleared": True, "message": "Cache completo limpiado"}
+
+
+async def _scrape_url_fallback(url: str) -> str:
+    """Scraping directo para URLs no-AWS usando httpx."""
+    try:
+        import httpx
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+        }
+        async with httpx.AsyncClient(follow_redirects=True, timeout=15.0) as client:
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            html = resp.text
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"No se pudo acceder a la URL: {str(e)}")
+
+    # Parsear HTML con BeautifulSoup si está disponible, sino regex básico
+    try:
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html, "html.parser")
+        for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
+            tag.decompose()
+        text = soup.get_text(separator="\n", strip=True)
+    except ImportError:
+        # Fallback: quitar tags HTML con regex
+        text = re.sub(r'<[^>]+>', ' ', html)
+        text = re.sub(r'\s+', ' ', text).strip()
+
+    return text[:10000]

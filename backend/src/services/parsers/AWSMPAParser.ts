@@ -82,16 +82,16 @@ export class AWSMPAParser extends BaseParser {
         row['totalRAM'] || row['totalRAM (GB)'] || row['Total RAM (GB)'] || row['RAM (GB)'] || row['Memory (GB)'] || 0
       ),
       maxCpuUsage: this.parseNumber(
-        row['maxCpuUsagePct'] || row['Max CPU Usage'] || row['Peak CPU %'] || 0
+        row['maxCpuUsagePct'] || row['maxCpuUsagePctDec (%)'] || row['Max CPU Usage'] || row['Peak CPU %'] || 0
       ),
       avgCpuUsage: this.parseNumber(
-        row['avgCpuUsagePct'] || row['Avg CPU Usage'] || row['Average CPU %'] || 0
+        row['avgCpuUsagePct'] || row['avgCpuUsagePctDec (%)'] || row['Avg CPU Usage'] || row['Average CPU %'] || 0
       ),
       maxRamUsage: this.parseNumber(
-        row['maxRamUsagePct'] || row['Max RAM Usage'] || row['Peak Memory %'] || 0
+        row['maxRamUsagePct'] || row['maxRamUsagePctDec (%)'] || row['Max RAM Usage'] || row['Peak Memory %'] || 0
       ),
       avgRamUsage: this.parseNumber(
-        row['avgRamUsagePct'] || row['Avg RAM Usage'] || row['Average Memory %'] || 0
+        row['avgRamUsagePct'] || row['avgRamUtlPctDec (%)'] || row['Avg RAM Usage'] || row['Average Memory %'] || 0
       ),
       totalDiskSize: this.parseNumber(
         row['Storage-Total Disk Size (GB)'] ||
@@ -150,7 +150,7 @@ export class AWSMPAParser extends BaseParser {
         row['License Model'] || row['License'] || 'license-included'
       ),
       maxTPS: this.parseNumber(
-        row['Max TPS'] || row['TPS'] || 0
+        row['Max TPS'] || row['TPS'] || row['Max Transactions per Second'] || 0
       )
     }));
   }
@@ -168,13 +168,13 @@ export class AWSMPAParser extends BaseParser {
 
       // Get connection counts from Excel
       const excelTotal = this.parseNumber(
-        row['Total Connections'] || row['Connections'] || 0
+        row['Total Connections'] || row['Number of Connections'] || row['Connections'] || 0
       );
       const excelInbound = this.parseNumber(
-        row['Inbound Connections'] || row['Inbound'] || 0
+        row['Inbound Connections'] || row['Number of Inbound Connections'] || row['Inbound'] || 0
       );
       const excelOutbound = this.parseNumber(
-        row['Outbound Connections'] || row['Outbound'] || 0
+        row['Outbound Connections'] || row['Number of Outbound Connections'] || row['Outbound'] || 0
       );
 
       // Calculate from communications as fallback
@@ -182,14 +182,14 @@ export class AWSMPAParser extends BaseParser {
 
       return {
         appId: this.generateId('app', index,
-          row['Application Id'] || row['AppId'] || row['app_id']
+          row['Application Id'] || row['AppId'] || row['app_id'] || row['Application ID']
         ),
         name: appName,
         description: this.cleanString(
           row['Description'] || ''
         ),
         type: this.cleanString(
-          row['Type'] || row['Application Type'] || ''
+          row['Type'] || row['Application Type'] || row['Application Type'] || ''
         ),
         totalConnections: excelTotal || calculated.total,
         inboundConnections: excelInbound || calculated.inbound,
@@ -214,10 +214,10 @@ export class AWSMPAParser extends BaseParser {
 
     return data.map(row => ({
       serverId: this.cleanString(
-        row['Server Id'] || row['ServerId'] || ''
+        row['Server Id'] || row['ServerId'] || row['serverId'] || ''
       ),
       appId: this.cleanString(
-        row['Application Id'] || row['AppId'] || ''
+        row['Application Id'] || row['AppId'] || row['appid'] || row['app_id'] || ''
       ),
       hostname: this.cleanString(
         row['Hostname'] || row['Server Name'] || ''
@@ -241,28 +241,35 @@ export class AWSMPAParser extends BaseParser {
 
     return data.map(row => ({
       sourceServerId: this.cleanString(
-        row['Source Server Id'] || row['SourceServerId'] || ''
+        row['Source Server Id'] || row['SourceServerId'] ||
+        row['Source Server ID'] || row['Origen Server ID'] || ''
       ),
       targetServerId: this.cleanString(
-        row['Target Server Id'] || row['TargetServerId'] || ''
+        row['Target Server Id'] || row['TargetServerId'] ||
+        row['Target Server ID'] || row['Destino Server ID'] || ''
       ),
       sourceHostname: this.cleanString(
-        row['Source Hostname'] || row['Source'] || ''
+        row['Source Hostname'] || row['Source'] ||
+        row['Origen Hostname '] || row['Origen Hostname'] || ''
       ),
       targetHostname: this.cleanString(
-        row['Target Hostname'] || row['Target'] || ''
+        row['Target Hostname'] || row['Target'] ||
+        row['Destino Hostname'] || ''
       ),
       sourceIpAddress: this.cleanString(
-        row['Source IP Address'] || row['Source IP'] || ''
+        row['Source IP Address'] || row['Source IP'] ||
+        row['Source Server IP Address'] || row['Origen IP'] || ''
       ),
       targetIpAddress: this.cleanString(
-        row['Target IP Address'] || row['Target IP'] || ''
+        row['Target IP Address'] || row['Target IP'] ||
+        row['Target Server IP Address'] || row['Destino IP'] || ''
       ),
       sourcePort: this.parseNumber(
-        row['Source Port'] || 0
+        row['Source Port'] || row['Origen Port'] || 0
       ),
       destinationPort: this.parseNumber(
-        row['Port'] || row['Destination Port'] || row['Target Port'] || 0
+        row['Port'] || row['Destination Port'] || row['Target Port'] ||
+        row['Destino Port'] || 0
       ),
       protocol: this.cleanString(
         row['Protocol'] || 'tcp'

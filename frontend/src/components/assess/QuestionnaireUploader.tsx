@@ -28,10 +28,12 @@ export function QuestionnaireUploader({ onFileSelected, selectedFile }: Question
       // Validate file type
       const validTypes = [
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/msword'
+        'application/msword',
+        'text/csv',
+        'application/csv',
       ];
       
-      if (!validTypes.includes(file.type) && !file.name.endsWith('.docx') && !file.name.endsWith('.doc')) {
+      if (!validTypes.includes(file.type) && !file.name.endsWith('.docx') && !file.name.endsWith('.doc') && !file.name.endsWith('.csv')) {
         toast.error(t('questionnaireUploader.toastInvalidType'));
         return;
       }
@@ -46,7 +48,9 @@ export function QuestionnaireUploader({ onFileSelected, selectedFile }: Question
     onDrop,
     accept: {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'application/msword': ['.doc']
+      'application/msword': ['.doc'],
+      'text/csv': ['.csv'],
+      'application/csv': ['.csv'],
     },
     multiple: false,
     onDragEnter: () => setIsDragging(true),
@@ -110,7 +114,7 @@ export function QuestionnaireUploader({ onFileSelected, selectedFile }: Question
               </p>
               <div className="flex items-center justify-center gap-2 text-xs text-gray-400 mb-3">
                 <Upload className="h-3 w-3" />
-                <span>{t('questionnaireUploader.wordOnly')}</span>
+                <span>{t('questionnaireUploader.wordOnly')} / CSV</span>
               </div>
               <div className="flex items-start gap-2 text-xs text-blue-600 bg-blue-50 p-3 rounded-lg max-w-md mx-auto">
                 <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />

@@ -30,14 +30,24 @@ ERROR_MSG = "Error de sincronización con la fuente oficial. Por favor, verifica
 
 # ── MCP Client ────────────────────────────────────────────────────────────────
 
-async def call_mcp_tool(tool_name: str, arguments: dict, timeout: float = 35.0) -> dict:
+async def call_mcp_tool(tool_name: str, arguments: dict, timeout: float = 35.0, server: str = "awslabs") -> dict:
+    """
+    Lanza el MCP server via uvx (awslabs) o npx (smithery aws-docs).
+    server: "awslabs" | "smithery"
+    """
     full_env = {
         **os.environ,
         "AWS_DOCUMENTATION_PARTITION": "aws",
         "FASTMCP_LOG_LEVEL": "ERROR",
     }
+
+    if server == "smithery":
+        cmd = ["npx", "-y", "@smithery/aws-docs-mcp-server"]
+    else:
+        cmd = ["uvx", "awslabs.aws-documentation-mcp-server@latest"]
+
     proc = await asyncio.create_subprocess_exec(
-        "uvx", "awslabs.aws-documentation-mcp-server@latest",
+        *cmd,
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
@@ -295,15 +305,22 @@ async def servicio_completo(
     - Estructura: Resumen, Características, Well-Architected (Seguridad+Costos), Límites
     - Prioriza documentación 2025-2026
     """
-    # 1. Buscar en docs.aws.amazon.com
+    # 1. Buscar en docs.aws.amazon.com — intentar awslabs primero, luego smithery
     try:
         search_result = await call_mcp_tool("search_documentation", {
             "query": f"{nombre} User Guide",
             "limit": 5,
-        })
+        }, server="awslabs")
         search_text = extract_text(search_result)
     except Exception:
-        return {"error": ERROR_MSG, "title": nombre}
+        try:
+            search_result = await call_mcp_tool("search_documentation", {
+                "query": f"{nombre} User Guide",
+                "limit": 5,
+            }, server="smithery")
+            search_text = extract_text(search_result)
+        except Exception:
+            return {"error": ERROR_MSG, "title": nombre}
 
     if not search_text or len(search_text) < 50:
         return {"error": ERROR_MSG, "title": nombre}
@@ -471,12 +488,16 @@ async def extraer_url(
     is_aws = "docs.aws.amazon.com" in url or "aws.amazon.com" in url
 
     if is_aws:
-        # Usar MCP para AWS docs
-        try:
-            result = await call_mcp_tool("read_documentation", {"url": url}, timeout=35.0)
-            text = extract_text(result)
-        except Exception as e:
-            # Fallback a scraping si MCP falla
+        # Usar MCP para AWS docs — awslabs primero, smithery como fallback
+        for srv in ["awslabs", "smithery"]:
+            try:
+                result = await call_mcp_tool("read_documentation", {"url": url}, timeout=35.0, server=srv)
+                text = extract_text(result)
+                if text and len(text) > 100:
+                    break
+            except Exception:
+                continue
+        if not text:
             text = await _scrape_url_fallback(url)
     else:
         text = await _scrape_url_fallback(url)

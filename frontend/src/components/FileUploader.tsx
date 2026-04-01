@@ -84,7 +84,15 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
         ({ excelData, summary, dependencyData, migrationWaves } = response.data.data);
 
       } catch (_s3Error) {
-        // Fallback: upload directo al backend sin S3
+        // En producción (Amplify/Lambda), el upload directo no funciona por límites de API Gateway.
+        // Solo hacer fallback en desarrollo local.
+        const isProduction = import.meta.env.PROD;
+        if (isProduction) {
+          // Re-lanzar el error original del flujo S3 para que sea visible
+          throw _s3Error;
+        }
+
+        // Fallback local: upload directo al backend sin S3
         console.warn('S3 no disponible, usando upload directo...');
         setUploadProgress('Analizando datos (modo local)...');
 

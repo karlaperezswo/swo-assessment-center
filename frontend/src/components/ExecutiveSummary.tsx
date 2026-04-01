@@ -3,7 +3,7 @@ import { CostBreakdown, ExcelData, MigrationWave } from '@/types/assessment';
 import {
   TrendingDown, TrendingUp, DollarSign, Zap, Shield, Target,
   ArrowDownCircle, Calendar, Server, Database, AppWindow,
-  HardDrive, Network, Waves, ArrowRight,
+  HardDrive, Network, Waves, ArrowRight, AlertTriangle,
 } from 'lucide-react';
 
 interface ExecutiveSummaryProps {
@@ -47,6 +47,21 @@ export function ExecutiveSummary({
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
+
+  // Risk: servers with EOL operating systems
+  const EOL_PATTERNS = ['2003', '2008', '2012', 'rhel 6', 'centos 6', 'centos 7', 'ubuntu 14', 'ubuntu 16', 'windows xp', 'windows 7'];
+  const eolServers = excelData?.servers.filter(s =>
+    EOL_PATTERNS.some(p => s.osName?.toLowerCase().includes(p) || s.osVersion?.toLowerCase().includes(p))
+  ) ?? [];
+  const eolCount = eolServers.length;
+  const eolRisk = eolCount === 0 ? null : eolCount <= 5 ? 'low' : eolCount <= 15 ? 'medium' : 'high';
+
+  // Pricing tiers for comparison
+  const pricingTiers = [
+    { label: 'On-Demand', monthly: estimatedCosts.onDemand.monthly, annual: estimatedCosts.onDemand.annual, savings: 0, highlight: false, badge: null },
+    { label: '1-Year NURI', monthly: estimatedCosts.oneYearNuri.monthly, annual: estimatedCosts.oneYearNuri.annual, savings: estimatedCosts.onDemand.annual - estimatedCosts.oneYearNuri.annual, highlight: false, badge: '~36% ahorro' },
+    { label: '3-Year NURI', monthly: estimatedCosts.threeYearNuri.monthly, annual: estimatedCosts.threeYearNuri.annual, savings: estimatedCosts.onDemand.annual - estimatedCosts.threeYearNuri.annual, highlight: true, badge: 'MEJOR VALOR' },
+  ];
 
   // OS distribution from excelData
   const osDistribution = excelData?.servers.reduce((acc: Record<string, number>, s) => {
@@ -231,6 +246,66 @@ export function ExecutiveSummary({
                   <div className="text-xs text-amber-600">{item.label}</div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Pricing Comparison ── */}
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base"><DollarSign className="h-5 w-5 text-blue-600" />Comparativa de Precios AWS</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-4">
+            {pricingTiers.map((tier) => (
+              <div key={tier.label} className={`relative rounded-xl p-4 border-2 ${tier.highlight ? 'border-green-400 bg-green-50' : 'border-gray-200 bg-gray-50'}`}>
+                {tier.badge && (
+                  <span className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold ${tier.highlight ? 'bg-green-500 text-white' : 'bg-blue-100 text-blue-700'}`}>
+                    {tier.badge}
+                  </span>
+                )}
+                <p className="text-sm font-semibold text-gray-600 mb-3 mt-1 text-center">{tier.label}</p>
+                <p className={`text-2xl font-bold text-center ${tier.highlight ? 'text-green-700' : 'text-gray-800'}`}>{fmt(tier.monthly)}<span className="text-xs font-normal text-gray-500">/mo</span></p>
+                <p className="text-xs text-center text-gray-500 mt-1">{fmt(tier.annual)}/yr</p>
+                {tier.savings > 0 && (
+                  <p className="text-xs text-center text-green-600 font-semibold mt-2 flex items-center justify-center gap-1">
+                    <TrendingDown className="h-3 w-3" /> Ahorra {fmt(tier.savings)}/año
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Risk Indicators ── */}
+      {excelData && eolRisk && (
+        <Card className={`shadow-lg border-l-4 ${eolRisk === 'high' ? 'border-l-red-500' : eolRisk === 'medium' ? 'border-l-yellow-500' : 'border-l-blue-400'}`}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <AlertTriangle className={`h-5 w-5 ${eolRisk === 'high' ? 'text-red-500' : eolRisk === 'medium' ? 'text-yellow-500' : 'text-blue-400'}`} />
+              Indicadores de Riesgo — SO Fuera de Soporte
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-6">
+              <div className={`text-5xl font-bold ${eolRisk === 'high' ? 'text-red-600' : eolRisk === 'medium' ? 'text-yellow-600' : 'text-blue-500'}`}>
+                {eolCount}
+              </div>
+              <div>
+                <p className="font-semibold text-gray-700">
+                  {eolCount === 1 ? 'servidor con SO fuera de soporte' : 'servidores con SO fuera de soporte'}
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  {eolRisk === 'high' ? '⚠️ Riesgo alto — requiere atención inmediata' : eolRisk === 'medium' ? '⚠️ Riesgo medio — planificar migración prioritaria' : 'ℹ️ Riesgo bajo — incluir en plan de migración'}
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {[...new Set(eolServers.map(s => s.osName).filter(Boolean))].slice(0, 5).map(os => (
+                    <span key={os} className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">{os}</span>
+                  ))}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

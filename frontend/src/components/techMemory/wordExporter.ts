@@ -57,29 +57,29 @@ export function exportTechMemoryWord(data: TechMemoryData): void {
 <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
 <style>
   @page { size: A4; margin: 2.54cm 3cm 2.54cm 3cm; }
-  body { font-family: "Times New Roman", Times, serif; font-size: 12pt; color: #000; line-height: 2; margin: 0; }
-  h1 { font-size: 16pt; font-weight: bold; text-align: center; margin: 24pt 0 6pt; }
-  h2 { font-size: 14pt; font-weight: bold; margin: 18pt 0 6pt; }
-  h3 { font-size: 12pt; font-weight: bold; margin: 12pt 0 4pt; }
-  p  { margin: 0 0 12pt; text-align: justify; text-indent: 1.27cm; }
+  body { font-family: "Arial Narrow", "Arial", sans-serif; font-size: 11pt; color: #000; line-height: 1.5; margin: 0; }
+  h1 { font-family: "Arial Narrow", "Arial", sans-serif; font-size: 14pt; font-weight: bold; text-align: center; margin: 24pt 0 6pt; }
+  h2 { font-family: "Arial Narrow", "Arial", sans-serif; font-size: 14pt; font-weight: bold; margin: 18pt 0 6pt; }
+  h3 { font-family: "Arial Narrow", "Arial", sans-serif; font-size: 12pt; font-weight: bold; margin: 12pt 0 4pt; }
+  p  { font-family: "Arial Narrow", "Arial", sans-serif; font-size: 11pt; margin: 0 0 10pt; text-align: justify; text-indent: 1.27cm; }
   p.no-indent { text-indent: 0; }
   .cover { text-align: center; page-break-after: always; }
   .cover img { max-width: 180px; margin: 20pt auto 10pt; display: block; }
   .cover .client-logo { max-width: 140px; margin: 10pt auto; display: block; }
-  .cover h1 { font-size: 18pt; margin-top: 30pt; }
-  .cover .meta { font-size: 11pt; margin-top: 8pt; }
-  .section-title { font-size: 14pt; font-weight: bold; text-transform: uppercase;
+  .cover h1 { font-family: "Arial Narrow","Arial",sans-serif; font-size: 14pt; font-weight: bold; margin-top: 30pt; }
+  .cover .meta { font-family: "Arial Narrow","Arial",sans-serif; font-size: 11pt; margin-top: 8pt; }
+  .section-title { font-family: "Arial Narrow","Arial",sans-serif; font-size: 14pt; font-weight: bold; text-transform: uppercase;
     border-bottom: 2px solid #000; padding-bottom: 4pt; margin: 24pt 0 12pt; page-break-after: avoid; }
   .service-block { margin-bottom: 24pt; page-break-inside: avoid; }
-  .service-title { font-size: 13pt; font-weight: bold; margin: 16pt 0 6pt; }
-  ul { margin: 0 0 12pt 2cm; } li { margin-bottom: 4pt; }
-  .apa-ref { font-size: 10pt; margin-left: 1.27cm; text-indent: -1.27cm; margin-bottom: 6pt; }
+  .service-title { font-family: "Arial Narrow","Arial",sans-serif; font-size: 14pt; font-weight: bold; margin: 16pt 0 6pt; }
+  ul { margin: 0 0 10pt 2cm; } li { font-family: "Arial Narrow","Arial",sans-serif; font-size: 11pt; margin-bottom: 4pt; }
+  .apa-ref { font-family: "Arial Narrow","Arial",sans-serif; font-size: 10pt; margin-left: 1.27cm; text-indent: -1.27cm; margin-bottom: 6pt; }
   .page-break { page-break-before: always; }
   table.info { width: 100%; border-collapse: collapse; margin-bottom: 12pt; }
-  table.info td { padding: 4pt 8pt; border: 1px solid #ccc; font-size: 11pt; }
+  table.info td { font-family: "Arial Narrow","Arial",sans-serif; padding: 4pt 8pt; border: 1px solid #ccc; font-size: 11pt; }
   table.info td:first-child { font-weight: bold; width: 35%; background: #f5f5f5; }
   .pillar-block { margin-bottom: 18pt; page-break-inside: avoid; }
-  .pillar-header { padding: 8pt 12pt; color: #fff; font-weight: bold; font-size: 12pt; border-radius: 4pt; margin-bottom: 6pt; }
+  .pillar-header { font-family: "Arial Narrow","Arial",sans-serif; padding: 8pt 12pt; color: #fff; font-weight: bold; font-size: 14pt; border-radius: 4pt; margin-bottom: 6pt; }
 </style>
 </head>
 <body>

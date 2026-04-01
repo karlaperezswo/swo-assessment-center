@@ -450,7 +450,9 @@ function App() {
       return updated;
     });
 
-    if (currentIndex < phaseOrder.length - 1) {
+    // Only auto-advance for mobilize and migrate — assess stays put so user
+    // can review the Executive Summary before navigating to Mobilize manually
+    if (phase !== 'assess' && currentIndex < phaseOrder.length - 1) {
       setCurrentPhase(phaseOrder[currentIndex + 1]);
     }
   };

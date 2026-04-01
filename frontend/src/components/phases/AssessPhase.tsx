@@ -12,11 +12,12 @@ import { OpportunityDashboard } from '@/components/opportunities/OpportunityDash
 import { SelectorPhase } from '@/components/phases/SelectorPhase';
 import { BusinessCase } from '@/components/mobilize/BusinessCase';
 import { DependencyMap } from '@/components/DependencyMap';
+import { ExecutiveSummary } from '@/components/ExecutiveSummary';
 import {
   ExcelData, UploadSummary, ClientFormData, CostBreakdown,
   PhaseStatus, BriefingSession, ImmersionDayPlan, MigrationWave,
 } from '@/types/assessment';
-import { Upload, DollarSign, Gauge, Presentation, GraduationCap, Waves, Target, Briefcase, Network } from 'lucide-react';
+import { Upload, DollarSign, Gauge, Presentation, GraduationCap, Waves, Target, Briefcase, Network, BarChart2 } from 'lucide-react';
 
 interface AssessPhaseProps {
   excelData: ExcelData | null;
@@ -60,6 +61,7 @@ export function AssessPhase({
     {
       tabs: [
         { value: 'rapid-discovery', label: t('assess.tabs.rapidDiscovery'), icon: <Upload className="h-4 w-4" /> },
+        { value: 'executive-summary', label: 'Executive Summary', icon: <BarChart2 className="h-4 w-4" /> },
         { value: 'dependency-map', label: t('assess.tabs.dependencyMap'), icon: <Network className="h-4 w-4" /> },
         { value: 'tco-report', label: t('assess.tabs.tcoReport'), icon: <DollarSign className="h-4 w-4" /> },
         { value: 'migration-readiness', label: t('assess.tabs.migrationReadiness'), icon: <Gauge className="h-4 w-4" /> },
@@ -88,6 +90,18 @@ export function AssessPhase({
             onMRAFileChange={onMRAFileChange}
             questionnaireFile={questionnaireFile}
             onQuestionnaireFileChange={onQuestionnaireFileChange}
+          />
+        )}
+        {activeTab === 'executive-summary' && estimatedCosts && (
+          <ExecutiveSummary
+            clientName={clientData.clientName}
+            onPremisesCost={clientData.onPremisesCost}
+            estimatedCosts={estimatedCosts}
+            totalServers={excelData?.servers.length ?? 0}
+            migrationReadiness={clientData.migrationReadiness}
+            excelData={excelData}
+            dependencyData={dependencyData}
+            migrationWaves={migrationWaves}
           />
         )}
         {activeTab === 'dependency-map' && (
@@ -146,7 +160,7 @@ export function AssessPhase({
         canComplete={canComplete}
         isCompleted={phaseStatus.assess === 'completed'}
         onComplete={() => {
-          setActiveTab('dependency-map');
+          setActiveTab('executive-summary');
           onCompletePhase();
         }}
         completionRequirements={[

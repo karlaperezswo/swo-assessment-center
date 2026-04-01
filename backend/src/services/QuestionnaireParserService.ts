@@ -2,209 +2,298 @@ import mammoth from 'mammoth';
 import { QuestionnaireData } from '../../../shared/types/opportunity.types';
 
 /**
- * Service to parse Infrastructure Questionnaire from Word documents
+ * Service to parse Infrastructure Questionnaire.
+ * Supports two formats:
+ *
+ * 1. DOCX (.docx / .doc) — SoftwareONE Word questionnaire
+ *    Rules based on real document structure (label/value pairs, (X) options, open answers)
+ *
+ * 2. CSV (.csv) — New structured export format
+ *    METADATA section: Owner, Enterprise (= clientName), Date Submitted, Id-Session
+ *    RESPONSES section: Question ID, Original Question, Response, Comment, File URLs
  */
 export class QuestionnaireParserService {
+
   /**
-   * Parse Word document buffer and extract questionnaire data
-   * @param buffer - Word document buffer
-   * @returns Parsed questionnaire data
+   * Auto-detect format from filename or content and parse accordingly.
+   * @param buffer   - File buffer
+   * @param filename - Optional filename to help detect format (e.g. "questionnaire.csv")
    */
-  async parseQuestionnaire(buffer: Buffer): Promise<QuestionnaireData> {
+  async parseQuestionnaire(buffer: Buffer, filename?: string): Promise<QuestionnaireData> {
+    const isCsv = this.isCsvFormat(buffer, filename);
+    if (isCsv) {
+      return this.parseCsv(buffer);
+    }
+    return this.parseDocx(buffer);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // FORMAT DETECTION
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private isCsvFormat(buffer: Buffer, filename?: string): boolean {
+    // Check by filename extension first
+    if (filename) {
+      const ext = filename.split('.').pop()?.toLowerCase();
+      if (ext === 'csv') return true;
+      if (ext === 'docx' || ext === 'doc') return false;
+    }
+    // Fallback: check if content starts with "METADATA" (CSV signature)
+    const start = buffer.slice(0, 100).toString('utf8').trimStart();
+    return start.startsWith('METADATA');
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // CSV PARSER
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private parseCsv(buffer: Buffer): QuestionnaireData {
+    const text = buffer.toString('utf8');
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+    // ── Parse METADATA section ──────────────────────────────────────────────
+    const meta: Record<string, string> = {};
+    let inResponses = false;
+    const responses: Array<{ id: string; question: string; response: string; comment: string }> = [];
+
+    for (const line of lines) {
+      if (line === 'METADATA') continue;
+      if (line.startsWith('RESPONSES')) { inResponses = true; continue; }
+      if (line.startsWith('Question ID,')) continue; // header row
+
+      if (!inResponses) {
+        // METADATA rows: Key,Value
+        const [key, ...rest] = this.parseCsvRow(line);
+        if (key) meta[key.trim().toLowerCase()] = rest.join(',').trim();
+      } else {
+        // RESPONSES rows: Question ID, Original Question, Response, Comment, File URLs
+        const cols = this.parseCsvRow(line);
+        if (cols.length >= 3) {
+          responses.push({
+            id:       cols[0]?.trim() ?? '',
+            question: cols[1]?.trim() ?? '',
+            response: cols[2]?.trim() ?? '',
+            comment:  cols[3]?.trim() ?? '',
+          });
+        }
+      }
+    }
+
+    // ── Build QuestionnaireData from CSV ────────────────────────────────────
+    const getResponse = (id: string) => responses.find(r => r.id === id)?.response ?? '';
+    const getComment  = (id: string) => responses.find(r => r.id === id)?.comment ?? '';
+
+    // Helper: find response by partial question text match
+    const findByQuestion = (keywords: string[]): string => {
+      for (const kw of keywords) {
+        const found = responses.find(r => r.question.toLowerCase().includes(kw.toLowerCase()));
+        if (found?.response) return found.response;
+      }
+      return '';
+    };
+
+    const findListByQuestion = (keywords: string[]): string[] => {
+      const val = findByQuestion(keywords);
+      if (!val) return [];
+      // Responses can be semicolon or comma separated
+      return val.split(/[;,]/).map(s => s.trim()).filter(s => s.length > 0);
+    };
+
+    const rawText = text;
+
+    return {
+      clientName:           meta['enterprise'] || meta['owner'] || '',
+      industry:             findByQuestion(['industria', 'sector', 'vertical', 'industry']),
+      location:             findByQuestion(['ubicación', 'sede', 'location', 'headquarters']),
+      companySize:          findByQuestion(['tamaño', 'empleados', 'company size', 'employees']),
+      executiveContact:     meta['owner'] || findByQuestion(['contacto ejecutivo', 'executive contact']),
+      technicalContact:     findByQuestion(['contacto técnico', 'technical contact']),
+      primaryDatacenter:    findByQuestion(['datacenter principal', 'primary datacenter']),
+      secondaryDatacenters: findListByQuestion(['datacenters secundarios', 'secondary datacenters']),
+      cloudProviders:       findListByQuestion(['proveedores de nube', 'cloud providers', 'cloud']),
+      connectivity:         findByQuestion(['topología de red', 'connectivity', 'red']),
+      criticalApplications: findListByQuestion(['aplicaciones críticas', 'critical applications']),
+      databases:            findListByQuestion(['base de datos', 'databases']),
+      middleware:           findListByQuestion(['middleware']),
+      operatingSystems:     findListByQuestion(['sistemas operativos', 'operating systems']),
+      priorities:           findListByQuestion(['prioridades', 'priorities']),
+      complianceRequirements: findListByQuestion(['certificaciones', 'compliance', 'normativas', 'iso', 'pci']),
+      maintenanceWindows:   findListByQuestion(['ventanas de mantenimiento', 'maintenance windows']),
+      migrationRestrictions: findListByQuestion(['restricciones', 'constraints']),
+      budget:               findByQuestion(['presupuesto', 'budget', 'inversión']),
+      timeline:             findByQuestion(['fecha objetivo', 'plazo', 'timeline', 'schedule']),
+      licenseContracts:     findListByQuestion(['licencias', 'license contracts']),
+      endOfSupport:         findListByQuestion(['fin de soporte', 'end of support', 'eol']),
+      currentProblems:      findListByQuestion(['problemas actuales', 'pain points', 'retos', 'challenges']),
+      ongoingProjects:      findListByQuestion(['proyectos en curso', 'ongoing projects']),
+      teamSize:             findByQuestion(['tamaño del equipo', 'team size']),
+      awsExperience:        findByQuestion(['experiencia aws', 'aws experience']),
+      certifications:       findListByQuestion(['certificaciones aws', 'certifications']),
+      currentSupport:       findListByQuestion(['soporte actual', 'current support']),
+      expectedGrowth:       findByQuestion(['crecimiento', 'growth']),
+      newMarkets:           findListByQuestion(['nuevos mercados', 'new markets']),
+      digitalInitiatives:   findListByQuestion(['iniciativas digitales', 'digital initiatives']),
+      kpis:                 findListByQuestion(['kpis', 'indicadores']),
+      decisionDrivers:      findListByQuestion(['drivers', 'factores de decisión']),
+      rawText,
+    };
+  }
+
+  /**
+   * Parse a single CSV row respecting quoted fields.
+   */
+  private parseCsvRow(line: string): string[] {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        inQuotes = !inQuotes;
+      } else if (ch === ',' && !inQuotes) {
+        result.push(current);
+        current = '';
+      } else {
+        current += ch;
+      }
+    }
+    result.push(current);
+    return result;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // DOCX PARSER
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private async parseDocx(buffer: Buffer): Promise<QuestionnaireData> {
     try {
-      // Extract text from Word document
       const result = await mammoth.extractRawText({ buffer });
       const rawText = result.value;
-
-      // Parse structured data from text
-      const questionnaireData = this.extractStructuredData(rawText);
-
-      return {
-        ...questionnaireData,
-        rawText,
-      };
+      const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const data = this.extractAll(lines, rawText);
+      return { ...data, rawText };
     } catch (error) {
       console.error('[QuestionnaireParser] Error parsing Word document:', error);
       throw new Error(`Failed to parse questionnaire: ${(error as Error).message}`);
     }
   }
 
-  /**
-   * Extract structured data from raw text
-   * Uses pattern matching to identify sections and extract information
-   */
-  private extractStructuredData(text: string): Omit<QuestionnaireData, 'rawText'> {
+  private extractAll(lines: string[], rawText: string): Omit<QuestionnaireData, 'rawText'> {
     return {
-      // Client Information
-      clientName: this.extractField(text, ['client name', 'company name', 'organization']),
-      industry: this.extractField(text, ['industry', 'sector', 'vertical']),
-      location: this.extractField(text, ['location', 'headquarters', 'primary location']),
-      companySize: this.extractField(text, ['company size', 'employees', 'organization size']),
-      executiveContact: this.extractField(text, ['executive contact', 'sponsor', 'executive sponsor']),
-      technicalContact: this.extractField(text, ['technical contact', 'it contact', 'technical lead']),
-
-      // Infrastructure
-      primaryDatacenter: this.extractField(text, ['primary datacenter', 'main datacenter', 'primary dc']),
-      secondaryDatacenters: this.extractList(text, ['secondary datacenters', 'backup datacenters', 'dr sites']),
-      cloudProviders: this.extractList(text, ['cloud providers', 'current cloud', 'cloud platforms']),
-      connectivity: this.extractField(text, ['connectivity', 'network connectivity', 'wan']),
-
-      // Workloads
-      criticalApplications: this.extractList(text, ['critical applications', 'key applications', 'business critical apps']),
-      databases: this.extractList(text, ['databases', 'database systems', 'db platforms']),
-      middleware: this.extractList(text, ['middleware', 'application servers', 'integration platforms']),
-      operatingSystems: this.extractList(text, ['operating systems', 'os distribution', 'platforms']),
-
-      // Priorities
-      priorities: this.extractOrderedList(text, ['priorities', 'business priorities', 'key priorities']),
-
-      // Constraints and Requirements
-      complianceRequirements: this.extractList(text, ['compliance', 'regulatory requirements', 'certifications required']),
-      maintenanceWindows: this.extractList(text, ['maintenance windows', 'downtime windows', 'change windows']),
-      migrationRestrictions: this.extractList(text, ['migration restrictions', 'constraints', 'limitations']),
-      budget: this.extractField(text, ['budget', 'investment', 'funding']),
-      timeline: this.extractField(text, ['timeline', 'schedule', 'target date']),
-
-      // Current Situation
-      licenseContracts: this.extractList(text, ['license contracts', 'software licenses', 'licensing']),
-      endOfSupport: this.extractList(text, ['end of support', 'eol', 'end of life']),
-      currentProblems: this.extractList(text, ['current problems', 'pain points', 'challenges']),
-      ongoingProjects: this.extractList(text, ['ongoing projects', 'current projects', 'initiatives']),
-
-      // Team and Capabilities
-      teamSize: this.extractField(text, ['team size', 'it team', 'staff count']),
-      awsExperience: this.extractField(text, ['aws experience', 'cloud experience', 'aws knowledge']),
-      certifications: this.extractList(text, ['certifications', 'aws certifications', 'certified staff']),
-      currentSupport: this.extractList(text, ['current support', 'support model', 'managed services']),
-
-      // Business Objectives
-      expectedGrowth: this.extractField(text, ['expected growth', 'growth rate', 'business growth']),
-      newMarkets: this.extractList(text, ['new markets', 'expansion', 'geographic expansion']),
-      digitalInitiatives: this.extractList(text, ['digital initiatives', 'digital transformation', 'innovation']),
-      kpis: this.extractList(text, ['kpis', 'key performance indicators', 'success metrics']),
-      decisionDrivers: this.extractList(text, ['decision drivers', 'decision factors', 'key drivers']),
+      clientName:           this.extractClientName(rawText),
+      industry:             this.extractOpenAnswer(lines, ['industria', 'sector', 'vertical', 'industry', 'giro']),
+      location:             this.extractOpenAnswer(lines, ['ubicación', 'sede', 'localización', 'location', 'headquarters']),
+      companySize:          this.extractOpenAnswer(lines, ['tamaño de la empresa', 'empleados', 'company size', 'employees']),
+      executiveContact:     this.extractMetaField(lines, 'responsable cliente'),
+      technicalContact:     this.extractOpenAnswer(lines, ['contacto técnico', 'technical contact', 'it contact']),
+      primaryDatacenter:    this.extractOpenAnswer(lines, ['datacenter principal', 'primary datacenter', 'main datacenter']),
+      secondaryDatacenters: this.extractListAfterKeyword(lines, ['datacenters secundarios', 'secondary datacenters']),
+      cloudProviders:       this.extractSelectedOptions(lines, ['aws', 'azure', 'gcp', 'google cloud', 'oracle cloud', 'ibm cloud']),
+      connectivity:         this.extractOpenAnswer(lines, ['topología de red', 'organizada la topología', 'connectivity']),
+      criticalApplications: this.extractListAfterKeyword(lines, ['aplicaciones críticas', 'critical applications', 'aplicaciones clave']),
+      databases:            this.extractListAfterKeyword(lines, ['base de datos', 'databases', 'db platforms']),
+      middleware:           this.extractListAfterKeyword(lines, ['middleware', 'application servers']),
+      operatingSystems:     this.extractSelectedOptions(lines, ['windows', 'linux', 'unix', 'centos', 'rhel', 'ubuntu', 'debian']),
+      priorities:           this.extractListAfterKeyword(lines, ['prioridades', 'priorities', 'objetivos principales']),
+      complianceRequirements: this.extractListAfterKeyword(lines, ['certificaciones', 'compliance', 'regulaciones', 'normativas', 'iso', 'pci']),
+      maintenanceWindows:   this.extractListAfterKeyword(lines, ['ventanas de mantenimiento', 'maintenance windows']),
+      migrationRestrictions: this.extractListAfterKeyword(lines, ['restricciones', 'constraints', 'limitaciones']),
+      budget:               this.extractOpenAnswer(lines, ['presupuesto', 'budget', 'inversión']),
+      timeline:             this.extractOpenAnswer(lines, ['fecha objetivo', 'plazo estimado', 'fecha de inicio', 'cuándo planean', 'timeline', 'schedule']),
+      licenseContracts:     this.extractListAfterKeyword(lines, ['licencias', 'license contracts', 'contratos de licencia']),
+      endOfSupport:         this.extractListAfterKeyword(lines, ['fin de soporte', 'end of support', 'end of life', 'eol']),
+      currentProblems:      this.extractListAfterKeyword(lines, ['problemas actuales', 'pain points', 'retos', 'desafíos', 'challenges']),
+      ongoingProjects:      this.extractListAfterKeyword(lines, ['proyectos en curso', 'ongoing projects', 'iniciativas']),
+      teamSize:             this.extractOpenAnswer(lines, ['tamaño del equipo', 'team size', 'personal de ti', 'it team']),
+      awsExperience:        this.extractOpenAnswer(lines, ['experiencia aws', 'aws experience', 'cloud experience']),
+      certifications:       this.extractListAfterKeyword(lines, ['certificaciones aws', 'aws certifications', 'certified']),
+      currentSupport:       this.extractListAfterKeyword(lines, ['soporte actual', 'current support', 'managed services']),
+      expectedGrowth:       this.extractOpenAnswer(lines, ['crecimiento esperado', 'expected growth', 'crecimiento']),
+      newMarkets:           this.extractListAfterKeyword(lines, ['nuevos mercados', 'new markets', 'expansión']),
+      digitalInitiatives:   this.extractListAfterKeyword(lines, ['iniciativas digitales', 'digital initiatives', 'transformación digital']),
+      kpis:                 this.extractListAfterKeyword(lines, ['kpis', 'indicadores', 'métricas de éxito']),
+      decisionDrivers:      this.extractListAfterKeyword(lines, ['drivers', 'factores de decisión', 'decision drivers']),
     };
   }
 
-  /**
-   * Extract a single field value from text
-   */
-  private extractField(text: string, patterns: string[]): string {
-    const lowerText = text.toLowerCase();
+  private extractClientName(rawText: string): string {
+    const match = rawText.match(/infraestructura en (.+?) con relaci[oó]n/i);
+    if (match && match[1]) return match[1].trim();
+    const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    return this.extractMetaField(lines, 'responsable cliente');
+  }
 
-    for (const pattern of patterns) {
-      // Look for pattern followed by colon or newline
-      const regex = new RegExp(`${pattern}\\s*:?\\s*([^\\n]+)`, 'i');
-      const match = lowerText.match(regex);
-
-      if (match && match[1]) {
-        // Get the original text (not lowercased) for the match
-        const startIndex = lowerText.indexOf(match[0]);
-        const endIndex = startIndex + match[0].length;
-        const originalMatch = text.substring(startIndex, endIndex);
-        
-        // Extract just the value part
-        const valueMatch = originalMatch.match(/:\s*(.+)$/);
-        if (valueMatch) {
-          return valueMatch[1].trim();
-        }
-      }
+  private extractMetaField(lines: string[], label: string): string {
+    const idx = lines.findIndex(l => l.toLowerCase().includes(label.toLowerCase()));
+    if (idx >= 0 && idx + 1 < lines.length) {
+      const next = lines[idx + 1];
+      if (next && next.length < 100 && !next.includes('?')) return next.trim();
     }
-
     return '';
   }
 
-  /**
-   * Extract a list of items from text
-   */
-  private extractList(text: string, patterns: string[]): string[] {
-    const lowerText = text.toLowerCase();
-    const items: string[] = [];
-
-    for (const pattern of patterns) {
-      // Look for pattern followed by list items (bullets, numbers, or newlines)
-      const sectionRegex = new RegExp(`${pattern}\\s*:?([^]*?)(?=\\n\\n|\\n[A-Z][a-z]+:|$)`, 'i');
-      const sectionMatch = lowerText.match(sectionRegex);
-
-      if (sectionMatch && sectionMatch[1]) {
-        const section = sectionMatch[1];
-        
-        // Extract list items (lines starting with -, *, •, numbers, or just text)
-        const listItems = section.match(/(?:^|\n)\s*(?:[-*•]|\d+\.)\s*([^\n]+)/g);
-        
-        if (listItems) {
-          items.push(...listItems.map(item => 
-            item.replace(/^\s*(?:[-*•]|\d+\.)\s*/, '').trim()
-          ));
-        } else {
-          // If no bullets, split by newlines and filter empty
-          const lines = section.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.length > 0 && !line.match(/^[A-Z][a-z]+:/));
-          
-          items.push(...lines);
-        }
+  private extractOpenAnswer(lines: string[], keywords: string[]): string {
+    for (const keyword of keywords) {
+      const idx = lines.findIndex(l => l.toLowerCase().includes(keyword.toLowerCase()));
+      if (idx < 0) continue;
+      for (let i = idx + 1; i < Math.min(idx + 5, lines.length); i++) {
+        const line = lines[i];
+        if (!line || line.length === 0) continue;
+        if (/\([Xx ]\)/.test(line)) continue;
+        if (line.endsWith('?')) continue;
+        if (line.length < 4) continue;
+        if (/^\d+\.\d*\s/.test(line)) continue;
+        if (/\d+$/.test(line) && line.length < 60) continue;
+        return line.trim();
       }
     }
-
-    return items.filter(item => item.length > 0);
+    return '';
   }
 
-  /**
-   * Extract an ordered list (maintains order)
-   */
-  private extractOrderedList(text: string, patterns: string[]): string[] {
-    const lowerText = text.toLowerCase();
-
-    for (const pattern of patterns) {
-      // Look for numbered list
-      const sectionRegex = new RegExp(`${pattern}\\s*:?([^]*?)(?=\\n\\n|\\n[A-Z][a-z]+:|$)`, 'i');
-      const sectionMatch = lowerText.match(sectionRegex);
-
-      if (sectionMatch && sectionMatch[1]) {
-        const section = sectionMatch[1];
-        
-        // Extract numbered items
-        const numberedItems = section.match(/\d+\.\s*([^\n]+)/g);
-        
-        if (numberedItems) {
-          return numberedItems.map(item => 
-            item.replace(/^\d+\.\s*/, '').trim()
-          );
+  private extractSelectedOptions(lines: string[], optionKeywords: string[]): string[] {
+    const selected: string[] = [];
+    for (const line of lines) {
+      const lower = line.toLowerCase();
+      const isSelected = /\([Xx]\)/.test(line);
+      if (isSelected) {
+        for (const kw of optionKeywords) {
+          if (lower.includes(kw.toLowerCase())) {
+            const label = line.replace(/\s*\([Xx]\)\s*$/, '').trim();
+            if (label && !selected.includes(label)) selected.push(label);
+            break;
+          }
         }
       }
     }
+    return selected;
+  }
 
+  private extractListAfterKeyword(lines: string[], keywords: string[]): string[] {
+    for (const keyword of keywords) {
+      const idx = lines.findIndex(l => l.toLowerCase().includes(keyword.toLowerCase()));
+      if (idx < 0) continue;
+      const items: string[] = [];
+      for (let i = idx + 1; i < Math.min(idx + 15, lines.length); i++) {
+        const line = lines[i];
+        if (!line || line.length === 0) continue;
+        if (line.endsWith('?')) break;
+        if (/^\d+\.\d*\s/.test(line)) break;
+        if (/^(Continuidad|Disaster Recovery|Backup|Monitoreo|Gobierno|Aplicaciones|Base de Datos|Redes|Almacenamiento|Seguridad|Infraestructura|Preparaci)/i.test(line)) break;
+        if (line === '(X)' || line === '( )') continue;
+        if (line.length < 3) continue;
+        if (line.toLowerCase().startsWith('el especialista')) break;
+        items.push(line.trim());
+      }
+      if (items.length > 0) return items;
+    }
     return [];
   }
 
-  /**
-   * Validate questionnaire data
-   */
   validateQuestionnaire(data: QuestionnaireData): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
-
-    // Check for minimum required fields
-    if (!data.clientName || data.clientName.trim().length === 0) {
-      errors.push('Client name is required');
-    }
-
-    if (!data.rawText || data.rawText.trim().length < 100) {
+    if (!data.rawText || data.rawText.trim().length < 50) {
       errors.push('Questionnaire content is too short or empty');
     }
-
-    // Warn if critical sections are missing
-    if (data.priorities.length === 0) {
-      errors.push('No priorities identified in questionnaire');
-    }
-
-    if (data.criticalApplications.length === 0) {
-      errors.push('No critical applications identified');
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors,
-    };
+    return { valid: errors.length === 0, errors };
   }
 }

@@ -25,30 +25,15 @@ export function CarbonReportUploader({ onDataLoaded }: CarbonReportUploaderProps
     setErrorMessage('');
 
     try {
-      const useLocalUpload = import.meta.env.VITE_USE_LOCAL_UPLOAD === 'true';
+      let result: any;
 
-      if (useLocalUpload) {
-        // ========== MODO LOCAL ==========
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await apiClient.post('/api/business-case/upload-carbon-report', formData);
-        const result = response.data;
-
-        if (result.success) {
-          setUploadStatus('success');
-          onDataLoaded(result.data);
-        } else {
-          setUploadStatus('error');
-          setErrorMessage(result.error || 'Error al procesar el archivo');
-        }
-      } else {
-        // ========== MODO PRODUCCIÓN: S3 ==========
+      try {
+        // Intentar primero con S3
         const urlResponse = await apiClient.post('/api/report/get-upload-url', {
           filename: file.name,
           contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         });
-        if (!urlResponse.data.success) throw new Error(urlResponse.data.error || 'Failed to get upload URL');
+        if (!urlResponse.data.success) throw new Error('S3 URL failed');
         const { uploadUrl, key } = urlResponse.data.data;
 
         await fetch(uploadUrl, {
@@ -57,15 +42,22 @@ export function CarbonReportUploader({ onDataLoaded }: CarbonReportUploaderProps
         });
 
         const response = await apiClient.post('/api/business-case/upload-carbon-report-from-s3', { key });
-        const result = response.data;
+        result = response.data;
+      } catch (_s3Error) {
+        // Fallback: upload directo al backend
+        console.warn('[CarbonReport] S3 no disponible, usando upload directo...');
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await apiClient.post('/api/business-case/upload-carbon-report', formData);
+        result = response.data;
+      }
 
-        if (result.success) {
-          setUploadStatus('success');
-          onDataLoaded(result.data);
-        } else {
-          setUploadStatus('error');
-          setErrorMessage(result.error || 'Error al procesar el archivo');
-        }
+      if (result.success) {
+        setUploadStatus('success');
+        onDataLoaded(result.data);
+      } else {
+        setUploadStatus('error');
+        setErrorMessage(result.error || 'Error al procesar el archivo');
       }
     } catch (error) {
       setUploadStatus('error');

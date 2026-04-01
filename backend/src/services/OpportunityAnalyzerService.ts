@@ -132,7 +132,7 @@ export class OpportunityAnalyzerService {
     let questionnaireData;
     if (questionnaireBuffer) {
       console.log('[OpportunityAnalyzerService] Parsing Questionnaire...');
-      questionnaireData = await this.questionnaireParser.parseQuestionnaire(questionnaireBuffer);
+      questionnaireData = await this.questionnaireParser.parseQuestionnaire(questionnaireBuffer, questionnaireKey);
       console.log(`[OpportunityAnalyzerService] Questionnaire parsed: ${questionnaireData.priorities?.length || 0} priorities identified`);
     }
 

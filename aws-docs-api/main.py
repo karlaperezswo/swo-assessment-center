@@ -575,3 +575,129 @@ async def _scrape_url_fallback(url: str) -> str:
         text = re.sub(r'\s+', ' ', text).strip()
 
     return text[:10000]
+
+
+# ── /consulta — consulta en lenguaje natural usando MCP servers ───────────────
+
+@app.get("/consulta")
+async def consulta_libre(
+    q: str = Query(..., description="Consulta en lenguaje natural sobre AWS"),
+    fuente: str = Query("aws", description="Fuente: 'aws' para docs oficiales, 'web' para búsqueda general"),
+):
+    """
+    Consulta en lenguaje natural.
+    - fuente=aws: busca en docs.aws.amazon.com via MCP
+    - fuente=web: búsqueda general via scraping
+    Retorna respuesta estructurada con contenido, URLs y ejemplos de código.
+    """
+    result_text = ""
+    sources = []
+    error_msg = None
+
+    if fuente == "aws":
+        # Intentar con awslabs MCP
+        for srv in ["awslabs", "smithery"]:
+            try:
+                res = await call_mcp_tool("search_documentation", {
+                    "query": q,
+                    "limit": 5,
+                }, server=srv)
+                result_text = extract_text(res)
+                if result_text and len(result_text) > 100:
+                    break
+            except Exception:
+                continue
+
+        # Si encontramos URLs, leer la primera página completa
+        if result_text:
+            urls = extract_urls_from_docs(result_text)
+            sources = urls[:3]
+            if urls:
+                try:
+                    read_res = await call_mcp_tool("read_documentation", {"url": urls[0]}, server="awslabs")
+                    page_text = extract_text(read_res)
+                    if page_text and len(page_text) > len(result_text):
+                        result_text = page_text
+                except Exception:
+                    pass
+
+    else:
+        # Búsqueda web general via scraping
+        try:
+            search_url = f"https://www.google.com/search?q={q.replace(' ', '+')}+site:aws.amazon.com+OR+site:docs.aws.amazon.com"
+            result_text = await _scrape_url_fallback(search_url)
+        except Exception as e:
+            error_msg = str(e)
+
+    if not result_text and not error_msg:
+        return {
+            "query": q,
+            "error": ERROR_MSG,
+            "content": "",
+            "summary": "",
+            "codeExamples": [],
+            "sources": [],
+        }
+
+    # Extraer resumen, ejemplos de código y puntos clave
+    summary = ""
+    code_examples = []
+    key_points = []
+
+    lines = result_text.split("\n")
+    in_code = False
+    current_code = []
+    code_lang = ""
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Detectar bloques de código
+        if stripped.startswith("```"):
+            if in_code:
+                if current_code:
+                    code_examples.append({
+                        "language": code_lang or "json",
+                        "code": "\n".join(current_code),
+                    })
+                current_code = []
+                code_lang = ""
+                in_code = False
+            else:
+                in_code = True
+                code_lang = stripped[3:].strip() or "text"
+            continue
+
+        if in_code:
+            current_code.append(line)
+            continue
+
+        # Resumen: primer párrafo largo
+        if not summary and len(stripped) > 80 and not stripped.startswith("#"):
+            summary = stripped[:600]
+
+        # Puntos clave
+        if stripped.startswith(("- ", "* ", "• ")) and len(stripped) > 20:
+            key_points.append(stripped[2:].strip())
+
+    # JSON inline (no en bloque de código)
+    json_matches = re.findall(r'\{[^{}]{20,500}\}', result_text)
+    for jm in json_matches[:2]:
+        try:
+            import json as _json
+            _json.loads(jm)  # validar que es JSON válido
+            if not any(ex["code"] == jm for ex in code_examples):
+                code_examples.append({"language": "json", "code": jm})
+        except Exception:
+            pass
+
+    return {
+        "query": q,
+        "fuente": fuente,
+        "summary": summary or (result_text[:400] if result_text else ""),
+        "keyPoints": key_points[:8],
+        "codeExamples": code_examples[:4],
+        "sources": sources,
+        "content": result_text[:3000],
+        "error": error_msg,
+    }

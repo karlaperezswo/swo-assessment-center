@@ -7,6 +7,7 @@ const controller = new ScraperController();
 router.post('/aws-service', controller.awsService);
 router.post('/by-url', controller.byUrl);
 router.get('/extraer', controller.extraer);
+router.get('/consulta', controller.consulta);
 router.post('/company-info', controller.companyInfo);
 router.get('/softwareone-logo', controller.softwareOneLogo);
 

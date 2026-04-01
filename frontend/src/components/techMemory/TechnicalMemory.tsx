@@ -189,6 +189,10 @@ export function TechnicalMemory() {
   const [activeTab, setActiveTab] = useState<'project'|'company'|'services'|'dictionary'|'document'|'wellarch'|'letter'>('project');
   const [serviceSearch, setServiceSearch] = useState('');
   const [serviceUrl, setServiceUrl] = useState('');
+  const [freeQuery, setFreeQuery] = useState('');
+  const [isQuerying, setIsQuerying] = useState(false);
+  const [queryResult, setQueryResult] = useState<any>(null);
+  const [queryFuente, setQueryFuente] = useState<'aws'|'web'>('aws');
   const [isSearchingAWS, setIsSearchingAWS] = useState(false);
   const [isScrapingUrl, setIsScrapingUrl] = useState(false);
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
@@ -410,7 +414,40 @@ export function TechnicalMemory() {
     toast.success(`"${d.title}" agregado — ${newDictEntries.length} términos al diccionario`);
   };
 
-  // ── Dictionary helpers ─────────────────────────────────────────────────────
+  // ── Consulta libre en lenguaje natural ────────────────────────────────────
+  const runFreeQuery = async () => {
+    if (!freeQuery.trim()) { toast.error('Escribe una consulta'); return; }
+    setIsQuerying(true);
+    setQueryResult(null);
+    toast.loading('Consultando documentación oficial...', { id: 'free-query' });
+    try {
+      const res = await apiClient.get('/api/scraper/consulta', {
+        params: { q: freeQuery, fuente: queryFuente },
+      });
+      if (res.data.error && !res.data.summary) {
+        toast.error(res.data.error, { id: 'free-query' });
+      } else {
+        setQueryResult(res.data);
+        toast.success('Consulta completada', { id: 'free-query' });
+      }
+    } catch {
+      toast.error('Error al consultar. Verifica que el Python API esté corriendo.', { id: 'free-query' });
+    } finally { setIsQuerying(false); }
+  };
+
+  // ── Agregar resultado de consulta al diccionario ───────────────────────────
+  const addQueryToDictionary = () => {
+    if (!queryResult) return;
+    const entry: DictionaryEntry = {
+      id: `dict-q-${Date.now()}`,
+      term: freeQuery.slice(0, 60),
+      definition: queryResult.summary || queryResult.content?.slice(0, 300) || '',
+      category: 'Consultas AWS',
+      selected: false,
+    };
+    setData(prev => ({ ...prev, dictionary: [...prev.dictionary, entry] }));
+    toast.success('Resultado agregado al diccionario');
+  };
   const toggleDictEntry = (id: string) =>
     setData(prev => ({
       ...prev,
@@ -675,10 +712,107 @@ export function TechnicalMemory() {
                   </button>
                 </div>
               </div>
+              {/* Consulta libre en lenguaje natural */}
+              <div>
+                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 700, display: 'block', marginBottom: 4 }}>
+                  Consulta en lenguaje natural
+                </label>
+                <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 6 }}>
+                  Ej: "límites de concurrencia de Lambda", "política de ciclo de vida S3 con JSON", "últimas actualizaciones de Bedrock"
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <input value={freeQuery} onChange={e => setFreeQuery(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && runFreeQuery()}
+                    placeholder="Escribe tu consulta sobre AWS..."
+                    style={{ flex: 1, minWidth: 200, padding: '9px 14px', borderRadius: 8, border: '1px solid #fce4ec', fontSize: 13, outline: 'none' }} />
+                  <select value={queryFuente} onChange={e => setQueryFuente(e.target.value as 'aws'|'web')}
+                    style={{ padding: '9px 12px', borderRadius: 8, border: '1px solid #fce4ec', fontSize: 12, color: '#9c27b0', outline: 'none', background: '#fff' }}>
+                    <option value="aws">📄 Docs AWS</option>
+                    <option value="web">🌐 Web general</option>
+                  </select>
+                  <button onClick={runFreeQuery} disabled={isQuerying}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 8,
+                      border: 'none', background: isQuerying ? '#f1f5f9' : GRADIENT_H,
+                      color: isQuerying ? '#94a3b8' : '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                    {isQuerying ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Search style={{ width: 14, height: 14 }} />}
+                    {isQuerying ? 'Consultando...' : 'Consultar'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Panel de resultados de búsqueda — preview antes de agregar */}
+          {/* Panel resultado de consulta libre */}
+          {queryResult && (
+            <div style={{ background: '#fff', borderRadius: 10, border: '2px solid #7c3aed', overflow: 'hidden' }}>
+              <div style={{ background: GRADIENT, padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>🔍 {queryResult.query}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
+                    Fuente: {queryResult.fuente === 'aws' ? 'docs.aws.amazon.com' : 'Búsqueda web'}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={addQueryToDictionary}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 7,
+                      border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)',
+                      color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                    <Plus style={{ width: 12, height: 12 }} /> Al diccionario
+                  </button>
+                  <button onClick={() => setQueryResult(null)}
+                    style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 6,
+                      padding: '6px 10px', cursor: 'pointer', color: '#fff' }}>✕</button>
+                </div>
+              </div>
+              <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* Resumen */}
+                {queryResult.summary && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 5 }}>Resumen</div>
+                    <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.7, margin: 0 }}>{queryResult.summary}</p>
+                  </div>
+                )}
+                {/* Puntos clave */}
+                {(queryResult.keyPoints || []).length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 5 }}>Puntos Clave</div>
+                    <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      {queryResult.keyPoints.map((p: string, i: number) => (
+                        <li key={i} style={{ fontSize: 12, color: '#374151', lineHeight: 1.5 }}>{p}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {/* Ejemplos de código */}
+                {(queryResult.codeExamples || []).length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 5 }}>Ejemplos de Código</div>
+                    {queryResult.codeExamples.map((ex: any, i: number) => (
+                      <div key={i} style={{ marginBottom: 8 }}>
+                        <div style={{ fontSize: 10, color: '#9c27b0', marginBottom: 3, fontWeight: 600 }}>{ex.language?.toUpperCase()}</div>
+                        <pre style={{ background: '#1e1b4b', color: '#e0e7ff', padding: '12px 14px', borderRadius: 8,
+                          fontSize: 11, overflowX: 'auto', margin: 0, lineHeight: 1.6 }}>
+                          {ex.code}
+                        </pre>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Fuentes */}
+                {(queryResult.sources || []).length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 5 }}>Fuentes Oficiales</div>
+                    {queryResult.sources.map((url: string, i: number) => (
+                      <a key={i} href={url} target="_blank" rel="noreferrer"
+                        style={{ display: 'block', fontSize: 11, color: '#e91e8c', marginBottom: 3, wordBreak: 'break-all' }}>
+                        {url}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           {searchPreview && (
             <div style={{ background: '#fff', borderRadius: 10, border: '2px solid #e91e8c', overflow: 'hidden' }}>
               {/* Header resultado */}

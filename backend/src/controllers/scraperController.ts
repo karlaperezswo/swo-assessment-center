@@ -29,6 +29,31 @@ export class ScraperController {
     }
   };
 
+  // GET /api/scraper/consulta — consulta en lenguaje natural sobre AWS
+  consulta = async (req: Request, res: Response) => {
+    try {
+      const { q, fuente } = req.query;
+      if (!q || typeof q !== 'string')
+        return res.status(400).json({ error: 'q es requerido' });
+
+      try {
+        const pyRes = await axios.get(`${PYTHON_API}/consulta`, {
+          params: { q: q.trim(), fuente: fuente || 'aws' },
+          timeout: 45000,
+        });
+        res.json(pyRes.data);
+      } catch {
+        // Fallback: scraping directo
+        const data = await scrapeByUrl(
+          `https://docs.aws.amazon.com/search/doc-search.html?searchQuery=${encodeURIComponent(q)}`
+        );
+        res.json({ query: q, summary: data.description, keyPoints: data.keyPoints, sources: [data.docsUrl], codeExamples: [] });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
   // GET /api/scraper/extraer
   extraer = async (req: Request, res: Response) => {
     try {

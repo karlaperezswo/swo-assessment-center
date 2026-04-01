@@ -435,57 +435,117 @@ export function TechnicalMemory() {
     } finally { setIsQuerying(false); }
   };
 
-  // ── Agregar resultado de consulta al diccionario ───────────────────────────
+  // ── Agregar consulta al diccionario — detección automática de servicio ───────
   const addQueryToDictionary = (withImages = false) => {
     if (!queryResult) return;
-    const entries: DictionaryEntry[] = [];
 
-    // Entrada principal con el contenido completo
-    entries.push({
-      id: `dict-q-${Date.now()}`,
-      term: queryResult.query.slice(0, 60),
-      definition: (queryResult.summary || queryResult.allContent || '').slice(0, 500),
-      category: 'Consultas AWS',
-      selected: false,
-    });
+    const query = queryResult.query.toLowerCase();
+    const summary = queryResult.summary || queryResult.allContent || '';
 
-    // Entradas por sección (si hay secciones)
-    (queryResult.sections || []).slice(0, 5).forEach((sec: any, i: number) => {
-      if (sec.heading && sec.content?.trim()) {
-        entries.push({
-          id: `dict-q-sec-${Date.now()}-${i}`,
-          term: sec.heading.slice(0, 60),
-          definition: sec.content.trim().slice(0, 400),
-          category: 'Consultas AWS',
-          selected: false,
+    // 1. Detectar a qué servicio/entrada del diccionario corresponde
+    //    Busca por: nombre del servicio en la query, en el título del resultado,
+    //    o en las categorías existentes
+    const findMatchingEntry = (): DictionaryEntry | null => {
+      // Palabras clave de la query (ignorar palabras comunes)
+      const stopWords = new Set(['como', 'que', 'de', 'en', 'el', 'la', 'los', 'las', 'un', 'una',
+        'con', 'para', 'por', 'del', 'al', 'se', 'es', 'son', 'hay', 'tiene', 'usar', 'usar',
+        'configurar', 'crear', 'ver', 'buscar', 'traer', 'mostrar', 'listar', 'obtener',
+        'cuales', 'cuáles', 'cuántos', 'límites', 'limites', 'últimas', 'ultimas', 'actualizaciones']);
+
+      const queryWords = query.split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w));
+
+      // Buscar en el diccionario existente
+      let bestMatch: DictionaryEntry | null = null;
+      let bestScore = 0;
+
+      data.dictionary.forEach(entry => {
+        const entryText = `${entry.term} ${entry.definition} ${entry.category}`.toLowerCase();
+        let score = 0;
+        queryWords.forEach(word => {
+          if (entryText.includes(word)) score++;
         });
-      }
-    });
-
-    // Puntos clave como entradas individuales
-    (queryResult.keyPoints || []).slice(0, 5).forEach((kp: string, i: number) => {
-      entries.push({
-        id: `dict-q-kp-${Date.now()}-${i}`,
-        term: kp.slice(0, 60),
-        definition: kp,
-        category: 'Consultas AWS',
-        selected: false,
+        // Bonus si el término del diccionario aparece en el resumen
+        if (summary.toLowerCase().includes(entry.term.toLowerCase())) score += 3;
+        if (score > bestScore) { bestScore = score; bestMatch = entry; }
       });
-    });
 
-    // Primera imagen si se pidió
+      return bestScore >= 2 ? bestMatch : null;
+    };
+
+    const matchedEntry = findMatchingEntry();
+
+    // 2. Construir el contenido enriquecido
+    const newContent = [
+      summary.slice(0, 400),
+      ...(queryResult.keyPoints || []).slice(0, 5),
+    ].filter(Boolean).join('\n• ');
+
     const firstImage = withImages && (queryResult.images || []).length > 0
       ? queryResult.images[0] : undefined;
-    if (firstImage) entries[0].imageBase64 = firstImage;
 
-    setData(prev => ({
-      ...prev,
-      dictionary: [
-        ...prev.dictionary,
-        ...entries.filter(e => !prev.dictionary.some(d => d.term.toLowerCase() === e.term.toLowerCase())),
-      ],
-    }));
-    toast.success(`${entries.length} entradas agregadas al diccionario`);
+    if (matchedEntry) {
+      // Enriquecer la entrada existente
+      const enriched: DictionaryEntry = {
+        ...matchedEntry,
+        definition: matchedEntry.definition.length < 400
+          ? `${matchedEntry.definition}\n\n📌 ${queryResult.query}:\n${newContent.slice(0, 300)}`
+          : matchedEntry.definition,
+        imageBase64: firstImage || matchedEntry.imageBase64,
+      };
+      setData(prev => ({
+        ...prev,
+        dictionary: prev.dictionary.map(d => d.id === matchedEntry.id ? enriched : d),
+      }));
+      toast.success(`✅ Información agregada a "${matchedEntry.term}" en el diccionario`);
+    } else {
+      // Detectar categoría automáticamente por el contenido
+      const detectCategory = (): string => {
+        const text = `${query} ${summary}`.toLowerCase();
+        if (/s3|storage|bucket|almacen/.test(text)) return 'AWS Storage';
+        if (/lambda|function|serverless|funcion/.test(text)) return 'AWS Compute';
+        if (/ec2|instancia|instance|servidor/.test(text)) return 'AWS Compute';
+        if (/rds|database|base de datos|mysql|postgres|aurora/.test(text)) return 'AWS Database';
+        if (/iam|rol|policy|permiso|acceso|seguridad/.test(text)) return 'AWS Security';
+        if (/vpc|red|network|subnet|routing/.test(text)) return 'AWS Networking';
+        if (/cloudwatch|monitor|log|metric/.test(text)) return 'AWS Monitoring';
+        if (/bedrock|sagemaker|ai|ml|machine learning/.test(text)) return 'AWS AI/ML';
+        if (/eks|ecs|container|docker|kubernetes/.test(text)) return 'AWS Containers';
+        if (/cloudfront|cdn|distribution/.test(text)) return 'AWS CDN';
+        return 'Consultas AWS';
+      };
+
+      // Crear entrada nueva con el término más relevante de la query
+      const termWords = query.split(/\s+/).filter(w => w.length > 3);
+      const term = termWords.slice(0, 4).join(' ').slice(0, 60) || queryResult.query.slice(0, 60);
+
+      const newEntry: DictionaryEntry = {
+        id: `dict-q-${Date.now()}`,
+        term,
+        definition: newContent.slice(0, 500),
+        category: detectCategory(),
+        selected: false,
+        imageBase64: firstImage,
+      };
+
+      // También agregar secciones importantes como sub-entradas
+      const subEntries: DictionaryEntry[] = (queryResult.sections || [])
+        .filter((s: any) => s.heading && s.content?.trim().length > 30)
+        .slice(0, 3)
+        .map((s: any, i: number) => ({
+          id: `dict-q-sub-${Date.now()}-${i}`,
+          term: s.heading.slice(0, 60),
+          definition: s.content.trim().slice(0, 300),
+          category: detectCategory(),
+          selected: false,
+        }));
+
+      const allNew = [newEntry, ...subEntries].filter(
+        e => !data.dictionary.some(d => d.term.toLowerCase() === e.term.toLowerCase())
+      );
+
+      setData(prev => ({ ...prev, dictionary: [...prev.dictionary, ...allNew] }));
+      toast.success(`✅ ${allNew.length} entradas nuevas agregadas al diccionario en "${newEntry.category}"`);
+    }
   };
   const toggleDictEntry = (id: string) =>
     setData(prev => ({

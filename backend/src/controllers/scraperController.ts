@@ -1,95 +1,82 @@
 import { Request, Response } from 'express';
+import axios from 'axios';
 import { scrapeAWSService, scrapeCompanyInfo, getSoftwareOneLogo, scrapeByUrl } from '../services/scraperService';
-import { searchAWSDocumentation, searchAWSByUrl } from '../services/awsDocsService';
+import { searchAWSDocumentation } from '../services/awsDocsService';
+
+const PYTHON_API = process.env.AWS_DOCS_API_URL || 'http://localhost:8001';
 
 export class ScraperController {
 
   // POST /api/scraper/aws-service
-  // Intenta Python FastAPI+MCP primero, fallback a scraping web
   awsService = async (req: Request, res: Response) => {
     try {
       const { serviceName } = req.body;
-      if (!serviceName || typeof serviceName !== 'string') {
+      if (!serviceName || typeof serviceName !== 'string')
         return res.status(400).json({ success: false, error: 'serviceName es requerido' });
-      }
+
       const name = serviceName.trim();
       let data: any = null;
 
-      // 1. Intentar Python FastAPI + MCP (documentación oficial AWS)
       try {
-        console.log(`[Scraper] Intentando Python API+MCP para: ${name}`);
         data = await searchAWSDocumentation(name);
-        console.log(`[Scraper] Python API exitoso para: ${name}`);
-      } catch (mcpErr: any) {
-        console.warn(`[Scraper] Python API falló (${mcpErr.message}), usando scraping web...`);
-      }
-
-      // 2. Fallback: scraping web de AWS
-      if (!data) {
+      } catch {
         data = await scrapeAWSService(name);
       }
 
       res.json({ success: true, data });
     } catch (error: any) {
-      console.error('[Scraper] AWS service error:', error.message);
-      res.status(500).json({ success: false, error: error.message || 'Error al obtener información del servicio AWS' });
+      res.status(500).json({ success: false, error: error.message });
     }
   };
 
-  // GET /api/scraper/extraer — extrae cualquier URL con cache
+  // GET /api/scraper/extraer
   extraer = async (req: Request, res: Response) => {
     try {
       const { url, force } = req.query;
-      if (!url || typeof url !== 'string') {
+      if (!url || typeof url !== 'string')
         return res.status(400).json({ success: false, error: 'url es requerida' });
-      }
-      // force puede llegar como '1', 'true', o '0'/'false'
+
       const forceRefresh = force === '1' || force === 'true';
       let data: any = null;
+
       try {
-        const pyRes = await require('axios').default.get(
-          `${process.env.AWS_DOCS_API_URL || 'http://localhost:8001'}/extraer`,
-          { params: { url: url.trim(), force: forceRefresh }, timeout: 40000 }
-        );
+        const pyRes = await axios.get(`${PYTHON_API}/extraer`, {
+          params: { url: url.trim(), force: forceRefresh },
+          timeout: 40000,
+        });
         data = pyRes.data;
-      } catch (pyErr: any) {
-        console.warn(`[Scraper] Python API falló para /extraer (${pyErr.message}), usando scraping...`);
+      } catch {
         data = await scrapeByUrl(url.trim());
       }
+
       res.json(data);
     } catch (error: any) {
-      console.error('[Scraper] extraer error:', error.message);
-      res.status(500).json({ error: error.message || 'Error al extraer la URL' });
+      res.status(500).json({ error: error.message });
     }
   };
+
+  // POST /api/scraper/by-url
+  byUrl = async (req: Request, res: Response) => {
     try {
       const { url } = req.body;
-      if (!url || typeof url !== 'string') {
+      if (!url || typeof url !== 'string')
         return res.status(400).json({ success: false, error: 'url es requerida' });
-      }
+
       const cleanUrl = url.trim();
       let data: any = null;
 
-      // Si es URL de AWS, intentar via Python API+MCP
       if (cleanUrl.includes('aws.amazon.com') || cleanUrl.includes('docs.aws.amazon.com')) {
         try {
-          console.log(`[Scraper] Intentando Python API+MCP para URL: ${cleanUrl}`);
-          data = await searchAWSByUrl(cleanUrl);
-          console.log(`[Scraper] Python API exitoso para URL`);
-        } catch (mcpErr: any) {
-          console.warn(`[Scraper] Python API falló para URL (${mcpErr.message}), usando scraping...`);
-        }
+          const pyRes = await axios.get(`${PYTHON_API}/extraer`, { params: { url: cleanUrl }, timeout: 40000 });
+          data = pyRes.data;
+        } catch { /* fallback below */ }
       }
 
-      // Fallback: scraping genérico
-      if (!data) {
-        data = await scrapeByUrl(cleanUrl);
-      }
+      if (!data) data = await scrapeByUrl(cleanUrl);
 
       res.json({ success: true, data });
     } catch (error: any) {
-      console.error('[Scraper] URL scrape error:', error.message);
-      res.status(500).json({ success: false, error: error.message || 'Error al extraer información de la URL' });
+      res.status(500).json({ success: false, error: error.message });
     }
   };
 
@@ -97,14 +84,12 @@ export class ScraperController {
   companyInfo = async (req: Request, res: Response) => {
     try {
       const { url } = req.body;
-      if (!url || typeof url !== 'string') {
+      if (!url || typeof url !== 'string')
         return res.status(400).json({ success: false, error: 'url de la empresa es requerida' });
-      }
       const data = await scrapeCompanyInfo(url.trim());
       res.json({ success: true, data });
     } catch (error: any) {
-      console.error('[Scraper] Company info error:', error.message);
-      res.status(500).json({ success: false, error: error.message || 'Error al obtener información de la empresa' });
+      res.status(500).json({ success: false, error: error.message });
     }
   };
 
@@ -114,7 +99,6 @@ export class ScraperController {
       const logoData = await getSoftwareOneLogo();
       res.json({ success: true, data: { logo: logoData } });
     } catch (error: any) {
-      console.error('[Scraper] Logo error:', error.message);
       res.status(500).json({ success: false, error: 'Error al obtener el logo de SoftwareOne' });
     }
   };

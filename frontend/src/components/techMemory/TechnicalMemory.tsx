@@ -1,7 +1,7 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api';
-import { TechMemoryData, AWSServiceEntry, DictionaryEntry, WellArchPillar, DictionaryCategory } from './types';
+import { TechMemoryData, AWSServiceEntry, DictionaryEntry, WellArchPillar } from './types';
 import { exportTechMemoryWord } from './wordExporter';
 import {
   Search, Plus, Trash2, Download, Upload, RefreshCw,
@@ -663,7 +663,7 @@ export function TechnicalMemory() {
                     placeholder="ej. https://aws.amazon.com/s3/ o cualquier URL de documentación..."
                     style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: '1px solid #fce4ec',
                       fontSize: 13, outline: 'none' }} />
-                  <button onClick={scrapeByUrl} disabled={isScrapingUrl}
+                  <button onClick={() => scrapeByUrl()} disabled={isScrapingUrl}
                     style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 20px', borderRadius: 8,
                       border: 'none', background: isScrapingUrl ? '#f1f5f9' : GRADIENT_H,
                       color: isScrapingUrl ? '#94a3b8' : '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>

@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api';
 import { TechMemoryData, AWSServiceEntry, DictionaryEntry, WellArchPillar } from './types';
@@ -6,8 +6,10 @@ import { exportTechMemoryWord } from './wordExporter';
 import {
   Search, Plus, Trash2, Download, Upload, RefreshCw,
   BookOpen, Building2, FileText, Award, ChevronDown, ChevronUp, Loader2,
-  Link, Library, CheckSquare, Square, ShieldCheck
+  Link, Library, CheckSquare, Square, ShieldCheck, Eye, X
 } from 'lucide-react';
+
+const DICT_STORAGE_KEY = 'tm_dictionary_v1';
 
 const GRADIENT = 'linear-gradient(135deg, #e91e8c 0%, #9c27b0 50%, #1565c0 100%)';
 const GRADIENT_H = 'linear-gradient(90deg, #e91e8c 0%, #9c27b0 50%, #1565c0 100%)';
@@ -201,6 +203,7 @@ export function TechnicalMemory() {
   const [newTerm, setNewTerm] = useState({ term: '', definition: '', category: '' });
   const [dictPage, setDictPage] = useState(1);
   const [dictCatFilter, setDictCatFilter] = useState<string>('');
+  const [dictViewEntry, setDictViewEntry] = useState<DictionaryEntry | null>(null); // entrada en vista detalle
   const DICT_PAGE_SIZE = 6;
   const clientLogoRef = useRef<HTMLInputElement>(null);
 
@@ -1131,6 +1134,11 @@ export function TechnicalMemory() {
                               border: '1px solid #fce4ec', objectFit: 'contain', display: 'block' }} />
                         )}
                       </div>
+                      {/* Botón ver detalle */}
+                      <button title="Explorar este término" onClick={e => { e.stopPropagation(); setDictViewEntry(entry); }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9c27b0', flexShrink: 0, padding: 4 }}>
+                        <Eye style={{ width: 13, height: 13 }} />
+                      </button>
                       {/* Subir imagen al término */}
                       <label title="Adjuntar imagen al término" style={{ flexShrink: 0, cursor: 'pointer', color: entry.imageBase64 ? '#e91e8c' : '#9c27b0', padding: 4 }}
                         onClick={e => e.stopPropagation()}>
@@ -1201,6 +1209,121 @@ export function TechnicalMemory() {
           </div>
         );
       })()}
+
+      {/* ── Modal de exploración de término ──────────────────────────────── */}
+      {dictViewEntry && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 100,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={() => setDictViewEntry(null)}>
+          <div style={{ background: '#fff', borderRadius: 14, width: '100%', maxWidth: 640,
+            maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+            boxShadow: '0 8px 40px rgba(233,30,140,0.25)' }}
+            onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div style={{ background: GRADIENT, padding: '16px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{dictViewEntry.term}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
+                  {dictViewEntry.category || 'General'} · {dictViewEntry.selected ? '✓ Incluido en Word' : 'No incluido en Word'}
+                </div>
+              </div>
+              <button onClick={() => setDictViewEntry(null)}
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8,
+                  padding: '6px 10px', cursor: 'pointer', color: '#fff', fontSize: 16 }}>
+                <X style={{ width: 18, height: 18 }} />
+              </button>
+            </div>
+
+            {/* Contenido scrollable */}
+            <div style={{ overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Definición */}
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#9c27b0', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Definición
+                </div>
+                <textarea
+                  value={dictViewEntry.definition}
+                  onChange={e => {
+                    const updated = { ...dictViewEntry, definition: e.target.value };
+                    setDictViewEntry(updated);
+                    setData(prev => ({ ...prev, dictionary: prev.dictionary.map(d => d.id === updated.id ? updated : d) }));
+                  }}
+                  rows={5}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #fce4ec',
+                    fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box',
+                    fontFamily: 'inherit', lineHeight: 1.7, color: '#374151' }} />
+              </div>
+
+              {/* Imagen */}
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#9c27b0', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Imagen
+                </div>
+                {dictViewEntry.imageBase64 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <img src={dictViewEntry.imageBase64} alt={dictViewEntry.term}
+                      style={{ maxWidth: '100%', maxHeight: 280, objectFit: 'contain', borderRadius: 8,
+                        border: '1px solid #fce4ec' }} />
+                    <button onClick={() => {
+                      const updated = { ...dictViewEntry, imageBase64: undefined };
+                      setDictViewEntry(updated);
+                      setData(prev => ({ ...prev, dictionary: prev.dictionary.map(d => d.id === updated.id ? updated : d) }));
+                    }} style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 5,
+                      padding: '5px 12px', borderRadius: 6, border: '1px solid #fce4ec',
+                      background: '#fff', color: '#ef4444', fontSize: 11, cursor: 'pointer' }}>
+                      <Trash2 style={{ width: 11, height: 11 }} /> Quitar imagen
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px',
+                    borderRadius: 8, border: '2px dashed #fce4ec', cursor: 'pointer',
+                    color: '#9c27b0', fontSize: 12, fontWeight: 600 }}>
+                    <Upload style={{ width: 16, height: 16 }} />
+                    Subir imagen o pegar con Ctrl+V
+                    <input type="file" accept="image/*" style={{ display: 'none' }}
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = ev => {
+                          const updated = { ...dictViewEntry, imageBase64: ev.target?.result as string };
+                          setDictViewEntry(updated);
+                          setData(prev => ({ ...prev, dictionary: prev.dictionary.map(d => d.id === updated.id ? updated : d) }));
+                        };
+                        reader.readAsDataURL(file);
+                      }} />
+                  </label>
+                )}
+              </div>
+
+              {/* Acciones */}
+              <div style={{ display: 'flex', gap: 10, paddingTop: 8, borderTop: '1px solid #fce4ec' }}>
+                <button onClick={() => {
+                  const updated = { ...dictViewEntry, selected: !dictViewEntry.selected };
+                  setDictViewEntry(updated);
+                  setData(prev => ({ ...prev, dictionary: prev.dictionary.map(d => d.id === updated.id ? updated : d) }));
+                }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  padding: '9px', borderRadius: 8, border: '1px solid #fce4ec', cursor: 'pointer',
+                  background: dictViewEntry.selected ? GRADIENT_H : '#f3e8ff',
+                  color: dictViewEntry.selected ? '#fff' : '#9c27b0', fontSize: 12, fontWeight: 600 }}>
+                  {dictViewEntry.selected ? <CheckSquare style={{ width: 14, height: 14 }} /> : <Square style={{ width: 14, height: 14 }} />}
+                  {dictViewEntry.selected ? 'Incluido en Word' : 'Incluir en Word'}
+                </button>
+                <button onClick={() => {
+                  if (window.confirm(`¿Eliminar "${dictViewEntry.term}"?`)) {
+                    removeDictEntry(dictViewEntry.id);
+                    setDictViewEntry(null);
+                  }
+                }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '9px 16px',
+                  borderRadius: 8, border: '1px solid #fce4ec', background: '#fff',
+                  color: '#ef4444', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                  <Trash2 style={{ width: 13, height: 13 }} /> Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── TAB: Documento ────────────────────────────────────────────────── */}
       {activeTab === 'document' && (

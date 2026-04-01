@@ -8,7 +8,16 @@ import asyncio
 import json
 import re
 import os
+import warnings
 from typing import Optional, List
+
+# Suprimir warnings de SSL en entornos Windows corporativos
+warnings.filterwarnings("ignore", message="Unverified HTTPS request")
+try:
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+except ImportError:
+    pass
 
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -547,7 +556,7 @@ async def clear_cache(url: str = Query(None, description="URL específica a limp
 
 
 async def _scrape_url_fallback(url: str) -> str:
-    """Scraping directo para URLs no-AWS usando httpx."""
+    """Scraping directo para URLs no-AWS usando httpx, sin verificación SSL."""
     try:
         import httpx
         headers = {
@@ -555,14 +564,17 @@ async def _scrape_url_fallback(url: str) -> str:
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
         }
-        async with httpx.AsyncClient(follow_redirects=True, timeout=15.0) as client:
+        async with httpx.AsyncClient(
+            follow_redirects=True,
+            timeout=15.0,
+            verify=False,  # deshabilitar verificación SSL para entornos Windows corporativos
+        ) as client:
             resp = await client.get(url, headers=headers)
             resp.raise_for_status()
             html = resp.text
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"No se pudo acceder a la URL: {str(e)}")
 
-    # Parsear HTML con BeautifulSoup si está disponible, sino regex básico
     try:
         from bs4 import BeautifulSoup
         soup = BeautifulSoup(html, "html.parser")
@@ -570,11 +582,61 @@ async def _scrape_url_fallback(url: str) -> str:
             tag.decompose()
         text = soup.get_text(separator="\n", strip=True)
     except ImportError:
-        # Fallback: quitar tags HTML con regex
         text = re.sub(r'<[^>]+>', ' ', html)
         text = re.sub(r'\s+', ' ', text).strip()
 
     return text[:10000]
+
+
+async def _web_search(query: str) -> tuple[str, list]:
+    """
+    Búsqueda web usando DuckDuckGo (no requiere API key, no bloquea scraping).
+    Retorna (texto_combinado, lista_de_urls).
+    """
+    import httpx
+    import urllib.parse
+
+    search_url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(query + ' site:aws.amazon.com OR site:docs.aws.amazon.com')}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+    }
+
+    try:
+        async with httpx.AsyncClient(follow_redirects=True, timeout=15.0, verify=False) as client:
+            resp = await client.get(search_url, headers=headers)
+            html = resp.text
+    except Exception as e:
+        return f"Error de búsqueda: {str(e)}", []
+
+    try:
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html, "html.parser")
+
+        results = []
+        urls = []
+
+        # Extraer resultados de DuckDuckGo HTML
+        for result in soup.select(".result")[:5]:
+            title_el = result.select_one(".result__title")
+            snippet_el = result.select_one(".result__snippet")
+            link_el = result.select_one(".result__url")
+
+            title = title_el.get_text(strip=True) if title_el else ""
+            snippet = snippet_el.get_text(strip=True) if snippet_el else ""
+            link = link_el.get_text(strip=True) if link_el else ""
+
+            if title or snippet:
+                results.append(f"## {title}\n{snippet}\n{link}")
+                if link and link.startswith("http"):
+                    urls.append(link)
+
+        combined = "\n\n".join(results)
+        return combined or "Sin resultados encontrados.", urls
+
+    except ImportError:
+        text = re.sub(r'<[^>]+>', ' ', html)
+        return re.sub(r'\s+', ' ', text).strip()[:3000], []
 
 
 # ── /consulta — consulta en lenguaje natural usando MCP servers ───────────────
@@ -622,10 +684,9 @@ async def consulta_libre(
                     pass
 
     else:
-        # Búsqueda web general via scraping
+        # Búsqueda web via DuckDuckGo (no requiere API key, sin SSL issues)
         try:
-            search_url = f"https://www.google.com/search?q={q.replace(' ', '+')}+site:aws.amazon.com+OR+site:docs.aws.amazon.com"
-            result_text = await _scrape_url_fallback(search_url)
+            result_text, sources = await _web_search(q)
         except Exception as e:
             error_msg = str(e)
 

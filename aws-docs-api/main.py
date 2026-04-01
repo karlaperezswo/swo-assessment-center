@@ -1,4 +1,4 @@
-"""
+﻿"""
 AWS Documentation API — Microservicio FastAPI + MCP
 Puerto: 8001
 PROTOCOLO: Solo docs.aws.amazon.com — estructura Well-Architected
@@ -726,54 +726,87 @@ async def _scrape_with_images(url: str) -> tuple[str, list]:
 
 
 async def _web_search(query: str) -> tuple[str, list]:
+    """Alias para compatibilidad."""
+    return await _web_search_full(query)
+
+
+async def _web_search_full(query: str) -> tuple[str, list]:
     """
-    Búsqueda web usando DuckDuckGo (no requiere API key, no bloquea scraping).
+    Búsqueda web completa usando DuckDuckGo HTML.
+    Busca en múltiples fuentes: AWS docs, blogs técnicos, re:Post, GitHub.
     Retorna (texto_combinado, lista_de_urls).
     """
     import httpx
     import urllib.parse
 
-    search_url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(query + ' site:aws.amazon.com OR site:docs.aws.amazon.com')}"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
         "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
     }
 
-    try:
-        async with httpx.AsyncClient(follow_redirects=True, timeout=15.0, verify=False) as client:
-            resp = await client.get(search_url, headers=headers)
-            html = resp.text
-    except Exception as e:
-        return f"Error de búsqueda: {str(e)}", []
+    all_results = []
+    all_urls = []
 
-    try:
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(html, "html.parser")
+    # Múltiples búsquedas para cubrir más fuentes
+    search_queries = [
+        f"{query} site:docs.aws.amazon.com",
+        f"{query} site:aws.amazon.com",
+        f"{query} AWS tutorial guide",
+        f"{query} AWS repost.aws",
+    ]
 
-        results = []
-        urls = []
+    async with httpx.AsyncClient(follow_redirects=True, timeout=15.0, verify=False) as client:
+        for sq in search_queries[:3]:  # hasta 3 búsquedas
+            try:
+                url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(sq)}"
+                resp = await client.get(url, headers=headers)
+                html = resp.text
 
-        # Extraer resultados de DuckDuckGo HTML
-        for result in soup.select(".result")[:5]:
-            title_el = result.select_one(".result__title")
-            snippet_el = result.select_one(".result__snippet")
-            link_el = result.select_one(".result__url")
+                try:
+                    from bs4 import BeautifulSoup
+                    soup = BeautifulSoup(html, "html.parser")
 
-            title = title_el.get_text(strip=True) if title_el else ""
-            snippet = snippet_el.get_text(strip=True) if snippet_el else ""
-            link = link_el.get_text(strip=True) if link_el else ""
+                    for result in soup.select(".result")[:8]:
+                        title_el  = result.select_one(".result__title")
+                        snippet_el = result.select_one(".result__snippet")
+                        link_el   = result.select_one("a.result__url")
 
-            if title or snippet:
-                results.append(f"## {title}\n{snippet}\n{link}")
-                if link and link.startswith("http"):
-                    urls.append(link)
+                        title   = title_el.get_text(strip=True)   if title_el   else ""
+                        snippet = snippet_el.get_text(strip=True) if snippet_el else ""
+                        link    = ""
 
-        combined = "\n\n".join(results)
-        return combined or "Sin resultados encontrados.", urls
+                        # Extraer href real
+                        if link_el and link_el.get("href"):
+                            href = link_el["href"]
+                            # DuckDuckGo a veces usa redirects
+                            if "uddg=" in href:
+                                import re as _re
+                                m = _re.search(r'uddg=([^&]+)', href)
+                                if m:
+                                    link = urllib.parse.unquote(m.group(1))
+                            elif href.startswith("http"):
+                                link = href
 
-    except ImportError:
-        text = re.sub(r'<[^>]+>', ' ', html)
-        return re.sub(r'\s+', ' ', text).strip()[:3000], []
+                        if not link:
+                            # Intentar con result__a
+                            a_el = result.select_one("a.result__a")
+                            if a_el and a_el.get("href", "").startswith("http"):
+                                link = a_el["href"]
+
+                        if title or snippet:
+                            all_results.append(f"### {title}\n{snippet}\n{link}")
+                            if link and link.startswith("http") and link not in all_urls:
+                                all_urls.append(link)
+
+                except ImportError:
+                    text = re.sub(r'<[^>]+>', ' ', html)
+                    all_results.append(re.sub(r'\s+', ' ', text).strip()[:2000])
+
+            except Exception:
+                continue
+
+    combined = "\n\n".join(all_results)
+    return combined or "Sin resultados encontrados.", all_urls[:15]
 
 
 # ── /consulta — consulta en lenguaje natural usando MCP servers ───────────────
@@ -831,9 +864,9 @@ async def consulta_libre(
             sources = sources[:15]  # hasta 15 URLs para explorar
 
     else:
-        # Búsqueda web via DuckDuckGo
+        # Búsqueda web via DuckDuckGo — traer TODO
         try:
-            result_text, sources = await _web_search(q)
+            result_text, sources = await _web_search_full(q)
         except Exception as e:
             error_msg = str(e)
             result_text = ""
@@ -841,16 +874,16 @@ async def consulta_libre(
         # Scraping de las primeras páginas encontradas para más contenido e imágenes
         if sources:
             extra_texts = []
-            for url in sources[:2]:
+            for url in sources[:4]:  # hasta 4 páginas
                 try:
                     page_text, page_images = await _scrape_with_images(url)
-                    if page_text:
+                    if page_text and len(page_text) > 100:
                         extra_texts.append(f"## Fuente: {url}\n{page_text}")
                     images.extend(page_images)
                 except Exception:
                     continue
             if extra_texts:
-                result_text = result_text + "\n\n" + "\n\n".join(extra_texts)
+                result_text = (result_text + "\n\n" + "\n\n".join(extra_texts)).strip()
 
     if not result_text and not error_msg:
         return {
@@ -916,17 +949,17 @@ async def consulta_libre(
             pass
 
     # Deduplicar imágenes
-    images = list(dict.fromkeys(images))[:8]
+    images = list(dict.fromkeys(images))[:15]
 
     return {
         "query": q,
         "fuente": fuente,
         "summary": summary or result_text[:400],
-        "keyPoints": key_points[:12],
-        "codeExamples": code_examples[:5],
+        'keyPoints': key_points[:15],
+        'codeExamples': code_examples[:6],
         "sources": sources,
         "images": images,
-        "sections": all_sections[:20],
-        "allContent": result_text[:8000],  # contenido completo para el diccionario
+        'sections': all_sections[:30],
+        'allContent': result_text[:12000],
         "error": error_msg,
     }

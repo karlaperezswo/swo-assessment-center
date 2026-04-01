@@ -46,6 +46,8 @@ export interface TechMemoryData {
   clientUrl: string;
   clientLogoBase64: string;
   swoLogoBase64: string;
+  templateBase64: string;      // plantilla Word de SoftwareOne subida por el usuario
+  templateFileName: string;    // nombre del archivo de plantilla
   date: string;
   authors: string;
   version: string;

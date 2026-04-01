@@ -150,6 +150,8 @@ const emptyData = (): TechMemoryData => ({
   clientUrl: '',
   clientLogoBase64: '',
   swoLogoBase64: '',
+  templateBase64: '',
+  templateFileName: '',
   date: new Date().toISOString().split('T')[0],
   authors: '',
   version: '1.0',
@@ -215,6 +217,7 @@ export function TechnicalMemory() {
   const [dictViewEntry, setDictViewEntry] = useState<DictionaryEntry | null>(null); // entrada en vista detalle
   const DICT_PAGE_SIZE = 6;
   const clientLogoRef = useRef<HTMLInputElement>(null);
+  const templateRef = useRef<HTMLInputElement>(null);
 
   // ── Persistencia automática del diccionario ────────────────────────────────
   useEffect(() => {
@@ -247,6 +250,22 @@ export function TechnicalMemory() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = ev => set('clientLogoBase64', ev.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  // ── Template upload ────────────────────────────────────────────────────────
+  const handleTemplateUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      setData(prev => ({
+        ...prev,
+        templateBase64: ev.target?.result as string,
+        templateFileName: file.name,
+      }));
+      toast.success(`Plantilla "${file.name}" cargada. Se usará como base para el documento Word.`);
+    };
     reader.readAsDataURL(file);
   };
 
@@ -458,116 +477,158 @@ export function TechnicalMemory() {
     } finally { setIsLoadingPage(false); }
   };
 
-  // ── Agregar consulta al diccionario — detección automática de servicio ───────
+  // ── Agregar consulta al diccionario — TODO el contenido ──────────────────
   const addQueryToDictionary = (withImages = false) => {
     if (!queryResult) return;
 
     const query = queryResult.query.toLowerCase();
-    const summary = queryResult.summary || queryResult.allContent || '';
+    const allContent = queryResult.allContent || queryResult.summary || '';
+    const sections   = queryResult.sections   || [];
+    const keyPoints  = queryResult.keyPoints  || [];
+    const codeExamples = queryResult.codeExamples || [];
+    const sources    = queryResult.sources    || [];
 
-    // 1. Detectar a qué servicio/entrada del diccionario corresponde
-    //    Busca por: nombre del servicio en la query, en el título del resultado,
-    //    o en las categorías existentes
-    const findMatchingEntry = (): DictionaryEntry | null => {
-      // Palabras clave de la query (ignorar palabras comunes)
-      const stopWords = new Set(['como', 'que', 'de', 'en', 'el', 'la', 'los', 'las', 'un', 'una',
-        'con', 'para', 'por', 'del', 'al', 'se', 'es', 'son', 'hay', 'tiene', 'usar', 'usar',
-        'configurar', 'crear', 'ver', 'buscar', 'traer', 'mostrar', 'listar', 'obtener',
-        'cuales', 'cuáles', 'cuántos', 'límites', 'limites', 'últimas', 'ultimas', 'actualizaciones']);
+    // Construir definición COMPLETA: resumen + puntos clave + secciones + código + fuentes
+    const buildFullDefinition = (): string => {
+      const parts: string[] = [];
 
-      const queryWords = query.split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w));
+      if (queryResult.summary) parts.push(queryResult.summary);
 
-      // Buscar en el diccionario existente
-      let bestMatch: DictionaryEntry | null = null;
-      let bestScore = 0;
+      if (keyPoints.length > 0) {
+        parts.push('\n📌 Puntos Clave:\n' + keyPoints.map((p: string) => `• ${p}`).join('\n'));
+      }
 
-      data.dictionary.forEach(entry => {
-        const entryText = `${entry.term} ${entry.definition} ${entry.category}`.toLowerCase();
-        let score = 0;
-        queryWords.forEach(word => {
-          if (entryText.includes(word)) score++;
-        });
-        // Bonus si el término del diccionario aparece en el resumen
-        if (summary.toLowerCase().includes(entry.term.toLowerCase())) score += 3;
-        if (score > bestScore) { bestScore = score; bestMatch = entry; }
+      sections.forEach((sec: any) => {
+        if (sec.heading && sec.content?.trim()) {
+          parts.push(`\n🔹 ${sec.heading}:\n${sec.content.trim()}`);
+        }
       });
 
-      return bestScore >= 2 ? bestMatch : null;
+      if (codeExamples.length > 0) {
+        parts.push('\n💻 Ejemplos de Código:\n' +
+          codeExamples.map((ex: any) => `[${ex.language?.toUpperCase()}]\n${ex.code}`).join('\n\n')
+        );
+      }
+
+      if (sources.length > 0) {
+        parts.push('\n🔗 Fuentes:\n' + sources.slice(0, 5).join('\n'));
+      }
+
+      return parts.join('\n').trim();
     };
 
-    const matchedEntry = findMatchingEntry();
-
-    // 2. Construir el contenido enriquecido
-    const newContent = [
-      summary.slice(0, 400),
-      ...(queryResult.keyPoints || []).slice(0, 5),
-    ].filter(Boolean).join('\n• ');
-
+    const fullDefinition = buildFullDefinition();
     const firstImage = withImages && (queryResult.images || []).length > 0
       ? queryResult.images[0] : undefined;
 
-    if (matchedEntry) {
-      // Enriquecer la entrada existente
+    // Detectar si ya existe una entrada relacionada
+    const stopWords = new Set(['como', 'que', 'de', 'en', 'el', 'la', 'los', 'las', 'un', 'una',
+      'con', 'para', 'por', 'del', 'al', 'se', 'es', 'son', 'hay', 'tiene', 'usar',
+      'configurar', 'crear', 'ver', 'buscar', 'traer', 'mostrar', 'listar', 'obtener',
+      'cuales', 'cuáles', 'cuántos', 'límites', 'limites', 'últimas', 'ultimas']);
+    const queryWords = query.split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w));
+
+    let bestMatch: DictionaryEntry | null = null;
+    let bestScore = 0;
+    data.dictionary.forEach(entry => {
+      const entryText = `${entry.term} ${entry.definition} ${entry.category}`.toLowerCase();
+      let score = 0;
+      queryWords.forEach(word => { if (entryText.includes(word)) score++; });
+      if (allContent.toLowerCase().includes(entry.term.toLowerCase())) score += 3;
+      if (score > bestScore) { bestScore = score; bestMatch = entry; }
+    });
+
+    if (bestMatch && bestScore >= 2) {
+      // Enriquecer entrada existente con TODO el contenido nuevo
       const enriched: DictionaryEntry = {
-        ...matchedEntry,
-        definition: matchedEntry.definition.length < 400
-          ? `${matchedEntry.definition}\n\n📌 ${queryResult.query}:\n${newContent.slice(0, 300)}`
-          : matchedEntry.definition,
-        imageBase64: firstImage || matchedEntry.imageBase64,
+        ...bestMatch,
+        definition: `${bestMatch.definition}\n\n━━━━━━━━━━━━━━━━━━━━\n📌 ${queryResult.query}:\n${fullDefinition}`,
+        imageBase64: firstImage || bestMatch.imageBase64,
       };
       setData(prev => ({
         ...prev,
-        dictionary: prev.dictionary.map(d => d.id === matchedEntry.id ? enriched : d),
+        dictionary: prev.dictionary.map(d => d.id === bestMatch!.id ? enriched : d),
       }));
-      toast.success(`✅ Información agregada a "${matchedEntry.term}" en el diccionario`);
+      toast.success(`✅ Contenido completo agregado a "${bestMatch.term}"`);
     } else {
-      // Detectar categoría automáticamente por el contenido
+      // Detectar categoría — primero buscar en categorías existentes del diccionario
       const detectCategory = (): string => {
-        const text = `${query} ${summary}`.toLowerCase();
-        if (/s3|storage|bucket|almacen/.test(text)) return 'AWS Storage';
-        if (/lambda|function|serverless|funcion/.test(text)) return 'AWS Compute';
-        if (/ec2|instancia|instance|servidor/.test(text)) return 'AWS Compute';
-        if (/rds|database|base de datos|mysql|postgres|aurora/.test(text)) return 'AWS Database';
-        if (/iam|rol|policy|permiso|acceso|seguridad/.test(text)) return 'AWS Security';
-        if (/vpc|red|network|subnet|routing/.test(text)) return 'AWS Networking';
-        if (/cloudwatch|monitor|log|metric/.test(text)) return 'AWS Monitoring';
-        if (/bedrock|sagemaker|ai|ml|machine learning/.test(text)) return 'AWS AI/ML';
-        if (/eks|ecs|container|docker|kubernetes/.test(text)) return 'AWS Containers';
-        if (/cloudfront|cdn|distribution/.test(text)) return 'AWS CDN';
-        return 'Consultas AWS';
+        const text = `${query} ${allContent}`.toLowerCase();
+
+        // Categorías ya existentes en el diccionario
+        const existingCats = [...new Set(data.dictionary.map(d => d.category || 'General'))];
+
+        // Mapeo de palabras clave a categorías conocidas
+        const catKeywords: Record<string, string[]> = {
+          'AWS': ['aws', 'amazon', 'cloud', 'nube'],
+          'Conceptos Cloud': ['cloud', 'nube', 'iaas', 'paas', 'saas', 'serverless', 'contenedor'],
+          'Migración': ['migración', 'migracion', 'lift', 'shift', 'rehost', 'replatform'],
+          'Arquitectura': ['arquitectura', 'alta disponibilidad', 'escalabilidad', 'resiliencia', 'vpc', 'red'],
+          'Metodologías': ['devops', 'ci/cd', 'agile', 'scrum', 'metodología'],
+          'Tecnologías': ['docker', 'kubernetes', 'terraform', 'ansible', 'git'],
+          'Negocio': ['tco', 'roi', 'costo', 'precio', 'negocio', 'business'],
+          'AWS Storage': ['s3', 'storage', 'bucket', 'almacen', 'ebs', 'efs', 'glacier'],
+          'AWS Compute': ['lambda', 'ec2', 'ecs', 'eks', 'fargate', 'compute', 'instancia'],
+          'AWS Database': ['rds', 'dynamodb', 'aurora', 'database', 'base de datos', 'mysql', 'postgres'],
+          'AWS Security': ['iam', 'rol', 'policy', 'permiso', 'acceso', 'seguridad', 'kms', 'waf'],
+          'AWS Networking': ['vpc', 'subnet', 'routing', 'red', 'network', 'cloudfront', 'route53'],
+          'AWS Monitoring': ['cloudwatch', 'monitor', 'log', 'metric', 'alarm', 'xray'],
+          'AWS AI/ML': ['bedrock', 'sagemaker', 'ai', 'ml', 'machine learning', 'rekognition'],
+          'Servicios AWS': ['aws', 'amazon', 'servicio'],
+        };
+
+        // Buscar en categorías existentes primero
+        for (const cat of existingCats) {
+          const keywords = catKeywords[cat] || [];
+          if (keywords.some(kw => text.includes(kw))) return cat;
+        }
+
+        // Si no hay match en existentes, usar la lógica de detección
+        for (const [cat, keywords] of Object.entries(catKeywords)) {
+          if (keywords.some(kw => text.includes(kw))) return cat;
+        }
+
+        // Fallback: usar la categoría más poblada del diccionario
+        const catCounts = existingCats.map(c => ({
+          cat: c,
+          count: data.dictionary.filter(d => d.category === c).length,
+        })).sort((a, b) => b.count - a.count);
+
+        return catCounts[0]?.cat || 'AWS';
       };
 
-      // Crear entrada nueva con el término más relevante de la query
       const termWords = query.split(/\s+/).filter(w => w.length > 3);
       const term = termWords.slice(0, 4).join(' ').slice(0, 60) || queryResult.query.slice(0, 60);
+      const category = detectCategory();
 
-      const newEntry: DictionaryEntry = {
+      // Entrada principal con TODO el contenido
+      const mainEntry: DictionaryEntry = {
         id: `dict-q-${Date.now()}`,
         term,
-        definition: newContent.slice(0, 500),
-        category: detectCategory(),
+        definition: fullDefinition,
+        category,
         selected: false,
         imageBase64: firstImage,
       };
 
-      // También agregar secciones importantes como sub-entradas
-      const subEntries: DictionaryEntry[] = (queryResult.sections || [])
+      // Sub-entradas por sección (con contenido completo)
+      const subEntries: DictionaryEntry[] = sections
         .filter((s: any) => s.heading && s.content?.trim().length > 30)
-        .slice(0, 3)
+        .slice(0, 5)
         .map((s: any, i: number) => ({
           id: `dict-q-sub-${Date.now()}-${i}`,
           term: s.heading.slice(0, 60),
-          definition: s.content.trim().slice(0, 300),
-          category: detectCategory(),
+          definition: s.content.trim(),  // sin truncar
+          category,
           selected: false,
         }));
 
-      const allNew = [newEntry, ...subEntries].filter(
+      const allNew = [mainEntry, ...subEntries].filter(
         e => !data.dictionary.some(d => d.term.toLowerCase() === e.term.toLowerCase())
       );
 
       setData(prev => ({ ...prev, dictionary: [...prev.dictionary, ...allNew] }));
-      toast.success(`✅ ${allNew.length} entradas nuevas agregadas al diccionario en "${newEntry.category}"`);
+      toast.success(`✅ ${allNew.length} entradas con contenido completo en "${category}"`);
     }
   };
   const toggleDictEntry = (id: string) =>
@@ -617,6 +678,46 @@ export function TechnicalMemory() {
     data.dictCategories.find(c => c.name === catName)?.imageBase64;
 
   const selectedCount = data.dictionary.filter(d => d.selected).length;
+
+  // ── Helper: renderizar contenido con formato legible ──────────────────────
+  const renderContent = (content: string, fontSize = 12) => {
+    if (!content?.trim()) return null;
+    return (
+      <div style={{ fontSize, color: '#374151', lineHeight: 1.8 }}>
+        {content.trim().split('\n').map((line: string, i: number) => {
+          const l = line.trim();
+          if (!l) return <div key={i} style={{ height: 5 }} />;
+          // Bullet
+          if (/^[-•*]\s/.test(l)) return (
+            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+              <span style={{ color: '#9c27b0', flexShrink: 0 }}>•</span>
+              <span>{l.replace(/^[-•*]\s+/, '')}</span>
+            </div>
+          );
+          // Numerado
+          if (/^\d+\.\s/.test(l)) return (
+            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+              <span style={{ color: '#9c27b0', flexShrink: 0, fontWeight: 700, minWidth: 20 }}>{l.match(/^\d+/)?.[0]}.</span>
+              <span>{l.replace(/^\d+\.\s+/, '')}</span>
+            </div>
+          );
+          // Subtítulo inline (línea corta que termina en :)
+          if (l.endsWith(':') && l.length < 60 && !l.startsWith('http')) return (
+            <div key={i} style={{ fontWeight: 700, color: '#7c3aed', marginTop: 8, marginBottom: 3, fontSize: fontSize - 1 }}>{l}</div>
+          );
+          // Código inline
+          if (l.startsWith('`') || l.includes('  ') && l.length < 100) return (
+            <code key={i} style={{ display: 'block', background: '#f3e8ff', color: '#7c3aed',
+              padding: '2px 8px', borderRadius: 4, fontSize: fontSize - 1, marginBottom: 4, fontFamily: 'monospace' }}>
+              {l}
+            </code>
+          );
+          // Párrafo normal
+          return <p key={i} style={{ margin: '0 0 6px' }}>{l}</p>;
+        })}
+      </div>
+    );
+  };
 
   const handleExport = () => {
     if (!data.projectName || !data.clientName) {
@@ -732,6 +833,39 @@ export function TechnicalMemory() {
                   <Upload style={{ width: 12, height: 12 }} /> Subir logo
                 </button>
                 <input ref={clientLogoRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleClientLogo} />
+              </div>
+
+              {/* Plantilla Word de SoftwareOne */}
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 4, fontWeight: 600 }}>
+                  Plantilla Word SoftwareOne (.docx / .doc)
+                </label>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  {data.templateFileName ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px',
+                      background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 7 }}>
+                      <FileText style={{ width: 14, height: 14, color: '#16a34a' }} />
+                      <span style={{ fontSize: 12, color: '#15803d', fontWeight: 600 }}>{data.templateFileName}</span>
+                      <button onClick={() => setData(prev => ({ ...prev, templateBase64: '', templateFileName: '' }))}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 12 }}>✕</button>
+                    </div>
+                  ) : (
+                    <span style={{ fontSize: 11, color: '#94a3b8' }}>Sin plantilla — se usará el formato estándar</span>
+                  )}
+                  <button onClick={() => templateRef.current?.click()}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 7,
+                      border: '1px solid #fce4ec', background: GRADIENT_H, color: '#fff',
+                      fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                    <Upload style={{ width: 12, height: 12 }} />
+                    {data.templateFileName ? 'Cambiar plantilla' : 'Subir plantilla SoftwareOne'}
+                  </button>
+                  <input ref={templateRef} type="file" accept=".docx,.doc,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    style={{ display: 'none' }} onChange={handleTemplateUpload} />
+                </div>
+                <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>
+                  Al subir la plantilla, el documento Word se generará respetando el formato de SoftwareOne.
+                  El contenido de cada sección se inyectará en el orden: Portada → Tabla de Contenido → Introducción → Resumen Infraestructura → Servicios AWS → Recomendaciones → Conclusiones → Carta.
+                </div>
               </div>
             </div>
           </div>
@@ -991,10 +1125,7 @@ export function TechnicalMemory() {
                           {isExpanded && hasContent && (
                             <div style={{ padding: '12px 14px', background: '#fff',
                               borderTop: '1px solid #fce4ec' }}>
-                              <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.7, margin: 0,
-                                whiteSpace: 'pre-wrap' }}>
-                                {sec.content.trim()}
-                              </p>
+                              {renderContent(sec.content, 12)}
                               {/* Botón agregar esta sección al diccionario */}
                               <button
                                 onClick={() => {
@@ -1148,9 +1279,7 @@ export function TechnicalMemory() {
                             </button>
                             {isExp && sec.content?.trim() && (
                               <div style={{ padding: '10px 12px', background: '#fff', borderTop: '1px solid #fce4ec' }}>
-                                <p style={{ fontSize: 11, color: '#374151', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>
-                                  {sec.content.trim()}
-                                </p>
+                                {renderContent(sec.content, 11)}
                                 <button
                                   onClick={() => {
                                     const e: DictionaryEntry = {

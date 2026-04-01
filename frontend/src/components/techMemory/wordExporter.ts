@@ -33,18 +33,30 @@ export function exportTechMemoryWord(data: TechMemoryData): void {
   const infra = replacePlaceholders(data.infraSummary || '', data);
   const concl = replacePlaceholders(data.conclusions || '', data);
 
-  // TOC numbering
-  let secNum = 1;
-  const toc: string[] = [
-    `${secNum++}. Introducción`,
-    `${secNum++}. Información de la Empresa`,
-    `${secNum++}. Resumen de la Infraestructura`,
-    `${secNum++}. Servicios AWS Implementados`,
-    ...(wellArchSection ? [`${secNum++}. Recomendaciones Well-Architected`] : []),
-    `${secNum++}. Conclusiones`,
-    ...(glossarySection ? [`${secNum++}. Glosario`] : []),
-    `${secNum++}. Referencias`,
-    `${secNum++}. Carta de Agradecimiento`,
+  // ── Numeración de secciones en orden correcto ─────────────────────────────
+  let n = 1;
+  const S = {
+    intro:     n++,
+    empresa:   n++,
+    infra:     n++,
+    servicios: n++,
+    wellarch:  wellArchSection ? n++ : 0,
+    concl:     n++,
+    glosario:  glossarySection ? n++ : 0,
+    refs:      n++,
+    carta:     n++,
+  };
+
+  const tocLines = [
+    `${S.intro}. Introducción`,
+    `${S.empresa}. Información de la Empresa`,
+    `${S.infra}. Resumen de la Infraestructura`,
+    `${S.servicios}. Servicios AWS Implementados`,
+    ...(wellArchSection ? [`${S.wellarch}. Recomendaciones Well-Architected Framework`] : []),
+    `${S.concl}. Conclusiones`,
+    ...(glossarySection ? [`${S.glosario}. Glosario`] : []),
+    `${S.refs}. Referencias`,
+    `${S.carta}. Carta de Agradecimiento`,
   ];
 
   const html = `<!DOCTYPE html>
@@ -101,18 +113,18 @@ export function exportTechMemoryWord(data: TechMemoryData): void {
 <!-- TABLA DE CONTENIDO -->
 <div class="page-break">
   <div class="section-title">Tabla de Contenido</div>
-  ${toc.map((t, i) => `<p class="no-indent">${t} ${''.padEnd(60 - t.length, '.')} ${i + 3}</p>`).join('')}
+  ${tocLines.map((t, i) => `<p class="no-indent">${t} ${''.padEnd(Math.max(2, 60 - t.length), '.')} ${i + 3}</p>`).join('')}
 </div>
 
-<!-- 1. INTRODUCCIÓN -->
+<!-- ${S.intro}. INTRODUCCIÓN -->
 <div class="page-break">
-  <div class="section-title">1. Introducción</div>
+  <div class="section-title">${S.intro}. Introducción</div>
   ${paragraphs(intro)}
 </div>
 
-<!-- 2. INFORMACIÓN DE LA EMPRESA -->
+<!-- ${S.empresa}. INFORMACIÓN DE LA EMPRESA -->
 <div class="page-break">
-  <div class="section-title">2. Información de la Empresa</div>
+  <div class="section-title">${S.empresa}. Información de la Empresa</div>
   <table class="info">
     <tr><td>Empresa</td><td>${escHtml(data.clientName)}</td></tr>
     <tr><td>Sitio Web</td><td>${escHtml(data.clientUrl)}</td></tr>
@@ -124,33 +136,33 @@ export function exportTechMemoryWord(data: TechMemoryData): void {
   ${data.clientAbout   ? `<h3>Acerca de la Empresa</h3>${paragraphs(data.clientAbout)}` : ''}
 </div>
 
-<!-- 3. RESUMEN DE LA INFRAESTRUCTURA -->
+<!-- ${S.infra}. RESUMEN DE LA INFRAESTRUCTURA -->
 <div class="page-break">
-  <div class="section-title">3. Resumen de la Infraestructura</div>
+  <div class="section-title">${S.infra}. Resumen de la Infraestructura</div>
   ${paragraphs(infra)}
 </div>
 
-<!-- 4. SERVICIOS AWS -->
+<!-- ${S.servicios}. SERVICIOS AWS -->
 <div class="page-break">
-  <div class="section-title">4. Servicios AWS Implementados</div>
+  <div class="section-title">${S.servicios}. Servicios AWS Implementados</div>
   ${servicesSections || '<p>No se han agregado servicios AWS.</p>'}
 </div>
 
-<!-- 5. RECOMENDACIONES WELL-ARCHITECTED -->
-${wellArchSection ? `<div class="page-break"><div class="section-title">5. Recomendaciones Well-Architected Framework</div>${wellArchSection}</div>` : ''}
+<!-- RECOMENDACIONES WELL-ARCHITECTED -->
+${wellArchSection ? `<div class="page-break"><div class="section-title">${S.wellarch}. Recomendaciones Well-Architected Framework</div>${wellArchSection}</div>` : ''}
 
 <!-- CONCLUSIONES -->
 <div class="page-break">
-  <div class="section-title">${wellArchSection ? '6' : '5'}. Conclusiones</div>
+  <div class="section-title">${S.concl}. Conclusiones</div>
   ${paragraphs(concl)}
 </div>
 
 <!-- GLOSARIO -->
-${glossarySection ? `<div class="page-break">${glossarySection}</div>` : ''}
+${glossarySection ? `<div class="page-break">${glossarySection.replace('Glosario', `${S.glosario}. Glosario`)}</div>` : ''}
 
 <!-- REFERENCIAS (APA) -->
 <div class="page-break">
-  <div class="section-title">Referencias</div>
+  <div class="section-title">${S.refs}. Referencias</div>
   ${data.services.map(svc => `
   <p class="apa-ref no-indent">
     Amazon Web Services. (${year}). <em>${escHtml(svc.title)}</em>.
@@ -166,7 +178,7 @@ ${glossarySection ? `<div class="page-break">${glossarySection}</div>` : ''}
     ${data.swoLogoBase64 ? `<img src="${data.swoLogoBase64}" alt="SoftwareOne" style="max-width:140px" />` : '<span style="font-size:16pt;font-weight:bold;color:#E31837">SoftwareOne</span>'}
     ${data.clientLogoBase64 ? `<img src="${data.clientLogoBase64}" alt="${escHtml(data.clientName)}" style="max-width:120px" />` : ''}
   </div>
-  <div class="section-title">Carta de Agradecimiento</div>
+  <div class="section-title">${S.carta}. Carta de Agradecimiento</div>
   <p class="no-indent" style="text-align:right;font-size:11pt;margin-bottom:18pt">${escHtml(data.thankYouDate || date)}</p>
   ${data.itTeam ? `<p class="no-indent"><strong>Para:</strong> ${escHtml(data.itTeam)}</p>` : ''}
   ${paragraphs(replacePlaceholders(data.thankYouLetter || '', data))}

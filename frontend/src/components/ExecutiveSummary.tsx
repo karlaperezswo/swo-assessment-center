@@ -105,7 +105,7 @@ export function ExecutiveSummary({
               <span className="text-3xl font-bold text-purple-300">{roi}%</span>
             </div>
             <p className="text-sm text-blue-100 mb-1">ROI a 3 Años</p>
-            <p className="text-2xl font-bold">{fmt(Number(roi) * awsCost / 100)}</p>
+            <p className="text-2xl font-bold">{fmt(totalSavings * 3)}</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
             <div className="flex items-center justify-between mb-3">

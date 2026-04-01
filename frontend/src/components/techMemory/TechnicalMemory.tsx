@@ -193,6 +193,7 @@ export function TechnicalMemory() {
   const [isQuerying, setIsQuerying] = useState(false);
   const [queryResult, setQueryResult] = useState<any>(null);
   const [queryFuente, setQueryFuente] = useState<'aws'|'web'>('aws');
+  const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set());
   const [isSearchingAWS, setIsSearchingAWS] = useState(false);
   const [isScrapingUrl, setIsScrapingUrl] = useState(false);
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
@@ -428,6 +429,7 @@ export function TechnicalMemory() {
         toast.error(res.data.error, { id: 'free-query' });
       } else {
         setQueryResult(res.data);
+        setExpandedSections(new Set());
         toast.success('Consulta completada', { id: 'free-query' });
       }
     } catch {
@@ -935,22 +937,71 @@ export function TechnicalMemory() {
                 {(queryResult.sections || []).length > 0 && (
                   <div>
                     <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 8 }}>
-                      Contenido Completo ({queryResult.sections.length} secciones)
+                      Contenido Completo ({queryResult.sections.length} secciones) — haz clic en el título para expandir
                     </div>
-                    {queryResult.sections.map((sec: any, i: number) => (
-                      <div key={i} style={{ marginBottom: 10, paddingBottom: 10,
-                        borderBottom: i < queryResult.sections.length - 1 ? '1px solid #fce4ec' : 'none' }}>
-                        {sec.heading && (
-                          <div style={{ fontSize: 12, fontWeight: 700, color: '#9c27b0', marginBottom: 4 }}>
-                            {sec.heading}
-                          </div>
-                        )}
-                        <p style={{ fontSize: 11, color: '#475569', lineHeight: 1.6, margin: 0 }}>
-                          {sec.content?.trim().slice(0, 400)}
-                          {sec.content?.length > 400 && '...'}
-                        </p>
-                      </div>
-                    ))}
+                    {queryResult.sections.map((sec: any, i: number) => {
+                      const isExpanded = expandedSections.has(i);
+                      const hasContent = sec.content?.trim().length > 0;
+                      return (
+                        <div key={i} style={{ marginBottom: 4, borderRadius: 8, overflow: 'hidden',
+                          border: '1px solid #fce4ec' }}>
+                          {/* Título clickeable */}
+                          <button
+                            onClick={() => {
+                              setExpandedSections(prev => {
+                                const next = new Set(prev);
+                                if (next.has(i)) next.delete(i); else next.add(i);
+                                return next;
+                              });
+                            }}
+                            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                              padding: '9px 14px', background: isExpanded ? '#f3e8ff' : '#fdf4ff',
+                              border: 'none', cursor: hasContent ? 'pointer' : 'default',
+                              textAlign: 'left', transition: 'background 0.15s' }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: isExpanded ? '#7c3aed' : '#9c27b0',
+                              flex: 1, marginRight: 8 }}>
+                              {sec.heading || `Sección ${i + 1}`}
+                            </span>
+                            <span style={{ fontSize: 10, color: '#c084fc', flexShrink: 0 }}>
+                              {isExpanded ? '▲ Cerrar' : '▼ Ver contenido'}
+                            </span>
+                          </button>
+                          {/* Contenido expandido */}
+                          {isExpanded && hasContent && (
+                            <div style={{ padding: '12px 14px', background: '#fff',
+                              borderTop: '1px solid #fce4ec' }}>
+                              <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.7, margin: 0,
+                                whiteSpace: 'pre-wrap' }}>
+                                {sec.content.trim()}
+                              </p>
+                              {/* Botón agregar esta sección al diccionario */}
+                              <button
+                                onClick={() => {
+                                  const entry: DictionaryEntry = {
+                                    id: `dict-sec-${Date.now()}-${i}`,
+                                    term: (sec.heading || `Sección ${i + 1}`).slice(0, 60),
+                                    definition: sec.content.trim().slice(0, 500),
+                                    category: 'Consultas AWS',
+                                    selected: false,
+                                  };
+                                  if (!data.dictionary.some(d => d.term.toLowerCase() === entry.term.toLowerCase())) {
+                                    setData(prev => ({ ...prev, dictionary: [...prev.dictionary, entry] }));
+                                    toast.success(`"${entry.term}" agregado al diccionario`);
+                                  } else {
+                                    toast.info(`"${entry.term}" ya existe en el diccionario`);
+                                  }
+                                }}
+                                style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 4,
+                                  padding: '4px 10px', borderRadius: 6, border: '1px solid #fce4ec',
+                                  background: '#fdf4ff', color: '#9c27b0', fontSize: 10,
+                                  fontWeight: 600, cursor: 'pointer' }}>
+                                <Plus style={{ width: 10, height: 10 }} /> Agregar al diccionario
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 

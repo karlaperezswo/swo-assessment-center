@@ -194,6 +194,10 @@ export function TechnicalMemory() {
   const [queryResult, setQueryResult] = useState<any>(null);
   const [queryFuente, setQueryFuente] = useState<'aws'|'web'>('aws');
   const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set());
+  const [exploringUrl, setExploringUrl] = useState<string | null>(null);
+  const [exploredPage, setExploredPage] = useState<any>(null);
+  const [isLoadingPage, setIsLoadingPage] = useState(false);
+  const [expandedPageSections, setExpandedPageSections] = useState<Set<number>>(new Set());
   const [isSearchingAWS, setIsSearchingAWS] = useState(false);
   const [isScrapingUrl, setIsScrapingUrl] = useState(false);
   const [isSearchingCompany, setIsSearchingCompany] = useState(false);
@@ -435,6 +439,23 @@ export function TechnicalMemory() {
     } catch {
       toast.error('Error al consultar. Verifica que el Python API esté corriendo.', { id: 'free-query' });
     } finally { setIsQuerying(false); }
+  };
+
+  // ── Explorar página completa al hacer clic en una URL ─────────────────────
+  const explorePage = async (url: string) => {
+    setExploringUrl(url);
+    setExploredPage(null);
+    setExpandedPageSections(new Set());
+    setIsLoadingPage(true);
+    toast.loading('Cargando página...', { id: 'explore-page' });
+    try {
+      const res = await apiClient.get('/api/scraper/leer-pagina', { params: { url } });
+      setExploredPage({ ...res.data, _url: url });
+      toast.success('Página cargada', { id: 'explore-page' });
+    } catch {
+      toast.error('No se pudo cargar la página', { id: 'explore-page' });
+      setExploringUrl(null);
+    } finally { setIsLoadingPage(false); }
   };
 
   // ── Agregar consulta al diccionario — detección automática de servicio ───────
@@ -1021,16 +1042,155 @@ export function TechnicalMemory() {
                   </div>
                 )}
 
-                {/* Fuentes */}
+                {/* Fuentes — clickeables para explorar */}
                 {(queryResult.sources || []).length > 0 && (
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 5 }}>Fuentes</div>
-                    {queryResult.sources.map((url: string, i: number) => (
-                      <a key={i} href={url} target="_blank" rel="noreferrer"
-                        style={{ display: 'block', fontSize: 11, color: '#e91e8c', marginBottom: 3, wordBreak: 'break-all' }}>
-                        {url}
-                      </a>
-                    ))}
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 8 }}>
+                      📄 Páginas encontradas ({queryResult.sources.length}) — haz clic para explorar
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {queryResult.sources.map((url: string, i: number) => {
+                        const isExploring = exploringUrl === url;
+                        const label = url.replace('https://docs.aws.amazon.com', '').replace('https://aws.amazon.com', '').slice(0, 80) || url;
+                        return (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <button
+                              onClick={() => explorePage(url)}
+                              disabled={isLoadingPage}
+                              style={{ flex: 1, textAlign: 'left', padding: '7px 12px', borderRadius: 7,
+                                border: `1px solid ${isExploring ? '#7c3aed' : '#fce4ec'}`,
+                                background: isExploring ? '#f3e8ff' : '#fdf4ff',
+                                color: isExploring ? '#7c3aed' : '#9c27b0',
+                                fontSize: 11, cursor: 'pointer', fontWeight: isExploring ? 700 : 400,
+                                display: 'flex', alignItems: 'center', gap: 6 }}>
+                              {isExploring && isLoadingPage
+                                ? <Loader2 style={{ width: 11, height: 11, flexShrink: 0 }} className="animate-spin" />
+                                : <Eye style={{ width: 11, height: 11, flexShrink: 0 }} />}
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {label}
+                              </span>
+                            </button>
+                            <a href={url} target="_blank" rel="noreferrer"
+                              style={{ fontSize: 10, color: '#c084fc', flexShrink: 0, textDecoration: 'none' }}
+                              title="Abrir en nueva pestaña">↗</a>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Panel de exploración de página seleccionada */}
+                {exploredPage && (
+                  <div style={{ borderRadius: 10, border: '2px solid #7c3aed', overflow: 'hidden', marginTop: 4 }}>
+                    <div style={{ background: 'linear-gradient(90deg,#7c3aed,#9c27b0)', padding: '10px 16px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{exploredPage.title}</div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 1 }}>
+                          {exploredPage.wordCount} palabras · {(exploredPage.sections || []).length} secciones
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          onClick={() => {
+                            const entry: DictionaryEntry = {
+                              id: `dict-page-${Date.now()}`,
+                              term: exploredPage.title.slice(0, 60),
+                              definition: (exploredPage.summary || '').slice(0, 500),
+                              category: 'Consultas AWS',
+                              selected: false,
+                            };
+                            if (!data.dictionary.some(d => d.term.toLowerCase() === entry.term.toLowerCase())) {
+                              setData(prev => ({ ...prev, dictionary: [...prev.dictionary, entry] }));
+                              toast.success(`"${entry.term}" agregado al diccionario`);
+                            } else {
+                              toast.info('Ya existe en el diccionario');
+                            }
+                          }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px',
+                            borderRadius: 6, border: '1px solid rgba(255,255,255,0.4)',
+                            background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                          <Plus style={{ width: 11, height: 11 }} /> Al diccionario
+                        </button>
+                        <button onClick={() => { setExploredPage(null); setExploringUrl(null); }}
+                          style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 6,
+                            padding: '5px 9px', cursor: 'pointer', color: '#fff' }}>✕</button>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10,
+                      maxHeight: 500, overflowY: 'auto', background: '#fff' }}>
+                      {/* Resumen */}
+                      {exploredPage.summary && (
+                        <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.7, margin: 0,
+                          padding: '10px 12px', background: '#fdf4ff', borderRadius: 8, border: '1px solid #fce4ec' }}>
+                          {exploredPage.summary}
+                        </p>
+                      )}
+
+                      {/* Secciones clickeables */}
+                      {(exploredPage.sections || []).map((sec: any, i: number) => {
+                        const isExp = expandedPageSections.has(i);
+                        return (
+                          <div key={i} style={{ borderRadius: 7, border: '1px solid #fce4ec', overflow: 'hidden' }}>
+                            <button
+                              onClick={() => setExpandedPageSections(prev => {
+                                const n = new Set(prev); if (n.has(i)) n.delete(i); else n.add(i); return n;
+                              })}
+                              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                padding: '8px 12px', background: isExp ? '#f3e8ff' : '#fdf4ff',
+                                border: 'none', cursor: 'pointer', textAlign: 'left' }}>
+                              <span style={{ fontSize: 12, fontWeight: 700, color: isExp ? '#7c3aed' : '#9c27b0', flex: 1 }}>
+                                {sec.heading || `Sección ${i + 1}`}
+                              </span>
+                              <span style={{ fontSize: 10, color: '#c084fc' }}>{isExp ? '▲' : '▼'}</span>
+                            </button>
+                            {isExp && sec.content?.trim() && (
+                              <div style={{ padding: '10px 12px', background: '#fff', borderTop: '1px solid #fce4ec' }}>
+                                <p style={{ fontSize: 11, color: '#374151', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>
+                                  {sec.content.trim()}
+                                </p>
+                                <button
+                                  onClick={() => {
+                                    const e: DictionaryEntry = {
+                                      id: `dict-ps-${Date.now()}-${i}`,
+                                      term: (sec.heading || `Sección ${i + 1}`).slice(0, 60),
+                                      definition: sec.content.trim().slice(0, 500),
+                                      category: 'Consultas AWS', selected: false,
+                                    };
+                                    if (!data.dictionary.some(d => d.term.toLowerCase() === e.term.toLowerCase())) {
+                                      setData(prev => ({ ...prev, dictionary: [...prev.dictionary, e] }));
+                                      toast.success(`"${e.term}" agregado`);
+                                    } else { toast.info('Ya existe'); }
+                                  }}
+                                  style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 4,
+                                    padding: '4px 10px', borderRadius: 6, border: '1px solid #fce4ec',
+                                    background: '#fdf4ff', color: '#9c27b0', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>
+                                  <Plus style={{ width: 10, height: 10 }} /> Agregar al diccionario
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+
+                      {/* Ejemplos de código */}
+                      {(exploredPage.codeExamples || []).length > 0 && (
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 6 }}>Ejemplos de Código</div>
+                          {exploredPage.codeExamples.map((ex: any, i: number) => (
+                            <div key={i} style={{ marginBottom: 8 }}>
+                              <div style={{ fontSize: 10, color: '#9c27b0', marginBottom: 3, fontWeight: 600 }}>{ex.language?.toUpperCase()}</div>
+                              <pre style={{ background: '#1e1b4b', color: '#e0e7ff', padding: '10px 12px',
+                                borderRadius: 8, fontSize: 11, overflowX: 'auto', margin: 0, lineHeight: 1.6 }}>
+                                {ex.code}
+                              </pre>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

@@ -29,6 +29,22 @@ export class ScraperController {
     }
   };
 
+  // GET /api/scraper/leer-pagina — lee una URL completa estructurada
+  leerPagina = async (req: Request, res: Response) => {
+    try {
+      const { url } = req.query;
+      if (!url || typeof url !== 'string')
+        return res.status(400).json({ error: 'url es requerida' });
+      const pyRes = await axios.get(`${PYTHON_API}/leer-pagina`, {
+        params: { url: url.trim() },
+        timeout: 40000,
+      });
+      res.json(pyRes.data);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
   // GET /api/scraper/consulta — consulta en lenguaje natural sobre AWS
   consulta = async (req: Request, res: Response) => {
     try {

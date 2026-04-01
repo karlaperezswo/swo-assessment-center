@@ -374,6 +374,107 @@ async def servicio_completo(
     return parsed
 
 
+@app.get("/leer-pagina")
+async def leer_pagina(
+    url: str = Query(..., description="URL a leer completamente"),
+):
+    """
+    Lee una página completa (AWS docs o cualquier URL) y retorna
+    todo el contenido estructurado: secciones, puntos clave, código.
+    """
+    text = ""
+    is_aws = "docs.aws.amazon.com" in url or "aws.amazon.com" in url
+
+    if is_aws:
+        for srv in ["awslabs", "smithery"]:
+            try:
+                result = await call_mcp_tool("read_documentation", {"url": url}, timeout=35.0, server=srv)
+                text = extract_text(result)
+                if text and len(text) > 100:
+                    break
+            except Exception:
+                continue
+
+    if not text:
+        try:
+            text, _ = await _scrape_with_images(url)
+        except Exception as e:
+            raise HTTPException(status_code=502, detail=str(e))
+
+    if not text:
+        raise HTTPException(status_code=404, detail=ERROR_MSG)
+
+    # Estructurar completamente
+    sections = []
+    code_examples = []
+    key_points = []
+    title = ""
+    summary = ""
+    in_code = False
+    current_code = []
+    code_lang = ""
+    current_section = {"heading": "", "content": ""}
+
+    for line in text.split("\n"):
+        stripped = line.strip()
+
+        if stripped.startswith("```"):
+            if in_code:
+                if current_code:
+                    code_examples.append({"language": code_lang or "text", "code": "\n".join(current_code)})
+                current_code = []; code_lang = ""; in_code = False
+            else:
+                in_code = True; code_lang = stripped[3:].strip() or "text"
+            continue
+
+        if in_code:
+            current_code.append(line)
+            continue
+
+        if stripped.startswith("# ") and not title:
+            title = stripped[2:].strip()
+            continue
+
+        if stripped.startswith("##"):
+            if current_section["content"].strip():
+                sections.append(dict(current_section))
+            current_section = {"heading": stripped.lstrip("#").strip(), "content": ""}
+            continue
+
+        if not summary and len(stripped) > 80 and not stripped.startswith("#"):
+            summary = stripped[:600]
+
+        if stripped.startswith(("- ", "* ", "• ")) and len(stripped) > 20:
+            key_points.append(stripped[2:].strip())
+
+        current_section["content"] += stripped + " "
+
+    if current_section["content"].strip():
+        sections.append(current_section)
+
+    # JSON inline
+    json_matches = re.findall(r'\{[^{}]{20,800}\}', text)
+    for jm in json_matches[:3]:
+        try:
+            import json as _json
+            _json.loads(jm)
+            if not any(ex["code"] == jm for ex in code_examples):
+                code_examples.append({"language": "json", "code": jm})
+        except Exception:
+            pass
+
+    return {
+        "url": url,
+        "title": title or url,
+        "summary": summary,
+        "sections": sections,
+        "keyPoints": key_points[:15],
+        "codeExamples": code_examples[:5],
+        "rawText": text[:5000],
+        "wordCount": len(text.split()),
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
@@ -694,20 +795,22 @@ async def consulta_libre(
     error_msg = None
 
     if fuente == "aws":
-        # 1. Buscar con MCP
+        # 1. Buscar con MCP — más resultados
         for srv in ["awslabs", "smithery"]:
             try:
-                res = await call_mcp_tool("search_documentation", {"query": q, "limit": 8}, server=srv)
+                res = await call_mcp_tool("search_documentation", {"query": q, "limit": 10}, server=srv)
                 result_text = extract_text(res)
                 if result_text and len(result_text) > 100:
                     break
             except Exception:
                 continue
 
-        # 2. Leer TODAS las páginas encontradas (hasta 3)
+        # 2. Leer TODAS las páginas encontradas (hasta 3) y recopilar todas las URLs
         if result_text:
             all_urls = extract_urls_from_docs(result_text)
-            sources = all_urls[:5]
+            # También buscar URLs de cualquier dominio aws
+            all_aws_urls = re.findall(r'https?://[^\s\)\]"]*aws\.amazon\.com[^\s\)\]"]*', result_text)
+            sources = list(dict.fromkeys(all_urls + all_aws_urls))[:10]
             full_texts = [result_text]
 
             for url in all_urls[:3]:
@@ -716,10 +819,16 @@ async def consulta_libre(
                     page = extract_text(read_res)
                     if page and len(page) > 200:
                         full_texts.append(page)
+                        # Extraer más URLs de cada página leída
+                        more_urls = extract_urls_from_docs(page)
+                        for u in more_urls:
+                            if u not in sources:
+                                sources.append(u)
                 except Exception:
                     continue
 
             result_text = "\n\n---\n\n".join(full_texts)
+            sources = sources[:15]  # hasta 15 URLs para explorar
 
     else:
         # Búsqueda web via DuckDuckGo

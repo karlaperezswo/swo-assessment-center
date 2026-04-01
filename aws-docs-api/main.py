@@ -557,35 +557,71 @@ async def clear_cache(url: str = Query(None, description="URL específica a limp
 
 async def _scrape_url_fallback(url: str) -> str:
     """Scraping directo para URLs no-AWS usando httpx, sin verificación SSL."""
+    text, _ = await _scrape_with_images(url)
+    return text
+
+
+async def _scrape_with_images(url: str) -> tuple[str, list]:
+    """Scraping de URL retornando (texto, lista_de_image_data_urls)."""
+    import httpx
+    import base64
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+    }
     try:
-        import httpx
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
-        }
-        async with httpx.AsyncClient(
-            follow_redirects=True,
-            timeout=15.0,
-            verify=False,  # deshabilitar verificación SSL para entornos Windows corporativos
-        ) as client:
+        async with httpx.AsyncClient(follow_redirects=True, timeout=15.0, verify=False) as client:
             resp = await client.get(url, headers=headers)
             resp.raise_for_status()
             html = resp.text
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"No se pudo acceder a la URL: {str(e)}")
 
+    images = []
+    text = ""
+
     try:
         from bs4 import BeautifulSoup
+        import urllib.parse
+
         soup = BeautifulSoup(html, "html.parser")
-        for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
+
+        # Extraer imágenes antes de limpiar el HTML
+        base_url = f"{urllib.parse.urlparse(url).scheme}://{urllib.parse.urlparse(url).netloc}"
+        for img in soup.find_all("img", src=True)[:10]:
+            src = img.get("src", "")
+            if not src or src.startswith("data:"):
+                continue
+            # Construir URL absoluta
+            if src.startswith("//"):
+                src = "https:" + src
+            elif src.startswith("/"):
+                src = base_url + src
+            elif not src.startswith("http"):
+                src = base_url + "/" + src
+            # Solo imágenes relevantes (no iconos pequeños)
+            width = img.get("width", "")
+            height = img.get("height", "")
+            try:
+                if width and int(str(width).replace("px","")) < 50:
+                    continue
+            except Exception:
+                pass
+            if any(skip in src.lower() for skip in ["icon", "logo", "favicon", "pixel", "tracking", "1x1"]):
+                continue
+            images.append(src)
+
+        # Limpiar HTML y extraer texto
+        for tag in soup(["script", "style", "nav", "footer", "header", "aside", "iframe"]):
             tag.decompose()
         text = soup.get_text(separator="\n", strip=True)
+
     except ImportError:
         text = re.sub(r'<[^>]+>', ' ', html)
         text = re.sub(r'\s+', ' ', text).strip()
 
-    return text[:10000]
+    return text[:10000], images[:8]
 
 
 async def _web_search(query: str) -> tuple[str, list]:
@@ -647,118 +683,141 @@ async def consulta_libre(
     fuente: str = Query("aws", description="Fuente: 'aws' para docs oficiales, 'web' para búsqueda general"),
 ):
     """
-    Consulta en lenguaje natural.
-    - fuente=aws: busca en docs.aws.amazon.com via MCP
-    - fuente=web: búsqueda general via scraping
-    Retorna respuesta estructurada con contenido, URLs y ejemplos de código.
+    Consulta en lenguaje natural — trae TODO el contenido disponible.
+    - fuente=aws: busca en docs.aws.amazon.com via MCP, lee páginas completas
+    - fuente=web: DuckDuckGo + scraping de las páginas encontradas, incluye imágenes
     """
     result_text = ""
     sources = []
+    images = []      # URLs de imágenes encontradas (solo fuente=web)
+    all_sections = []
     error_msg = None
 
     if fuente == "aws":
-        # Intentar con awslabs MCP
+        # 1. Buscar con MCP
         for srv in ["awslabs", "smithery"]:
             try:
-                res = await call_mcp_tool("search_documentation", {
-                    "query": q,
-                    "limit": 5,
-                }, server=srv)
+                res = await call_mcp_tool("search_documentation", {"query": q, "limit": 8}, server=srv)
                 result_text = extract_text(res)
                 if result_text and len(result_text) > 100:
                     break
             except Exception:
                 continue
 
-        # Si encontramos URLs, leer la primera página completa
+        # 2. Leer TODAS las páginas encontradas (hasta 3)
         if result_text:
-            urls = extract_urls_from_docs(result_text)
-            sources = urls[:3]
-            if urls:
+            all_urls = extract_urls_from_docs(result_text)
+            sources = all_urls[:5]
+            full_texts = [result_text]
+
+            for url in all_urls[:3]:
                 try:
-                    read_res = await call_mcp_tool("read_documentation", {"url": urls[0]}, server="awslabs")
-                    page_text = extract_text(read_res)
-                    if page_text and len(page_text) > len(result_text):
-                        result_text = page_text
+                    read_res = await call_mcp_tool("read_documentation", {"url": url}, server="awslabs")
+                    page = extract_text(read_res)
+                    if page and len(page) > 200:
+                        full_texts.append(page)
                 except Exception:
-                    pass
+                    continue
+
+            result_text = "\n\n---\n\n".join(full_texts)
 
     else:
-        # Búsqueda web via DuckDuckGo (no requiere API key, sin SSL issues)
+        # Búsqueda web via DuckDuckGo
         try:
             result_text, sources = await _web_search(q)
         except Exception as e:
             error_msg = str(e)
+            result_text = ""
+
+        # Scraping de las primeras páginas encontradas para más contenido e imágenes
+        if sources:
+            extra_texts = []
+            for url in sources[:2]:
+                try:
+                    page_text, page_images = await _scrape_with_images(url)
+                    if page_text:
+                        extra_texts.append(f"## Fuente: {url}\n{page_text}")
+                    images.extend(page_images)
+                except Exception:
+                    continue
+            if extra_texts:
+                result_text = result_text + "\n\n" + "\n\n".join(extra_texts)
 
     if not result_text and not error_msg:
         return {
-            "query": q,
-            "error": ERROR_MSG,
-            "content": "",
-            "summary": "",
-            "codeExamples": [],
-            "sources": [],
+            "query": q, "error": ERROR_MSG,
+            "content": "", "summary": "", "keyPoints": [],
+            "codeExamples": [], "sources": [], "images": [],
+            "sections": [], "allContent": "",
         }
 
-    # Extraer resumen, ejemplos de código y puntos clave
+    # Extraer estructura completa
     summary = ""
     code_examples = []
     key_points = []
-
-    lines = result_text.split("\n")
     in_code = False
     current_code = []
     code_lang = ""
 
+    lines = result_text.split("\n")
+    current_section = {"heading": "Contenido", "content": ""}
+
     for line in lines:
         stripped = line.strip()
 
-        # Detectar bloques de código
         if stripped.startswith("```"):
             if in_code:
                 if current_code:
-                    code_examples.append({
-                        "language": code_lang or "json",
-                        "code": "\n".join(current_code),
-                    })
-                current_code = []
-                code_lang = ""
-                in_code = False
+                    code_examples.append({"language": code_lang or "text", "code": "\n".join(current_code)})
+                current_code = []; code_lang = ""; in_code = False
             else:
-                in_code = True
-                code_lang = stripped[3:].strip() or "text"
+                in_code = True; code_lang = stripped[3:].strip() or "text"
             continue
 
         if in_code:
             current_code.append(line)
             continue
 
-        # Resumen: primer párrafo largo
+        if stripped.startswith("##"):
+            if current_section["content"].strip():
+                all_sections.append(dict(current_section))
+            current_section = {"heading": stripped.lstrip("#").strip(), "content": ""}
+            continue
+
         if not summary and len(stripped) > 80 and not stripped.startswith("#"):
             summary = stripped[:600]
 
-        # Puntos clave
         if stripped.startswith(("- ", "* ", "• ")) and len(stripped) > 20:
             key_points.append(stripped[2:].strip())
 
-    # JSON inline (no en bloque de código)
-    json_matches = re.findall(r'\{[^{}]{20,500}\}', result_text)
-    for jm in json_matches[:2]:
+        current_section["content"] += stripped + " "
+
+    if current_section["content"].strip():
+        all_sections.append(current_section)
+
+    # JSON inline
+    json_matches = re.findall(r'\{[^{}]{20,800}\}', result_text)
+    for jm in json_matches[:3]:
         try:
             import json as _json
-            _json.loads(jm)  # validar que es JSON válido
+            _json.loads(jm)
             if not any(ex["code"] == jm for ex in code_examples):
                 code_examples.append({"language": "json", "code": jm})
         except Exception:
             pass
 
+    # Deduplicar imágenes
+    images = list(dict.fromkeys(images))[:8]
+
     return {
         "query": q,
         "fuente": fuente,
-        "summary": summary or (result_text[:400] if result_text else ""),
-        "keyPoints": key_points[:8],
-        "codeExamples": code_examples[:4],
+        "summary": summary or result_text[:400],
+        "keyPoints": key_points[:12],
+        "codeExamples": code_examples[:5],
         "sources": sources,
-        "content": result_text[:3000],
+        "images": images,
+        "sections": all_sections[:20],
+        "allContent": result_text[:8000],  # contenido completo para el diccionario
         "error": error_msg,
     }

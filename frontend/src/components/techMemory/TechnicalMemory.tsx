@@ -436,17 +436,56 @@ export function TechnicalMemory() {
   };
 
   // ── Agregar resultado de consulta al diccionario ───────────────────────────
-  const addQueryToDictionary = () => {
+  const addQueryToDictionary = (withImages = false) => {
     if (!queryResult) return;
-    const entry: DictionaryEntry = {
+    const entries: DictionaryEntry[] = [];
+
+    // Entrada principal con el contenido completo
+    entries.push({
       id: `dict-q-${Date.now()}`,
-      term: freeQuery.slice(0, 60),
-      definition: queryResult.summary || queryResult.content?.slice(0, 300) || '',
+      term: queryResult.query.slice(0, 60),
+      definition: (queryResult.summary || queryResult.allContent || '').slice(0, 500),
       category: 'Consultas AWS',
       selected: false,
-    };
-    setData(prev => ({ ...prev, dictionary: [...prev.dictionary, entry] }));
-    toast.success('Resultado agregado al diccionario');
+    });
+
+    // Entradas por sección (si hay secciones)
+    (queryResult.sections || []).slice(0, 5).forEach((sec: any, i: number) => {
+      if (sec.heading && sec.content?.trim()) {
+        entries.push({
+          id: `dict-q-sec-${Date.now()}-${i}`,
+          term: sec.heading.slice(0, 60),
+          definition: sec.content.trim().slice(0, 400),
+          category: 'Consultas AWS',
+          selected: false,
+        });
+      }
+    });
+
+    // Puntos clave como entradas individuales
+    (queryResult.keyPoints || []).slice(0, 5).forEach((kp: string, i: number) => {
+      entries.push({
+        id: `dict-q-kp-${Date.now()}-${i}`,
+        term: kp.slice(0, 60),
+        definition: kp,
+        category: 'Consultas AWS',
+        selected: false,
+      });
+    });
+
+    // Primera imagen si se pidió
+    const firstImage = withImages && (queryResult.images || []).length > 0
+      ? queryResult.images[0] : undefined;
+    if (firstImage) entries[0].imageBase64 = firstImage;
+
+    setData(prev => ({
+      ...prev,
+      dictionary: [
+        ...prev.dictionary,
+        ...entries.filter(e => !prev.dictionary.some(d => d.term.toLowerCase() === e.term.toLowerCase())),
+      ],
+    }));
+    toast.success(`${entries.length} entradas agregadas al diccionario`);
   };
   const toggleDictEntry = (id: string) =>
     setData(prev => ({
@@ -745,26 +784,35 @@ export function TechnicalMemory() {
           {/* Panel resultado de consulta libre */}
           {queryResult && (
             <div style={{ background: '#fff', borderRadius: 10, border: '2px solid #7c3aed', overflow: 'hidden' }}>
-              <div style={{ background: GRADIENT, padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ background: GRADIENT, padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>🔍 {queryResult.query}</div>
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
-                    Fuente: {queryResult.fuente === 'aws' ? 'docs.aws.amazon.com' : 'Búsqueda web'}
+                    {queryResult.fuente === 'aws' ? '📄 docs.aws.amazon.com' : '🌐 Búsqueda web'} · {(queryResult.sections || []).length} secciones · {(queryResult.images || []).length} imágenes
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={addQueryToDictionary}
-                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 7,
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  <button onClick={() => addQueryToDictionary(false)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 7,
                       border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)',
                       color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                    <Plus style={{ width: 12, height: 12 }} /> Al diccionario
+                    <Plus style={{ width: 11, height: 11 }} /> Al diccionario
                   </button>
+                  {(queryResult.images || []).length > 0 && (
+                    <button onClick={() => addQueryToDictionary(true)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 7,
+                        border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.2)',
+                        color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                      <Upload style={{ width: 11, height: 11 }} /> Con imágenes
+                    </button>
+                  )}
                   <button onClick={() => setQueryResult(null)}
                     style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 6,
-                      padding: '6px 10px', cursor: 'pointer', color: '#fff' }}>✕</button>
+                      padding: '5px 9px', cursor: 'pointer', color: '#fff' }}>✕</button>
                 </div>
               </div>
-              <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+              <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 14, maxHeight: 600, overflowY: 'auto' }}>
                 {/* Resumen */}
                 {queryResult.summary && (
                   <div>
@@ -772,6 +820,45 @@ export function TechnicalMemory() {
                     <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.7, margin: 0 }}>{queryResult.summary}</p>
                   </div>
                 )}
+
+                {/* Imágenes encontradas */}
+                {(queryResult.images || []).length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 8 }}>
+                      🖼️ Imágenes encontradas ({queryResult.images.length})
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {queryResult.images.map((imgUrl: string, i: number) => (
+                        <div key={i} style={{ position: 'relative' }}>
+                          <img src={imgUrl} alt={`img-${i}`}
+                            style={{ maxWidth: 140, maxHeight: 100, objectFit: 'cover', borderRadius: 6,
+                              border: '1px solid #fce4ec', cursor: 'pointer' }}
+                            onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                          <button
+                            onClick={() => {
+                              // Agregar imagen al diccionario como entrada
+                              const entry: DictionaryEntry = {
+                                id: `dict-img-${Date.now()}-${i}`,
+                                term: `Imagen: ${queryResult.query.slice(0, 40)}`,
+                                definition: `Imagen extraída de: ${imgUrl}`,
+                                category: 'Consultas AWS',
+                                selected: false,
+                                imageBase64: imgUrl,
+                              };
+                              setData(prev => ({ ...prev, dictionary: [...prev.dictionary, entry] }));
+                              toast.success('Imagen agregada al diccionario');
+                            }}
+                            style={{ position: 'absolute', top: 2, right: 2, background: GRADIENT_H,
+                              border: 'none', borderRadius: 4, padding: '2px 5px', cursor: 'pointer',
+                              color: '#fff', fontSize: 9, fontWeight: 700 }}>
+                            + Dict
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Puntos clave */}
                 {(queryResult.keyPoints || []).length > 0 && (
                   <div>
@@ -783,6 +870,30 @@ export function TechnicalMemory() {
                     </ul>
                   </div>
                 )}
+
+                {/* Secciones completas */}
+                {(queryResult.sections || []).length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 8 }}>
+                      Contenido Completo ({queryResult.sections.length} secciones)
+                    </div>
+                    {queryResult.sections.map((sec: any, i: number) => (
+                      <div key={i} style={{ marginBottom: 10, paddingBottom: 10,
+                        borderBottom: i < queryResult.sections.length - 1 ? '1px solid #fce4ec' : 'none' }}>
+                        {sec.heading && (
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#9c27b0', marginBottom: 4 }}>
+                            {sec.heading}
+                          </div>
+                        )}
+                        <p style={{ fontSize: 11, color: '#475569', lineHeight: 1.6, margin: 0 }}>
+                          {sec.content?.trim().slice(0, 400)}
+                          {sec.content?.length > 400 && '...'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {/* Ejemplos de código */}
                 {(queryResult.codeExamples || []).length > 0 && (
                   <div>
@@ -798,10 +909,11 @@ export function TechnicalMemory() {
                     ))}
                   </div>
                 )}
+
                 {/* Fuentes */}
                 {(queryResult.sources || []).length > 0 && (
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 5 }}>Fuentes Oficiales</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginBottom: 5 }}>Fuentes</div>
                     {queryResult.sources.map((url: string, i: number) => (
                       <a key={i} href={url} target="_blank" rel="noreferrer"
                         style={{ display: 'block', fontSize: 11, color: '#e91e8c', marginBottom: 3, wordBreak: 'break-all' }}>

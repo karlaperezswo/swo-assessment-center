@@ -99,6 +99,9 @@ export function AssessPhase({
             estimatedCosts={estimatedCosts}
             totalServers={excelData?.servers.length ?? 0}
             migrationReadiness={clientData.migrationReadiness}
+            excelData={excelData}
+            dependencyData={dependencyData}
+            migrationWaves={migrationWaves}
           />
         )}
         {activeTab === 'dependency-map' && (

@@ -8,358 +8,288 @@ export class PdfParseError extends Error {
   }
 }
 
+/**
+ * Parser for AWS Migration Readiness Assessment (MRA) PDF reports.
+ *
+ * The AWS MRA report has this structure in the "Ratings Responses" section:
+ *   [Category] [Sub-category] Question Response Comments
+ *   [question text] [score] [score] - [description]
+ *
+ * Scores are 1-5 per question. We calculate the overall maturity level
+ * as the average of all scores found.
+ *
+ * Security gaps are extracted from questions in the "Security & Compliance" section
+ * that have scores of 1 or 2 (low maturity).
+ *
+ * DR strategy is extracted from the BCP/DR section response.
+ *
+ * Recommendations are extracted from "Text Responses" section (open-ended answers).
+ */
 export class PdfParserService {
-  /**
-   * Parse PDF from buffer and extract structured content
-   * @param buffer - PDF file buffer
-   * @returns Structured MRA data
-   * @throws PdfParseError if parsing fails
-   */
+
   async parsePdf(buffer: Buffer): Promise<MraData> {
     try {
-      // Parse PDF to extract text using pdfjs-dist
       const rawText = await this.extractTextFromPdf(buffer);
 
-      // Validate minimum content length
       if (rawText.length < 100) {
         throw new PdfParseError('PDF content is too short. Minimum 100 characters required.');
       }
 
-      // Extract structured data using heuristics
       const mraData: MraData = {
-        maturityLevel: this.extractMaturityLevel(rawText),
-        securityGaps: this.extractSecurityGaps(rawText),
-        drStrategy: this.extractDRStrategy(rawText),
-        backupStrategy: this.extractBackupStrategy(rawText),
+        maturityLevel:          this.extractMaturityLevel(rawText),
+        securityGaps:           this.extractSecurityGaps(rawText),
+        drStrategy:             this.extractDRStrategy(rawText),
+        backupStrategy:         this.extractBackupStrategy(rawText),
         complianceRequirements: this.extractComplianceRequirements(rawText),
-        technicalDebt: this.extractTechnicalDebt(rawText),
-        recommendations: this.extractRecommendations(rawText),
-        rawText: rawText
+        technicalDebt:          this.extractTechnicalDebt(rawText),
+        recommendations:        this.extractRecommendations(rawText),
+        rawText,
       };
 
       return mraData;
     } catch (error) {
-      if (error instanceof PdfParseError) {
-        throw error;
-      }
+      if (error instanceof PdfParseError) throw error;
       throw new PdfParseError(`Failed to parse PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
-  /**
-   * Extract text from PDF buffer using unpdf (serverless-optimized, no canvas required)
-   * @param buffer - PDF file buffer
-   * @returns Extracted text content
-   */
   private async extractTextFromPdf(buffer: Buffer): Promise<string> {
     try {
-      // Load PDF document using unpdf (designed for serverless environments)
       const pdf = await getDocumentProxy(new Uint8Array(buffer));
-      
-      // Extract text from all pages (merged into single string)
       const { totalPages, text } = await extractText(pdf, { mergePages: true });
-      
       console.log(`[PDF Parser] Extracted text from ${totalPages} pages`);
-      
       return text;
     } catch (error) {
       throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
-  /**
-   * Validate PDF structure and content
-   * @param buffer - PDF file buffer
-   * @returns Validation result with errors if any
-   */
+  // ─────────────────────────────────────────────────────────────────────────
+  // MATURITY LEVEL
+  // Extracts all "N N - description" score patterns and averages them.
+  // AWS MRA scores are 1-5 per question.
+  // ─────────────────────────────────────────────────────────────────────────
+  private extractMaturityLevel(text: string): number {
+    // Pattern: "N N - description" where N is 1-5
+    // The score appears twice (response + confirmation) before the dash
+    const scorePattern = /\b([1-5])\s+\1\s*-\s+[A-Z]/g;
+    const scores: number[] = [];
+    let match;
+    while ((match = scorePattern.exec(text)) !== null) {
+      scores.push(parseInt(match[1], 10));
+    }
+
+    if (scores.length === 0) {
+      // Fallback: look for single score pattern
+      const singlePattern = /\b([1-5])\s*-\s+[A-Z][a-z]/g;
+      while ((match = singlePattern.exec(text)) !== null) {
+        scores.push(parseInt(match[1], 10));
+      }
+    }
+
+    if (scores.length === 0) return 2; // default
+
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    return Math.round(avg);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // SECURITY GAPS
+  // Finds questions in Security & Compliance section with score 1 or 2.
+  // ─────────────────────────────────────────────────────────────────────────
+  private extractSecurityGaps(text: string): string[] {
+    const gaps: string[] = [];
+
+    // Find the Security & Compliance section
+    const secStart = text.search(/Security\s*&\s*Compliance\s+Security\s+Strategy/i);
+    if (secStart < 0) {
+      return ['No security section found in document'];
+    }
+
+    // Find end of security section (next major section or end)
+    const secEnd = text.search(/Text\s+Responses|Optional\s+Question/i);
+    const secText = text.substring(secStart, secEnd > secStart ? secEnd : secStart + 5000);
+
+    // Extract low-score items (1 or 2) with their context
+    // Pattern: question text followed by "1 1 -" or "2 2 -" + description
+    const lowScorePattern = /([^.?]+\?[^1-5]*?)([12])\s+\2\s*-\s*([^\n.]{20,200})/g;
+    let match;
+    while ((match = lowScorePattern.exec(secText)) !== null) {
+      const description = match[3].trim();
+      if (description.length > 10 && !gaps.includes(description)) {
+        gaps.push(description);
+      }
+    }
+
+    // Also extract section names with low scores as gap indicators
+    const sectionGaps = [
+      { pattern: /3rd Party Risk[^1-5]*?1\s+1\s*-/i, label: '3rd Party Risk: assessment not started' },
+      { pattern: /DevSecOps[^1-5]*?[12]\s+[12]\s*-/i, label: 'DevSecOps: security automation not implemented' },
+      { pattern: /Security Operations[^1-5]*?[12]\s+[12]\s*-/i, label: 'Security Operations: playbook not tested' },
+    ];
+
+    for (const { pattern, label } of sectionGaps) {
+      if (pattern.test(secText) && !gaps.some(g => g.toLowerCase().includes(label.split(':')[0].toLowerCase()))) {
+        gaps.push(label);
+      }
+    }
+
+    return gaps.length > 0 ? gaps.slice(0, 8) : ['No critical security gaps identified'];
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // DR STRATEGY
+  // Extracts the BCP/DR section response.
+  // ─────────────────────────────────────────────────────────────────────────
+  private extractDRStrategy(text: string): string {
+    // Look for BCP/DR question response pattern
+    const drMatch = text.match(/BCP\/DR\s+(?:Question\s+Response\s+Comments\s+)?[^1-5]*?([1-5])\s+\1\s*-\s*([^.]{20,400})/i);
+    if (drMatch) {
+      return `Score ${drMatch[1]}/5 - ${drMatch[2].trim()}`;
+    }
+
+    // Fallback: look for disaster recovery text response
+    const drTextMatch = text.match(/disaster\s+recovery[^.]*\.\s*([^.]{30,300})/i);
+    if (drTextMatch) return drTextMatch[1].trim();
+
+    return 'No disaster recovery strategy documented';
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BACKUP STRATEGY
+  // ─────────────────────────────────────────────────────────────────────────
+  private extractBackupStrategy(text: string): string {
+    // Try the standard pattern first
+    const backupMatch = text.match(/Backup\s+(?:Question\s+Response\s+Comments\s+)?[^1-5]*?([1-5])\s+\1\s*-\s*([^.]{20,400})/i);
+    if (backupMatch) {
+      return `Score ${backupMatch[1]}/5 - ${backupMatch[2].trim()}`;
+    }
+    // Fallback: find "Backup" section and grab the score description nearby
+    const backupIdx = text.search(/\bBackup\b[^a-z]/);
+    if (backupIdx >= 0) {
+      const nearby = text.substring(backupIdx, backupIdx + 600);
+      const scoreMatch = nearby.match(/([1-5])\s+\1\s*-\s*([^.]{20,300})/);
+      if (scoreMatch) return `Score ${scoreMatch[1]}/5 - ${scoreMatch[2].trim()}`;
+    }
+    return 'No backup strategy documented';
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // COMPLIANCE REQUIREMENTS
+  // Extracts from text responses (open-ended question about PCI, SOC2, etc.)
+  // ─────────────────────────────────────────────────────────────────────────
+  private extractComplianceRequirements(text: string): string[] {
+    const requirements: string[] = [];
+
+    // Look for compliance question in Text Responses section
+    const complianceMatch = text.match(/workloads that require specific security architecture[^?]+\?\s*([^\n\d]{5,200})/i);
+    if (complianceMatch) {
+      const answer = complianceMatch[1].trim();
+      if (answer.toLowerCase() !== 'no' && answer.length > 2) {
+        requirements.push(answer);
+      }
+    }
+
+    // Look for explicit compliance mentions
+    const complianceKeywords = ['PCI', 'SOC2', 'NIST', 'HITRUST', 'FedRAMP', 'GDPR', 'HIPAA', 'ISO 27001'];
+    for (const kw of complianceKeywords) {
+      if (new RegExp(kw, 'i').test(text)) {
+        requirements.push(kw);
+      }
+    }
+
+    return requirements.length > 0 ? [...new Set(requirements)] : ['No specific compliance requirements identified'];
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TECHNICAL DEBT
+  // Low scores (1-2) in non-security sections indicate technical debt.
+  // ─────────────────────────────────────────────────────────────────────────
+  private extractTechnicalDebt(text: string): string[] {
+    const debt: string[] = [];
+
+    // Find Ratings Responses section
+    const ratingsStart = text.search(/Ratings\s+Responses/i);
+    const secStart = text.search(/Security\s*&\s*Compliance/i);
+    if (ratingsStart < 0) return ['No ratings section found'];
+
+    // Only look before Security section for non-security technical debt
+    const ratingsText = text.substring(ratingsStart, secStart > ratingsStart ? secStart : ratingsStart + 8000);
+
+    // Extract low-score items
+    const lowScorePattern = /([1-2])\s+\1\s*-\s*([^.]{20,200})/g;
+    let match;
+    while ((match = lowScorePattern.exec(ratingsText)) !== null) {
+      const description = match[2].trim();
+      if (description.length > 10 && !debt.includes(description)) {
+        debt.push(`Score ${match[1]}/5: ${description}`);
+      }
+    }
+
+    return debt.length > 0 ? debt.slice(0, 6) : ['No significant technical debt identified'];
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // RECOMMENDATIONS
+  // Extracts from "Text Responses" open-ended section.
+  // ─────────────────────────────────────────────────────────────────────────
+  private extractRecommendations(text: string): string[] {
+    const recommendations: string[] = [];
+
+    // Find Text Responses section
+    const textRespStart = text.search(/Text\s+Responses/i);
+    if (textRespStart < 0) return ['No text responses found'];
+
+    const textRespSection = text.substring(textRespStart, textRespStart + 6000);
+
+    // Extract numbered responses: "N [question] [answer]"
+    // Pattern: number, question text, then the answer (in Spanish or English)
+    const responsePattern = /\b(\d+)\s+[A-Z][^?]+\?\s*([^0-9\n]{30,500}?)(?=\s*\d+\s+[A-Z]|$)/g;
+    let match;
+    while ((match = responsePattern.exec(textRespSection)) !== null) {
+      const answer = match[2].trim();
+      if (answer.length > 20 && !answer.toLowerCase().startsWith('no ') && answer.toLowerCase() !== 'no') {
+        recommendations.push(answer.substring(0, 300));
+      }
+    }
+
+    return recommendations.length > 0 ? recommendations.slice(0, 5) : ['No specific recommendations provided'];
+  }
+
   async validatePdf(buffer: Buffer): Promise<ValidationResult> {
     const errors: string[] = [];
     const warnings: string[] = [];
 
     try {
-      // Check if buffer is valid
       if (!buffer || buffer.length === 0) {
         errors.push('PDF buffer is empty');
         return { valid: false, errors, warnings };
       }
 
-      // Check file size (max 50MB)
-      const maxSize = 50 * 1024 * 1024;
-      if (buffer.length > maxSize) {
-        errors.push(`PDF file size exceeds maximum allowed size of 50MB`);
+      if (buffer.length > 50 * 1024 * 1024) {
+        errors.push('PDF file size exceeds maximum allowed size of 50MB');
         return { valid: false, errors, warnings };
       }
 
-      // Try to parse the PDF and extract text
       const text = await this.extractTextFromPdf(buffer);
-      
-      // Check if text was extracted
+
       if (!text || text.length === 0) {
         errors.push('No text content could be extracted from PDF');
         return { valid: false, errors, warnings };
       }
 
-      // Check minimum content length
       if (text.length < 100) {
         warnings.push('PDF content is very short (less than 100 characters)');
       }
 
-      // Check for common MRA sections (warnings only)
-      const hasMaturitySection = /maturity|madurez/i.test(text);
-      const hasSecuritySection = /security|seguridad|gap|brecha/i.test(text);
-      
-      if (!hasMaturitySection) {
-        warnings.push('No maturity level section detected');
-      }
-      
-      if (!hasSecuritySection) {
-        warnings.push('No security gaps section detected');
+      if (!/migration readiness|MRA|assessment/i.test(text)) {
+        warnings.push('Document does not appear to be an AWS MRA report');
       }
 
-      return {
-        valid: errors.length === 0,
-        errors,
-        warnings
-      };
+      return { valid: errors.length === 0, errors, warnings };
     } catch (error) {
       errors.push(`PDF validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return { valid: false, errors, warnings };
     }
-  }
-
-  /**
-   * Extract maturity level from text (1-5 scale)
-   */
-  private extractMaturityLevel(text: string): number {
-    // Look for patterns like "Maturity Level: 3", "Nivel de Madurez: 3", "Level 3", etc.
-    const patterns = [
-      /maturity\s+level[:\s]+(\d)/i,
-      /nivel\s+de\s+madurez[:\s]+(\d)/i,
-      /level[:\s]+(\d)/i,
-      /nivel[:\s]+(\d)/i
-    ];
-
-    for (const pattern of patterns) {
-      const match = text.match(pattern);
-      if (match && match[1]) {
-        const level = parseInt(match[1], 10);
-        if (level >= 1 && level <= 5) {
-          return level;
-        }
-      }
-    }
-
-    // Default to level 2 if not found
-    return 2;
-  }
-
-  /**
-   * Extract security gaps from text
-   */
-  private extractSecurityGaps(text: string): string[] {
-    const gaps: string[] = [];
-    
-    // Look for security gaps section
-    const securitySection = this.extractSection(text, [
-      'security gaps',
-      'brechas de seguridad',
-      'security findings',
-      'hallazgos de seguridad'
-    ]);
-
-    if (securitySection) {
-      // Extract bullet points or numbered items
-      const items = this.extractListItems(securitySection);
-      gaps.push(...items);
-    }
-
-    // If no gaps found, add a default message
-    if (gaps.length === 0) {
-      gaps.push('No specific security gaps identified in document');
-    }
-
-    return gaps;
-  }
-
-  /**
-   * Extract DR strategy from text
-   */
-  private extractDRStrategy(text: string): string {
-    const drSection = this.extractSection(text, [
-      'disaster recovery',
-      'recuperación ante desastres',
-      'dr strategy',
-      'estrategia de dr',
-      'business continuity',
-      'continuidad del negocio'
-    ]);
-
-    if (drSection) {
-      // Return first paragraph or up to 500 characters
-      return drSection.substring(0, 500).trim();
-    }
-
-    return 'No disaster recovery strategy documented';
-  }
-
-  /**
-   * Extract backup strategy from text
-   */
-  private extractBackupStrategy(text: string): string {
-    const backupSection = this.extractSection(text, [
-      'backup strategy',
-      'estrategia de respaldo',
-      'backup',
-      'respaldo',
-      'data protection',
-      'protección de datos'
-    ]);
-
-    if (backupSection) {
-      return backupSection.substring(0, 500).trim();
-    }
-
-    return 'No backup strategy documented';
-  }
-
-  /**
-   * Extract compliance requirements from text
-   */
-  private extractComplianceRequirements(text: string): string[] {
-    const requirements: string[] = [];
-    
-    const complianceSection = this.extractSection(text, [
-      'compliance',
-      'cumplimiento',
-      'regulatory',
-      'regulatorio',
-      'standards',
-      'estándares'
-    ]);
-
-    if (complianceSection) {
-      const items = this.extractListItems(complianceSection);
-      requirements.push(...items);
-    }
-
-    if (requirements.length === 0) {
-      requirements.push('No specific compliance requirements identified');
-    }
-
-    return requirements;
-  }
-
-  /**
-   * Extract technical debt from text
-   */
-  private extractTechnicalDebt(text: string): string[] {
-    const debt: string[] = [];
-    
-    const debtSection = this.extractSection(text, [
-      'technical debt',
-      'deuda técnica',
-      'legacy',
-      'obsolete',
-      'obsoleto',
-      'end of life',
-      'fin de vida'
-    ]);
-
-    if (debtSection) {
-      const items = this.extractListItems(debtSection);
-      debt.push(...items);
-    }
-
-    if (debt.length === 0) {
-      debt.push('No specific technical debt identified');
-    }
-
-    return debt;
-  }
-
-  /**
-   * Extract recommendations from text
-   */
-  private extractRecommendations(text: string): string[] {
-    const recommendations: string[] = [];
-    
-    const recSection = this.extractSection(text, [
-      'recommendations',
-      'recomendaciones',
-      'next steps',
-      'próximos pasos',
-      'action items',
-      'elementos de acción'
-    ]);
-
-    if (recSection) {
-      const items = this.extractListItems(recSection);
-      recommendations.push(...items);
-    }
-
-    if (recommendations.length === 0) {
-      recommendations.push('No specific recommendations provided');
-    }
-
-    return recommendations;
-  }
-
-  /**
-   * Extract a section of text based on header keywords
-   */
-  private extractSection(text: string, keywords: string[]): string | null {
-    for (const keyword of keywords) {
-      const regex = new RegExp(`${keyword}[:\\s]*([\\s\\S]{0,2000})`, 'i');
-      const match = text.match(regex);
-      if (match && match[1]) {
-        // Extract until next major section or 2000 chars
-        const section = match[1];
-        const nextSectionMatch = section.match(/\n\n[A-Z][^a-z]{10,}|^\d+\.\s+[A-Z]/m);
-        if (nextSectionMatch && nextSectionMatch.index) {
-          return section.substring(0, nextSectionMatch.index);
-        }
-        return section;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Extract list items from text (bullet points, numbered lists)
-   */
-  private extractListItems(text: string): string[] {
-    const items: string[] = [];
-    
-    // Match bullet points (-, *, •) or numbered lists (1., 2., etc.)
-    const patterns = [
-      /^[\s]*[-*•]\s+(.+)$/gm,
-      /^[\s]*\d+\.\s+(.+)$/gm
-    ];
-
-    for (const pattern of patterns) {
-      const matches = text.matchAll(pattern);
-      for (const match of matches) {
-        if (match[1]) {
-          const item = match[1].trim();
-          if (item.length > 10 && item.length < 500) {
-            items.push(item);
-          }
-        }
-      }
-    }
-
-    // If no list items found, try to extract sentences
-    if (items.length === 0) {
-      const sentences = text.split(/[.!?]\s+/);
-      for (const sentence of sentences) {
-        const trimmed = sentence.trim();
-        if (trimmed.length > 20 && trimmed.length < 500) {
-          items.push(trimmed);
-          if (items.length >= 5) break; // Limit to 5 items
-        }
-      }
-    }
-
-    return items;
   }
 }

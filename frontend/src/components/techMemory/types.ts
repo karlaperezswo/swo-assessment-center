@@ -23,7 +23,12 @@ export interface DictionaryEntry {
   definition: string;
   category: string;
   selected: boolean;
-  imageBase64?: string; // imagen opcional adjunta al término
+  imageBase64?: string;
+}
+
+export interface DictionaryCategory {
+  name: string;
+  imageBase64?: string; // imagen de portada de la categoría
 }
 
 export interface WellArchPillar {
@@ -63,6 +68,7 @@ export interface TechMemoryData {
 
   // Dictionary / Knowledge base
   dictionary: DictionaryEntry[];
+  dictCategories: DictionaryCategory[]; // imágenes por categoría
 
   // Well-Architected recommendations
   wellArch: WellArchPillar[];

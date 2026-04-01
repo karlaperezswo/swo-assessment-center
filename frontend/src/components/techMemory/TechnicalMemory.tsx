@@ -1,7 +1,7 @@
-﻿import { useState, useRef } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api';
-import { TechMemoryData, AWSServiceEntry, DictionaryEntry, WellArchPillar } from './types';
+import { TechMemoryData, AWSServiceEntry, DictionaryEntry, WellArchPillar, DictionaryCategory } from './types';
 import { exportTechMemoryWord } from './wordExporter';
 import {
   Search, Plus, Trash2, Download, Upload, RefreshCw,
@@ -140,6 +140,8 @@ const DEFAULT_DICTIONARY: DictionaryEntry[] = [
   { id: 'd20', term: 'TCO',                  category: 'Negocio',          selected: false, definition: 'Total Cost of Ownership. Costo total de propiedad que incluye todos los costos directos e indirectos asociados a un activo tecnológico.' },
 ];
 
+const STORAGE_KEY = 'tm_dictionary_v1';
+
 const emptyData = (): TechMemoryData => ({
   projectName: '',
   clientName: '',
@@ -160,14 +162,28 @@ const emptyData = (): TechMemoryData => ({
   conclusions: DEFAULT_CONCLUSIONS,
   services: [],
   dictionary: DEFAULT_DICTIONARY,
+  dictCategories: [],
   wellArch: DEFAULT_WELL_ARCH,
   thankYouLetter: DEFAULT_THANK_YOU,
   thankYouDate: new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
   itTeam: '',
 });
 
+// Carga el diccionario guardado en localStorage (persiste entre sesiones)
+function loadSavedDictionary(): { dictionary: DictionaryEntry[]; dictCategories: any[] } {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return { dictionary: DEFAULT_DICTIONARY, dictCategories: [] };
+}
+
 export function TechnicalMemory() {
-  const [data, setData] = useState<TechMemoryData>(emptyData());
+  const [data, setData] = useState<TechMemoryData>(() => {
+    const base = emptyData();
+    const saved = loadSavedDictionary();
+    return { ...base, dictionary: saved.dictionary, dictCategories: saved.dictCategories };
+  });
   const [activeTab, setActiveTab] = useState<'project'|'company'|'services'|'dictionary'|'document'|'wellarch'|'letter'>('project');
   const [serviceSearch, setServiceSearch] = useState('');
   const [serviceUrl, setServiceUrl] = useState('');
@@ -183,7 +199,20 @@ export function TechnicalMemory() {
   );
   const [dictSearch, setDictSearch] = useState('');
   const [newTerm, setNewTerm] = useState({ term: '', definition: '', category: '' });
+  const [dictPage, setDictPage] = useState(1);
+  const [dictCatFilter, setDictCatFilter] = useState<string>('');
+  const DICT_PAGE_SIZE = 6;
   const clientLogoRef = useRef<HTMLInputElement>(null);
+
+  // ── Persistencia automática del diccionario ────────────────────────────────
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        dictionary: data.dictionary,
+        dictCategories: data.dictCategories,
+      }));
+    } catch {}
+  }, [data.dictionary, data.dictCategories]);
 
   const set = (field: keyof TechMemoryData, value: any) =>
     setData(prev => ({ ...prev, [field]: value }));
@@ -405,6 +434,25 @@ export function TechnicalMemory() {
 
   const removeDictEntry = (id: string) =>
     setData(prev => ({ ...prev, dictionary: prev.dictionary.filter(d => d.id !== id) }));
+
+  const clearAllDict = () => {
+    if (window.confirm('¿Borrar todo el diccionario? Esta acción no se puede deshacer.')) {
+      setData(prev => ({ ...prev, dictionary: [], dictCategories: [] }));
+      setDictPage(1);
+    }
+  };
+
+  const setCategoryImage = (catName: string, imageBase64: string | undefined) =>
+    setData(prev => {
+      const existing = prev.dictCategories.find(c => c.name === catName);
+      if (existing) {
+        return { ...prev, dictCategories: prev.dictCategories.map(c => c.name === catName ? { ...c, imageBase64 } : c) };
+      }
+      return { ...prev, dictCategories: [...prev.dictCategories, { name: catName, imageBase64 }] };
+    });
+
+  const getCategoryImage = (catName: string) =>
+    data.dictCategories.find(c => c.name === catName)?.imageBase64;
 
   const selectedCount = data.dictionary.filter(d => d.selected).length;
 
@@ -934,100 +982,157 @@ export function TechnicalMemory() {
         </div>
       )}
 
-      {/* ── TAB: Diccionario ──────────────────────────────────────────────── */}
-      {activeTab === 'dictionary' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {/* Agregar término nuevo */}
-          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
-            <div style={{ background: GRADIENT, padding: '10px 18px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Agregar Término al Diccionario</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
-                Los términos seleccionados se incluyen automáticamente en el Word como Glosario
-              </div>
-            </div>
-            <div style={{ padding: '16px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 10, alignItems: 'end' }}>
-              <div>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>Término *</label>
-                <input value={newTerm.term} onChange={e => setNewTerm(p => ({ ...p, term: e.target.value }))}
-                  placeholder="ej. Kubernetes"
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-              </div>
-              <div>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>Categoría</label>
-                <input value={newTerm.category} onChange={e => setNewTerm(p => ({ ...p, category: e.target.value }))}
-                  placeholder="ej. Tecnologías"
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-              </div>
-              <div>
-                <label style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 4 }}>Definición *</label>
-                <input value={newTerm.definition} onChange={e => setNewTerm(p => ({ ...p, definition: e.target.value }))}
-                  placeholder="Definición del término..."
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-              </div>
-              <button onClick={addDictEntry}
-                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 16px', borderRadius: 7,
-                  border: 'none', background: GRADIENT_H, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                <Plus style={{ width: 13, height: 13 }} /> Agregar
-              </button>
-            </div>
-          </div>
+      {/* ── TAB: Diccionario ────────────────────────────────────────────────── */}
+      {activeTab === 'dictionary' && (() => {
+        // Filtrado
+        const allCats = [...new Set(data.dictionary.map(d => d.category || 'General'))];
+        const filtered = data.dictionary.filter(d => {
+          const matchCat = !dictCatFilter || (d.category || 'General') === dictCatFilter;
+          const matchSearch = !dictSearch || d.term.toLowerCase().includes(dictSearch.toLowerCase()) || d.definition.toLowerCase().includes(dictSearch.toLowerCase());
+          return matchCat && matchSearch;
+        });
+        const totalPages = Math.max(1, Math.ceil(filtered.length / DICT_PAGE_SIZE));
+        const paginated = filtered.slice((dictPage - 1) * DICT_PAGE_SIZE, dictPage * DICT_PAGE_SIZE);
+        const catsByPage = [...new Set(paginated.map(d => d.category || 'General'))];
 
-          {/* Filtro y lista */}
-          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
-            <div style={{ padding: '12px 16px', borderBottom: '1px solid #fce4ec', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Search style={{ width: 14, height: 14, color: '#9c27b0' }} />
-              <input value={dictSearch} onChange={e => setDictSearch(e.target.value)}
-                placeholder="Filtrar términos..."
-                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, color: '#374151' }} />
-              <span style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, background: '#f3e8ff', borderRadius: 10, padding: '2px 10px' }}>
-                {selectedCount} seleccionados → Word
-              </span>
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+            {/* Barra de control */}
+            <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
+              <div style={{ background: GRADIENT, padding: '10px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>
+                  Base de Conocimiento — {data.dictionary.length} términos · {selectedCount} seleccionados
+                </div>
+                <button onClick={clearAllDict}
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 6,
+                    border: '1px solid rgba(255,100,100,0.5)', background: 'rgba(255,100,100,0.2)',
+                    color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                  <Trash2 style={{ width: 12, height: 12 }} /> Borrar todo
+                </button>
+              </div>
+              <div style={{ padding: '12px 16px', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                <Search style={{ width: 14, height: 14, color: '#9c27b0', flexShrink: 0 }} />
+                <input value={dictSearch} onChange={e => { setDictSearch(e.target.value); setDictPage(1); }}
+                  placeholder="Filtrar términos..."
+                  style={{ flex: 1, minWidth: 160, border: 'none', outline: 'none', fontSize: 13, color: '#374151' }} />
+                <select value={dictCatFilter} onChange={e => { setDictCatFilter(e.target.value); setDictPage(1); }}
+                  style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 12, color: '#9c27b0', outline: 'none' }}>
+                  <option value="">Todas las categorías</option>
+                  {allCats.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <span style={{ fontSize: 11, color: '#9c27b0', fontWeight: 600, background: '#f3e8ff', borderRadius: 10, padding: '2px 10px' }}>
+                  {selectedCount} → Word
+                </span>
+              </div>
             </div>
 
-            {/* Group by category */}
-            {(() => {
-              const filtered = data.dictionary.filter(d =>
-                !dictSearch || d.term.toLowerCase().includes(dictSearch.toLowerCase()) ||
-                d.definition.toLowerCase().includes(dictSearch.toLowerCase()) ||
-                d.category.toLowerCase().includes(dictSearch.toLowerCase())
-              );
-              const categories = [...new Set(filtered.map(d => d.category || 'General'))];
-              return categories.map(cat => (
-                <div key={cat}>
-                  <div style={{ padding: '6px 16px', background: '#f3e8ff', fontSize: 11, fontWeight: 700, color: '#7b2ff7', borderBottom: '1px solid #fce4ec' }}>
-                    {cat}
+            {/* Agregar término */}
+            <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
+              <div style={{ background: GRADIENT, padding: '8px 18px' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>Agregar Término</div>
+              </div>
+              <div style={{ padding: '12px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 10, alignItems: 'end' }}>
+                <div>
+                  <label style={{ fontSize: 10, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 3 }}>Término *</label>
+                  <input value={newTerm.term} onChange={e => setNewTerm(p => ({ ...p, term: e.target.value }))}
+                    placeholder="ej. Kubernetes"
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid #fce4ec', fontSize: 12, outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 10, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 3 }}>Categoría</label>
+                  <input value={newTerm.category} onChange={e => setNewTerm(p => ({ ...p, category: e.target.value }))}
+                    placeholder="ej. Tecnologías"
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid #fce4ec', fontSize: 12, outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 10, color: '#9c27b0', fontWeight: 600, display: 'block', marginBottom: 3 }}>Definición *</label>
+                  <input value={newTerm.definition} onChange={e => setNewTerm(p => ({ ...p, definition: e.target.value }))}
+                    placeholder="Definición del término..."
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid #fce4ec', fontSize: 12, outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <button onClick={addDictEntry}
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 7,
+                    border: 'none', background: GRADIENT_H, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                  <Plus style={{ width: 13, height: 13 }} /> Agregar
+                </button>
+              </div>
+            </div>
+
+            {/* Tarjetas paginadas por categoría */}
+            {catsByPage.map(cat => {
+              const catEntries = paginated.filter(d => (d.category || 'General') === cat);
+              const catImg = getCategoryImage(cat);
+              return (
+                <div key={cat} style={{ background: '#fff', borderRadius: 10, border: '1px solid #fce4ec', overflow: 'hidden' }}>
+                  {/* Header de categoría con imagen */}
+                  <div style={{ background: 'linear-gradient(90deg,#e91e8c22,#9c27b022)', padding: '10px 16px',
+                    display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid #fce4ec' }}>
+                    {catImg && <img src={catImg} alt={cat} style={{ height: 36, width: 36, objectFit: 'cover', borderRadius: 6, border: '1px solid #fce4ec' }} />}
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#9c27b0', flex: 1 }}>{cat}</span>
+                    {/* Subir imagen de categoría */}
+                    <label title="Imagen de categoría (o pega con Ctrl+V)"
+                      style={{ cursor: 'pointer', color: catImg ? '#e91e8c' : '#9c27b0', display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 600 }}>
+                      <Upload style={{ width: 12, height: 12 }} /> {catImg ? 'Cambiar imagen' : 'Agregar imagen'}
+                      <input type="file" accept="image/*" style={{ display: 'none' }}
+                        onChange={e => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = ev => setCategoryImage(cat, ev.target?.result as string);
+                          reader.readAsDataURL(file);
+                        }} />
+                    </label>
+                    {catImg && (
+                      <button onClick={() => setCategoryImage(cat, undefined)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 10 }}>
+                        <Trash2 style={{ width: 11, height: 11 }} />
+                      </button>
+                    )}
                   </div>
-                  {filtered.filter(d => (d.category || 'General') === cat).map((entry, i) => (
+
+                  {/* Zona paste de imagen */}
+                  <div
+                    onPaste={e => {
+                      const items = Array.from(e.clipboardData.items);
+                      const imgItem = items.find(it => it.type.startsWith('image/'));
+                      if (imgItem) {
+                        const blob = imgItem.getAsFile();
+                        if (blob) {
+                          const reader = new FileReader();
+                          reader.onload = ev => setCategoryImage(cat, ev.target?.result as string);
+                          reader.readAsDataURL(blob);
+                        }
+                      }
+                    }}
+                    tabIndex={0}
+                    style={{ padding: '4px 16px', background: '#fdf4ff', fontSize: 10, color: '#c084fc',
+                      borderBottom: '1px solid #fce4ec', outline: 'none', cursor: 'text' }}>
+                    📋 Haz clic aquí y pega una imagen con Ctrl+V para esta categoría
+                  </div>
+
+                  {/* Entradas */}
+                  {catEntries.map((entry, i) => (
                     <div key={entry.id}
                       style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 16px',
-                        borderBottom: '1px solid #fce4ec', background: i % 2 === 0 ? '#fff' : '#fdf4ff',
-                        transition: 'background 0.1s' }}>
+                        borderBottom: '1px solid #fce4ec', background: i % 2 === 0 ? '#fff' : '#fdf4ff' }}>
                       {/* Checkbox */}
                       <div style={{ flexShrink: 0, marginTop: 2, color: entry.selected ? '#e91e8c' : '#d1d5db', cursor: 'pointer' }}
                         onClick={() => toggleDictEntry(entry.id)}>
-                        {entry.selected
-                          ? <CheckSquare style={{ width: 16, height: 16 }} />
-                          : <Square style={{ width: 16, height: 16 }} />}
+                        {entry.selected ? <CheckSquare style={{ width: 16, height: 16 }} /> : <Square style={{ width: 16, height: 16 }} />}
                       </div>
                       {/* Contenido */}
                       <div style={{ flex: 1, minWidth: 0, cursor: 'pointer' }} onClick={() => toggleDictEntry(entry.id)}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: entry.selected ? '#e91e8c' : '#0f172a' }}>
-                          {entry.term}
-                        </div>
-                        <div style={{ fontSize: 11, color: '#475569', marginTop: 2, lineHeight: 1.5 }}>
-                          {entry.definition}
-                        </div>
-                        {/* Imagen adjunta */}
+                        <div style={{ fontSize: 13, fontWeight: 700, color: entry.selected ? '#e91e8c' : '#0f172a' }}>{entry.term}</div>
+                        <div style={{ fontSize: 11, color: '#475569', marginTop: 2, lineHeight: 1.5 }}>{entry.definition}</div>
                         {entry.imageBase64 && (
                           <img src={entry.imageBase64} alt={entry.term}
                             style={{ marginTop: 6, maxWidth: 160, maxHeight: 100, borderRadius: 6,
                               border: '1px solid #fce4ec', objectFit: 'contain', display: 'block' }} />
                         )}
                       </div>
-                      {/* Botón subir imagen */}
-                      <label title="Adjuntar imagen"
-                        style={{ flexShrink: 0, cursor: 'pointer', color: entry.imageBase64 ? '#e91e8c' : '#9c27b0',
-                          padding: 4, display: 'flex', alignItems: 'center' }}
+                      {/* Subir imagen al término */}
+                      <label title="Adjuntar imagen al término" style={{ flexShrink: 0, cursor: 'pointer', color: entry.imageBase64 ? '#e91e8c' : '#9c27b0', padding: 4 }}
                         onClick={e => e.stopPropagation()}>
                         <Upload style={{ width: 13, height: 13 }} />
                         <input type="file" accept="image/*" style={{ display: 'none' }}
@@ -1035,44 +1140,67 @@ export function TechnicalMemory() {
                             const file = e.target.files?.[0];
                             if (!file) return;
                             const reader = new FileReader();
-                            reader.onload = ev => {
-                              setData(prev => ({
-                                ...prev,
-                                dictionary: prev.dictionary.map(d =>
-                                  d.id === entry.id ? { ...d, imageBase64: ev.target?.result as string } : d
-                                ),
-                              }));
-                            };
+                            reader.onload = ev => setData(prev => ({
+                              ...prev,
+                              dictionary: prev.dictionary.map(d => d.id === entry.id ? { ...d, imageBase64: ev.target?.result as string } : d),
+                            }));
                             reader.readAsDataURL(file);
                           }} />
                       </label>
-                      {/* Quitar imagen si existe */}
                       {entry.imageBase64 && (
-                        <button title="Quitar imagen"
-                          onClick={e => { e.stopPropagation();
-                            setData(prev => ({ ...prev, dictionary: prev.dictionary.map(d => d.id === entry.id ? { ...d, imageBase64: undefined } : d) }));
-                          }}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f59e0b', flexShrink: 0, padding: 4 }}>
+                        <button title="Quitar imagen" onClick={e => { e.stopPropagation();
+                          setData(prev => ({ ...prev, dictionary: prev.dictionary.map(d => d.id === entry.id ? { ...d, imageBase64: undefined } : d) }));
+                        }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f59e0b', flexShrink: 0, padding: 4 }}>
                           <Trash2 style={{ width: 11, height: 11 }} />
                         </button>
                       )}
-                      {/* Eliminar entrada */}
-                      <button onClick={e => { e.stopPropagation(); removeDictEntry(entry.id); }}
+                      {/* Caneca — borrar entrada */}
+                      <button title="Eliminar término" onClick={e => { e.stopPropagation(); removeDictEntry(entry.id); }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', flexShrink: 0, padding: 4 }}>
                         <Trash2 style={{ width: 13, height: 13 }} />
                       </button>
                     </div>
                   ))}
                 </div>
-              ));
-            })()}
-          </div>
+              );
+            })}
 
-          <div style={{ fontSize: 11, color: '#9c27b0', padding: '8px 12px', background: '#f3e8ff', borderRadius: 8, border: '1px solid #fce4ec' }}>
-            Haz clic en cualquier término para seleccionarlo/deseleccionarlo. Los términos seleccionados aparecerán en la sección "Glosario" del documento Word exportado.
+            {filtered.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8', background: '#fff', borderRadius: 10, border: '1px dashed #fce4ec' }}>
+                No hay términos que coincidan con el filtro.
+              </div>
+            )}
+
+            {/* Paginación */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <button onClick={() => setDictPage(p => Math.max(1, p - 1))} disabled={dictPage === 1}
+                  style={{ padding: '6px 14px', borderRadius: 7, border: '1px solid #fce4ec', background: dictPage === 1 ? '#f9fafb' : '#fff',
+                    color: dictPage === 1 ? '#d1d5db' : '#9c27b0', cursor: dictPage === 1 ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600 }}>
+                  ← Anterior
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <button key={p} onClick={() => setDictPage(p)}
+                    style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid #fce4ec', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                      background: p === dictPage ? GRADIENT_H : '#fff', color: p === dictPage ? '#fff' : '#9c27b0' }}>
+                    {p}
+                  </button>
+                ))}
+                <button onClick={() => setDictPage(p => Math.min(totalPages, p + 1))} disabled={dictPage === totalPages}
+                  style={{ padding: '6px 14px', borderRadius: 7, border: '1px solid #fce4ec', background: dictPage === totalPages ? '#f9fafb' : '#fff',
+                    color: dictPage === totalPages ? '#d1d5db' : '#9c27b0', cursor: dictPage === totalPages ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600 }}>
+                  Siguiente →
+                </button>
+                <span style={{ fontSize: 11, color: '#9c27b0' }}>Página {dictPage} de {totalPages} · {filtered.length} términos</span>
+              </div>
+            )}
+
+            <div style={{ fontSize: 11, color: '#9c27b0', padding: '8px 12px', background: '#f3e8ff', borderRadius: 8, border: '1px solid #fce4ec' }}>
+              ✅ El diccionario se guarda automáticamente. Los términos seleccionados aparecen en el Glosario del Word.
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ── TAB: Documento ────────────────────────────────────────────────── */}
       {activeTab === 'document' && (

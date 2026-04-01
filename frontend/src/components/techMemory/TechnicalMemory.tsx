@@ -1001,23 +1001,62 @@ export function TechnicalMemory() {
                     <div key={entry.id}
                       style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 16px',
                         borderBottom: '1px solid #fce4ec', background: i % 2 === 0 ? '#fff' : '#fdf4ff',
-                        transition: 'background 0.1s', cursor: 'pointer' }}
-                      onClick={() => toggleDictEntry(entry.id)}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#f3e8ff')}
-                      onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? '#fff' : '#fdf4ff')}>
-                      <div style={{ flexShrink: 0, marginTop: 2, color: entry.selected ? '#e91e8c' : '#d1d5db' }}>
+                        transition: 'background 0.1s' }}>
+                      {/* Checkbox */}
+                      <div style={{ flexShrink: 0, marginTop: 2, color: entry.selected ? '#e91e8c' : '#d1d5db', cursor: 'pointer' }}
+                        onClick={() => toggleDictEntry(entry.id)}>
                         {entry.selected
                           ? <CheckSquare style={{ width: 16, height: 16 }} />
                           : <Square style={{ width: 16, height: 16 }} />}
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      {/* Contenido */}
+                      <div style={{ flex: 1, minWidth: 0, cursor: 'pointer' }} onClick={() => toggleDictEntry(entry.id)}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: entry.selected ? '#e91e8c' : '#0f172a' }}>
                           {entry.term}
                         </div>
                         <div style={{ fontSize: 11, color: '#475569', marginTop: 2, lineHeight: 1.5 }}>
                           {entry.definition}
                         </div>
+                        {/* Imagen adjunta */}
+                        {entry.imageBase64 && (
+                          <img src={entry.imageBase64} alt={entry.term}
+                            style={{ marginTop: 6, maxWidth: 160, maxHeight: 100, borderRadius: 6,
+                              border: '1px solid #fce4ec', objectFit: 'contain', display: 'block' }} />
+                        )}
                       </div>
+                      {/* Botón subir imagen */}
+                      <label title="Adjuntar imagen"
+                        style={{ flexShrink: 0, cursor: 'pointer', color: entry.imageBase64 ? '#e91e8c' : '#9c27b0',
+                          padding: 4, display: 'flex', alignItems: 'center' }}
+                        onClick={e => e.stopPropagation()}>
+                        <Upload style={{ width: 13, height: 13 }} />
+                        <input type="file" accept="image/*" style={{ display: 'none' }}
+                          onChange={e => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = ev => {
+                              setData(prev => ({
+                                ...prev,
+                                dictionary: prev.dictionary.map(d =>
+                                  d.id === entry.id ? { ...d, imageBase64: ev.target?.result as string } : d
+                                ),
+                              }));
+                            };
+                            reader.readAsDataURL(file);
+                          }} />
+                      </label>
+                      {/* Quitar imagen si existe */}
+                      {entry.imageBase64 && (
+                        <button title="Quitar imagen"
+                          onClick={e => { e.stopPropagation();
+                            setData(prev => ({ ...prev, dictionary: prev.dictionary.map(d => d.id === entry.id ? { ...d, imageBase64: undefined } : d) }));
+                          }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f59e0b', flexShrink: 0, padding: 4 }}>
+                          <Trash2 style={{ width: 11, height: 11 }} />
+                        </button>
+                      )}
+                      {/* Eliminar entrada */}
                       <button onClick={e => { e.stopPropagation(); removeDictEntry(entry.id); }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', flexShrink: 0, padding: 4 }}>
                         <Trash2 style={{ width: 13, height: 13 }} />

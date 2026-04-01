@@ -248,7 +248,10 @@ function buildGlossarySection(terms: DictionaryEntry[]): string {
       const bg = i % 2 === 0 ? '#ffffff' : '#fdf4ff';
       rows += `<tr style="background:${bg}">
         <td style="padding:6px 10px;border:1px solid #e9d5ff;font-weight:600;font-size:10pt;width:25%;vertical-align:top">${escHtml(e.term)}</td>
-        <td style="padding:6px 10px;border:1px solid #e9d5ff;font-size:10pt">${escHtml(e.definition)}</td>
+        <td style="padding:6px 10px;border:1px solid #e9d5ff;font-size:10pt;vertical-align:top">
+          ${escHtml(e.definition)}
+          ${e.imageBase64 ? `<br/><img src="${e.imageBase64}" alt="${escHtml(e.term)}" style="max-width:180px;max-height:120px;margin-top:6pt;border:1px solid #e9d5ff;border-radius:4pt" />` : ''}
+        </td>
       </tr>`;
     });
   });

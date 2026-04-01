@@ -22,7 +22,8 @@ export interface DictionaryEntry {
   term: string;
   definition: string;
   category: string;
-  selected: boolean; // si está seleccionado se incluye en el Word
+  selected: boolean;
+  imageBase64?: string; // imagen opcional adjunta al término
 }
 
 export interface WellArchPillar {

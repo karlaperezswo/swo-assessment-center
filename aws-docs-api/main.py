@@ -870,20 +870,52 @@ async def consulta_libre(
         except Exception as e:
             error_msg = str(e)
             result_text = ""
+            sources = []
+
+        # Si DuckDuckGo no dio resultados, construir URLs directas de AWS
+        if not sources or len(sources) < 2:
+            slug = q.lower().replace("amazon ", "").replace("aws ", "").strip()
+            slug = re.sub(r'[^a-z0-9\s-]', '', slug).replace(' ', '-')
+            direct_urls = [
+                f"https://aws.amazon.com/{slug}/",
+                f"https://aws.amazon.com/es/{slug}/",
+                f"https://docs.aws.amazon.com/{slug}/latest/userguide/what-is-{slug}.html",
+                f"https://aws.amazon.com/{slug}/features/",
+                f"https://aws.amazon.com/{slug}/faqs/",
+                f"https://repost.aws/search?searchTerm={q.replace(' ', '+')}",
+            ]
+            for u in direct_urls:
+                if u not in sources:
+                    sources.append(u)
 
         # Scraping de las primeras páginas encontradas para más contenido e imágenes
-        if sources:
-            extra_texts = []
-            for url in sources[:4]:  # hasta 4 páginas
-                try:
-                    page_text, page_images = await _scrape_with_images(url)
-                    if page_text and len(page_text) > 100:
-                        extra_texts.append(f"## Fuente: {url}\n{page_text}")
+        extra_texts = []
+        for url in sources[:5]:
+            try:
+                page_text, page_images = await _scrape_with_images(url)
+                if page_text and len(page_text) > 200:
+                    extra_texts.append(f"## Fuente: {url}\n{page_text}")
+                images.extend(page_images)
+            except Exception:
+                continue
+
+        if extra_texts:
+            result_text = (result_text + "\n\n" + "\n\n".join(extra_texts)).strip()
+
+        # Si aún no hay contenido, intentar scraping directo de AWS
+        if not result_text or len(result_text) < 200:
+            slug = q.lower().replace("amazon ", "").replace("aws ", "").strip()
+            slug = re.sub(r'[^a-z0-9\s-]', '', slug).replace(' ', '-')
+            fallback_url = f"https://aws.amazon.com/{slug}/"
+            try:
+                page_text, page_images = await _scrape_with_images(fallback_url)
+                if page_text:
+                    result_text = page_text
                     images.extend(page_images)
-                except Exception:
-                    continue
-            if extra_texts:
-                result_text = (result_text + "\n\n" + "\n\n".join(extra_texts)).strip()
+                    if fallback_url not in sources:
+                        sources.insert(0, fallback_url)
+            except Exception:
+                pass
 
     if not result_text and not error_msg:
         return {

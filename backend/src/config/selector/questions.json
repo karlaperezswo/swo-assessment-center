@@ -18,7 +18,7 @@
           "id": "q2",
           "text": "¿Cuántos servidores físicos y virtuales tienen actualmente?",
           "type": "multiple",
-          "options": ["<30", "100–500", "500-999", ">1000"],
+          "options": ["<100", "100-500", "501-999", ">1000"],
           "helpText": "Incluir tanto servidores físicos como virtuales en el conteo"
         },
         {
@@ -38,8 +38,8 @@
         {
           "id": "q5",
           "text": "¿Tienen múltiples data centers o solo uno?",
-          "type": "boolean",
-          "options": ["Si", "No"],
+          "type": "multiple",
+          "options": ["Múltiples", "Uno Solo"],
           "helpText": "Considerar data centers físicamente separados"
         }
       ]
@@ -195,8 +195,8 @@
         {
           "id": "q21",
           "text": "¿Se planea incluir aplicaciones y dependencias (Application Discovery) o solo servidores?",
-          "type": "boolean",
-          "options": ["Si", "No"],
+          "type": "multiple",
+          "options": ["Apps y Dependencias", "Solo Servidores"],
           "helpText": "Mapeo de dependencias entre aplicaciones y servidores"
         }
       ]

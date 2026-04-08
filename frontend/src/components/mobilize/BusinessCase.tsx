@@ -17,69 +17,48 @@ import { NetworkTransferChart } from './NetworkTransferChart';
 import { SupportRiskAnalysis } from './SupportRiskAnalysis';
 import { TCOCostInput } from './TCOCostInput';
 import { TCOChart } from './TCOChart';
-import { BusinessCaseUploadResponse, BusinessCaseClientData, TCO1YearUploadResponse, CarbonReportUploadResponse } from '@/types/assessment';
+import { BusinessCaseUploadResponse, BusinessCaseClientData, TCO1YearUploadResponse, CarbonReportUploadResponse, BusinessCasePersistedState } from '@/types/assessment';
 import { Briefcase, TrendingUp, Upload, Building2, ChevronDown, ChevronUp } from 'lucide-react';
 
-export function BusinessCase() {
-  const [businessCaseData, setBusinessCaseData] = useState<BusinessCaseUploadResponse | null>(null);
-  const [tco1YearData, setTCO1YearData] = useState<TCO1YearUploadResponse | null>(null);
-  const [carbonReportData, setCarbonReportData] = useState<CarbonReportUploadResponse | null>(null);
-  const [assessmentTool, setAssessmentTool] = useState<string>(''); // Mandatory tool selection
-  const [showOSDistribution, setShowOSDistribution] = useState<boolean>(true); // Accordion state
-  const [showResourceOptimization, setShowResourceOptimization] = useState<boolean>(true); // Accordion state
-  const [showTCOChart, setShowTCOChart] = useState<boolean>(true); // Accordion state for TCO
-  const [showCarbonReport, setShowCarbonReport] = useState<boolean>(true); // Accordion state for Carbon Report
-  const [showSQLLicensing, setShowSQLLicensing] = useState<boolean>(false); // Accordion state for SQL Licensing - CLOSED by default
-  const [showInstanceTypes, setShowInstanceTypes] = useState<boolean>(false); // Accordion state for Instance Types - CLOSED by default
-  const [showNetworkTransfer, setShowNetworkTransfer] = useState<boolean>(false); // Accordion state for Network Transfer - CLOSED by default
-  const [showSupportRisk, setShowSupportRisk] = useState<boolean>(false); // Accordion state for Support Risk - CLOSED by default
-  const [showMigrationStrategy, setShowMigrationStrategy] = useState<boolean>(true); // Accordion state for Migration Strategy
-  const [enableRDSScenario, setEnableRDSScenario] = useState<boolean>(false); // Enable RDS scenario
-  
-  // TCO Cost states - EC2 Scenario
-  const [onDemandAsIs, setOnDemandAsIs] = useState<number>(0);
-  const [oneYearOptimized, setOneYearOptimized] = useState<number>(0);
-  const [threeYearOptimized, setThreeYearOptimized] = useState<number>(0);
-  
-  // TCO Cost states - RDS Scenario
-  const [onDemandAsIsRDS, setOnDemandAsIsRDS] = useState<number>(0);
-  const [oneYearOptimizedRDS, setOneYearOptimizedRDS] = useState<number>(0);
-  const [threeYearOptimizedRDS, setThreeYearOptimizedRDS] = useState<number>(0);
-  
-  const [clientData, setClientData] = useState<BusinessCaseClientData>({
-    clientName: '',
-    assessmentTool: 'Cloudamize',
-    otherToolName: undefined,
-    vertical: 'Technology',
-    reportDate: new Date().toISOString().split('T')[0],
-    awsRegion: 'us-east-1',
-    totalServers: 0,
-    onPremisesCost: 0,
-    companyDescription: '',
-    priorities: [],
-    migrationReadiness: 'evaluating',
-  });
+interface BusinessCaseProps {
+  businessCaseState: BusinessCasePersistedState;
+  onBusinessCaseStateChange: (updater: (prev: BusinessCasePersistedState) => BusinessCasePersistedState) => void;
+}
 
-  const handleDataLoaded = (data: BusinessCaseUploadResponse) => {
-    setBusinessCaseData(data);
-  };
+export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: BusinessCaseProps) {
+  const {
+    businessCaseData, tco1YearData, carbonReportData,
+    assessmentTool, clientData,
+    onDemandAsIs, oneYearOptimized, threeYearOptimized,
+    onDemandAsIsRDS, oneYearOptimizedRDS, threeYearOptimizedRDS,
+    enableRDSScenario,
+  } = businessCaseState;
 
-  const handleTCO1YearLoaded = (data: TCO1YearUploadResponse) => {
-    setTCO1YearData(data);
-  };
+  const set = <K extends keyof BusinessCasePersistedState>(key: K, value: BusinessCasePersistedState[K]) =>
+    onBusinessCaseStateChange(prev => ({ ...prev, [key]: value }));
 
-  const handleCarbonReportLoaded = (data: CarbonReportUploadResponse) => {
-    setCarbonReportData(data);
-  };
+  // Accordion UI state — local only, OK to reset on tab switch
+  const [showOSDistribution, setShowOSDistribution] = useState<boolean>(true);
+  const [showResourceOptimization, setShowResourceOptimization] = useState<boolean>(true);
+  const [showTCOChart, setShowTCOChart] = useState<boolean>(true);
+  const [showCarbonReport, setShowCarbonReport] = useState<boolean>(true);
+  const [showSQLLicensing, setShowSQLLicensing] = useState<boolean>(false);
+  const [showInstanceTypes, setShowInstanceTypes] = useState<boolean>(false);
+  const [showNetworkTransfer, setShowNetworkTransfer] = useState<boolean>(false);
+  const [showSupportRisk, setShowSupportRisk] = useState<boolean>(false);
+  const [showMigrationStrategy, setShowMigrationStrategy] = useState<boolean>(true);
 
-  const handleClientDataChange = (data: BusinessCaseClientData) => {
-    setClientData(data);
-  };
+  const handleDataLoaded = (data: BusinessCaseUploadResponse) => set('businessCaseData', data);
+  const handleTCO1YearLoaded = (data: TCO1YearUploadResponse) => set('tco1YearData', data);
+  const handleCarbonReportLoaded = (data: CarbonReportUploadResponse) => set('carbonReportData', data);
+  const handleClientDataChange = (data: BusinessCaseClientData) => set('clientData', data);
 
-  // Update assessment tool in client data when changed
   const handleToolChange = (tool: string) => {
-    setAssessmentTool(tool);
-    setClientData(prev => ({ ...prev, assessmentTool: tool as any }));
+    onBusinessCaseStateChange(prev => ({
+      ...prev,
+      assessmentTool: tool,
+      clientData: { ...prev.clientData, assessmentTool: tool as any },
+    }));
   };
 
   return (
@@ -334,9 +313,9 @@ export function BusinessCase() {
                     onDemandAsIs={onDemandAsIs}
                     oneYearOptimized={oneYearOptimized}
                     threeYearOptimized={threeYearOptimized}
-                    onOnDemandAsIsChange={setOnDemandAsIs}
-                    onOneYearOptimizedChange={setOneYearOptimized}
-                    onThreeYearOptimizedChange={setThreeYearOptimized}
+                    onOnDemandAsIsChange={v => set('onDemandAsIs', v)}
+                    onOneYearOptimizedChange={v => set('oneYearOptimized', v)}
+                    onThreeYearOptimizedChange={v => set('threeYearOptimized', v)}
                   />
                   
                   <TCOChart
@@ -354,7 +333,7 @@ export function BusinessCase() {
                     type="checkbox"
                     id="enableRDS"
                     checked={enableRDSScenario}
-                    onChange={(e) => setEnableRDSScenario(e.target.checked)}
+                    onChange={(e) => set('enableRDSScenario', e.target.checked)}
                     className="h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   />
                   <label htmlFor="enableRDS" className="text-sm font-medium text-blue-900 cursor-pointer">
@@ -375,9 +354,9 @@ export function BusinessCase() {
                         onDemandAsIs={onDemandAsIsRDS}
                         oneYearOptimized={oneYearOptimizedRDS}
                         threeYearOptimized={threeYearOptimizedRDS}
-                        onOnDemandAsIsChange={setOnDemandAsIsRDS}
-                        onOneYearOptimizedChange={setOneYearOptimizedRDS}
-                        onThreeYearOptimizedChange={setThreeYearOptimizedRDS}
+                        onOnDemandAsIsChange={v => set('onDemandAsIsRDS', v)}
+                        onOneYearOptimizedChange={v => set('oneYearOptimizedRDS', v)}
+                        onThreeYearOptimizedChange={v => set('threeYearOptimizedRDS', v)}
                       />
                       
                       <TCOChart

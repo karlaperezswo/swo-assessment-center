@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from '@/i18n/useTranslation';
 import { SubTabLayout, SubTabGroup } from '@/components/layout/SubTabLayout';
 import { PhaseCompleteButton } from '@/components/shared/PhaseCompleteButton';
@@ -16,7 +16,35 @@ import { ExecutiveSummary } from '@/components/ExecutiveSummary';
 import {
   ExcelData, UploadSummary, ClientFormData, CostBreakdown,
   PhaseStatus, BriefingSession, ImmersionDayPlan, MigrationWave,
+  BusinessCasePersistedState,
 } from '@/types/assessment';
+
+const DEFAULT_BUSINESS_CASE_STATE: BusinessCasePersistedState = {
+  businessCaseData: null,
+  tco1YearData: null,
+  carbonReportData: null,
+  assessmentTool: '',
+  clientData: {
+    clientName: '',
+    assessmentTool: 'Cloudamize',
+    otherToolName: undefined,
+    vertical: 'Technology',
+    reportDate: new Date().toISOString().split('T')[0],
+    awsRegion: 'us-east-1',
+    totalServers: 0,
+    onPremisesCost: 0,
+    companyDescription: '',
+    priorities: [],
+    migrationReadiness: 'evaluating',
+  },
+  onDemandAsIs: 0,
+  oneYearOptimized: 0,
+  threeYearOptimized: 0,
+  onDemandAsIsRDS: 0,
+  oneYearOptimizedRDS: 0,
+  threeYearOptimizedRDS: 0,
+  enableRDSScenario: false,
+};
 import { Upload, DollarSign, Gauge, Presentation, GraduationCap, Waves, Target, Briefcase, Network, BarChart2 } from 'lucide-react';
 
 interface AssessPhaseProps {
@@ -56,6 +84,12 @@ export function AssessPhase({
 }: AssessPhaseProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('rapid-discovery');
+  const [businessCaseState, setBusinessCaseState] = useState<BusinessCasePersistedState>(DEFAULT_BUSINESS_CASE_STATE);
+  const handleBusinessCaseStateChange = useCallback(
+    (updater: (prev: BusinessCasePersistedState) => BusinessCasePersistedState) =>
+      setBusinessCaseState(updater),
+    []
+  );
 
   const groups: SubTabGroup[] = [
     {
@@ -150,7 +184,10 @@ export function AssessPhase({
           <SelectorPhase />
         )}
         {activeTab === 'business-case' && (
-          <BusinessCase />
+          <BusinessCase
+            businessCaseState={businessCaseState}
+            onBusinessCaseStateChange={handleBusinessCaseStateChange}
+          />
         )}
       </SubTabLayout>
 

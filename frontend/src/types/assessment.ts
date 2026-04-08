@@ -435,6 +435,9 @@ export interface BusinessCasePersistedState {
   businessCaseData: BusinessCaseUploadResponse | null;
   tco1YearData: TCO1YearUploadResponse | null;
   carbonReportData: CarbonReportUploadResponse | null;
+  businessCaseFileName: string;
+  tco1YearFileName: string;
+  carbonReportFileName: string;
   assessmentTool: string;
   clientData: BusinessCaseClientData;
   onDemandAsIs: number;

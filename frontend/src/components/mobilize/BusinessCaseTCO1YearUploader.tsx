@@ -10,12 +10,16 @@ import apiClient from '@/lib/api';
 import { toast } from 'sonner';
 
 interface BusinessCaseTCO1YearUploaderProps {
-  onDataLoaded: (data: TCO1YearUploadResponse) => void;
+  onDataLoaded: (data: TCO1YearUploadResponse, fileName?: string) => void;
+  alreadyLoaded?: boolean;
+  loadedFileName?: string;
 }
 
-export function BusinessCaseTCO1YearUploader({ onDataLoaded }: BusinessCaseTCO1YearUploaderProps) {
-  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
-  const [fileName, setFileName] = useState<string>('');
+export function BusinessCaseTCO1YearUploader({ onDataLoaded, alreadyLoaded, loadedFileName }: BusinessCaseTCO1YearUploaderProps) {
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>(() =>
+    alreadyLoaded ? 'success' : 'idle'
+  );
+  const [fileName, setFileName] = useState<string>(loadedFileName ?? '');
   const [fileSize, setFileSize] = useState<string>('');
   const [uploadProgress, setUploadProgress] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -50,7 +54,7 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded }: BusinessCaseTCO1Y
           const uploadResponse: TCO1YearUploadResponse = response.data.data;
           setUploadState('success');
           setUploadedFile(file);
-          onDataLoaded(uploadResponse);
+          onDataLoaded(uploadResponse, file.name);
           toast.success(`TCO 1 Año cargado: ${uploadResponse.summary.totalResources} recursos (Storage +${increment}%)`, {
             id: 'tco-1year-upload', duration: 5000
           });
@@ -82,7 +86,7 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded }: BusinessCaseTCO1Y
           const uploadResponse: TCO1YearUploadResponse = response.data.data;
           setUploadState('success');
           setUploadedFile(file);
-          onDataLoaded(uploadResponse);
+          onDataLoaded(uploadResponse, file.name);
           toast.success(`TCO 1 Año cargado: ${uploadResponse.summary.totalResources} recursos (Storage +${increment}%)`, {
             id: 'tco-1year-upload', duration: 5000
           });

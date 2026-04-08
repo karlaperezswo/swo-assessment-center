@@ -48,9 +48,27 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
   const [showSupportRisk, setShowSupportRisk] = useState<boolean>(false);
   const [showMigrationStrategy, setShowMigrationStrategy] = useState<boolean>(true);
 
-  const handleDataLoaded = (data: BusinessCaseUploadResponse) => set('businessCaseData', data);
-  const handleTCO1YearLoaded = (data: TCO1YearUploadResponse) => set('tco1YearData', data);
-  const handleCarbonReportLoaded = (data: CarbonReportUploadResponse) => set('carbonReportData', data);
+  const handleDataLoaded = (data: BusinessCaseUploadResponse, fileName?: string) => {
+    onBusinessCaseStateChange(prev => ({
+      ...prev,
+      businessCaseData: data,
+      ...(fileName ? { businessCaseFileName: fileName } : {}),
+    }));
+  };
+  const handleTCO1YearLoaded = (data: TCO1YearUploadResponse, fileName?: string) => {
+    onBusinessCaseStateChange(prev => ({
+      ...prev,
+      tco1YearData: data,
+      ...(fileName ? { tco1YearFileName: fileName } : {}),
+    }));
+  };
+  const handleCarbonReportLoaded = (data: CarbonReportUploadResponse, fileName?: string) => {
+    onBusinessCaseStateChange(prev => ({
+      ...prev,
+      carbonReportData: data,
+      ...(fileName ? { carbonReportFileName: fileName } : {}),
+    }));
+  };
   const handleClientDataChange = (data: BusinessCaseClientData) => set('clientData', data);
 
   const handleToolChange = (tool: string) => {
@@ -162,15 +180,21 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
               ) : (
                 // Cloudamize and others: Separate uploaders
                 <>
-                  <BusinessCaseUploader 
+                  <BusinessCaseUploader
                     onDataLoaded={handleDataLoaded}
                     clientData={clientData}
+                    alreadyLoaded={!!businessCaseData}
+                    loadedFileName={businessCaseState.businessCaseFileName}
                   />
-                  <BusinessCaseTCO1YearUploader 
+                  <BusinessCaseTCO1YearUploader
                     onDataLoaded={handleTCO1YearLoaded}
+                    alreadyLoaded={!!tco1YearData}
+                    loadedFileName={businessCaseState.tco1YearFileName}
                   />
-                  <CarbonReportUploader 
+                  <CarbonReportUploader
                     onDataLoaded={handleCarbonReportLoaded}
+                    alreadyLoaded={!!carbonReportData}
+                    loadedFileName={businessCaseState.carbonReportFileName}
                   />
                 </>
               )}

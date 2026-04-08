@@ -23,6 +23,9 @@ const DEFAULT_BUSINESS_CASE_STATE: BusinessCasePersistedState = {
   businessCaseData: null,
   tco1YearData: null,
   carbonReportData: null,
+  businessCaseFileName: '',
+  tco1YearFileName: '',
+  carbonReportFileName: '',
   assessmentTool: '',
   clientData: {
     clientName: '',

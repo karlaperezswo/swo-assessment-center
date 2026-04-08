@@ -6,14 +6,18 @@ import { CarbonReportUploadResponse } from '@/types/assessment';
 import apiClient from '@/lib/api';
 
 interface CarbonReportUploaderProps {
-  onDataLoaded: (data: CarbonReportUploadResponse) => void;
+  onDataLoaded: (data: CarbonReportUploadResponse, fileName?: string) => void;
+  alreadyLoaded?: boolean;
+  loadedFileName?: string;
 }
 
-export function CarbonReportUploader({ onDataLoaded }: CarbonReportUploaderProps) {
+export function CarbonReportUploader({ onDataLoaded, alreadyLoaded, loadedFileName }: CarbonReportUploaderProps) {
   const [uploading, setUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>(() =>
+    alreadyLoaded ? 'success' : 'idle'
+  );
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [fileName, setFileName] = useState<string>('');
+  const [fileName, setFileName] = useState<string>(loadedFileName ?? '');
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
@@ -54,7 +58,7 @@ export function CarbonReportUploader({ onDataLoaded }: CarbonReportUploaderProps
 
       if (result.success) {
         setUploadStatus('success');
-        onDataLoaded(result.data);
+        onDataLoaded(result.data, file.name);
       } else {
         setUploadStatus('error');
         setErrorMessage(result.error || 'Error al procesar el archivo');

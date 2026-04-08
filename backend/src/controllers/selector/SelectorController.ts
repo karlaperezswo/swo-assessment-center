@@ -18,6 +18,9 @@ export class SelectorController {
   static async getQuestions(req: Request, res: Response) {
     try {
       const questions = await SelectorConfigService.loadQuestions();
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
       res.json({ success: true, data: questions });
     } catch (error) {
       console.error('[SelectorController] Error getting questions:', error);

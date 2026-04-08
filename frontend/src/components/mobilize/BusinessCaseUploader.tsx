@@ -7,13 +7,17 @@ import apiClient from '@/lib/api';
 import { toast } from 'sonner';
 
 interface BusinessCaseUploaderProps {
-  onDataLoaded: (data: BusinessCaseUploadResponse) => void;
+  onDataLoaded: (data: BusinessCaseUploadResponse, fileName?: string) => void;
   clientData: BusinessCaseClientData;
+  alreadyLoaded?: boolean;
+  loadedFileName?: string;
 }
 
-export function BusinessCaseUploader({ onDataLoaded, clientData }: BusinessCaseUploaderProps) {
-  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
-  const [fileName, setFileName] = useState<string>('');
+export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, loadedFileName }: BusinessCaseUploaderProps) {
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>(() =>
+    alreadyLoaded ? 'success' : 'idle'
+  );
+  const [fileName, setFileName] = useState<string>(loadedFileName ?? '');
   const [fileSize, setFileSize] = useState<string>('');
   const [uploadProgress, setUploadProgress] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -57,7 +61,7 @@ export function BusinessCaseUploader({ onDataLoaded, clientData }: BusinessCaseU
         if (response.data.success) {
           const uploadResponse: BusinessCaseUploadResponse = response.data.data;
           setUploadState('success');
-          onDataLoaded(uploadResponse);
+          onDataLoaded(uploadResponse, file.name);
           const { summary } = uploadResponse;
           toast.success(`${clientData.clientName} - ${summary.dataSource} cargado: ${summary.totalServers} servidores`, {
             id: 'business-case-upload', duration: 5000
@@ -100,7 +104,7 @@ export function BusinessCaseUploader({ onDataLoaded, clientData }: BusinessCaseU
         if (response.data.success) {
           const uploadResponse: BusinessCaseUploadResponse = response.data.data;
           setUploadState('success');
-          onDataLoaded(uploadResponse);
+          onDataLoaded(uploadResponse, file.name);
           const { summary } = uploadResponse;
           toast.success(`${clientData.clientName} - ${summary.dataSource} cargado: ${summary.totalServers} servidores`, {
             id: 'business-case-upload', duration: 5000

@@ -428,6 +428,28 @@ export interface MigrationStrategySummary {
 }
 
 /**
+ * Persisted state for the Business Case module.
+ * Lifted to AssessPhase so data survives tab navigation.
+ */
+export interface BusinessCasePersistedState {
+  businessCaseData: BusinessCaseUploadResponse | null;
+  tco1YearData: TCO1YearUploadResponse | null;
+  carbonReportData: CarbonReportUploadResponse | null;
+  businessCaseFileName: string;
+  tco1YearFileName: string;
+  carbonReportFileName: string;
+  assessmentTool: string;
+  clientData: BusinessCaseClientData;
+  onDemandAsIs: number;
+  oneYearOptimized: number;
+  threeYearOptimized: number;
+  onDemandAsIsRDS: number;
+  oneYearOptimizedRDS: number;
+  threeYearOptimizedRDS: number;
+  enableRDSScenario: boolean;
+}
+
+/**
  * Carbon Report Data
  */
 export interface CarbonReportData {

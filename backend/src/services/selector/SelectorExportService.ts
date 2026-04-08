@@ -126,7 +126,7 @@ export class SelectorExportService {
           doc.fontSize(14).font('Helvetica-Bold').text('Herramienta Recomendada');
           doc.moveDown(0.5);
           doc.fontSize(18).font('Helvetica-Bold').fillColor('#2563eb')
-            .text(result.recommendedTool);
+            .text(result.recommendedTool.toUpperCase());
           doc.fontSize(11).font('Helvetica').fillColor('#000000')
             .text(`Confianza: ${result.confidence} (${result.confidencePercentage.toFixed(1)}%)`);
           doc.moveDown(2);
@@ -152,7 +152,7 @@ export class SelectorExportService {
             
             // Tool name (left aligned)
             doc.fontSize(9).font('Helvetica').fillColor('#000000')
-              .text(tool.tool, 50, barY + 4, { width: 95, align: 'left' });
+              .text(tool.tool.toUpperCase(), 50, barY + 4, { width: 95, align: 'left' });
             
             // Background bar (light gray)
             doc.rect(barX, barY, barWidth, barHeight)
@@ -313,7 +313,7 @@ export class SelectorExportService {
 
     // Recommendation
     lines.push('RECOMENDACIÓN');
-    lines.push(`Herramienta Recomendada,${result.recommendedTool}`);
+    lines.push(`Herramienta Recomendada,${result.recommendedTool.toUpperCase()}`);
     lines.push(`Confianza,${result.confidence}`);
     lines.push(`Porcentaje de Confianza,${result.confidencePercentage.toFixed(1)}%`);
     lines.push('');
@@ -322,7 +322,7 @@ export class SelectorExportService {
     lines.push('SCORES DE HERRAMIENTAS');
     lines.push('Rank,Herramienta,Score Absoluto,Score Porcentaje');
     result.results.forEach(tool => {
-      lines.push(`${tool.rank},${tool.tool},${tool.absoluteScore},${tool.percentageScore.toFixed(1)}%`);
+      lines.push(`${tool.rank},${tool.tool.toUpperCase()},${tool.absoluteScore},${tool.percentageScore.toFixed(1)}%`);
     });
     lines.push('');
 

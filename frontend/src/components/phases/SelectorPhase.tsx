@@ -364,7 +364,7 @@ export function SelectorPhase() {
   if (result) {
     // Prepare data for radar chart with absolute scores and winner flag
     const radarData = result.results.map(tool => ({
-      tool: tool.tool,
+      tool: tool.tool.toUpperCase(),
       score: tool.percentageScore,
       absoluteScore: tool.absoluteScore,
       isWinner: tool.rank === 1
@@ -385,7 +385,7 @@ export function SelectorPhase() {
             <div className="text-center p-6 bg-blue-50 rounded-lg">
               <h3 className="text-2xl font-bold mb-2">{t('selector.results.recommendedTool')}</h3>
               <p className="text-4xl font-bold text-blue-600 mb-2">
-                {result.recommendedTool}
+                {result.recommendedTool.toUpperCase()}
               </p>
               <Badge variant={result.confidence === 'high' ? 'default' : 'secondary'}>
                 {t('selector.results.confidence', { confidence: result.confidence, percentage: result.confidencePercentage.toFixed(1) })}
@@ -468,7 +468,7 @@ export function SelectorPhase() {
                 </div>
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                   <p className="text-sm text-amber-900 mb-4">
-                    {t('selector.results.decisiveFactorsText', { tool: result.recommendedTool })}
+                    {t('selector.results.decisiveFactorsText', { tool: result.recommendedTool.toUpperCase() })}
                   </p>
                   <div className="space-y-3">
                     {result.decisiveFactors.slice(0, 5).map((factor: any, index: number) => (
@@ -505,7 +505,7 @@ export function SelectorPhase() {
                   <div key={tool.tool} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center gap-3">
                       <Badge variant="outline">#{tool.rank}</Badge>
-                      <span className="font-medium">{tool.tool}</span>
+                      <span className="font-medium">{tool.tool.toUpperCase()}</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-sm text-gray-600">

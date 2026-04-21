@@ -1,6 +1,7 @@
 import { Database, DatabaseRecommendation } from '@/types/assessment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Database as DatabaseIcon } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface DatabaseTableProps {
   databases: Database[];
@@ -8,6 +9,8 @@ interface DatabaseTableProps {
 }
 
 export function DatabaseTable({ databases, recommendations }: DatabaseTableProps) {
+  const { t } = useTranslation();
+
   const getRecommendation = (dbName: string) => {
     return recommendations?.find(r => r.dbName === dbName);
   };
@@ -17,7 +20,7 @@ export function DatabaseTable({ databases, recommendations }: DatabaseTableProps
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <DatabaseIcon className="h-5 w-5" />
-          Bases de Datos ({databases.length})
+          {t('databases.titleWithCount', { count: databases.length })}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -25,15 +28,15 @@ export function DatabaseTable({ databases, recommendations }: DatabaseTableProps
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left p-2 font-medium">Nombre de Base de Datos</th>
-                <th className="text-left p-2 font-medium">Motor</th>
-                <th className="text-left p-2 font-medium">Edición</th>
-                <th className="text-right p-2 font-medium">Tamaño (GB)</th>
+                <th className="text-left p-2 font-medium">{t('databases.dbName')}</th>
+                <th className="text-left p-2 font-medium">{t('databases.engine')}</th>
+                <th className="text-left p-2 font-medium">{t('databases.edition')}</th>
+                <th className="text-right p-2 font-medium">{t('databases.size')}</th>
                 {recommendations && (
                   <>
-                    <th className="text-left p-2 font-medium">Servicio Objetivo</th>
-                    <th className="text-left p-2 font-medium">Clase de Instancia</th>
-                    <th className="text-right p-2 font-medium">Costo Est.</th>
+                    <th className="text-left p-2 font-medium">{t('databases.targetService')}</th>
+                    <th className="text-left p-2 font-medium">{t('databases.instanceClass')}</th>
+                    <th className="text-right p-2 font-medium">{t('databases.estimatedCost')}</th>
                   </>
                 )}
               </tr>
@@ -72,7 +75,7 @@ export function DatabaseTable({ databases, recommendations }: DatabaseTableProps
           </table>
           {databases.length > 30 && (
             <p className="text-sm text-muted-foreground mt-2 text-center">
-              Mostrando 30 de {databases.length} bases de datos
+              {t('databases.showingCount', { shown: 30, total: databases.length })}
             </p>
           )}
         </div>

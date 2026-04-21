@@ -25,7 +25,8 @@
     "developedBy": "Developed by",
     "tip": "Tip",
     "savings": "savings",
-    "downloadStarting": "Starting report download"
+    "downloadStarting": "Starting report download",
+    "filterByEnvironment": "Filter by environment"
   },
   "header": {
     "title": "AWS Migration Assessment Center",
@@ -264,21 +265,60 @@
   },
   "servers": {
     "title": "Servers",
+    "titleWithCount": "Servers ({{count}})",
     "count": "{{count}} servers",
     "hostname": "Hostname",
     "os": "Operating System",
     "vcpus": "vCPUs",
     "ram": "RAM (GB)",
     "storage": "Storage (GB)",
+    "avgCpu": "Avg CPU %",
+    "avgRam": "Avg RAM %",
+    "recommended": "Recommended",
+    "estimatedCost": "Est. Cost",
+    "showingCount": "Showing {{shown}} of {{total}} servers",
     "recommendation": "Recommended Instance"
   },
   "databases": {
     "title": "Databases",
+    "titleWithCount": "Databases ({{count}})",
     "count": "{{count}} databases",
     "name": "Name",
+    "dbName": "Database Name",
     "engine": "Engine",
+    "edition": "Edition",
     "size": "Size (GB)",
+    "targetService": "Target Service",
+    "instanceClass": "Instance Class",
+    "estimatedCost": "Est. Cost",
+    "showingCount": "Showing {{shown}} of {{total}} databases",
     "recommendation": "Recommended RDS Instance"
+  },
+  "costSummary": {
+    "title": "Cost Estimation Summary",
+    "noCommitment": "No commitment required",
+    "bestValue": "BEST VALUE",
+    "savesPerYear": "Saves {{amount}}/year",
+    "savesIn3Years": "Saves {{amount}} over 3 years",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "chartTitle": "Cost Comparison Chart",
+    "calculatorLinks": "AWS Pricing Calculators",
+    "onDemandCalc": "On-Demand Calculator",
+    "oneYearCalc": "NURI 1-Year Calculator",
+    "threeYearCalc": "NURI 3-Year Calculator"
+  },
+  "opportunityDetail": {
+    "priority": "Priority",
+    "estimatedArr": "Estimated ARR",
+    "opportunityStatus": "Opportunity Status",
+    "reasoning": "Reasoning",
+    "evidence": "Analysis Evidence",
+    "talkingPoints": "Talking Points",
+    "nextSteps": "Next Steps",
+    "relatedServices": "Related AWS Services",
+    "created": "Created",
+    "updated": "Updated"
   },
   "errors": {
     "uploadFirst": "Please upload an Excel file and enter the client name",

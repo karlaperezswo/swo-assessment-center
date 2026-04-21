@@ -25,7 +25,8 @@
     "developedBy": "Desenvolvido por",
     "tip": "Dica",
     "savings": "economia",
-    "downloadStarting": "Iniciando download do relatório"
+    "downloadStarting": "Iniciando download do relatório",
+    "filterByEnvironment": "Filtrar por ambiente"
   },
   "header": {
     "title": "Centro de Avaliação de Migração AWS",
@@ -264,21 +265,60 @@
   },
   "servers": {
     "title": "Servidores",
+    "titleWithCount": "Servidores ({{count}})",
     "count": "{{count}} servidores",
     "hostname": "Hostname",
     "os": "Sistema Operacional",
     "vcpus": "vCPUs",
     "ram": "RAM (GB)",
     "storage": "Armazenamento (GB)",
+    "avgCpu": "Média CPU %",
+    "avgRam": "Média RAM %",
+    "recommended": "Recomendado",
+    "estimatedCost": "Custo Est.",
+    "showingCount": "Mostrando {{shown}} de {{total}} servidores",
     "recommendation": "Instância Recomendada"
   },
   "databases": {
     "title": "Bancos de Dados",
+    "titleWithCount": "Bancos de Dados ({{count}})",
     "count": "{{count}} bancos de dados",
     "name": "Nome",
+    "dbName": "Nome do Banco de Dados",
     "engine": "Motor",
+    "edition": "Edição",
     "size": "Tamanho (GB)",
+    "targetService": "Serviço Alvo",
+    "instanceClass": "Classe de Instância",
+    "estimatedCost": "Custo Est.",
+    "showingCount": "Mostrando {{shown}} de {{total}} bancos de dados",
     "recommendation": "Instância RDS Recomendada"
+  },
+  "costSummary": {
+    "title": "Resumo de Estimativa de Custos",
+    "noCommitment": "Sem compromisso necessário",
+    "bestValue": "MELHOR VALOR",
+    "savesPerYear": "Economiza {{amount}}/ano",
+    "savesIn3Years": "Economiza {{amount}} em 3 anos",
+    "monthly": "Mensal",
+    "annual": "Anual",
+    "chartTitle": "Gráfico de Comparação de Custos",
+    "calculatorLinks": "Calculadoras de Preços AWS",
+    "onDemandCalc": "Calculadora Sob Demanda",
+    "oneYearCalc": "Calculadora NURI 1 Ano",
+    "threeYearCalc": "Calculadora NURI 3 Anos"
+  },
+  "opportunityDetail": {
+    "priority": "Prioridade",
+    "estimatedArr": "ARR estimado",
+    "opportunityStatus": "Status da Oportunidade",
+    "reasoning": "Raciocínio",
+    "evidence": "Evidência da Análise",
+    "talkingPoints": "Pontos de Conversa",
+    "nextSteps": "Próximos Passos",
+    "relatedServices": "Serviços AWS Relacionados",
+    "created": "Criado",
+    "updated": "Atualizado"
   },
   "errors": {
     "uploadFirst": "Por favor, envie um arquivo Excel e insira o nome do cliente",

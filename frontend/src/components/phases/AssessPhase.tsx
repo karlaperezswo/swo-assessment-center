@@ -18,6 +18,7 @@ import { OpportunityDashboard } from '@/components/opportunities/OpportunityDash
 import { SelectorPhase } from '@/components/phases/SelectorPhase';
 import { BusinessCase } from '@/components/mobilize/BusinessCase';
 import { ExecutiveSummary } from '@/components/ExecutiveSummary';
+import { Wiki } from '@/components/assess/Wiki';
 import {
   Upload,
   DollarSign,
@@ -29,6 +30,7 @@ import {
   Briefcase,
   Network,
   BarChart2,
+  BookOpen,
   Search,
   Compass,
   ArrowRight,
@@ -124,6 +126,7 @@ const STEP_ORDER = [
   'immersion-day',
   'business-case',
   'selector',
+  'wiki',
 ] as const;
 
 export function AssessPhase({
@@ -371,6 +374,15 @@ export function AssessPhase({
           }),
           status: statusOf('selector'),
           icon: <Compass className="h-3.5 w-3.5" />,
+        },
+        {
+          id: 'wiki',
+          label: t('assess.tabs.wiki'),
+          description: t('assess.steps.wikiDesc', {
+            defaultValue: 'Guía de referencia MAP Assessment.',
+          }),
+          status: statusOf('wiki'),
+          icon: <BookOpen className="h-3.5 w-3.5" />,
         },
       ],
     },
@@ -736,6 +748,20 @@ export function AssessPhase({
             icon={<Compass className="h-5 w-5" />}
           />
           <SelectorPhase />
+        </section>
+      )}
+
+      {activeStep === 'wiki' && (
+        <section className="space-y-4">
+          <PageHeader
+            eyebrow={t('assess.groups.strategy', { defaultValue: 'Estrategia' })}
+            title={t('assess.tabs.wiki')}
+            description={t('assess.steps.wikiHero', {
+              defaultValue: 'Guía de ejecución estandarizada para el programa MAP.',
+            })}
+            icon={<BookOpen className="h-5 w-5" />}
+          />
+          <Wiki />
         </section>
       )}
     </PhaseWorkspace>

@@ -43,6 +43,11 @@ export function WikiIntroduccion() {
         <CardContent className="pt-5 space-y-3">
           <h3 className="font-semibold text-gray-800">Visión General del Programa</h3>
           <p className="text-sm text-gray-700">El programa MAP se estructura en tres fases principales:</p>
+          <img
+            src="/aws-migration-framework.png"
+            alt="AWS Migration Framework — Assess, Mobilize, Migrate & Modernize"
+            className="w-full rounded-xl border border-gray-200 shadow-sm my-2"
+          />
           <ul className="space-y-2">
             <CheckItem><strong>Assess (Evaluación):</strong> Análisis del estado actual de la infraestructura y planificación de la migración</CheckItem>
             <CheckItem><strong>Mobilize (Movilización):</strong> Preparación de la organización y el entorno para la migración</CheckItem>

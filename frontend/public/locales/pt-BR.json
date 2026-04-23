@@ -355,7 +355,8 @@
       "immersionDay": "Dia de Imersão",
       "selector": "Seletor de Ferramenta",
       "dependencyMap": "Mapa de Dependências",
-      "businessCase": "Caso de Negócio"
+      "businessCase": "Caso de Negócio",
+      "executiveSummary": "Resumo Executivo"
     },
     "requirements": {
       "excelFile": "Enviar arquivo Excel MPA",
@@ -498,6 +499,8 @@
     },
     "error": "Falha no Envio",
     "errorRetry": "Clique para tentar novamente",
+    "uploadingFile": "Enviando arquivo...",
+    "uploadedSuccessfully": "Arquivo carregado com sucesso",
     "loading": "Carregando {{filename}}...",
     "preparing": "Preparando upload...",
     "analyzingLocal": "Analisando dados (modo local)...",
@@ -667,7 +670,11 @@
   },
   "migrationPlan": {
     "strategyTitle": "Estratégia de Migração (7Rs)",
-    "wavesTitle": "Planejamento de Ondas de Migração"
+    "wavesTitle": "Planejamento de Ondas de Migração",
+    "wordGenerated": "Relatório Word gerado",
+    "wordGeneratedDesc": "O arquivo .doc foi baixado",
+    "csvExported": "Plano de migração exportado",
+    "csvExportedDesc": "O arquivo CSV foi baixado"
   },
   "immersionDay": {
     "title": "AWS Immersion Days",
@@ -772,7 +779,8 @@
       "high": "Alta",
       "medium": "Média",
       "low": "Baixa"
-    }
+    },
+    "priorityLabel": "Prioridade"
   },
   "opportunitiesCard": {
     "relatedService": "serviço AWS relacionado",
@@ -985,6 +993,29 @@
       "hint": "Edite as recomendações por pilar. Todas serão incluídas no documento Word exportado.",
       "recommendations": "{{count}} recomendações",
       "addRecommendation": "Adicionar recomendação"
+    },
+    "toasts": {
+      "logoLoadError": "Não foi possível carregar o logo da SoftwareOne",
+      "logoLoadFailed": "Erro ao carregar o logo da SoftwareOne",
+      "enterClientUrl": "Insira a URL do cliente",
+      "searchingCompanyInfo": "Buscando informações da empresa...",
+      "companyInfoObtained": "Informações da empresa obtidas",
+      "couldNotObtainInfo": "Não foi possível obter as informações",
+      "serverConnectionError": "Erro ao conectar com o servidor",
+      "enterAwsServiceName": "Insira o nome do serviço AWS",
+      "serviceAlreadyAdded": "Este serviço já foi adicionado",
+      "searchingAwsService": "Buscando {{service}} na AWS...",
+      "serviceAdded": "{{title}} adicionado ao documento e ao dicionário",
+      "serviceNotFound": "Serviço não encontrado",
+      "errorSearchingService": "Erro ao buscar serviço AWS",
+      "enterUrl": "Insira uma URL",
+      "extractingFromUrl": "Extraindo informações da URL...",
+      "serviceAddedFromUrl": "\"{{title}}\" adicionado da URL",
+      "couldNotExtractInfo": "Não foi possível extrair informações",
+      "enterTermAndDefinition": "Insira o termo e a definição",
+      "termAdded": "\"{{term}}\" adicionado ao dicionário",
+      "completeProjectAndClient": "Complete o nome do projeto e do cliente antes de exportar",
+      "documentWordGenerated": "Documento Word gerado com sucesso"
     }
   },
   "applicationTable": {
@@ -1039,5 +1070,109 @@
     "noDependencyData": "Sem dados de dependências disponíveis",
     "searching": "Buscando...",
     "search": "Buscar"
+  },
+  "app": {
+    "generatingReport": "Gerando relatório Word...",
+    "reportGenerated": "Relatório gerado com sucesso",
+    "reportReadyToDownload": "O relatório está pronto para download",
+    "errorGeneratingReport": "Erro ao gerar relatório"
+  },
+  "wavePlanner": {
+    "reAssigned": "Ondas reatribuídas automaticamente",
+    "manualModeOn": "✏️ Modo manual ativado — arraste servidores entre ondas",
+    "manualModeOff": "🔒 Modo manual desativado",
+    "emptyExcel": "O arquivo Excel está vazio",
+    "missingColumns": "Colunas obrigatórias não encontradas",
+    "noValidServers": "Nenhum servidor válido encontrado",
+    "noValidServersDesc": "Verifique que a coluna \"{{column}}\" tenha valores.",
+    "fileLoaded": "Arquivo carregado com sucesso",
+    "fileLoadedDesc": "{{count}} servidores → {{waves}} ondas geradas",
+    "errorProcessing": "Erro ao processar o arquivo",
+    "errorReading": "Erro ao ler o arquivo",
+    "pdfGenerated": "PDF gerado",
+    "pdfPrintDesc": "Abra o arquivo e use Ctrl+P para imprimir como PDF",
+    "wordGenerated": "Word gerado",
+    "wordDownloadDesc": "O arquivo .doc foi baixado"
+  },
+  "businessCaseUploader": {
+    "successLoaded": "{{client}} - {{source}} carregado: {{servers}} servidores"
+  },
+  "tco1Year": {
+    "confirmStorageFirst": "Por favor confirme o percentual de incremento de Storage",
+    "confirmStorageDesc": "Você deve inserir e confirmar o percentual antes de enviar o arquivo",
+    "enterIncrement": "Por favor insira um percentual de incremento",
+    "enterIncrementDesc": "Você pode inserir 0 para sem incremento",
+    "invalidPercent": "Percentual inválido",
+    "invalidPercentDesc": "Deve ser um número entre 0 e 100",
+    "recalculating": "Recalculando com novo percentual...",
+    "percentConfirmed": "Percentual confirmado: {{value}}%",
+    "successLoaded": "TCO 1 Ano carregado: {{resources}} recursos (Storage +{{increment}}%)"
+  },
+  "exportButton": {
+    "exported": "Playbook exportado com sucesso: {{filename}}",
+    "errorExporting": "Erro ao exportar playbook"
+  },
+  "phaseNavigator": {
+    "assess": {
+      "label": "AVALIAR",
+      "subtitle": "Criar um caso de mudança"
+    },
+    "mobilize": {
+      "label": "MOBILIZAR",
+      "subtitle": "Construir prontidão através de experiências"
+    },
+    "migrate": {
+      "label": "MIGRAR E MODERNIZAR",
+      "subtitle": "Acelerar a transformação em escala"
+    },
+    "techMemory": {
+      "label": "MEMÓRIA TÉCNICA",
+      "subtitle": "Documentação técnica AWS com normas APA"
+    }
+  },
+  "executiveSummary": {
+    "subtitle": "Caso de Negócio de Migração para AWS",
+    "annualCostReduction": "Redução de Custo Anual",
+    "perYear": "/ano",
+    "roi3Year": "ROI em 3 Anos",
+    "paybackPeriod": "Período de Retorno",
+    "months": "meses",
+    "tcoSavings3Year": "Economia TCO 3 Anos",
+    "vsOnPremises": "vs. On-Premises",
+    "infrastructure": "Infraestrutura",
+    "serversToMigrate": "Servidores a migrar",
+    "annualOnPremises": "Anual On-Premises",
+    "currentCost": "Custo atual",
+    "awsAnnual3ANURI": "AWS Anual (3A NURI)",
+    "optimizedCost": "Custo otimizado",
+    "inventoryTitle": "Inventário de Infraestrutura",
+    "servers": "Servidores",
+    "databases": "Bancos de Dados",
+    "applications": "Aplicações",
+    "totalStorageGB": "Armazenamento Total (GB)",
+    "osDistribution": "Distribuição de SO",
+    "dependenciesTitle": "Complexidade de Dependências",
+    "connections": "Conexões",
+    "mappedDBs": "BDs mapeados",
+    "mappedApps": "Apps mapeados",
+    "topServersByDeps": "Top servidores por dependências",
+    "connectionsSuffix": "conexões",
+    "wavesPlanTitle": "Plano de Ondas de Migração",
+    "wavesDefined": "Ondas definidas",
+    "serversPlanned": "Servidores planejados",
+    "wavesCompleted": "Ondas concluídas",
+    "pricingComparisonTitle": "Comparativo de Preços AWS",
+    "savingsPerYear": "Economize {{amount}}/ano",
+    "perMonth": "/mês",
+    "perYearShort": "/ano",
+    "riskTitle": "Indicadores de Risco — SO Fora de Suporte",
+    "serverEOL_one": "servidor com SO fora de suporte",
+    "serverEOL_other": "servidores com SO fora de suporte",
+    "riskHigh": "⚠️ Risco alto — requer atenção imediata",
+    "riskMedium": "⚠️ Risco médio — planejar migração prioritária",
+    "riskLow": "ℹ️ Risco baixo — incluir no plano de migração",
+    "continueToMobilize": "Continuar para Mobilize",
+    "savingsApprox36": "~36% economia",
+    "bestValue": "MELHOR VALOR"
   }
 }

@@ -1,6 +1,7 @@
 import { MigrationPhase, PhaseStatus } from '@/types/assessment';
 import { CheckCircle, Search, Rocket, Zap, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface PhaseNavigatorProps {
   currentPhase: MigrationPhase;
@@ -12,8 +13,8 @@ const phaseConfig = [
   {
     key: 'assess' as MigrationPhase,
     number: 1,
-    label: 'EVALUAR',
-    subtitle: 'Crear un caso de cambio',
+    labelKey: 'phaseNavigator.assess.label',
+    subtitleKey: 'phaseNavigator.assess.subtitle',
     icon: Search,
     colors: {
       active: 'border-fuchsia-600 bg-gradient-to-br from-fuchsia-50 to-pink-50 text-fuchsia-900',
@@ -26,8 +27,8 @@ const phaseConfig = [
   {
     key: 'mobilize' as MigrationPhase,
     number: 2,
-    label: 'MOVILIZAR',
-    subtitle: 'Construir preparación a través de experiencias',
+    labelKey: 'phaseNavigator.mobilize.label',
+    subtitleKey: 'phaseNavigator.mobilize.subtitle',
     icon: Rocket,
     colors: {
       active: 'border-violet-600 bg-gradient-to-br from-violet-50 to-purple-50 text-violet-900',
@@ -40,8 +41,8 @@ const phaseConfig = [
   {
     key: 'migrate' as MigrationPhase,
     number: 3,
-    label: 'MIGRAR Y MODERNIZAR',
-    subtitle: 'Acelerar la transformación a escala',
+    labelKey: 'phaseNavigator.migrate.label',
+    subtitleKey: 'phaseNavigator.migrate.subtitle',
     icon: Zap,
     colors: {
       active: 'border-amber-600 bg-gradient-to-br from-amber-50 to-orange-50 text-amber-900',
@@ -54,8 +55,8 @@ const phaseConfig = [
   {
     key: 'tech-memory' as MigrationPhase,
     number: 4,
-    label: 'MEMORIA TÉCNICA',
-    subtitle: 'Documentación técnica AWS con normas APA',
+    labelKey: 'phaseNavigator.techMemory.label',
+    subtitleKey: 'phaseNavigator.techMemory.subtitle',
     icon: BookOpen,
     colors: {
       active: 'border-pink-500 bg-gradient-to-br from-pink-50 to-blue-50 text-pink-900',
@@ -68,6 +69,7 @@ const phaseConfig = [
 ];
 
 export function PhaseNavigator({ currentPhase, onPhaseChange, phaseStatus, children }: PhaseNavigatorProps & { children: React.ReactNode }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       {/* Phase tabs */}
@@ -109,9 +111,9 @@ export function PhaseNavigator({ currentPhase, onPhaseChange, phaseStatus, child
                   </div>
                 )}
                 <Icon className="h-4 w-4 flex-shrink-0" />
-                <span className="font-bold text-sm truncate">{phase.label}</span>
+                <span className="font-bold text-sm truncate">{t(phase.labelKey)}</span>
               </div>
-              <p className="text-[11px] opacity-70 pl-8 hidden md:block">{phase.subtitle}</p>
+              <p className="text-[11px] opacity-70 pl-8 hidden md:block">{t(phase.subtitleKey)}</p>
             </button>
           );
         })}

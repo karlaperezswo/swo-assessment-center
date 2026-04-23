@@ -355,7 +355,8 @@
       "immersionDay": "Immersion Day",
       "selector": "Tool Selector",
       "dependencyMap": "Dependency Map",
-      "businessCase": "Business Case"
+      "businessCase": "Business Case",
+      "executiveSummary": "Executive Summary"
     },
     "requirements": {
       "excelFile": "Upload MPA Excel file",
@@ -498,6 +499,8 @@
     },
     "error": "Upload Failed",
     "errorRetry": "Click to try again",
+    "uploadingFile": "Uploading file...",
+    "uploadedSuccessfully": "File uploaded successfully",
     "loading": "Loading {{filename}}...",
     "preparing": "Preparing upload...",
     "analyzingLocal": "Analyzing data (local mode)...",
@@ -667,7 +670,11 @@
   },
   "migrationPlan": {
     "strategyTitle": "Migration Strategy (7Rs)",
-    "wavesTitle": "Migration Waves Planning"
+    "wavesTitle": "Migration Waves Planning",
+    "wordGenerated": "Word report generated",
+    "wordGeneratedDesc": "The .doc file has been downloaded",
+    "csvExported": "Migration plan exported",
+    "csvExportedDesc": "The CSV file has been downloaded"
   },
   "immersionDay": {
     "title": "AWS Immersion Days",
@@ -772,7 +779,8 @@
       "high": "High",
       "medium": "Medium",
       "low": "Low"
-    }
+    },
+    "priorityLabel": "Priority"
   },
   "opportunitiesCard": {
     "relatedService": "related AWS service",
@@ -985,6 +993,29 @@
       "hint": "Edit recommendations by pillar. All will be included in the exported Word document.",
       "recommendations": "{{count}} recommendations",
       "addRecommendation": "Add recommendation"
+    },
+    "toasts": {
+      "logoLoadError": "Could not load SoftwareOne logo",
+      "logoLoadFailed": "Error loading SoftwareOne logo",
+      "enterClientUrl": "Enter the client URL",
+      "searchingCompanyInfo": "Searching company information...",
+      "companyInfoObtained": "Company information obtained",
+      "couldNotObtainInfo": "Could not obtain the information",
+      "serverConnectionError": "Error connecting to server",
+      "enterAwsServiceName": "Enter the AWS service name",
+      "serviceAlreadyAdded": "This service has already been added",
+      "searchingAwsService": "Searching {{service}} in AWS...",
+      "serviceAdded": "{{title}} added to the document and dictionary",
+      "serviceNotFound": "Service not found",
+      "errorSearchingService": "Error searching AWS service",
+      "enterUrl": "Enter a URL",
+      "extractingFromUrl": "Extracting information from URL...",
+      "serviceAddedFromUrl": "\"{{title}}\" added from URL",
+      "couldNotExtractInfo": "Could not extract information",
+      "enterTermAndDefinition": "Enter the term and definition",
+      "termAdded": "\"{{term}}\" added to dictionary",
+      "completeProjectAndClient": "Complete the project and client name before exporting",
+      "documentWordGenerated": "Word document generated successfully"
     }
   },
   "applicationTable": {
@@ -1039,5 +1070,109 @@
     "noDependencyData": "No dependency data available",
     "searching": "Searching...",
     "search": "Search"
+  },
+  "app": {
+    "generatingReport": "Generating Word report...",
+    "reportGenerated": "Report generated successfully",
+    "reportReadyToDownload": "The report is ready to download",
+    "errorGeneratingReport": "Error generating report"
+  },
+  "wavePlanner": {
+    "reAssigned": "Waves automatically reassigned",
+    "manualModeOn": "✏️ Manual mode activated — drag servers between waves",
+    "manualModeOff": "🔒 Manual mode deactivated",
+    "emptyExcel": "Excel file is empty",
+    "missingColumns": "Required columns not found",
+    "noValidServers": "No valid servers found",
+    "noValidServersDesc": "Check that the \"{{column}}\" column has values.",
+    "fileLoaded": "File loaded successfully",
+    "fileLoadedDesc": "{{count}} servers → {{waves}} waves generated",
+    "errorProcessing": "Error processing file",
+    "errorReading": "Error reading file",
+    "pdfGenerated": "PDF generated",
+    "pdfPrintDesc": "Open the file and use Ctrl+P to print as PDF",
+    "wordGenerated": "Word generated",
+    "wordDownloadDesc": "The .doc file has been downloaded"
+  },
+  "businessCaseUploader": {
+    "successLoaded": "{{client}} - {{source}} loaded: {{servers}} servers"
+  },
+  "tco1Year": {
+    "confirmStorageFirst": "Please confirm the Storage increment percentage",
+    "confirmStorageDesc": "You must enter and confirm the percentage before uploading the file",
+    "enterIncrement": "Please enter an increment percentage",
+    "enterIncrementDesc": "You can enter 0 for no increment",
+    "invalidPercent": "Invalid percentage",
+    "invalidPercentDesc": "Must be a number between 0 and 100",
+    "recalculating": "Recalculating with new percentage...",
+    "percentConfirmed": "Percentage confirmed: {{value}}%",
+    "successLoaded": "TCO 1 Year loaded: {{resources}} resources (Storage +{{increment}}%)"
+  },
+  "exportButton": {
+    "exported": "Playbook exported successfully: {{filename}}",
+    "errorExporting": "Error exporting playbook"
+  },
+  "phaseNavigator": {
+    "assess": {
+      "label": "ASSESS",
+      "subtitle": "Build a case for change"
+    },
+    "mobilize": {
+      "label": "MOBILIZE",
+      "subtitle": "Build readiness through experiences"
+    },
+    "migrate": {
+      "label": "MIGRATE & MODERNIZE",
+      "subtitle": "Accelerate transformation at scale"
+    },
+    "techMemory": {
+      "label": "TECHNICAL MEMORY",
+      "subtitle": "AWS technical documentation with APA standards"
+    }
+  },
+  "executiveSummary": {
+    "subtitle": "AWS Migration Business Case",
+    "annualCostReduction": "Annual Cost Reduction",
+    "perYear": "/year",
+    "roi3Year": "3-Year ROI",
+    "paybackPeriod": "Payback Period",
+    "months": "months",
+    "tcoSavings3Year": "3-Year TCO Savings",
+    "vsOnPremises": "vs. On-Premises",
+    "infrastructure": "Infrastructure",
+    "serversToMigrate": "Servers to migrate",
+    "annualOnPremises": "Annual On-Premises",
+    "currentCost": "Current cost",
+    "awsAnnual3ANURI": "AWS Annual (3Y NURI)",
+    "optimizedCost": "Optimized cost",
+    "inventoryTitle": "Infrastructure Inventory",
+    "servers": "Servers",
+    "databases": "Databases",
+    "applications": "Applications",
+    "totalStorageGB": "Total Storage (GB)",
+    "osDistribution": "OS Distribution",
+    "dependenciesTitle": "Dependency Complexity",
+    "connections": "Connections",
+    "mappedDBs": "Mapped DBs",
+    "mappedApps": "Mapped Apps",
+    "topServersByDeps": "Top servers by dependencies",
+    "connectionsSuffix": "connections",
+    "wavesPlanTitle": "Migration Wave Plan",
+    "wavesDefined": "Waves defined",
+    "serversPlanned": "Servers planned",
+    "wavesCompleted": "Waves completed",
+    "pricingComparisonTitle": "AWS Pricing Comparison",
+    "savingsPerYear": "Save {{amount}}/year",
+    "perMonth": "/mo",
+    "perYearShort": "/yr",
+    "riskTitle": "Risk Indicators — EOL Operating Systems",
+    "serverEOL_one": "server with EOL OS",
+    "serverEOL_other": "servers with EOL OS",
+    "riskHigh": "⚠️ High risk — requires immediate attention",
+    "riskMedium": "⚠️ Medium risk — plan priority migration",
+    "riskLow": "ℹ️ Low risk — include in migration plan",
+    "continueToMobilize": "Continue to Mobilize",
+    "savingsApprox36": "~36% savings",
+    "bestValue": "BEST VALUE"
   }
 }

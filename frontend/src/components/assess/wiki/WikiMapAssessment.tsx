@@ -94,6 +94,11 @@ function OverviewPage() {
 
       <Card className="border-fuchsia-100">
         <CardContent className="pt-5 space-y-4">
+          <img
+            src="/proceso-assessment.png"
+            alt="Proceso de Assessment"
+            className="w-full rounded-xl border border-gray-200 shadow-sm"
+          />
           <h3 className="font-semibold text-gray-800">Proceso de Assessment</h3>
           <div className="space-y-4">
             <div><StepHeader number="1" title="Preparación Inicial" />

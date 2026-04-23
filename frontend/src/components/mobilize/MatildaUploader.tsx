@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ interface MatildaUploaderProps {
 }
 
 export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, clientData }: MatildaUploaderProps) {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -29,7 +31,7 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
         setUploadSuccess(false);
         setUploadError(null);
       } else {
-        setUploadError('Por favor selecciona un archivo Excel (.xlsx o .xls)');
+        setUploadError(t('matildaUploader.invalidFile'));
       }
     }
   };
@@ -55,7 +57,7 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
         setUploadSuccess(false);
         setUploadError(null);
       } else {
-        setUploadError('Por favor selecciona un archivo Excel (.xlsx o .xls)');
+        setUploadError(t('matildaUploader.invalidFile'));
       }
     }
   };
@@ -185,7 +187,7 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
       const msg = error instanceof Error ? error.message : 'Error al subir el archivo';
       const isNetworkError = msg.toLowerCase().includes('fetch') || msg.toLowerCase().includes('network') || msg.toLowerCase().includes('failed');
       setUploadError(isNetworkError
-        ? 'No se pudo conectar con el servidor. Si el archivo Excel está abierto, ciérralo e intenta de nuevo.'
+        ? t('matildaUploader.networkError')
         : msg
       );
       setUploadSuccess(false);
@@ -200,17 +202,17 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <FileSpreadsheet className="h-5 w-5 text-purple-600" />
-            <h3 className="font-semibold text-gray-800">Matilda Discovery Assessment</h3>
+            <h3 className="font-semibold text-gray-800">{t('matildaUploader.title')}</h3>
           </div>
-          
+
           <p className="text-sm text-gray-600">
-            Sube el archivo completo de Matilda. Este archivo contiene toda la información necesaria para el análisis.
+            {t('matildaUploader.description')}
           </p>
 
           <div className="space-y-3">
             {/* Drag & Drop Zone */}
             <div>
-              <Label htmlFor="matilda-file">Archivo Excel de Matilda</Label>
+              <Label htmlFor="matilda-file">{t('matildaUploader.fileLabel')}</Label>
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -254,10 +256,10 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
                   <div>
                     <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                     <p className="text-sm text-gray-600">
-                      Arrastra y suelta tu archivo aquí o haz clic para seleccionar
+                      {t('matildaUploader.dragOrClick')}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      Archivos Excel (.xlsx, .xls)
+                      {t('matildaUploader.fileTypes')}
                     </p>
                   </div>
                 )}
@@ -266,7 +268,7 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
 
             <div>
               <Label htmlFor="storage-increment">
-                Incremento de Storage (%)
+                {t('matildaUploader.storageIncrement')}
               </Label>
               <Input
                 id="storage-increment"
@@ -279,7 +281,7 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
                 className="mt-1"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Porcentaje adicional a agregar al storage recomendado (opcional)
+                {t('matildaUploader.storageIncrementHelper')}
               </p>
             </div>
 
@@ -291,12 +293,12 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
               {isUploading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Procesando archivo...
+                  {t('matildaUploader.processing')}
                 </>
               ) : (
                 <>
                   <Upload className="mr-2 h-4 w-4" />
-                  Subir y Procesar
+                  {t('matildaUploader.upload')}
                 </>
               )}
             </Button>
@@ -306,7 +308,7 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
               <div className="flex items-center gap-2 p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
                 <AlertCircle className="h-5 w-5 text-yellow-600" />
                 <p className="text-sm text-yellow-800 font-medium">
-                  ⚠️ Completa el nombre del cliente en el formulario de la derecha para continuar
+                  {t('matildaUploader.clientNameRequired')}
                 </p>
               </div>
             )}
@@ -316,7 +318,7 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
             <div className="flex items-center gap-2 p-3 bg-green-100 border border-green-300 rounded-lg">
               <CheckCircle2 className="h-5 w-5 text-green-600" />
               <p className="text-sm text-green-800 font-medium">
-                ✓ Archivo procesado exitosamente
+                {t('matildaUploader.success')}
               </p>
             </div>
           )}

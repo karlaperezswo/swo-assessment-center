@@ -1,0 +1,70 @@
+NOMBRES DE BUCKET SUGERIDOS PARA TU WIKI MAP ASSESSMENT
+========================================================
+
+IMPORTANTE: El nombre del bucket debe ser único globalmente en AWS.
+           Solo puede contener letras minúsculas, números y guiones.
+
+SUGERENCIAS DE NOMBRES:
+-----------------------
+
+Opción 1 - Con fecha:
+  wiki-map-assessment-2026
+  map-wiki-feb-2026
+  swo-map-wiki-2026
+
+Opción 2 - Con empresa:
+  wiki-map-softwareone
+  swo-aws-map-wiki
+  softwareone-map-assessment
+
+Opción 3 - Con tu nombre/iniciales:
+  map-wiki-[tus-iniciales]
+  wiki-map-[tu-nombre]
+  [tu-nombre]-map-assessment
+
+Opción 4 - Descriptivo:
+  consultores-map-wiki
+  guia-map-assessment
+  wiki-migracion-aws
+
+Opción 5 - Con región:
+  map-wiki-latam
+  wiki-map-mexico
+  swo-map-wiki-us
+
+EJEMPLOS COMPLETOS:
+-------------------
+  wiki-map-assessment-swo-2026
+  map-consultores-softwareone
+  guia-map-aws-feb2026
+  wiki-migracion-cloud-swo
+
+REGLAS PARA NOMBRES:
+--------------------
+✓ Solo minúsculas (a-z)
+✓ Números (0-9)
+✓ Guiones (-)
+✓ Entre 3 y 63 caracteres
+✓ Debe empezar y terminar con letra o número
+
+✗ NO usar mayúsculas
+✗ NO usar espacios
+✗ NO usar guiones bajos (_)
+✗ NO usar caracteres especiales (@, #, etc.)
+
+COMANDO PARA VERIFICAR SI UN NOMBRE ESTÁ DISPONIBLE:
+-----------------------------------------------------
+aws s3 ls s3://nombre-que-quieres-probar
+
+Si dice "An error occurred (NoSuchBucket)" = DISPONIBLE ✓
+Si muestra contenido o "Access Denied" = YA EXISTE ✗
+
+RECOMENDACIÓN:
+--------------
+Usa un nombre descriptivo que incluya:
+- Tu empresa u organización
+- El propósito (map, wiki, assessment)
+- El año (2026)
+
+Ejemplo final recomendado:
+  wiki-map-assessment-swo-2026

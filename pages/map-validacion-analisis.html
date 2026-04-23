@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validación y Análisis - MAP Assessment</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html" class="active">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="map-assessment.html">MAP Assessment</a> / Validación y Análisis
+            </div>
+
+            <section class="content-section">
+                <h2>Validación y Análisis de Datos</h2>
+                
+                <p>Una vez completado el período de recolección, es crucial validar la calidad de los datos y realizar un análisis exhaustivo para generar recomendaciones precisas.</p>
+
+                <div class="alert alert-info">
+                    <strong>Objetivo:</strong> Validar la integridad de los datos recolectados y analizar la información para generar recomendaciones de migración precisas.
+                </div>
+
+                <h3>Validación de Datos</h3>
+
+                <h4>1. Validación de Completitud</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Todos los servidores objetivo tienen datos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Período de recolección completo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Métricas clave capturadas (CPU, RAM, disco, red)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Información de aplicaciones disponible</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Dependencias identificadas</label>
+                    </div>
+                </div>
+
+                <h4>2. Validación de Calidad</h4>
+                <ul>
+                    <li><strong>Consistencia:</strong> Datos coherentes sin anomalías inexplicables</li>
+                    <li><strong>Precisión:</strong> Métricas alineadas con expectativas del cliente</li>
+                    <li><strong>Representatividad:</strong> Datos capturan patrones de uso reales</li>
+                    <li><strong>Actualidad:</strong> Información refleja el estado actual</li>
+                </ul>
+
+                <h4>3. Validación con el Cliente</h4>
+                <ul>
+                    <li>Revisar inventario de servidores</li>
+                    <li>Confirmar aplicaciones identificadas</li>
+                    <li>Validar dependencias críticas</li>
+                    <li>Verificar patrones de uso</li>
+                    <li>Identificar servidores faltantes o incorrectos</li>
+                </ul>
+
+                <h3>Análisis de Datos</h3>
+
+                <h4>1. Análisis de Utilización</h4>
+                <ul>
+                    <li><strong>CPU:</strong> Utilización promedio, picos, tendencias</li>
+                    <li><strong>Memoria:</strong> Uso promedio, máximo, disponible</li>
+                    <li><strong>Disco:</strong> Capacidad, IOPS, throughput</li>
+                    <li><strong>Red:</strong> Ancho de banda, latencia, conexiones</li>
+                </ul>
+
+                <h4>2. Análisis de Patrones</h4>
+                <ul>
+                    <li>Patrones diarios (horarios pico)</li>
+                    <li>Patrones semanales (días de mayor carga)</li>
+                    <li>Patrones mensuales (ciclos de negocio)</li>
+                    <li>Estacionalidad</li>
+                    <li>Tendencias de crecimiento</li>
+                </ul>
+
+                <h4>3. Análisis de Dependencias</h4>
+                <ul>
+                    <li>Mapeo de comunicación entre servidores</li>
+                    <li>Identificación de aplicaciones monolíticas</li>
+                    <li>Detección de servicios compartidos</li>
+                    <li>Análisis de bases de datos y sus clientes</li>
+                    <li>Identificación de puntos únicos de fallo</li>
+                </ul>
+
+                <h4>4. Rightsizing y Recomendaciones</h4>
+                <ul>
+                    <li>Recomendaciones de instancias EC2</li>
+                    <li>Opciones de almacenamiento (EBS, S3, EFS)</li>
+                    <li>Configuraciones de red</li>
+                    <li>Opciones de base de datos (RDS, Aurora, DynamoDB)</li>
+                    <li>Oportunidades de optimización</li>
+                </ul>
+
+                <h3>Estrategias de Migración (7Rs)</h3>
+
+                <h4>Clasificación por Estrategia</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Estrategia</th>
+                            <th>Descripción</th>
+                            <th>Cuándo Usar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Retire</td>
+                            <td>Desactivar</td>
+                            <td>Aplicaciones obsoletas o no utilizadas</td>
+                        </tr>
+                        <tr>
+                            <td>Retain</td>
+                            <td>Mantener on-premises</td>
+                            <td>No listas para migrar o restricciones</td>
+                        </tr>
+                        <tr>
+                            <td>Rehost</td>
+                            <td>Lift & Shift</td>
+                            <td>Migración rápida sin cambios</td>
+                        </tr>
+                        <tr>
+                            <td>Relocate</td>
+                            <td>Mover VMs</td>
+                            <td>VMware Cloud on AWS</td>
+                        </tr>
+                        <tr>
+                            <td>Repurchase</td>
+                            <td>Cambiar a SaaS</td>
+                            <td>Alternativas SaaS disponibles</td>
+                        </tr>
+                        <tr>
+                            <td>Replatform</td>
+                            <td>Optimizar ligeramente</td>
+                            <td>Beneficios cloud con cambios mínimos</td>
+                        </tr>
+                        <tr>
+                            <td>Refactor</td>
+                            <td>Rediseñar</td>
+                            <td>Modernización completa</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Análisis de TCO</h3>
+
+                <h4>Costos On-Premises</h4>
+                <ul>
+                    <li>Hardware (servidores, storage, red)</li>
+                    <li>Software (licencias, soporte)</li>
+                    <li>Datacenter (espacio, energía, refrigeración)</li>
+                    <li>Personal (salarios, capacitación)</li>
+                    <li>Mantenimiento y actualizaciones</li>
+                </ul>
+
+                <h4>Costos en AWS</h4>
+                <ul>
+                    <li>Instancias EC2 (On-Demand, Reserved, Spot)</li>
+                    <li>Almacenamiento (EBS, S3, EFS)</li>
+                    <li>Transferencia de datos</li>
+                    <li>Servicios adicionales (RDS, Load Balancers, etc.)</li>
+                    <li>Soporte AWS</li>
+                </ul>
+
+                <h3>Identificación de Riesgos</h3>
+
+                <h4>Riesgos Técnicos</h4>
+                <ul>
+                    <li>Aplicaciones con dependencias complejas</li>
+                    <li>Sistemas legacy sin documentación</li>
+                    <li>Licencias no compatibles con cloud</li>
+                    <li>Requisitos de latencia estrictos</li>
+                    <li>Integraciones con sistemas on-premises</li>
+                </ul>
+
+                <h4>Riesgos de Negocio</h4>
+                <ul>
+                    <li>Aplicaciones críticas sin redundancia</li>
+                    <li>Ventanas de mantenimiento limitadas</li>
+                    <li>Resistencia al cambio organizacional</li>
+                    <li>Falta de skills en el equipo</li>
+                    <li>Presupuesto insuficiente</li>
+                </ul>
+
+                <h3>Entregables de esta Fase</h3>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Reporte de validación de datos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis de utilización de recursos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Mapa de dependencias</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Recomendaciones de rightsizing</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Clasificación por estrategia (7Rs)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis de TCO preliminar</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Identificación de riesgos</label>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Tip:</strong> Involucra al cliente en la validación de datos para asegurar que las recomendaciones estén alineadas con su realidad operativa.
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <a href="map-recoleccion-datos.html" class="btn">← Anterior: Recolección de Datos</a>
+                    <a href="map-business-case.html" class="btn" style="float: right;">Siguiente: Business Case →</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario de Infraestructura</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html" class="active">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / Cuestionario de Infraestructura
+            </div>
+
+            <section class="content-section">
+                <h2>Cuestionario de Infraestructura</h2>
+                <p>El cuestionario de infraestructura es un componente esencial del MAP Assessment que complementa los datos recolectados por las herramientas automatizadas. Permite capturar información cualitativa y contextual que no puede ser obtenida mediante agentes.</p>
+
+                <div class="alert alert-info">
+                    <strong>Objetivo:</strong> Obtener una visión completa del entorno del cliente, incluyendo aspectos organizacionales, operacionales y estratégicos que influirán en la migración.
+                </div>
+
+                <h3>Proceso</h3>
+                <p>El cuestionario debe ser completado en colaboración con los stakeholders clave del cliente:</p>
+
+                <h4>1. Preparación</h4>
+                <ul>
+                    <li>Identificar a los participantes clave (IT, Seguridad, Operaciones, Negocio)</li>
+                    <li>Programar sesiones de trabajo (2-3 sesiones de 2 horas cada una)</li>
+                    <li>Enviar el cuestionario con anticipación para revisión</li>
+                    <li>Preparar contexto y objetivos de cada sección</li>
+                </ul>
+
+                <h4>2. Ejecución</h4>
+                <ul>
+                    <li>Conducir sesiones estructuradas por área temática</li>
+                    <li>Documentar respuestas detalladas y ejemplos específicos</li>
+                    <li>Solicitar evidencia documental cuando sea relevante</li>
+                    <li>Identificar áreas que requieren profundización</li>
+                </ul>
+
+                <h4>3. Validación</h4>
+                <ul>
+                    <li>Revisar respuestas con el equipo técnico del cliente</li>
+                    <li>Contrastar información con datos de herramientas de colecta</li>
+                    <li>Resolver inconsistencias o ambigüedades</li>
+                    <li>Obtener aprobación final del cuestionario completado</li>
+                </ul>
+
+                <h3>Plantilla del Cuestionario</h3>
+                <p>El cuestionario está organizado en las siguientes secciones principales:</p>
+
+                <h4>Sección 1: Información General</h4>
+                <ul>
+                    <li>Nombre de la organización y unidad de negocio</li>
+                    <li>Contactos clave (IT, Seguridad, Operaciones)</li>
+                    <li>Objetivos de negocio para la migración</li>
+                    <li>Timeline esperado y restricciones</li>
+                    <li>Presupuesto estimado</li>
+                </ul>
+
+                <h4>Sección 2: Infraestructura Actual</h4>
+                <ul>
+                    <li>Número total de servidores físicos y virtuales</li>
+                    <li>Plataformas de virtualización utilizadas</li>
+                    <li>Centros de datos (ubicaciones, características)</li>
+                    <li>Proveedores de hosting actuales</li>
+                    <li>Capacidad de almacenamiento y tipos</li>
+                    <li>Infraestructura de red (switches, routers, firewalls)</li>
+                </ul>
+
+                <h4>Sección 3: Aplicaciones</h4>
+                <ul>
+                    <li>Inventario de aplicaciones críticas</li>
+                    <li>Tecnologías y lenguajes utilizados</li>
+                    <li>Bases de datos (tipos, versiones, tamaños)</li>
+                    <li>Aplicaciones comerciales vs desarrolladas internamente</li>
+                    <li>Integraciones entre aplicaciones</li>
+                    <li>Aplicaciones con requisitos especiales de compliance</li>
+                </ul>
+
+                <h4>Sección 4: Seguridad y Compliance</h4>
+                <ul>
+                    <li>Frameworks de seguridad implementados (ISO 27001, SOC 2, etc.)</li>
+                    <li>Requisitos regulatorios (GDPR, HIPAA, PCI-DSS, etc.)</li>
+                    <li>Políticas de cifrado de datos</li>
+                    <li>Gestión de identidades y accesos</li>
+                    <li>Procedimientos de backup y disaster recovery</li>
+                    <li>Auditorías de seguridad recientes</li>
+                </ul>
+
+                <h4>Sección 5: Operaciones</h4>
+                <ul>
+                    <li>Estructura del equipo de IT (tamaño, roles)</li>
+                    <li>Herramientas de monitoreo utilizadas</li>
+                    <li>Procesos de gestión de cambios</li>
+                    <li>SLAs y métricas de disponibilidad</li>
+                    <li>Ventanas de mantenimiento disponibles</li>
+                    <li>Procedimientos de incident management</li>
+                </ul>
+
+                <h4>Sección 6: Red y Conectividad</h4>
+                <ul>
+                    <li>Topología de red actual</li>
+                    <li>Ancho de banda disponible (internet, WAN)</li>
+                    <li>Conexiones dedicadas o VPN</li>
+                    <li>Requisitos de latencia</li>
+                    <li>Segmentación de red y VLANs</li>
+                    <li>Políticas de firewall</li>
+                </ul>
+
+                <h4>Sección 7: Licenciamiento</h4>
+                <ul>
+                    <li>Licencias de sistemas operativos</li>
+                    <li>Licencias de bases de datos</li>
+                    <li>Licencias de aplicaciones comerciales</li>
+                    <li>Contratos de soporte vigentes</li>
+                    <li>Restricciones de licenciamiento para cloud</li>
+                </ul>
+
+                <h4>Sección 8: Experiencia Cloud</h4>
+                <ul>
+                    <li>Experiencia previa con cloud (AWS, Azure, GCP)</li>
+                    <li>Cuentas de AWS existentes</li>
+                    <li>Cargas de trabajo ya en cloud</li>
+                    <li>Skills del equipo en tecnologías cloud</li>
+                    <li>Capacitaciones realizadas</li>
+                </ul>
+
+                <h3>Guía de Aplicación</h3>
+                
+                <h4>Mejores Prácticas</h4>
+                <ul>
+                    <li><strong>Preparación:</strong> Envía el cuestionario con 1 semana de anticipación</li>
+                    <li><strong>Contexto:</strong> Explica el propósito de cada pregunta y cómo se usará la información</li>
+                    <li><strong>Ejemplos:</strong> Solicita ejemplos concretos, no solo respuestas genéricas</li>
+                    <li><strong>Documentación:</strong> Pide evidencia documental (diagramas, políticas, reportes)</li>
+                    <li><strong>Validación cruzada:</strong> Contrasta respuestas con datos de herramientas</li>
+                    <li><strong>Seguimiento:</strong> Programa sesiones de clarificación si es necesario</li>
+                </ul>
+
+                <h4>Preguntas Clave a Profundizar</h4>
+                <div class="alert alert-warning">
+                    <strong>Áreas Críticas:</strong>
+                    <ul>
+                        <li>Aplicaciones con dependencias complejas</li>
+                        <li>Requisitos de compliance específicos</li>
+                        <li>Restricciones de licenciamiento</li>
+                        <li>Limitaciones de ancho de banda</li>
+                        <li>Ventanas de mantenimiento muy restrictivas</li>
+                        <li>Aplicaciones sin documentación</li>
+                    </ul>
+                </div>
+
+                <h4>Plantillas Descargables</h4>
+                <ul>
+                    <li><a href="#">📄 Cuestionario de Infraestructura Completo (Word)</a></li>
+                    <li><a href="#">📄 Cuestionario de Infraestructura (Excel)</a></li>
+                    <li><a href="#">📄 Guía de Entrevista para Stakeholders</a></li>
+                    <li><a href="#">📄 Template de Consolidación de Respuestas</a></li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>Tip:</strong> El cuestionario debe completarse en paralelo con la recolección de datos de las herramientas, no después. Esto permite identificar gaps tempranamente y ajustar el alcance si es necesario.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+</body>
+</html>

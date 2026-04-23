@@ -1,0 +1,67 @@
+CÓMO REFRESCAR LA PÁGINA Y VER LOS CAMBIOS
+==========================================
+
+Si no ves los cambios en tu navegador, es probable que esté mostrando
+una versión en caché. Aquí te explico cómo forzar la actualización:
+
+OPCIÓN 1: Refrescar Forzado (Recomendado)
+------------------------------------------
+Windows/Linux:
+  • Chrome/Edge: Ctrl + Shift + R
+  • Firefox: Ctrl + F5
+  • Cualquier navegador: Ctrl + Shift + Delete (limpiar caché)
+
+Mac:
+  • Chrome/Edge: Cmd + Shift + R
+  • Safari: Cmd + Option + R
+  • Firefox: Cmd + Shift + R
+
+OPCIÓN 2: Limpiar Caché del Navegador
+--------------------------------------
+1. Presiona Ctrl + Shift + Delete (Cmd + Shift + Delete en Mac)
+2. Selecciona "Imágenes y archivos en caché"
+3. Selecciona "Desde siempre" o "Todo el tiempo"
+4. Click en "Borrar datos" o "Limpiar ahora"
+5. Cierra y vuelve a abrir el navegador
+6. Abre la página nuevamente
+
+OPCIÓN 3: Modo Incógnito/Privado
+---------------------------------
+1. Abre una ventana de incógnito:
+   • Chrome/Edge: Ctrl + Shift + N
+   • Firefox: Ctrl + Shift + P
+   • Safari: Cmd + Shift + N
+2. Abre el archivo HTML en esta ventana
+3. Los cambios deberían verse inmediatamente
+
+OPCIÓN 4: Abrir Directamente desde el Explorador
+-------------------------------------------------
+1. Cierra completamente el navegador
+2. Ve a la carpeta del proyecto
+3. Click derecho en "index.html" o "pages/map-assessment.html"
+4. Selecciona "Abrir con" → Tu navegador
+5. Los cambios deberían verse
+
+VERIFICACIÓN DE LOGOS
+----------------------
+Los logos ahora están en:
+  • assets/imagenes/LogoSoftwareone.png
+  • assets/imagenes/LogoAWS.png
+
+Si después de refrescar aún no ves los logos:
+1. Verifica que los archivos existan en esa carpeta
+2. Abre la consola del navegador (F12)
+3. Ve a la pestaña "Network" o "Red"
+4. Refresca la página
+5. Busca errores 404 en las imágenes
+
+NOTA IMPORTANTE
+---------------
+Los cambios YA ESTÁN aplicados en todos los archivos HTML.
+El problema es solo de caché del navegador.
+
+Después de hacer un refresh forzado (Ctrl + Shift + R),
+deberías ver:
+✅ Logo de SoftwareONE a la izquierda
+✅ Título "MAP Assessment" en el centro
+✅ Logo de AWS a la derecha

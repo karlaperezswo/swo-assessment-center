@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagrama de Infraestructura</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html" class="active">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / Diagrama de Infraestructura
+            </div>
+
+            <section class="content-section">
+                <h2>Diagrama de Infraestructura</h2>
+                <p>El diagrama de infraestructura es una representación visual completa del entorno actual del cliente y la arquitectura propuesta en AWS. Es un entregable clave que facilita la comprensión del estado actual y el estado futuro.</p>
+
+                <div class="alert alert-info">
+                    <strong>Objetivo:</strong> Crear una representación visual clara y precisa que documente la arquitectura actual y proponga la arquitectura objetivo en AWS, facilitando la comunicación con stakeholders técnicos y de negocio.
+                </div>
+
+                <h3>Tipos de Diagramas Requeridos</h3>
+
+                <h4>1. Diagrama de Estado Actual (As-Is)</h4>
+                <p>Documenta la infraestructura on-premises existente:</p>
+                <ul>
+                    <li>Topología de red completa</li>
+                    <li>Servidores físicos y virtuales</li>
+                    <li>Sistemas de almacenamiento</li>
+                    <li>Balanceadores de carga</li>
+                    <li>Firewalls y dispositivos de seguridad</li>
+                    <li>Conexiones entre componentes</li>
+                    <li>Flujos de datos principales</li>
+                    <li>Integraciones con sistemas externos</li>
+                </ul>
+
+                <h4>2. Diagrama de Dependencias de Aplicaciones</h4>
+                <p>Muestra las relaciones entre aplicaciones y componentes:</p>
+                <ul>
+                    <li>Aplicaciones y sus componentes</li>
+                    <li>Bases de datos asociadas</li>
+                    <li>Servicios compartidos</li>
+                    <li>APIs y integraciones</li>
+                    <li>Dependencias críticas</li>
+                    <li>Flujos de comunicación</li>
+                </ul>
+
+                <h4>3. Diagrama de Arquitectura Propuesta en AWS (To-Be)</h4>
+                <p>Diseño de la arquitectura objetivo en AWS:</p>
+                <ul>
+                    <li>Regiones y Availability Zones</li>
+                    <li>VPCs y subnets</li>
+                    <li>Servicios de AWS recomendados (EC2, RDS, S3, etc.)</li>
+                    <li>Componentes de seguridad (Security Groups, NACLs, WAF)</li>
+                    <li>Balanceadores de carga (ALB, NLB)</li>
+                    <li>Servicios de red (Direct Connect, VPN, Transit Gateway)</li>
+                    <li>Servicios de monitoreo y logging</li>
+                    <li>Estrategia de backup y DR</li>
+                </ul>
+
+                <h4>4. Diagrama de Migración por Waves</h4>
+                <p>Visualización del plan de migración por fases:</p>
+                <ul>
+                    <li>Agrupación de aplicaciones por wave</li>
+                    <li>Secuencia de migración</li>
+                    <li>Dependencias entre waves</li>
+                    <li>Timeline estimado</li>
+                    <li>Quick wins identificados</li>
+                </ul>
+
+                <h3>Herramientas Recomendadas</h3>
+
+                <h4>Para Diagramas Técnicos</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Herramienta</th>
+                            <th>Uso Recomendado</th>
+                            <th>Ventajas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>draw.io (diagrams.net)</td>
+                            <td>Diagramas generales</td>
+                            <td>Gratuito, plantillas AWS, fácil de usar</td>
+                        </tr>
+                        <tr>
+                            <td>Lucidchart</td>
+                            <td>Diagramas colaborativos</td>
+                            <td>Colaboración en tiempo real, integración con AWS</td>
+                        </tr>
+                        <tr>
+                            <td>AWS Architecture Icons</td>
+                            <td>Iconografía oficial</td>
+                            <td>Iconos oficiales actualizados de AWS</td>
+                        </tr>
+                        <tr>
+                            <td>Microsoft Visio</td>
+                            <td>Diagramas corporativos</td>
+                            <td>Estándar corporativo, plantillas profesionales</td>
+                        </tr>
+                        <tr>
+                            <td>CloudCraft</td>
+                            <td>Arquitecturas AWS 3D</td>
+                            <td>Visualización 3D, estimación de costos integrada</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Para Mapeo de Dependencias</h4>
+                <ul>
+                    <li><strong>AWS Application Discovery Service:</strong> Mapeo automático de dependencias</li>
+                    <li><strong>Cloudamize/Concierto/Matilda:</strong> Exportación de diagramas de dependencias</li>
+                    <li><strong>XMind o MindManager:</strong> Mapas mentales de relaciones complejas</li>
+                </ul>
+
+                <h3>Mejores Prácticas</h3>
+
+                <h4>Estándares de Diagramación</h4>
+                <ul>
+                    <li><strong>Consistencia:</strong> Usa los mismos iconos y colores en todos los diagramas</li>
+                    <li><strong>Claridad:</strong> Evita sobrecargar un solo diagrama, crea vistas por capas</li>
+                    <li><strong>Leyenda:</strong> Incluye siempre una leyenda explicando símbolos y colores</li>
+                    <li><strong>Versionado:</strong> Mantén control de versiones de los diagramas</li>
+                    <li><strong>Escalabilidad:</strong> Diseña para que sea fácil actualizar y expandir</li>
+                </ul>
+
+                <h4>Niveles de Detalle</h4>
+                <div class="alert alert-warning">
+                    <strong>Crea diagramas en múltiples niveles:</strong>
+                    <ul>
+                        <li><strong>Nivel 1 - Ejecutivo:</strong> Vista de alto nivel para stakeholders de negocio</li>
+                        <li><strong>Nivel 2 - Arquitectura:</strong> Vista detallada de componentes y servicios</li>
+                        <li><strong>Nivel 3 - Técnico:</strong> Vista con detalles de configuración y networking</li>
+                    </ul>
+                </div>
+
+                <h4>Elementos Esenciales a Incluir</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Título y descripción del diagrama</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Fecha y versión</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Autor y revisor</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Leyenda de símbolos y colores</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Logos de SoftwareONE y AWS</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Notas y aclaraciones importantes</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Indicadores de flujo de datos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Zonas de seguridad claramente delimitadas</label>
+                    </div>
+                </div>
+
+                <h3>Proceso de Creación</h3>
+
+                <h4>Paso 1: Recopilación de Información</h4>
+                <ul>
+                    <li>Consolidar datos de herramientas de colecta</li>
+                    <li>Revisar cuestionario de infraestructura</li>
+                    <li>Obtener diagramas existentes del cliente</li>
+                    <li>Validar información con equipo técnico del cliente</li>
+                </ul>
+
+                <h4>Paso 2: Diseño del Estado Actual</h4>
+                <ul>
+                    <li>Crear diagrama de topología de red</li>
+                    <li>Documentar todos los componentes de infraestructura</li>
+                    <li>Mapear dependencias entre aplicaciones</li>
+                    <li>Validar con el cliente</li>
+                </ul>
+
+                <h4>Paso 3: Diseño de Arquitectura AWS</h4>
+                <ul>
+                    <li>Aplicar AWS Well-Architected Framework</li>
+                    <li>Seleccionar servicios AWS apropiados</li>
+                    <li>Diseñar para alta disponibilidad y resiliencia</li>
+                    <li>Incorporar mejores prácticas de seguridad</li>
+                    <li>Optimizar para costos</li>
+                </ul>
+
+                <h4>Paso 4: Revisión y Validación</h4>
+                <ul>
+                    <li>Revisión interna del equipo SoftwareONE</li>
+                    <li>Validación con arquitectos de AWS (si aplica)</li>
+                    <li>Presentación al cliente para feedback</li>
+                    <li>Iteración basada en comentarios</li>
+                    <li>Aprobación final</li>
+                </ul>
+
+                <h3>Plantillas y Recursos</h3>
+                <ul>
+                    <li><a href="#">📐 Plantilla de Diagrama As-Is (draw.io)</a></li>
+                    <li><a href="#">📐 Plantilla de Arquitectura AWS (draw.io)</a></li>
+                    <li><a href="#">📐 Plantilla de Diagrama de Dependencias</a></li>
+                    <li><a href="#">📐 Plantilla de Migration Waves</a></li>
+                    <li><a href="#">🎨 AWS Architecture Icons (última versión)</a></li>
+                    <li><a href="#">📄 Guía de Estándares de Diagramación SoftwareONE</a></li>
+                    <li><a href="#">📄 Checklist de Revisión de Diagramas</a></li>
+                </ul>
+
+                <h3>Ejemplos de Referencia</h3>
+                <ul>
+                    <li><a href="#">🖼️ Ejemplo: Diagrama As-Is - Entorno Mediano</a></li>
+                    <li><a href="#">🖼️ Ejemplo: Arquitectura AWS - 3-Tier Application</a></li>
+                    <li><a href="#">🖼️ Ejemplo: Diagrama de Dependencias - E-commerce</a></li>
+                    <li><a href="#">🖼️ Ejemplo: Migration Waves - 200 Servidores</a></li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>Tip:</strong> Los diagramas deben ser documentos vivos que se actualicen a medida que avanza el proyecto. Mantén versiones históricas para referencia futura.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+</body>
+</html>

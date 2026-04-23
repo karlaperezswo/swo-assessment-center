@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAP Assessment</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li><a href="map-assessment.html" class="active">MAP Assessment</a></li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li>
+                        <a href="immersion-days.html">Immersion Days <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="immersion-days.html#materiales">Materiales de apoyo</a></li>
+                            <li><a href="immersion-days.html#videos">Videos de capacitaciones</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / MAP Assessment
+            </div>
+
+            <section class="content-section" id="intro">
+                <h2>MAP Assessment</h2>
+                
+                <h3>Introducción a la Fase</h3>
+                <p>La fase de Assessment es el punto de partida fundamental del programa MAP. Durante esta etapa, se realiza un análisis exhaustivo del entorno actual del cliente para comprender su infraestructura, aplicaciones, dependencias y costos operativos.</p>
+                
+                <div class="alert alert-info">
+                    <strong>Objetivo Principal:</strong> Proporcionar una visión clara y detallada del estado actual de la infraestructura y desarrollar un plan de migración estratégico basado en datos reales.
+                </div>
+
+                <p>Los entregables clave de esta fase incluyen:</p>
+                <ul>
+                    <li>Inventario completo de la infraestructura</li>
+                    <li>Análisis de dependencias entre aplicaciones</li>
+                    <li>Business case con proyección de costos</li>
+                    <li>Plan de migración priorizado</li>
+                    <li>Identificación de riesgos y estrategias de mitigación</li>
+                </ul>
+            </section>
+
+            <section class="content-section" id="proceso">
+                <div style="text-align: center; margin: 2rem 0;">
+                    <img src="../assets/imagenes/Proceso de assessment.png" alt="Proceso de Assessment" style="max-width: 100%; height: auto; border: 1px solid #E0E0E0; border-radius: 8px;">
+                </div>
+                
+                <h3>Proceso de Assessment</h3>
+                <p>El proceso de Assessment se ejecuta siguiendo estos pasos estructurados:</p>
+
+                <h4>1. Preparación Inicial</h4>
+                <ul>
+                    <li>Revisión de objetivos del cliente</li>
+                    <li>Identificación de stakeholders clave</li>
+                    <li>Definición del alcance del assessment</li>
+                    <li>Planificación de recursos y timeline</li>
+                </ul>
+
+                <h4>2. Descubrimiento de Infraestructura</h4>
+                <ul>
+                    <li>Selección de herramienta de colecta (Cloudamize, Concierto o Matilda)</li>
+                    <li>Instalación y configuración de agentes</li>
+                    <li>Recolección de datos durante el período definido (mínimo 2 semanas)</li>
+                    <li>Validación de datos recolectados</li>
+                </ul>
+
+                <h4>3. Análisis y Evaluación</h4>
+                <ul>
+                    <li>Análisis de patrones de uso y performance</li>
+                    <li>Mapeo de dependencias</li>
+                    <li>Evaluación de estrategias de migración (7Rs)</li>
+                    <li>Cálculo de TCO (Total Cost of Ownership)</li>
+                </ul>
+
+                <h4>4. Desarrollo del Business Case</h4>
+                <ul>
+                    <li>Análisis comparativo de costos on-premises vs. AWS</li>
+                    <li>Identificación de beneficios tangibles e intangibles</li>
+                    <li>Proyección de ROI</li>
+                    <li>Análisis de riesgos</li>
+                </ul>
+
+                <h4>5. Plan de Migración</h4>
+                <ul>
+                    <li>Agrupación de aplicaciones en waves</li>
+                    <li>Priorización basada en complejidad y valor de negocio</li>
+                    <li>Definición de timeline y recursos necesarios</li>
+                    <li>Identificación de quick wins</li>
+                </ul>
+
+                <div class="alert alert-warning">
+                    <strong>Duración Típica:</strong> Un MAP Assessment completo suele tomar entre 4 a 8 semanas, dependiendo del tamaño y complejidad del entorno.
+                </div>
+            </section>
+
+            <section class="content-section" id="checklist">
+                <h3>Checklist de Seguimiento (MAP Assessments)</h3>
+                <p>Te recomendamos utilizar el siguiente checklist para asegurar que todos los componentes del assessment se completen correctamente:</p>
+
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check1">
+                        <label for="check1">Kickoff interno realizado con el equipo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2">
+                        <label for="check2">Kickoff con cliente completado</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check3">
+                        <label for="check3">Herramienta de colecta seleccionada</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check4">
+                        <label for="check4">Agentes instalados y recolectando datos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check5">
+                        <label for="check5">Cuestionario de infraestructura completado</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check6">
+                        <label for="check6">Período de recolección completado (mínimo 2 semanas)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check7">
+                        <label for="check7">Datos validados y analizados</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check8">
+                        <label for="check8">Diagrama de infraestructura creado</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check9">
+                        <label for="check9">Business case desarrollado</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check10">
+                        <label for="check10">Plan de migración documentado</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check11">
+                        <label for="check11">Presentación ejecutiva preparada</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check12">
+                        <label for="check12">Revisión final con stakeholders completada</label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="kickoff">
+                <h3>Kickoff Interno y externo</h3>
+                <p>El kickoff interno es una reunión crucial que debe realizarse antes de iniciar el engagement con el cliente. Su propósito es alinear al equipo de consultores sobre los objetivos, alcance y metodología del assessment.</p>
+
+                <h4>Agenda del Kickoff Interno</h4>
+                <ol>
+                    <li><strong>Revisión del Cliente (15 min)</strong>
+                        <ul>
+                            <li>Información general del cliente</li>
+                            <li>Industria y contexto de negocio</li>
+                            <li>Objetivos de la migración</li>
+                        </ul>
+                    </li>
+                    <li><strong>Alcance del Assessment (20 min)</strong>
+                        <ul>
+                            <li>Entornos a evaluar</li>
+                            <li>Exclusiones y limitaciones</li>
+                            <li>Timeline y milestones</li>
+                        </ul>
+                    </li>
+                    <li><strong>Asignación de Roles (15 min)</strong>
+                        <ul>
+                            <li>Lead consultant</li>
+                            <li>Technical consultants</li>
+                            <li>Especialistas por área</li>
+                        </ul>
+                    </li>
+                    <li><strong>Herramientas y Metodología (20 min)</strong>
+                        <ul>
+                            <li>Selección de herramienta de colecta</li>
+                            <li>Proceso de recolección de datos</li>
+                            <li>Templates y documentación a utilizar</li>
+                        </ul>
+                    </li>
+                    <li><strong>Próximos Pasos (10 min)</strong>
+                        <ul>
+                            <li>Preparación para kickoff con cliente</li>
+                            <li>Materiales a preparar</li>
+                            <li>Fecha del kickoff con cliente</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="alert alert-success">
+                    <strong>Tip:</strong> Documenta todas las decisiones tomadas durante el kickoff interno y compártelas con el equipo para referencia futura.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

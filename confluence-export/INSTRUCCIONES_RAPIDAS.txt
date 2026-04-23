@@ -1,0 +1,155 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    EXPORTAR WIKI A CONFLUENCE - GUÍA RÁPIDA                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📋 OPCIÓN 1: YO LO HAGO POR TI (Recomendado - 5 minutos)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   Necesito que me proporciones:
+
+   1️⃣  URL de Confluence
+       Ejemplo: https://softwareone.atlassian.net
+
+   2️⃣  Tu email de Confluence
+       Ejemplo: juan.perez@softwareone.com
+
+   3️⃣  API Token (cómo obtenerlo):
+       • Ve a: https://id.atlassian.com/manage-profile/security/api-tokens
+       • Click "Create API token"
+       • Nombre: "Wiki MAP Import"
+       • Copia el token generado
+
+   4️⃣  Space Key
+       • Ve a tu espacio en Confluence
+       • Mira la URL: /wiki/spaces/MAP/
+       • El Space Key es: MAP
+
+   ✅ Una vez que me des estos datos, yo:
+      • Configuro el script
+      • Subo todas las páginas
+      • Organizo la jerarquía
+      • Te confirmo cuando esté listo
+
+   ⏱️  Tiempo total: 5-10 minutos
+
+
+📋 OPCIÓN 2: HAZLO TÚ CON SCRIPT (Técnico - 15 minutos)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   Paso 1: Instalar Python
+   ─────────────────────────
+   • Windows: https://www.python.org/downloads/
+   • Mac/Linux: Ya viene instalado
+
+   Paso 2: Instalar dependencias
+   ──────────────────────────────
+   Abre terminal y ejecuta:
+   
+   pip install requests
+
+   Paso 3: Configurar credenciales
+   ────────────────────────────────
+   Edita: confluence-export/auto-upload.py
+   
+   Cambia estas líneas:
+   CONFLUENCE_URL = "https://tuempresa.atlassian.net"
+   CONFLUENCE_EMAIL = "tu-email@empresa.com"
+   CONFLUENCE_API_TOKEN = "tu-token-aqui"
+   CONFLUENCE_SPACE_KEY = "MAP"
+
+   Paso 4: Ejecutar
+   ─────────────────
+   En la terminal:
+   
+   cd "ruta/a/tu/proyecto"
+   python confluence-export/auto-upload.py
+
+   ✅ El script creará todas las páginas automáticamente
+
+   ⏱️  Tiempo total: 15 minutos
+
+
+📋 OPCIÓN 3: MANUAL (Sin código - 30-60 minutos)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   Para cada página HTML:
+
+   1. Abre el archivo en tu navegador
+   2. Selecciona todo (Ctrl+A)
+   3. Copia (Ctrl+C)
+   4. Ve a Confluence
+   5. Crea nueva página
+   6. Pega (Ctrl+V)
+   7. Ajusta formato si es necesario
+
+   Orden de páginas:
+   ─────────────────
+   1. Inicio (index.html)
+   2. Introducción al Programa MAP
+   3. MAP Assessment
+   4. Herramientas de Colecta
+      ├─ Cloudamize
+      ├─ Concierto
+      └─ Matilda
+   5. Cuestionario de Infraestructura
+   6. Diagrama de Infraestructura
+   7. Immersion Days
+   8. Checklist de Entregables Finales
+   9. Recursos y Descargables
+   10. Preguntas Frecuentes (FAQ)
+   11. Glosario de Términos
+   12. Contacto y Soporte
+
+   ⏱️  Tiempo total: 30-60 minutos
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              ¿CUÁL ELEGIR?                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+   🚀 OPCIÓN 1 si:
+      • Quieres que esté listo en 5 minutos
+      • No quieres lidiar con configuración técnica
+      • Confías en compartir credenciales de forma segura
+
+   💻 OPCIÓN 2 si:
+      • Eres técnico y tienes Python
+      • Quieres mantener control de credenciales
+      • Planeas actualizar la wiki frecuentemente
+
+   ✋ OPCIÓN 3 si:
+      • Prefieres hacerlo manualmente
+      • No quieres usar scripts
+      • Tienes tiempo disponible
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          PRÓXIMOS PASOS                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+   Dime qué opción prefieres y te ayudo con los siguientes pasos.
+
+   Para Opción 1: Comparte tus credenciales de forma segura
+   Para Opción 2: Te guío en la configuración del script
+   Para Opción 3: Te doy una guía paso a paso detallada
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    VENTAJAS DE CONFLUENCE                                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+   ✅ Editor visual (como Word)
+   ✅ Colaboración en tiempo real
+   ✅ Control de versiones automático
+   ✅ Comentarios y menciones
+   ✅ Búsqueda potente
+   ✅ Permisos granulares
+   ✅ Responsive (móviles)
+   ✅ Integraciones (Jira, Slack, etc.)
+   ✅ Macros útiles (TOC, alertas, etc.)
+   ✅ Fácil de mantener actualizado
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+¿Listo para empezar? Dime qué opción prefieres.

@@ -1,0 +1,12 @@
+{
+  "confluence_url": "https://tuempresa.atlassian.net",
+  "confluence_email": "tu-email@empresa.com",
+  "confluence_api_token": "tu-api-token-aqui",
+  "confluence_space_key": "MAP",
+  "confluence_space_name": "MAP Assessment Wiki",
+  "notas": {
+    "como_obtener_api_token": "Ve a https://id.atlassian.com/manage-profile/security/api-tokens",
+    "como_encontrar_space_key": "En Confluence, ve a tu espacio y mira la URL: /wiki/spaces/CLAVE",
+    "permisos_necesarios": "Necesitas permisos de 'Add Page' y 'Edit Page' en el espacio"
+  }
+}

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Migración - MAP Assessment</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html" class="active">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="map-assessment.html">MAP Assessment</a> / Plan de Migración
+            </div>
+
+            <section class="content-section">
+                <h2>Plan de Migración de Alto Nivel</h2>
+                
+                <p>El Plan de Migración es un documento estratégico que define cómo se ejecutará la migración a AWS, estableciendo prioridades, cronogramas, recursos y responsabilidades.</p>
+
+                <div class="alert alert-info">
+                    <strong>Objetivo:</strong> Crear un roadmap claro y ejecutable para la migración de cargas de trabajo a AWS, minimizando riesgos y maximizando el valor del negocio.
+                </div>
+
+                <h3>Componentes del Plan de Migración</h3>
+
+                <h4>1. Estrategia de Migración por Aplicación</h4>
+                
+                <p>Clasificación de cada aplicación según las 7Rs:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aplicación</th>
+                            <th>Estrategia</th>
+                            <th>Prioridad</th>
+                            <th>Complejidad</th>
+                            <th>Duración Estimada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>App Web Corporativa</td>
+                            <td>Rehost</td>
+                            <td>Alta</td>
+                            <td>Media</td>
+                            <td>2-3 semanas</td>
+                        </tr>
+                        <tr>
+                            <td>Base de Datos Legacy</td>
+                            <td>Replatform</td>
+                            <td>Alta</td>
+                            <td>Alta</td>
+                            <td>4-6 semanas</td>
+                        </tr>
+                        <tr>
+                            <td>Sistema de Reportes</td>
+                            <td>Retire</td>
+                            <td>Baja</td>
+                            <td>Baja</td>
+                            <td>1 semana</td>
+                        </tr>
+                        <tr>
+                            <td>ERP Crítico</td>
+                            <td>Retain</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                            <td>Fase 2</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>2. Priorización de Cargas de Trabajo</h4>
+
+                <h5>Criterios de Priorización</h5>
+                <ul>
+                    <li><strong>Valor de negocio:</strong> Impacto en objetivos estratégicos</li>
+                    <li><strong>Complejidad técnica:</strong> Facilidad de migración</li>
+                    <li><strong>Dependencias:</strong> Relaciones con otras aplicaciones</li>
+                    <li><strong>Riesgo:</strong> Criticidad y tolerancia a fallos</li>
+                    <li><strong>Quick wins:</strong> Oportunidades de éxito temprano</li>
+                    <li><strong>Costos:</strong> Potencial de ahorro inmediato</li>
+                </ul>
+
+                <h5>Olas de Migración</h5>
+                <ul>
+                    <li><strong>Ola 1 (Piloto):</strong> Aplicaciones no críticas, baja complejidad</li>
+                    <li><strong>Ola 2:</strong> Aplicaciones de producción, complejidad media</li>
+                    <li><strong>Ola 3:</strong> Aplicaciones críticas, alta complejidad</li>
+                    <li><strong>Ola 4+:</strong> Modernización y optimización</li>
+                </ul>
+
+                <h4>3. Arquitectura Objetivo en AWS</h4>
+
+                <h5>Diseño de Landing Zone</h5>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Estructura de cuentas AWS (multi-account strategy)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Diseño de VPC y subnets</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Conectividad híbrida (Direct Connect, VPN)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Seguridad y compliance (Security Groups, NACLs, WAF)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Identidad y acceso (IAM, SSO)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Monitoreo y logging (CloudWatch, CloudTrail)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Backup y disaster recovery</label>
+                    </div>
+                </div>
+
+                <h5>Servicios AWS por Capa</h5>
+                <ul>
+                    <li><strong>Compute:</strong> EC2, ECS, EKS, Lambda</li>
+                    <li><strong>Storage:</strong> EBS, S3, EFS, FSx</li>
+                    <li><strong>Database:</strong> RDS, Aurora, DynamoDB, ElastiCache</li>
+                    <li><strong>Networking:</strong> VPC, Route 53, CloudFront, ELB</li>
+                    <li><strong>Security:</strong> IAM, KMS, Secrets Manager, GuardDuty</li>
+                    <li><strong>Management:</strong> CloudFormation, Systems Manager, Config</li>
+                </ul>
+
+                <h4>4. Cronograma de Migración</h4>
+
+                <h5>Fases del Proyecto</h5>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fase</th>
+                            <th>Duración</th>
+                            <th>Actividades Clave</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Preparación</td>
+                            <td>2-4 semanas</td>
+                            <td>Landing Zone, conectividad, capacitación</td>
+                        </tr>
+                        <tr>
+                            <td>Migración Piloto</td>
+                            <td>2-3 semanas</td>
+                            <td>1-2 aplicaciones no críticas</td>
+                        </tr>
+                        <tr>
+                            <td>Ola 1</td>
+                            <td>4-6 semanas</td>
+                            <td>Aplicaciones de baja complejidad</td>
+                        </tr>
+                        <tr>
+                            <td>Ola 2</td>
+                            <td>6-8 semanas</td>
+                            <td>Aplicaciones de producción</td>
+                        </tr>
+                        <tr>
+                            <td>Ola 3</td>
+                            <td>8-12 semanas</td>
+                            <td>Aplicaciones críticas</td>
+                        </tr>
+                        <tr>
+                            <td>Optimización</td>
+                            <td>Continuo</td>
+                            <td>Rightsizing, modernización</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>5. Recursos y Responsabilidades</h4>
+
+                <h5>Equipo de Migración</h5>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rol</th>
+                            <th>Responsabilidades</th>
+                            <th>Dedicación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Migration Lead</td>
+                            <td>Coordinación general, stakeholder management</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr>
+                            <td>Cloud Architect</td>
+                            <td>Diseño de arquitectura, best practices</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr>
+                            <td>Migration Engineers</td>
+                            <td>Ejecución de migraciones, testing</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr>
+                            <td>Application Owners</td>
+                            <td>Validación funcional, UAT</td>
+                            <td>25-50%</td>
+                        </tr>
+                        <tr>
+                            <td>Security Specialist</td>
+                            <td>Compliance, seguridad, auditorías</td>
+                            <td>50%</td>
+                        </tr>
+                        <tr>
+                            <td>Network Engineer</td>
+                            <td>Conectividad, DNS, routing</td>
+                            <td>50%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>6. Estrategia de Cutover</h4>
+
+                <h5>Opciones de Cutover</h5>
+                <ul>
+                    <li><strong>Big Bang:</strong> Migración completa en una ventana</li>
+                    <li><strong>Phased:</strong> Migración por componentes o usuarios</li>
+                    <li><strong>Parallel Run:</strong> Operación simultánea on-prem y cloud</li>
+                    <li><strong>Blue/Green:</strong> Entorno paralelo con switch rápido</li>
+                </ul>
+
+                <h5>Plan de Rollback</h5>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Criterios de go/no-go definidos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Procedimiento de rollback documentado</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Backups completos antes de cutover</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Equipo de soporte disponible 24/7</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Plan de comunicación a usuarios</label>
+                    </div>
+                </div>
+
+                <h4>7. Gestión de Riesgos</h4>
+
+                <h5>Plan de Mitigación</h5>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Riesgo</th>
+                            <th>Mitigación</th>
+                            <th>Contingencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Downtime extendido</td>
+                            <td>Testing exhaustivo, dry runs</td>
+                            <td>Rollback inmediato</td>
+                        </tr>
+                        <tr>
+                            <td>Pérdida de datos</td>
+                            <td>Backups múltiples, validación</td>
+                            <td>Restauración desde backup</td>
+                        </tr>
+                        <tr>
+                            <td>Problemas de performance</td>
+                            <td>Load testing, rightsizing</td>
+                            <td>Escalado vertical/horizontal</td>
+                        </tr>
+                        <tr>
+                            <td>Incompatibilidad de aplicaciones</td>
+                            <td>Testing en ambiente de prueba</td>
+                            <td>Ajustes de configuración</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>8. Criterios de Éxito</h4>
+
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Todas las aplicaciones funcionando correctamente</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Performance igual o superior a on-premises</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Downtime dentro de ventanas aprobadas</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Sin pérdida de datos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Usuarios satisfechos con la experiencia</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Costos dentro del presupuesto</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Compliance y seguridad validados</label>
+                    </div>
+                </div>
+
+                <h3>Entregables del Plan de Migración</h3>
+
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Documento de Plan de Migración (20-40 páginas)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Inventario de aplicaciones con estrategia asignada</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Cronograma detallado (Gantt chart)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Diagramas de arquitectura objetivo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Matriz RACI de responsabilidades</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Plan de gestión de riesgos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Runbooks de migración por aplicación</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Plan de comunicación</label>
+                    </div>
+                </div>
+
+                <h3>Mejores Prácticas</h3>
+
+                <ul>
+                    <li><strong>Start small:</strong> Comenzar con aplicaciones simples para ganar experiencia</li>
+                    <li><strong>Automatización:</strong> Usar herramientas como AWS MGN, CloudEndure</li>
+                    <li><strong>Testing:</strong> Validar exhaustivamente en ambientes de prueba</li>
+                    <li><strong>Documentación:</strong> Mantener runbooks actualizados</li>
+                    <li><strong>Comunicación:</strong> Mantener informados a todos los stakeholders</li>
+                    <li><strong>Flexibilidad:</strong> Estar preparado para ajustar el plan según aprendizajes</li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>Tip:</strong> Realiza una migración piloto con una aplicación no crítica para validar el proceso y ajustar el plan antes de migrar aplicaciones de producción.
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <a href="map-business-case.html" class="btn">← Anterior: Business Case</a>
+                    <a href="map-presentacion.html" class="btn" style="float: right;">Siguiente: Presentación Ejecutiva →</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

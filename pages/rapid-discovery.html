@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapid Discovery - MAP Assessment</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html" class="active">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / Rapid Discovery
+            </div>
+
+            <section class="content-section">
+                <h2>Rapid Discovery</h2>
+                
+                <h3>¿Qué hace esta aplicación?</h3>
+                <p>Pre-Discovery & Segmentación de Datos es una herramienta profesional que le permite procesar y enriquecer la información de inventarios de servidores virtuales exportados desde RVTools, facilitando la documentación completa para proyectos de assessment, migración o auditoría.</p>
+
+                <h3>Características Principales</h3>
+                <ul>
+                    <li><strong>Procesamiento Automático:</strong> Lee archivos Excel de RVTools y extrae la información relevante</li>
+                    <li><strong>Validaciones Inteligentes:</strong> Detecta automáticamente SOs no soportados</li>
+                    <li><strong>Búsqueda Avanzada:</strong> Filtra y encuentra servidores rápidamente</li>
+                    <li><strong>Sin Base de Datos:</strong> Todo se guarda en archivos locales</li>
+                </ul>
+
+                <h3>Requisitos Previos</h3>
+                <p>Antes de comenzar, asegúrese de tener:</p>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Un navegador web moderno (Chrome, Firefox, Edge o Safari)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Archivo .xlsx exportado desde RVTools</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>El archivo debe contener la hoja llamada "vInfo"</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Conexión a internet (solo para la primera carga)</label>
+                    </div>
+                </div>
+
+                <h3>Pasos para Usar la Aplicación</h3>
+
+                <h4>Paso 1: Abrir la Aplicación</h4>
+                <p>Haga doble clic en el archivo <code>index.html</code> o ábralo con su navegador preferido.</p>
+
+                <h4>Paso 2: Cargar Archivo RVTools</h4>
+                <p>Haga clic en "Seleccionar Archivo" y elija su archivo .xlsx de RVTools. La aplicación procesará automáticamente la hoja "vInfo".</p>
+
+                <h4>Paso 3: Revisar Validaciones Automáticas</h4>
+                <p>La aplicación marcará automáticamente:</p>
+                <ul>
+                    <li>Sistemas operativos de VMware (ESXi, vCenter, etc.)</li>
+                    <li>Sistemas operativos de escritorio (Windows 7, 10, 11, etc.)</li>
+                    <li>Máquinas virtuales apagadas</li>
+                </ul>
+
+                <h4>Paso 4: Completar Información</h4>
+                <p>Para cada servidor, complete los siguientes campos:</p>
+                <ul>
+                    <li><strong>Hostname:</strong> Nombre real del servidor en la red</li>
+                    <li><strong>SO Corregido:</strong> Versión completa del sistema operativo</li>
+                    <li><strong>Ambiente:</strong> Producción, Desarrollo, Testing/QA, Staging</li>
+                    <li><strong>Aplicación:</strong> Nombre de la aplicación principal</li>
+                    <li><strong>Lenguaje:</strong> Lenguaje de programación (Java, Python, .NET, etc.)</li>
+                    <li><strong>Base de Datos:</strong> Marque si tiene BD y especifique el motor</li>
+                </ul>
+
+                <h4>Paso 5: Guardar Progreso</h4>
+                <p>Use el botón "Guardar Progreso" para descargar un archivo JSON con su trabajo. Puede cargarlo después con "Cargar Progreso".</p>
+
+                <h4>Paso 6: Exportar Resultados</h4>
+                <p>Una vez completada la información:</p>
+                <ul>
+                    <li><strong>Exportar Excel:</strong> Genera un archivo .xlsx completo</li>
+                    <li><strong>Exportar PDF:</strong> Genera un reporte profesional</li>
+                </ul>
+
+                <h3>Ejemplos de Sistemas Operativos</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Incorrecto (Incompleto)</th>
+                            <th>Correcto (Completo)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ubuntu Linux (64-bit)</td>
+                            <td>Ubuntu 20.04 LTS</td>
+                        </tr>
+                        <tr>
+                            <td>CentOS 4/5/6/7 (64-bit)</td>
+                            <td>CentOS 7.9</td>
+                        </tr>
+                        <tr>
+                            <td>Windows Server</td>
+                            <td>Windows Server 2019 Standard</td>
+                        </tr>
+                        <tr>
+                            <td>Red Hat</td>
+                            <td>Red Hat Enterprise Linux 8.5</td>
+                        </tr>
+                        <tr>
+                            <td>Other</td>
+                            <td>Debian 11 (Bullseye)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Códigos de Color</h3>
+                <div class="alert alert-warning">
+                    <strong>Fondo Amarillo:</strong> Sistema operativo no soportado (VMware o escritorio). Estos servidores quedan automáticamente fuera del alcance del assessment.
+                </div>
+                <div class="alert alert-info" style="background-color: #ffcccc; border-color: #ff6666; color: #cc0000;">
+                    <strong>Fondo Rojo Claro:</strong> Máquina virtual apagada. Puede decidir si incluirla o no en el assessment usando el checkbox "Incluir".
+                </div>
+
+                <h3>Función de Búsqueda</h3>
+                <p>Use la barra de búsqueda para filtrar servidores por:</p>
+                <ul>
+                    <li>Nombre de VM</li>
+                    <li>Hostname</li>
+                    <li>Sistema operativo</li>
+                    <li>Cluster</li>
+                    <li>Datacenter</li>
+                    <li>Ambiente</li>
+                    <li>Nombre de aplicación</li>
+                </ul>
+                <div class="alert alert-success">
+                    <strong>Tip:</strong> Trabaje por grupos usando la búsqueda. Por ejemplo, busque "prod" para ver solo servidores de producción, o "sql" para ver servidores con SQL Server.
+                </div>
+
+                <h3>Panel de Estadísticas</h3>
+                <p>El panel superior muestra en tiempo real:</p>
+                <ul>
+                    <li><strong>Total VMs:</strong> Cantidad total de máquinas virtuales</li>
+                    <li><strong>Encendidas:</strong> VMs en estado "Powered On"</li>
+                    <li><strong>Apagadas:</strong> VMs en estado "Powered Off"</li>
+                    <li><strong>No Soportadas:</strong> VMs con SO no soportado</li>
+                    <li><strong>Completadas:</strong> VMs con información completa (Hostname, SO y Ambiente)</li>
+                </ul>
+
+                <h3>Almacenamiento de Datos</h3>
+                <h4>¿Dónde se guardan mis datos?</h4>
+                <p>La aplicación NO usa base de datos. Sus datos se guardan en:</p>
+                <ul>
+                    <li><strong>Archivos JSON:</strong> Para guardar y cargar progreso</li>
+                    <li><strong>Archivos Excel:</strong> Para exportar resultados completos</li>
+                    <li><strong>Archivos PDF:</strong> Para reportes ejecutivos</li>
+                </ul>
+                <div class="alert alert-info">
+                    <strong>Importante:</strong> Todos los archivos se guardan en su computadora. No se envía información a ningún servidor externo.
+                </div>
+
+                <h3>Advertencias Importantes</h3>
+                <ul>
+                    <li>Guarde su progreso frecuentemente (cada 15-20 minutos)</li>
+                    <li>Si cierra el navegador sin guardar, perderá su trabajo</li>
+                    <li>Los archivos JSON son texto plano, puede editarlos manualmente si es necesario</li>
+                    <li>Necesita conexión a internet solo para la primera carga de la página</li>
+                </ul>
+
+                <h3>Preguntas Frecuentes</h3>
+
+                <h4>¿Puedo usar esta aplicación sin internet?</h4>
+                <p>Necesita internet solo para cargar la página por primera vez (descarga las librerías). Después puede trabajar offline.</p>
+
+                <h4>¿Mis datos están seguros?</h4>
+                <p>Sí, todos los datos se procesan localmente en su navegador. No se envía información a ningún servidor.</p>
+
+                <h4>¿Qué navegador es mejor?</h4>
+                <p>Recomendamos Google Chrome o Microsoft Edge para mejor rendimiento, pero funciona en cualquier navegador moderno.</p>
+
+                <h4>¿Puedo editar múltiples archivos RVTools?</h4>
+                <p>Puede cargar un archivo a la vez. Para múltiples archivos, procese uno, exporte, y luego cargue el siguiente.</p>
+
+                <h4>¿Qué hago si encuentro un error?</h4>
+                <p>Presione F12 para abrir la consola del navegador y vea el mensaje de error. Verifique que su archivo RVTools sea válido y contenga la hoja "vInfo".</p>
+
+                <h3>Mejores Prácticas</h3>
+                <ol>
+                    <li>Revise primero las validaciones automáticas</li>
+                    <li>Trabaje por grupos (use filtros por cluster o datacenter)</li>
+                    <li>Complete primero los servidores productivos</li>
+                    <li>Guarde progreso cada 15-20 minutos</li>
+                    <li>Verifique las estadísticas para asegurar completitud</li>
+                    <li>Exporte a Excel y PDF al finalizar</li>
+                </ol>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

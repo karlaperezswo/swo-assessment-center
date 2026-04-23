@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uso de MGN Connector - AWS Transform</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html" class="active">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li>
+                        <a href="immersion-days.html">Immersion Days <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="immersion-days.html#materiales">Materiales de apoyo</a></li>
+                            <li><a href="immersion-days.html#videos">Videos de capacitaciones</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="aws-transform.html">AWS Transform</a> / Uso de MGN Connector
+            </div>
+
+            <section class="content-section">
+                <h2>Implementación de MGN Connector (On-Premises → AWS)</h2>
+                <p>Guía completa para instalar y configurar el MGN Connector que permite la conexión entre el entorno on-premises y AWS Application Migration Service.</p>
+
+                <h3>1. Requisitos Generales</h3>
+                <ul>
+                    <li>Servidor dedicado recomendado</li>
+                    <li>Permisos IAM configurados</li>
+                    <li>Conectividad saliente HTTPS (puerto 443)</li>
+                </ul>
+                <div class="alert alert-info">
+                    <strong>Documentación oficial:</strong> <a href="https://docs.aws.amazon.com/mgn/latest/ug/mgn-connectors.html" target="_blank">Application Migration Service Connectors</a>
+                </div>
+
+                <h3>2. Sistemas Operativos Soportados</h3>
+                <p>Linux (64 bits):</p>
+                <ul>
+                    <li>Ubuntu 18.x – 22.04</li>
+                    <li>Amazon Linux 2</li>
+                    <li>RHEL 8.x</li>
+                </ul>
+                <p>No soportados:</p>
+                <ul>
+                    <li>CentOS 5 / 6</li>
+                    <li>RHEL 6</li>
+                    <li>Oracle 6</li>
+                    <li>Amazon Linux 1</li>
+                </ul>
+
+                <h3>3. Requisitos del Agente SSM</h3>
+                <ul>
+                    <li>Instalación automática del agente SSM</li>
+                    <li>Si ya existe una versión previa → desinstalar primero</li>
+                    <li>Espacio mínimo requerido:
+                        <ul>
+                            <li>200 MB en disco</li>
+                            <li>200 KB en <code>/var</code></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>4. Creación de Roles IAM con CloudFormation</h3>
+
+                <h4>4.1 Template: Roles principales</h4>
+                <pre><code>AWSTemplateFormatVersion: "2010-09-09"
+Description: IAM Roles for AWS Application Migration Connector
+
+Resources:
+
+  MGNConnectorInstallerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MGNConnectorInstallerRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::&lt;ACCOUNT_ID&gt;/mgn-conector
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: MGNConnectorInstallerPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: mgn:*
+                Resource: "*"
+
+  AWSApplicationMigrationConnectorManagementRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: AWSApplicationMigrationConnectorManagementRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ssm.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Policies:
+        - PolicyName: MgnConnectorPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: logs:*
+                Resource: "*"
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource:
+                  - arn:aws:s3:::aws-application-migration-service-us-east-1/*
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource:
+                  - arn:aws:s3:::log-mgn-conector/*
+              - Effect: Allow
+                Action: sts:AssumeRole
+                Resource:
+                  - arn:aws:iam::&lt;ACCOUNT_ID&gt;:role/AWSApplicationMigrationConnectorSharingRole_&lt;ACCOUNT_ID&gt;
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: "*"</code></pre>
+
+                <h4>4.2 Template: Role para agentes</h4>
+                <pre><code>AWSTemplateFormatVersion: '2010-09-09'
+Description: IAM Role for AWS Application Migration Connector
+
+Resources:
+
+  ApplicationMigrationConnectorRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: AWSApplicationMigrationConnectorSharingRole_&lt;ACCOUNT_ID&gt;
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - ssm.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSApplicationMigrationAgentInstallationPolicy
+
+Outputs:
+  RoleName:
+    Value: !Ref ApplicationMigrationConnectorRole
+  RoleArn:
+    Value: !GetAtt ApplicationMigrationConnectorRole.Arn</code></pre>
+
+                <h4>4.3 Despliegue</h4>
+                <pre><code>aws cloudformation create-stack \
+  --stack-name mgn-connector-roles \
+  --template-body file://roles.yaml \
+  --capabilities CAPABILITY_NAMED_IAM</code></pre>
+
+                <h3>5. Hybrid Activation (SSM)</h3>
+                <p>Desde AWS Systems Manager, generar:</p>
+                <ul>
+                    <li>Activation ID</li>
+                    <li>Activation Code</li>
+                </ul>
+                <div class="alert alert-info">
+                    Una vez generados el Activation Code y el Activation ID, ir a la sección de MGN Connector, hacer clic en <strong>Agregar conector</strong> e ingresar los datos solicitados.
+                </div>
+
+                <h3>6. Arquitectura</h3>
+                <p>Flujo del conector:</p>
+                <ol>
+                    <li>On-prem Connector</li>
+                    <li>Registro vía SSM</li>
+                    <li>Conexión a AWS</li>
+                    <li>Conexión a vCenter</li>
+                    <li>Descubrimiento de VMs</li>
+                    <li>Instalación de agentes</li>
+                </ol>
+
+                <h3>7. Instalación del MGN Connector</h3>
+
+                <h4>7.1 Descargar el instalador</h4>
+                <pre><code>wget -O ./aws-vcenter-client-installer-init.py \
+  https://aws-application-migration-service-us-east-1.s3.us-east-1.amazonaws.com/latest/vcenter-client/linux/aws-vcenter-client-installer-init.py</code></pre>
+
+                <h4>7.2 Ejecutar la instalación</h4>
+                <pre><code>sudo python3 aws-vcenter-client-installer-init.py \
+  --connector source-automation \
+  --region us-east-1 \
+  --activation-code &lt;ACTIVATION_CODE&gt; \
+  --connector-name &lt;CONNECTOR_NAME&gt;</code></pre>
+
+                <div class="alert alert-warning">
+                    <strong>Nota:</strong> Reemplazar <code>&lt;ACTIVATION_CODE&gt;</code> y <code>&lt;CONNECTOR_NAME&gt;</code> con los valores generados en el paso de Hybrid Activation.
+                </div>
+
+                <h3>8. Instalación del Agente MGN</h3>
+                <p>Se recomienda usar la opción <strong>Install agent (automático)</strong> desde la consola de AWS MGN para simplificar el proceso.</p>
+
+                <h3>Resumen del Flujo Completo</h3>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Crear roles IAM con CloudFormation</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Crear Hybrid Activation en AWS Systems Manager</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Instalar el conector MGN en el servidor on-premises</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Registrar el conector en MGN</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Conectar a vCenter</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Descubrir VMs</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Instalar agentes en los servidores objetivo</label>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Listo:</strong> Con el MGN Connector configurado, puedes continuar con la ejecución del plan de migración en <a href="aws-transform-proceso.html">Proceso de uso de Transform</a>.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

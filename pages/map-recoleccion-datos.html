@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recolección de Datos - MAP Assessment</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html" class="active">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="map-assessment.html">MAP Assessment</a> / Recolección de Datos
+            </div>
+
+            <section class="content-section">
+                <h2>Recolección de Datos</h2>
+                
+                <p>El período de recolección de datos es fundamental para obtener información precisa y representativa del entorno del cliente. Durante esta fase, los agentes recopilan métricas de uso, performance y dependencias.</p>
+
+                <div class="alert alert-info">
+                    <strong>Objetivo:</strong> Recolectar datos completos y precisos durante un período suficiente para capturar patrones de uso representativos.
+                </div>
+
+                <h3>Duración del Período de Recolección</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Escenario</th>
+                            <th>Duración Mínima</th>
+                            <th>Duración Recomendada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Entorno estándar</td>
+                            <td>2 semanas</td>
+                            <td>3-4 semanas</td>
+                        </tr>
+                        <tr>
+                            <td>Cargas variables</td>
+                            <td>3 semanas</td>
+                            <td>4-6 semanas</td>
+                        </tr>
+                        <tr>
+                            <td>Patrones mensuales</td>
+                            <td>4 semanas</td>
+                            <td>6-8 semanas</td>
+                        </tr>
+                        <tr>
+                            <td>Entorno complejo</td>
+                            <td>4 semanas</td>
+                            <td>8-12 semanas</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Datos Recolectados</h3>
+
+                <h4>Métricas de Infraestructura</h4>
+                <ul>
+                    <li><strong>CPU:</strong> Utilización, cores, velocidad</li>
+                    <li><strong>Memoria:</strong> Uso, capacidad, disponible</li>
+                    <li><strong>Disco:</strong> IOPS, throughput, capacidad, uso</li>
+                    <li><strong>Red:</strong> Ancho de banda, latencia, conexiones</li>
+                    <li><strong>Sistema Operativo:</strong> Versión, patches, configuración</li>
+                </ul>
+
+                <h4>Información de Aplicaciones</h4>
+                <ul>
+                    <li>Procesos en ejecución</li>
+                    <li>Servicios instalados</li>
+                    <li>Puertos en uso</li>
+                    <li>Conexiones de red</li>
+                    <li>Dependencias entre aplicaciones</li>
+                </ul>
+
+                <h4>Datos de Performance</h4>
+                <ul>
+                    <li>Patrones de uso por hora/día/semana</li>
+                    <li>Picos de carga</li>
+                    <li>Períodos de baja utilización</li>
+                    <li>Tendencias de crecimiento</li>
+                </ul>
+
+                <h3>Monitoreo Durante la Recolección</h3>
+
+                <h4>Actividades Diarias</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Verificar que todos los agentes estén activos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Revisar logs de errores</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Validar que los datos se estén recolectando</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Monitorear impacto en performance</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Documentar incidencias</label>
+                    </div>
+                </div>
+
+                <h4>Actividades Semanales</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Reunión de status con el cliente</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Revisión de calidad de datos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Identificar servidores con datos incompletos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Actualizar dashboard de progreso</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Reportar al equipo interno</label>
+                    </div>
+                </div>
+
+                <h3>Problemas Comunes y Soluciones</h3>
+
+                <h4>Agentes Desconectados</h4>
+                <p><strong>Causas:</strong></p>
+                <ul>
+                    <li>Servidor reiniciado</li>
+                    <li>Problemas de red</li>
+                    <li>Servicio detenido</li>
+                    <li>Cambios en firewall</li>
+                </ul>
+                <p><strong>Solución:</strong> Reiniciar agente, verificar conectividad, revisar logs</p>
+
+                <h4>Datos Incompletos</h4>
+                <p><strong>Causas:</strong></p>
+                <ul>
+                    <li>Período de recolección insuficiente</li>
+                    <li>Servidores apagados</li>
+                    <li>Permisos insuficientes</li>
+                    <li>Configuración incorrecta</li>
+                </ul>
+                <p><strong>Solución:</strong> Extender período, verificar permisos, ajustar configuración</p>
+
+                <h4>Datos Inconsistentes</h4>
+                <p><strong>Causas:</strong></p>
+                <ul>
+                    <li>Mantenimientos durante recolección</li>
+                    <li>Cambios en la infraestructura</li>
+                    <li>Eventos excepcionales</li>
+                </ul>
+                <p><strong>Solución:</strong> Documentar eventos, considerar extender período</p>
+
+                <h3>Finalización del Período</h3>
+
+                <h4>Criterios de Completitud</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Período mínimo cumplido (2+ semanas)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>95%+ de servidores con datos completos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Patrones de uso capturados</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Dependencias identificadas</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Datos validados por el cliente</label>
+                    </div>
+                </div>
+
+                <h3>Plantillas y Herramientas</h3>
+                <ul>
+                    <li><a href="#">📊 Dashboard de Monitoreo de Recolección</a></li>
+                    <li><a href="#">📄 Reporte Semanal de Status</a></li>
+                    <li><a href="#">📄 Log de Incidencias</a></li>
+                    <li><a href="#">📄 Checklist de Completitud</a></li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>Tip:</strong> Un período de recolección más largo proporciona datos más precisos y reduce el riesgo de subestimar los requisitos de recursos.
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <a href="map-instalacion-agentes.html" class="btn">← Anterior: Instalación de Agentes</a>
+                    <a href="map-validacion-analisis.html" class="btn" style="float: right;">Siguiente: Validación y Análisis →</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

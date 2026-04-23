@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concierto - Guía Completa</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html" class="active">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="herramientas-colecta.html">Herramientas de Colecta</a> / Concierto
+            </div>
+
+            <section class="content-section">
+                <h2>Concierto</h2>
+                <p>Concierto es una plataforma avanzada de análisis multi-cloud que utiliza machine learning para proporcionar recomendaciones inteligentes de migración y optimización. Es ideal para entornos complejos y heterogéneos.</p>
+
+                <h3>Prerrequisitos</h3>
+                <h4>Requisitos Técnicos</h4>
+                <ul>
+                    <li><strong>Sistemas Operativos Soportados:</strong>
+                        <ul>
+                            <li>Windows Server 2012 y superior</li>
+                            <li>Linux (todas las distribuciones principales)</li>
+                            <li>AIX, Solaris, HP-UX</li>
+                            <li>VMware, Hyper-V, KVM</li>
+                        </ul>
+                    </li>
+                    <li><strong>Modos de Operación:</strong>
+                        <ul>
+                            <li>Agentless: Conexión remota vía SSH/WMI</li>
+                            <li>Agent-based: Instalación de agente ligero</li>
+                            <li>Hybrid: Combinación de ambos métodos</li>
+                        </ul>
+                    </li>
+                    <li><strong>Recursos del Sistema (modo agente):</strong>
+                        <ul>
+                            <li>CPU: &lt;1% de uso</li>
+                            <li>RAM: 30 MB disponibles</li>
+                            <li>Disco: 50 MB de espacio libre</li>
+                        </ul>
+                    </li>
+                    <li><strong>Conectividad:</strong>
+                        <ul>
+                            <li>Modo agentless: SSH (puerto 22) o WMI (puerto 135, 445)</li>
+                            <li>Modo agente: HTTPS saliente al puerto 443</li>
+                            <li>URL permitida: *.concierto.cloud</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>Permisos Necesarios</h4>
+                <ul>
+                    <li><strong>Windows:</strong> Administrador local o permisos WMI de lectura</li>
+                    <li><strong>Linux:</strong> Usuario con sudo o acceso root (solo lectura)</li>
+                    <li><strong>VMware:</strong> Rol de solo lectura en vCenter</li>
+                    <li><strong>Cloud Providers:</strong> Credenciales con permisos de lectura (ReadOnly)</li>
+                </ul>
+
+                <h4>Información Requerida del Cliente</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Inventario de servidores y aplicaciones</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Credenciales de acceso (SSH keys o passwords)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Información de entornos cloud existentes (si aplica)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Topología de red y segmentación</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Políticas de seguridad y compliance</label>
+                    </div>
+                </div>
+
+                <h3>Proceso (Timeline, Matriz RACI)</h3>
+                
+                <h4>Timeline del Proyecto</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fase</th>
+                            <th>Duración</th>
+                            <th>Actividades Principales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Semana 1</td>
+                            <td>5 días</td>
+                            <td>Configuración de conectores, validación de accesos, inicio de discovery</td>
+                        </tr>
+                        <tr>
+                            <td>Semanas 2-3</td>
+                            <td>14 días</td>
+                            <td>Recolección continua de métricas, análisis de dependencias</td>
+                        </tr>
+                        <tr>
+                            <td>Semana 4</td>
+                            <td>5 días</td>
+                            <td>Análisis con ML, generación de recomendaciones, validación</td>
+                        </tr>
+                        <tr>
+                            <td>Semana 5</td>
+                            <td>3 días</td>
+                            <td>Refinamiento de business case, preparación de presentación</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Matriz RACI</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Actividad</th>
+                            <th>Consultor Lead</th>
+                            <th>Consultor Técnico</th>
+                            <th>Cliente IT</th>
+                            <th>Cliente Negocio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Planificación del Assessment</td>
+                            <td>R/A</td>
+                            <td>C</td>
+                            <td>C</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Configuración de Conectores</td>
+                            <td>A</td>
+                            <td>R</td>
+                            <td>C</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Discovery y Recolección</td>
+                            <td>A</td>
+                            <td>R</td>
+                            <td>I</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Análisis de Datos</td>
+                            <td>R/A</td>
+                            <td>R</td>
+                            <td>C</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Generación de Reportes</td>
+                            <td>R/A</td>
+                            <td>C</td>
+                            <td>I</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Presentación de Resultados</td>
+                            <td>R/A</td>
+                            <td>C</td>
+                            <td>C</td>
+                            <td>A</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><em>R=Responsable, A=Aprobador, C=Consultado, I=Informado</em></p>
+
+                <h3>Plantillas</h3>
+                <p>Descarga las plantillas necesarias para el proyecto Concierto:</p>
+                <ul>
+                    <li><a href="#">📄 Plantilla de Inventario Multi-Cloud</a></li>
+                    <li><a href="#">📄 Checklist de Configuración de Conectores</a></li>
+                    <li><a href="#">📄 Template de Reporte de Assessment Concierto</a></li>
+                    <li><a href="#">📄 Plantilla de Business Case Avanzado</a></li>
+                    <li><a href="#">📄 Template de Roadmap de Migración</a></li>
+                </ul>
+
+                <h3>Manuales</h3>
+                <p>Documentación técnica y guías de usuario:</p>
+                <ul>
+                    <li><a href="#">📘 Manual de Configuración Agentless</a></li>
+                    <li><a href="#">📘 Guía de Instalación de Agentes</a></li>
+                    <li><a href="#">📘 Manual de Conectores Cloud (AWS, Azure, GCP)</a></li>
+                    <li><a href="#">📘 Guía de Usuario de la Plataforma Concierto</a></li>
+                    <li><a href="#">📘 Manual de Análisis de Dependencias</a></li>
+                    <li><a href="#">📘 Guía de Interpretación de Recomendaciones ML</a></li>
+                </ul>
+
+                <h3>Troubleshooting</h3>
+                
+                <h4>Problema: Fallo en conexión agentless</h4>
+                <p><strong>Síntomas:</strong> No se puede establecer conexión SSH/WMI con los servidores</p>
+                <p><strong>Soluciones:</strong></p>
+                <ol>
+                    <li>Verificar credenciales y permisos de usuario</li>
+                    <li>Confirmar que los puertos necesarios estén abiertos en firewall</li>
+                    <li>Validar que SSH/WMI esté habilitado en los servidores target</li>
+                    <li>Probar conexión manual desde el servidor Concierto</li>
+                    <li>Revisar logs de conexión en la plataforma</li>
+                </ol>
+
+                <h4>Problema: Discovery incompleto</h4>
+                <p><strong>Síntomas:</strong> Faltan servidores o aplicaciones en el inventario</p>
+                <p><strong>Soluciones:</strong></p>
+                <ol>
+                    <li>Verificar que todos los rangos de IP estén incluidos en el scan</li>
+                    <li>Confirmar que las credenciales tengan acceso a todos los segmentos</li>
+                    <li>Revisar si hay servidores en subredes aisladas</li>
+                    <li>Ejecutar discovery manual para servidores faltantes</li>
+                    <li>Validar que no haya limitaciones de firewall entre segmentos</li>
+                </ol>
+
+                <h4>Problema: Análisis de dependencias impreciso</h4>
+                <p><strong>Síntomas:</strong> Las dependencias mostradas no coinciden con la realidad</p>
+                <p><strong>Soluciones:</strong></p>
+                <ol>
+                    <li>Extender el período de observación (mínimo 3 semanas recomendado)</li>
+                    <li>Validar que el análisis de red capture todo el tráfico</li>
+                    <li>Complementar con información manual del cliente</li>
+                    <li>Revisar configuración de filtros de tráfico</li>
+                    <li>Ejecutar análisis en horarios de mayor actividad</li>
+                </ol>
+
+                <h3>Descargables</h3>
+                <p>Recursos adicionales para el proyecto:</p>
+                <ul>
+                    <li><a href="#">💾 Concierto Agent Installer (Multi-platform)</a></li>
+                    <li><a href="#">💾 Script de Configuración Masiva SSH</a></li>
+                    <li><a href="#">💾 Herramienta de Validación de Conectividad</a></li>
+                    <li><a href="#">💾 Template de Credenciales (CSV)</a></li>
+                    <li><a href="#">📊 Dashboard de Monitoreo de Discovery</a></li>
+                </ul>
+
+                <h3>Videos de Entrenamiento</h3>
+                <p>Tutoriales en video para el equipo:</p>
+                <ul>
+                    <li><a href="#">🎥 Introducción a Concierto (20 min)</a></li>
+                    <li><a href="#">🎥 Configuración de Discovery Agentless (25 min)</a></li>
+                    <li><a href="#">🎥 Instalación y Gestión de Agentes (20 min)</a></li>
+                    <li><a href="#">🎥 Análisis de Dependencias Avanzado (30 min)</a></li>
+                    <li><a href="#">🎥 Interpretación de Recomendaciones ML (25 min)</a></li>
+                    <li><a href="#">🎥 Generación de Business Case Multi-Cloud (30 min)</a></li>
+                </ul>
+
+                <h3>Checklist de Outputs</h3>
+                <p>Verifica que todos los entregables estén completos antes de finalizar:</p>
+
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Inventario completo multi-cloud con métricas detalladas</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Mapa completo de dependencias entre aplicaciones</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis de patrones de uso y performance</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Recomendaciones de migración basadas en ML</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis comparativo multi-cloud (AWS, Azure, GCP)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Business case con múltiples escenarios</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Roadmap de migración con waves optimizadas</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis de riesgos y compliance</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Reporte de optimización de costos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Presentación ejecutiva personalizada</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Documentación técnica completa</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Exportación de datos y reportes de Concierto</label>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Próximos Pasos:</strong> Una vez completado el assessment con Concierto, procede a consolidar los resultados con el <a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a> y el <a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a>.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+</body>
+</html>

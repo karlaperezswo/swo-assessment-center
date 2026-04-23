@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matilda - Guía Completa</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html" class="active">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="herramientas-colecta.html">Herramientas de Colecta</a> / Matilda
+            </div>
+
+            <section class="content-section">
+                <h2>Matilda</h2>
+                <p>Matilda es una plataforma especializada en el análisis y migración de sistemas legacy, incluyendo mainframes, AS/400, y aplicaciones monolíticas complejas. Es la herramienta ideal cuando se trabaja con infraestructura heredada.</p>
+
+                <h3>Prerrequisitos</h3>
+                <h4>Requisitos Técnicos</h4>
+                <ul>
+                    <li><strong>Sistemas Operativos Soportados:</strong>
+                        <ul>
+                            <li>Windows Server 2008 y superior</li>
+                            <li>Linux (RHEL, CentOS, Ubuntu, SUSE)</li>
+                            <li>AIX (todas las versiones)</li>
+                            <li>Solaris, HP-UX</li>
+                            <li>IBM i (AS/400, iSeries)</li>
+                            <li>z/OS (Mainframe)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Recursos del Sistema:</strong>
+                        <ul>
+                            <li>CPU: 2% de uso disponible</li>
+                            <li>RAM: 100 MB disponibles</li>
+                            <li>Disco: 200 MB de espacio libre</li>
+                        </ul>
+                    </li>
+                    <li><strong>Conectividad:</strong>
+                        <ul>
+                            <li>Acceso HTTPS saliente al puerto 443</li>
+                            <li>URL permitida: *.matilda.cloud</li>
+                            <li>Soporte para entornos air-gapped (offline)</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>Permisos Necesarios</h4>
+                <ul>
+                    <li><strong>Windows:</strong> Administrador local</li>
+                    <li><strong>Linux/Unix:</strong> Usuario root o sudo</li>
+                    <li><strong>AIX:</strong> Usuario con permisos de sistema</li>
+                    <li><strong>AS/400:</strong> Perfil con autoridad *ALLOBJ</li>
+                    <li><strong>Mainframe:</strong> Usuario con permisos de lectura de datasets</li>
+                </ul>
+
+                <h4>Información Requerida del Cliente</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Inventario de sistemas legacy y aplicaciones</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Documentación de arquitectura existente</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Credenciales de acceso a sistemas legacy</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Información de licenciamiento actual</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Ventanas de mantenimiento disponibles</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Contactos de expertos en sistemas legacy</label>
+                    </div>
+                </div>
+
+                <h3>Proceso (Timeline, Matriz RACI)</h3>
+                
+                <h4>Timeline del Proyecto</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fase</th>
+                            <th>Duración</th>
+                            <th>Actividades Principales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Semana 1-2</td>
+                            <td>10 días</td>
+                            <td>Análisis preliminar, instalación de agentes, configuración especializada</td>
+                        </tr>
+                        <tr>
+                            <td>Semanas 3-5</td>
+                            <td>21 días</td>
+                            <td>Recolección de datos, análisis de código legacy, mapeo de dependencias</td>
+                        </tr>
+                        <tr>
+                            <td>Semana 6</td>
+                            <td>7 días</td>
+                            <td>Análisis de viabilidad de modernización, evaluación de estrategias</td>
+                        </tr>
+                        <tr>
+                            <td>Semana 7</td>
+                            <td>5 días</td>
+                            <td>Desarrollo de business case, preparación de recomendaciones</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Matriz RACI</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Actividad</th>
+                            <th>Consultor Lead</th>
+                            <th>Consultor Técnico</th>
+                            <th>Cliente IT</th>
+                            <th>Cliente Negocio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Análisis de Sistemas Legacy</td>
+                            <td>R/A</td>
+                            <td>R</td>
+                            <td>C</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Instalación de Agentes</td>
+                            <td>A</td>
+                            <td>R</td>
+                            <td>R</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Recolección de Datos</td>
+                            <td>A</td>
+                            <td>R</td>
+                            <td>C</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Análisis de Código</td>
+                            <td>A</td>
+                            <td>R</td>
+                            <td>C</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Evaluación de Estrategias</td>
+                            <td>R/A</td>
+                            <td>R</td>
+                            <td>C</td>
+                            <td>C</td>
+                        </tr>
+                        <tr>
+                            <td>Presentación de Resultados</td>
+                            <td>R/A</td>
+                            <td>C</td>
+                            <td>C</td>
+                            <td>A</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><em>R=Responsable, A=Aprobador, C=Consultado, I=Informado</em></p>
+
+                <h3>Plantillas</h3>
+                <p>Descarga las plantillas necesarias para el proyecto Matilda:</p>
+                <ul>
+                    <li><a href="#">📄 Plantilla de Inventario de Sistemas Legacy</a></li>
+                    <li><a href="#">📄 Checklist de Análisis de Mainframe</a></li>
+                    <li><a href="#">📄 Template de Evaluación de Modernización</a></li>
+                    <li><a href="#">📄 Plantilla de Business Case para Legacy</a></li>
+                    <li><a href="#">📄 Template de Estrategia de Migración 7Rs</a></li>
+                </ul>
+
+                <h3>Manuales</h3>
+                <p>Documentación técnica y guías de usuario:</p>
+                <ul>
+                    <li><a href="#">📘 Manual de Instalación en Sistemas AIX</a></li>
+                    <li><a href="#">📘 Guía de Configuración para AS/400</a></li>
+                    <li><a href="#">📘 Manual de Análisis de Mainframe z/OS</a></li>
+                    <li><a href="#">📘 Guía de Usuario de la Plataforma Matilda</a></li>
+                    <li><a href="#">📘 Manual de Análisis de Código Legacy</a></li>
+                    <li><a href="#">📘 Guía de Estrategias de Modernización</a></li>
+                </ul>
+
+                <h3>Troubleshooting</h3>
+                
+                <h4>Problema: Agente no se instala en sistema legacy</h4>
+                <p><strong>Síntomas:</strong> Fallo en la instalación del agente en AIX o AS/400</p>
+                <p><strong>Soluciones:</strong></p>
+                <ol>
+                    <li>Verificar compatibilidad de versión del sistema operativo</li>
+                    <li>Confirmar que hay espacio suficiente en disco</li>
+                    <li>Validar permisos del usuario de instalación</li>
+                    <li>Revisar dependencias de librerías del sistema</li>
+                    <li>Consultar logs de instalación en /var/log/matilda/</li>
+                    <li>Contactar soporte especializado de Matilda</li>
+                </ol>
+
+                <h4>Problema: Análisis de código incompleto</h4>
+                <p><strong>Síntomas:</strong> No se detectan todas las aplicaciones o módulos</p>
+                <p><strong>Soluciones:</strong></p>
+                <ol>
+                    <li>Verificar que el agente tenga acceso a todos los directorios de aplicaciones</li>
+                    <li>Confirmar que los lenguajes legacy estén soportados (COBOL, RPG, etc.)</li>
+                    <li>Extender el período de análisis para capturar más información</li>
+                    <li>Complementar con análisis manual de código fuente</li>
+                    <li>Revisar configuración de exclusiones en el agente</li>
+                </ol>
+
+                <h4>Problema: Performance degradada en sistema legacy</h4>
+                <p><strong>Síntomas:</strong> El sistema se vuelve lento después de instalar el agente</p>
+                <p><strong>Soluciones:</strong></p>
+                <ol>
+                    <li>Ajustar la frecuencia de recolección de métricas</li>
+                    <li>Programar análisis intensivos fuera de horario productivo</li>
+                    <li>Reducir el alcance del análisis de código</li>
+                    <li>Aumentar recursos asignados al sistema (si es posible)</li>
+                    <li>Considerar análisis offline con exportación de datos</li>
+                </ol>
+
+                <h3>Descargables</h3>
+                <p>Recursos adicionales para el proyecto:</p>
+                <ul>
+                    <li><a href="#">💾 Matilda Agent para AIX</a></li>
+                    <li><a href="#">💾 Matilda Agent para AS/400</a></li>
+                    <li><a href="#">💾 Matilda Agent para z/OS</a></li>
+                    <li><a href="#">💾 Script de Análisis Offline</a></li>
+                    <li><a href="#">💾 Herramienta de Validación de Compatibilidad</a></li>
+                    <li><a href="#">📊 Template de Análisis de Complejidad</a></li>
+                </ul>
+
+                <h3>Videos de Entrenamiento</h3>
+                <p>Tutoriales en video para el equipo:</p>
+                <ul>
+                    <li><a href="#">🎥 Introducción a Matilda y Sistemas Legacy (25 min)</a></li>
+                    <li><a href="#">🎥 Instalación en Sistemas AIX (20 min)</a></li>
+                    <li><a href="#">🎥 Configuración para AS/400 (25 min)</a></li>
+                    <li><a href="#">🎥 Análisis de Mainframe z/OS (30 min)</a></li>
+                    <li><a href="#">🎥 Estrategias de Modernización de Legacy (35 min)</a></li>
+                    <li><a href="#">🎥 Evaluación de Refactoring vs Replatforming (30 min)</a></li>
+                </ul>
+
+                <h3>Checklist de Outputs</h3>
+                <p>Verifica que todos los entregables estén completos antes de finalizar:</p>
+
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Inventario completo de sistemas legacy</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis de código fuente y dependencias</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Evaluación de complejidad de aplicaciones</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Mapeo de integraciones y dependencias externas</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis de viabilidad de modernización</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Recomendaciones de estrategia por aplicación (7Rs)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Business case con análisis de TCO legacy vs cloud</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Plan de modernización por fases</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Identificación de riesgos técnicos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Evaluación de skills gap del equipo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Presentación ejecutiva con roadmap</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Documentación técnica detallada de sistemas legacy</label>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Próximos Pasos:</strong> Una vez completado el assessment con Matilda, procede a consolidar los resultados con el <a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a> y el <a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a>.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+</body>
+</html>

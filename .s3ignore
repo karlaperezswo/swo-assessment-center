@@ -1,0 +1,31 @@
+# Archivos a excluir del despliegue a S3
+
+# Scripts de despliegue
+deploy-to-s3.ps1
+*.ps1
+
+# Documentación de desarrollo
+README.md
+GUIA_EXPORTAR_A_CONFLUENCE.md
+GUIA_DESPLIEGUE_S3.md
+MENU_DESPLEGABLE_EXPLICACION.md
+COMO_REFRESCAR_PAGINA.txt
+
+# Confluence export
+confluence-export/
+
+# Git
+.git/
+.gitignore
+
+# Carpetas temporales
+Nueva carpeta/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de configuración local
+*.local
+.env

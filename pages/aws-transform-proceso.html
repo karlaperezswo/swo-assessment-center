@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proceso de uso de Transform - AWS Transform</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html" class="active">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li>
+                        <a href="immersion-days.html">Immersion Days <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="immersion-days.html#materiales">Materiales de apoyo</a></li>
+                            <li><a href="immersion-days.html#videos">Videos de capacitaciones</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="aws-transform.html">AWS Transform</a> / Proceso de uso de Transform
+            </div>
+
+            <section class="content-section">
+                <h2>Proceso de Migración VMware a AWS con AWS Transform</h2>
+                <p>Este documento describe el proceso de migración de servidores VMware hacia Amazon Web Services (AWS) utilizando AWS Transform. La migración se realiza mediante una estrategia de rehost (lift-and-shift) utilizando AWS Application Migration Service (MGN) en modalidad single-account.</p>
+
+                <h3>Fase 1: Descubrimiento e Importación de Inventario</h3>
+                <p><strong>Objetivo:</strong> Identificar y recopilar información sobre la infraestructura VMware de origen.</p>
+
+                <h4>Actividades</h4>
+                <ul>
+                    <li>Importar los archivos de inventario de la infraestructura VMware de origen:
+                        <ul>
+                            <li>Exportación de RVTools con datos del entorno VMware (<code>.xlsx</code>)</li>
+                            <li>Exportación del Discovery Tool (<code>.zip</code>)</li>
+                        </ul>
+                    </li>
+                    <li>AWS Transform procesa los datos y extrae:
+                        <ul>
+                            <li>Información de servidores y configuraciones</li>
+                            <li>Sistemas operativos</li>
+                            <li>Recursos de cómputo (CPU, memoria)</li>
+                            <li>Almacenamiento y relaciones de red</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>Resultado:</strong> Inventario completo de servidores VMware procesado y disponible para planificación.
+                </div>
+
+                <h3>Fase 2: Planificación de Migración</h3>
+                <p><strong>Objetivo:</strong> Agrupar servidores en aplicaciones y definir oleadas (waves) de migración.</p>
+
+                <h4>Actividades</h4>
+                <ul>
+                    <li>Analizar las dependencias entre servidores y aplicaciones</li>
+                    <li>Agrupar los servidores en aplicaciones lógicas basadas en dependencias técnicas y de negocio</li>
+                    <li>Generar un plan de oleadas (wave plan) de migración</li>
+                </ul>
+
+                <h4>Artefacto generado</h4>
+                <ul>
+                    <li><code>migration_planning/wave_plan-[fecha].csv</code> — Plan de oleadas con la asignación de servidores a waves</li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>Resultado:</strong> Se define la oleada Wave 0 con los grupos de servidores a migrar.
+                </div>
+
+                <h3>Fase 3: Conexión a la Cuenta AWS de Destino</h3>
+                <p><strong>Objetivo:</strong> Establecer la conexión segura entre AWS Transform y la cuenta AWS de destino.</p>
+
+                <h4>Actividades</h4>
+                <ul>
+                    <li>Configurar el conector de cuenta de destino (Target account connection)</li>
+                    <li>Establecer la conexión con la cuenta AWS de destino</li>
+                    <li>Configurar el rol IAM correspondiente</li>
+                </ul>
+
+                <h4>Parámetros de configuración</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parámetro</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Cuenta AWS de destino</td>
+                            <td>ID de la cuenta AWS receptora</td>
+                        </tr>
+                        <tr>
+                            <td>Región de destino</td>
+                            <td>Región AWS seleccionada (ej. us-east-2)</td>
+                        </tr>
+                        <tr>
+                            <td>Tipo de migración</td>
+                            <td>Single-account</td>
+                        </tr>
+                        <tr>
+                            <td>Rol IAM</td>
+                            <td>AWSTransform-Connector-role</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-success">
+                    <strong>Resultado:</strong> Conexión activa y verificada con la cuenta de destino.
+                </div>
+
+                <h3>Fase 4: Migración de Red</h3>
+                <p><strong>Objetivo:</strong> Configurar la infraestructura de red necesaria en AWS para recibir los servidores migrados.</p>
+
+                <h4>Actividades</h4>
+                <ul>
+                    <li>Diseñar y desplegar la topología de red en AWS</li>
+                    <li>Configurar VPCs, subnets, security groups y demás componentes de red</li>
+                    <li>Asegurar la conectividad entre el entorno de origen y la infraestructura AWS de destino</li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>Resultado:</strong> Infraestructura de red desplegada y lista para recibir los servidores migrados.
+                </div>
+
+                <h3>Fase 5: Preparación y Ejecución del Plan de Migración</h3>
+                <p><strong>Objetivo:</strong> Preparar los artefactos necesarios para la ejecución de la migración con AWS MGN.</p>
+
+                <h4>Actividades</h4>
+                <ul>
+                    <li>Generar el inventario enriquecido de MGN (<code>enriched_inventory-[id]-[fecha].csv</code>)</li>
+                    <li>Generar recomendaciones de instancias EC2 para los servidores</li>
+                    <li>Crear el archivo de importación MGN específico para cada Wave (<code>mgn_import_Wave_[nombre]-[fecha].csv</code>)</li>
+                    <li>Verificar que todos los servidores sean emparejados exitosamente con tipos de instancia EC2</li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>Resultado:</strong> Todos los servidores de la Wave configurados con tipos de instancia EC2 apropiados.
+                </div>
+
+                <h3>Fase 6: Ejecución de la Migración</h3>
+                <p><strong>Objetivo:</strong> Ejecutar la migración de los servidores de cada Wave.</p>
+
+                <h4>Actividades</h4>
+                <ol>
+                    <li>Iniciar la replicación de datos de los servidores mediante AWS MGN</li>
+                    <li>Ejecutar pruebas de lanzamiento (test launch) para validar la migración</li>
+                    <li>Revisar las instancias de prueba generadas</li>
+                    <li>Aprobar las acciones de cutover a través de la consola de aprobaciones</li>
+                    <li>Ejecutar el cutover de las instancias</li>
+                </ol>
+
+                <div class="alert alert-warning">
+                    <strong>Nota:</strong> Verificar el estado de cada servidor antes de aprobar el cutover. El proceso es irreversible una vez completado.
+                </div>
+
+                <h3>Resumen de Artefactos Generados</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Artefacto</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>RVTools export (.xlsx)</td>
+                            <td>Archivo de inventario VMware de origen</td>
+                        </tr>
+                        <tr>
+                            <td>Discovery Tool export (.zip)</td>
+                            <td>Datos de descubrimiento de 28 días</td>
+                        </tr>
+                        <tr>
+                            <td>wave_plan-[fecha].csv</td>
+                            <td>Plan de oleadas de migración</td>
+                        </tr>
+                        <tr>
+                            <td>enriched_inventory-[id]-[fecha].csv</td>
+                            <td>Inventario enriquecido de MGN</td>
+                        </tr>
+                        <tr>
+                            <td>mgn_import_Wave_[nombre]-[fecha].csv</td>
+                            <td>Archivo de importación MGN por Wave</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-success">
+                    <strong>Siguiente paso:</strong> Para configurar el conector MGN en el entorno on-premises, consulta la guía de <a href="aws-transform-mgn.html">Uso de MGN Connector</a>.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

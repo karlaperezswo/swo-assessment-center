@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalación de Agentes - MAP Assessment</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html" class="active">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="map-assessment.html">MAP Assessment</a> / Instalación de Agentes
+            </div>
+
+            <section class="content-section">
+                <h2>Instalación de Agentes</h2>
+                
+                <p>La instalación de agentes es un paso crítico que debe ejecutarse con cuidado para asegurar la recolección exitosa de datos sin impactar las operaciones del cliente.</p>
+
+                <div class="alert alert-info">
+                    <strong>Objetivo:</strong> Instalar y configurar los agentes de colecta en todos los servidores objetivo de manera eficiente y segura.
+                </div>
+
+                <h3>Preparación Pre-Instalación</h3>
+
+                <h4>Requisitos Previos</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Lista completa de servidores validada</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Credenciales de acceso verificadas</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Aprobaciones de seguridad obtenidas</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Ventana de mantenimiento coordinada</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Conectividad de red validada</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Reglas de firewall configuradas</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Instaladores descargados y verificados</label>
+                    </div>
+                </div>
+
+                <h3>Métodos de Instalación</h3>
+
+                <h4>1. Instalación Manual</h4>
+                <p><strong>Cuándo usar:</strong> Entornos pequeños (&lt;20 servidores) o servidores críticos</p>
+                <ul>
+                    <li>Conexión directa a cada servidor</li>
+                    <li>Instalación paso a paso</li>
+                    <li>Verificación inmediata</li>
+                    <li>Mayor control del proceso</li>
+                </ul>
+
+                <h4>2. Instalación Masiva (Scripted)</h4>
+                <p><strong>Cuándo usar:</strong> Entornos medianos a grandes (&gt;20 servidores)</p>
+                <ul>
+                    <li>Scripts de PowerShell (Windows)</li>
+                    <li>Scripts de Bash (Linux)</li>
+                    <li>Ansible playbooks</li>
+                    <li>Herramientas de gestión de configuración</li>
+                </ul>
+
+                <h4>3. Instalación Remota</h4>
+                <p><strong>Cuándo usar:</strong> Cuando no hay acceso directo a los servidores</p>
+                <ul>
+                    <li>PSExec para Windows</li>
+                    <li>SSH para Linux</li>
+                    <li>Herramientas de administración remota</li>
+                </ul>
+
+                <h3>Proceso de Instalación</h3>
+
+                <h4>Paso 1: Instalación Piloto</h4>
+                <ul>
+                    <li>Seleccionar 2-3 servidores de prueba</li>
+                    <li>Instalar agentes manualmente</li>
+                    <li>Verificar conectividad y recolección</li>
+                    <li>Validar impacto en performance</li>
+                    <li>Documentar lecciones aprendidas</li>
+                </ul>
+
+                <h4>Paso 2: Instalación por Fases</h4>
+                <ul>
+                    <li><strong>Fase 1:</strong> Servidores no críticos (10-20%)</li>
+                    <li><strong>Fase 2:</strong> Servidores de desarrollo/QA (30-40%)</li>
+                    <li><strong>Fase 3:</strong> Servidores de producción no críticos (20-30%)</li>
+                    <li><strong>Fase 4:</strong> Servidores críticos de producción (10-20%)</li>
+                </ul>
+
+                <h4>Paso 3: Verificación Post-Instalación</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Agente instalado correctamente</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Servicio ejecutándose</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Conectividad con el servidor de colecta</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Datos comenzando a recolectarse</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Sin impacto en performance</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Logs sin errores</label>
+                    </div>
+                </div>
+
+                <h3>Troubleshooting Común</h3>
+
+                <h4>Problema: Agente no se conecta</h4>
+                <p><strong>Soluciones:</strong></p>
+                <ul>
+                    <li>Verificar reglas de firewall</li>
+                    <li>Validar configuración de proxy</li>
+                    <li>Revisar conectividad de red</li>
+                    <li>Verificar URLs permitidas</li>
+                </ul>
+
+                <h4>Problema: Fallo en la instalación</h4>
+                <p><strong>Soluciones:</strong></p>
+                <ul>
+                    <li>Verificar permisos de usuario</li>
+                    <li>Validar espacio en disco</li>
+                    <li>Revisar dependencias del sistema</li>
+                    <li>Consultar logs de instalación</li>
+                </ul>
+
+                <h4>Problema: Alto consumo de recursos</h4>
+                <p><strong>Soluciones:</strong></p>
+                <ul>
+                    <li>Ajustar frecuencia de recolección</li>
+                    <li>Verificar configuración del agente</li>
+                    <li>Revisar si hay múltiples instancias</li>
+                    <li>Contactar soporte técnico</li>
+                </ul>
+
+                <h3>Mejores Prácticas</h3>
+                <ul>
+                    <li><strong>Comunicación:</strong> Mantener al cliente informado del progreso</li>
+                    <li><strong>Documentación:</strong> Registrar cada instalación y su estado</li>
+                    <li><strong>Monitoreo:</strong> Verificar agentes diariamente</li>
+                    <li><strong>Backup:</strong> Tener plan de rollback si es necesario</li>
+                    <li><strong>Coordinación:</strong> Trabajar con el equipo del cliente</li>
+                </ul>
+
+                <h3>Plantillas y Scripts</h3>
+                <ul>
+                    <li><a href="#">💻 Script de Instalación Masiva Windows</a></li>
+                    <li><a href="#">💻 Script de Instalación Masiva Linux</a></li>
+                    <li><a href="#">📄 Checklist de Instalación</a></li>
+                    <li><a href="#">📄 Log de Instalaciones</a></li>
+                    <li><a href="#">📄 Guía de Troubleshooting</a></li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>Tip:</strong> Mantén un dashboard actualizado del estado de instalación de todos los agentes para facilitar el seguimiento.
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <a href="map-seleccion-herramienta.html" class="btn">← Anterior: Selección de Herramienta</a>
+                    <a href="map-recoleccion-datos.html" class="btn" style="float: right;">Siguiente: Recolección de Datos →</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+INSTRUCCIONES PARA LA IMAGEN DEL DIAGRAMA MAP
+==============================================
+
+Por favor, guarda la imagen que proporcionaste con el nombre:
+
+    map-phases-diagram.png
+
+En esta carpeta (assets/).
+
+La imagen muestra las tres fases del programa MAP:
+- Assess
+- Mobilize  
+- Migrate & Modernize
+
+Con todas las actividades y entregables de cada fase.
+
+Una vez que coloques la imagen aquí, se mostrará automáticamente en la página 
+"Introducción al Programa MAP" justo después de la pregunta "¿Qué es el AWS 
+Migration Acceleration Program (MAP)?".
+
+Especificaciones de la imagen:
+- Nombre: map-phases-diagram.png
+- Formato: PNG (preferido) o JPG
+- Ubicación: assets/map-phases-diagram.png
+- La imagen se mostrará responsive (se adapta al tamaño de pantalla)

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Case - MAP Assessment</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html" class="active">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="map-assessment.html">MAP Assessment</a> / Business Case
+            </div>
+
+            <section class="content-section">
+                <h2>Desarrollo del Business Case</h2>
+                
+                <p>El Business Case es el documento fundamental que justifica la migración a AWS desde una perspectiva financiera y estratégica. Debe presentar un análisis claro del retorno de inversión y los beneficios esperados.</p>
+
+                <div class="alert alert-info">
+                    <strong>Objetivo:</strong> Crear un caso de negocio convincente que demuestre el valor de la migración a AWS y obtenga la aprobación de los stakeholders.
+                </div>
+
+                <h3>Componentes del Business Case</h3>
+
+                <h4>1. Resumen Ejecutivo</h4>
+                <ul>
+                    <li><strong>Situación actual:</strong> Estado de la infraestructura on-premises</li>
+                    <li><strong>Propuesta:</strong> Migración a AWS y alcance</li>
+                    <li><strong>Beneficios clave:</strong> Ahorros, agilidad, innovación</li>
+                    <li><strong>Inversión requerida:</strong> Costos de migración y operación</li>
+                    <li><strong>ROI esperado:</strong> Período de recuperación y beneficios a largo plazo</li>
+                    <li><strong>Recomendación:</strong> Próximos pasos</li>
+                </ul>
+
+                <h4>2. Análisis de Costos (TCO)</h4>
+                
+                <h5>Costos On-Premises (Baseline)</h5>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Categoría</th>
+                            <th>Componentes</th>
+                            <th>Consideraciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Hardware</td>
+                            <td>Servidores, storage, red</td>
+                            <td>Incluir depreciación y reemplazo</td>
+                        </tr>
+                        <tr>
+                            <td>Software</td>
+                            <td>Licencias, soporte, actualizaciones</td>
+                            <td>Costos anuales recurrentes</td>
+                        </tr>
+                        <tr>
+                            <td>Datacenter</td>
+                            <td>Espacio, energía, refrigeración</td>
+                            <td>Costos por rack o m²</td>
+                        </tr>
+                        <tr>
+                            <td>Personal</td>
+                            <td>Salarios, beneficios, capacitación</td>
+                            <td>FTEs dedicados a infraestructura</td>
+                        </tr>
+                        <tr>
+                            <td>Mantenimiento</td>
+                            <td>Reparaciones, actualizaciones</td>
+                            <td>Contratos de soporte</td>
+                        </tr>
+                        <tr>
+                            <td>Seguridad</td>
+                            <td>Herramientas, auditorías</td>
+                            <td>Compliance y certificaciones</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h5>Costos en AWS (Proyección)</h5>
+                <ul>
+                    <li><strong>Compute:</strong> EC2 (On-Demand, Reserved Instances, Savings Plans)</li>
+                    <li><strong>Storage:</strong> EBS, S3, EFS, Glacier</li>
+                    <li><strong>Database:</strong> RDS, Aurora, DynamoDB</li>
+                    <li><strong>Networking:</strong> VPC, Direct Connect, transferencia de datos</li>
+                    <li><strong>Servicios adicionales:</strong> Load Balancers, CloudWatch, Backup</li>
+                    <li><strong>Soporte AWS:</strong> Business o Enterprise Support</li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>Tip:</strong> Utiliza AWS Pricing Calculator para generar estimaciones precisas basadas en las recomendaciones de rightsizing.
+                </div>
+
+                <h4>3. Análisis de Beneficios</h4>
+
+                <h5>Beneficios Financieros</h5>
+                <ul>
+                    <li><strong>Reducción de CapEx:</strong> Eliminación de inversiones en hardware</li>
+                    <li><strong>Optimización de OpEx:</strong> Pago por uso real</li>
+                    <li><strong>Rightsizing:</strong> Ajuste preciso de recursos</li>
+                    <li><strong>Elasticidad:</strong> Escalado automático según demanda</li>
+                    <li><strong>Reducción de personal:</strong> Menos FTEs en tareas operativas</li>
+                </ul>
+
+                <h5>Beneficios Operacionales</h5>
+                <ul>
+                    <li><strong>Agilidad:</strong> Provisión de recursos en minutos</li>
+                    <li><strong>Disponibilidad:</strong> SLAs de 99.99% o superior</li>
+                    <li><strong>Escalabilidad:</strong> Crecimiento sin límites físicos</li>
+                    <li><strong>Automatización:</strong> Reducción de tareas manuales</li>
+                    <li><strong>Innovación:</strong> Acceso a servicios avanzados (ML, IoT, Analytics)</li>
+                </ul>
+
+                <h5>Beneficios Estratégicos</h5>
+                <ul>
+                    <li><strong>Time-to-market:</strong> Lanzamiento más rápido de productos</li>
+                    <li><strong>Alcance global:</strong> Presencia en múltiples regiones</li>
+                    <li><strong>Seguridad:</strong> Infraestructura certificada y compliance</li>
+                    <li><strong>Sostenibilidad:</strong> Reducción de huella de carbono</li>
+                    <li><strong>Competitividad:</strong> Adopción de tecnologías modernas</li>
+                </ul>
+
+                <h4>4. Análisis Financiero</h4>
+
+                <h5>Métricas Clave</h5>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label><strong>ROI (Return on Investment):</strong> % de retorno sobre la inversión</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label><strong>Payback Period:</strong> Tiempo para recuperar la inversión</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label><strong>NPV (Net Present Value):</strong> Valor presente neto</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label><strong>TCO Savings:</strong> Ahorro total en 3-5 años</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label><strong>Break-even Point:</strong> Punto de equilibrio</label>
+                    </div>
+                </div>
+
+                <h5>Proyección a 3-5 Años</h5>
+                <ul>
+                    <li>Año 1: Costos de migración y estabilización</li>
+                    <li>Año 2: Optimización y reducción de costos</li>
+                    <li>Año 3-5: Ahorros sostenidos y modernización</li>
+                </ul>
+
+                <h4>5. Análisis de Riesgos</h4>
+
+                <h5>Riesgos Identificados</h5>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Riesgo</th>
+                            <th>Impacto</th>
+                            <th>Probabilidad</th>
+                            <th>Mitigación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sobrecostos de migración</td>
+                            <td>Alto</td>
+                            <td>Media</td>
+                            <td>Planning detallado, contingencia 15-20%</td>
+                        </tr>
+                        <tr>
+                            <td>Downtime no planificado</td>
+                            <td>Alto</td>
+                            <td>Baja</td>
+                            <td>Migración por fases, rollback plan</td>
+                        </tr>
+                        <tr>
+                            <td>Resistencia al cambio</td>
+                            <td>Medio</td>
+                            <td>Alta</td>
+                            <td>Change management, capacitación</td>
+                        </tr>
+                        <tr>
+                            <td>Falta de skills</td>
+                            <td>Medio</td>
+                            <td>Media</td>
+                            <td>Training, soporte de partners</td>
+                        </tr>
+                        <tr>
+                            <td>Problemas de compliance</td>
+                            <td>Alto</td>
+                            <td>Baja</td>
+                            <td>Auditoría previa, servicios certificados</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>6. Opciones de Financiamiento</h4>
+
+                <h5>MAP Funding</h5>
+                <ul>
+                    <li><strong>Assess Phase:</strong> Financiamiento para la evaluación</li>
+                    <li><strong>Mobilize Phase:</strong> Créditos para preparación</li>
+                    <li><strong>Migrate Phase:</strong> Créditos basados en consumo comprometido</li>
+                </ul>
+
+                <h5>Modelos de Pago AWS</h5>
+                <ul>
+                    <li><strong>On-Demand:</strong> Pago por hora sin compromiso</li>
+                    <li><strong>Reserved Instances:</strong> Descuentos hasta 72% con compromiso 1-3 años</li>
+                    <li><strong>Savings Plans:</strong> Flexibilidad con descuentos hasta 72%</li>
+                    <li><strong>Spot Instances:</strong> Hasta 90% descuento para cargas tolerantes</li>
+                </ul>
+
+                <h3>Estructura del Documento</h3>
+
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Portada y tabla de contenidos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Resumen ejecutivo (1-2 páginas)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Situación actual y desafíos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Propuesta de migración y alcance</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis de costos (TCO)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis de beneficios</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis financiero (ROI, NPV, Payback)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis de riesgos y mitigación</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Opciones de financiamiento</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Recomendaciones y próximos pasos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Anexos (metodología, supuestos, detalles técnicos)</label>
+                    </div>
+                </div>
+
+                <h3>Mejores Prácticas</h3>
+
+                <ul>
+                    <li><strong>Claridad:</strong> Lenguaje ejecutivo, evitar jerga técnica excesiva</li>
+                    <li><strong>Visualización:</strong> Gráficos y tablas para facilitar comprensión</li>
+                    <li><strong>Realismo:</strong> Supuestos conservadores y transparentes</li>
+                    <li><strong>Comparación:</strong> Escenarios múltiples (conservador, moderado, optimista)</li>
+                    <li><strong>Validación:</strong> Revisión con stakeholders financieros</li>
+                    <li><strong>Alineación:</strong> Conectar con objetivos estratégicos del negocio</li>
+                </ul>
+
+                <div class="alert alert-warning">
+                    <strong>Importante:</strong> El Business Case debe ser revisado y aprobado por el CFO o responsable financiero antes de presentarlo a la dirección ejecutiva.
+                </div>
+
+                <h3>Herramientas Recomendadas</h3>
+
+                <ul>
+                    <li><strong>AWS Pricing Calculator:</strong> Estimación de costos AWS</li>
+                    <li><strong>AWS TCO Calculator:</strong> Comparación on-premises vs AWS</li>
+                    <li><strong>Cloudamize/Concierto/Matilda:</strong> Datos de utilización y recomendaciones</li>
+                    <li><strong>Excel/Google Sheets:</strong> Modelos financieros personalizados</li>
+                    <li><strong>PowerPoint/Google Slides:</strong> Presentación ejecutiva</li>
+                </ul>
+
+                <div style="margin-top: 2rem;">
+                    <a href="map-validacion-analisis.html" class="btn">← Anterior: Validación y Análisis</a>
+                    <a href="map-plan-migracion.html" class="btn" style="float: right;">Siguiente: Plan de Migración →</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

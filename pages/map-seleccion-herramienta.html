@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selección de Herramienta - MAP Assessment</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html" class="active">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="map-assessment.html">MAP Assessment</a> / Selección de Herramienta
+            </div>
+
+            <section class="content-section">
+                <h2>Selección de Herramienta de Colecta</h2>
+                
+                <p>La selección de la herramienta adecuada es crucial para el éxito del assessment. Esta decisión debe basarse en las características del entorno del cliente, sus restricciones y los objetivos del proyecto.</p>
+
+                <div class="alert alert-info">
+                    <strong>Objetivo:</strong> Seleccionar la herramienta más apropiada que permita recolectar datos precisos y completos del entorno del cliente.
+                </div>
+
+                <h3>Herramientas Disponibles</h3>
+                
+                <h4>1. Cloudamize</h4>
+                <p><strong>Mejor para:</strong> Entornos medianos a grandes con infraestructura moderna</p>
+                <ul>
+                    <li>Agente ligero y fácil de instalar</li>
+                    <li>Análisis automático de rightsizing</li>
+                    <li>Recomendaciones precisas de instancias AWS</li>
+                    <li>Análisis de dependencias avanzado</li>
+                    <li>Soporte para Windows, Linux y VMware</li>
+                </ul>
+
+                <h4>2. Concierto</h4>
+                <p><strong>Mejor para:</strong> Entornos complejos, multi-cloud o con restricciones de agentes</p>
+                <ul>
+                    <li>Modo agentless disponible</li>
+                    <li>Soporte multi-cloud (AWS, Azure, GCP)</li>
+                    <li>Análisis con machine learning</li>
+                    <li>Mapeo de dependencias muy detallado</li>
+                    <li>Ideal para entornos grandes y complejos</li>
+                </ul>
+
+                <h4>3. Matilda</h4>
+                <p><strong>Mejor para:</strong> Sistemas legacy y mainframes</p>
+                <ul>
+                    <li>Especializada en sistemas legacy</li>
+                    <li>Soporte para AIX, AS/400, mainframes</li>
+                    <li>Análisis de código legacy</li>
+                    <li>Evaluación de modernización</li>
+                </ul>
+
+                <h3>Criterios de Selección</h3>
+
+                <h4>1. Tamaño del Entorno</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tamaño</th>
+                            <th>Número de Servidores</th>
+                            <th>Herramienta Recomendada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Pequeño</td>
+                            <td>&lt; 100</td>
+                            <td>Cualquiera</td>
+                        </tr>
+                        <tr>
+                            <td>Mediano</td>
+                            <td>100 - 500</td>
+                            <td>Cloudamize o Concierto</td>
+                        </tr>
+                        <tr>
+                            <td>Grande</td>
+                            <td>&gt; 500</td>
+                            <td>Concierto</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>2. Tipo de Infraestructura</h4>
+                <ul>
+                    <li><strong>Infraestructura moderna (VMware, Hyper-V):</strong> Cloudamize</li>
+                    <li><strong>Multi-cloud o híbrida:</strong> Concierto</li>
+                    <li><strong>Sistemas legacy (AS/400, mainframes):</strong> Matilda</li>
+                    <li><strong>Mixta:</strong> Combinación de herramientas</li>
+                </ul>
+
+                <h4>3. Restricciones del Cliente</h4>
+                <ul>
+                    <li><strong>No permite instalación de agentes:</strong> Concierto (agentless)</li>
+                    <li><strong>Restricciones de seguridad estrictas:</strong> Evaluar caso por caso</li>
+                    <li><strong>Sin conectividad a internet:</strong> Modo offline disponible</li>
+                    <li><strong>Entornos regulados:</strong> Verificar compliance de la herramienta</li>
+                </ul>
+
+                <h3>Proceso de Selección</h3>
+
+                <h4>Paso 1: Recopilar Información</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Número total de servidores</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Sistemas operativos utilizados</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Plataformas de virtualización</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Presencia de sistemas legacy</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Restricciones de seguridad</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Conectividad disponible</label>
+                    </div>
+                </div>
+
+                <h4>Paso 2: Evaluar Opciones</h4>
+                <ul>
+                    <li>Comparar características de cada herramienta</li>
+                    <li>Considerar experiencia previa del equipo</li>
+                    <li>Evaluar costos y licenciamiento</li>
+                    <li>Verificar disponibilidad de soporte</li>
+                </ul>
+
+                <h4>Paso 3: Validar con el Cliente</h4>
+                <ul>
+                    <li>Presentar la herramienta recomendada</li>
+                    <li>Explicar el proceso de instalación</li>
+                    <li>Abordar preocupaciones de seguridad</li>
+                    <li>Obtener aprobación formal</li>
+                </ul>
+
+                <h3>Documentación Requerida</h3>
+                <ul>
+                    <li><a href="#">📄 Matriz de Comparación de Herramientas</a></li>
+                    <li><a href="#">📄 Documento de Justificación de Selección</a></li>
+                    <li><a href="#">📄 Análisis de Seguridad de la Herramienta</a></li>
+                    <li><a href="#">📄 Plan de Instalación</a></li>
+                </ul>
+
+                <div class="alert alert-warning">
+                    <strong>Importante:</strong> La selección de herramienta debe documentarse y aprobarse por el cliente antes de proceder con la instalación.
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <a href="map-kickoff-externo.html" class="btn">← Anterior: Kickoff Externo</a>
+                    <a href="map-instalacion-agentes.html" class="btn" style="float: right;">Siguiente: Instalación de Agentes →</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

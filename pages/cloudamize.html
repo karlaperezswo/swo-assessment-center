@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudamize - Guía Completa</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="herramientas-colecta.html">Herramientas de Colecta</a> / Cloudamize
+            </div>
+
+            <section class="content-section">
+                <h2>Cloudamize</h2>
+                <p>Cloudamize es una plataforma de análisis y optimización de infraestructura que proporciona recomendaciones precisas para migración a AWS basadas en datos reales de uso y performance.</p>
+
+                <h3>Prerrequisitos</h3>
+                <h4>Requisitos Técnicos</h4>
+                <ul>
+                    <li><strong>Sistemas Operativos Soportados:</strong>
+                        <ul>
+                            <li>Windows Server 2008 R2 y superior</li>
+                            <li>Linux (RHEL, CentOS, Ubuntu, SUSE, Debian)</li>
+                            <li>VMware vSphere 5.5 y superior</li>
+                        </ul>
+                    </li>
+                    <li><strong>Recursos del Sistema:</strong>
+                        <ul>
+                            <li>CPU: Mínimo 1% de uso disponible</li>
+                            <li>RAM: 50 MB disponibles</li>
+                            <li>Disco: 100 MB de espacio libre</li>
+                        </ul>
+                    </li>
+                    <li><strong>Conectividad:</strong>
+                        <ul>
+                            <li>Acceso HTTPS saliente al puerto 443</li>
+                            <li>URL permitida: *.cloudamize.com</li>
+                            <li>Ancho de banda: ~1 KB/s por servidor</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>Permisos Necesarios</h4>
+                <ul>
+                    <li><strong>Windows:</strong> Administrador local o permisos de lectura WMI</li>
+                    <li><strong>Linux:</strong> Usuario root o sudo para instalación</li>
+                    <li><strong>VMware:</strong> Rol de solo lectura en vCenter</li>
+                </ul>
+
+                <h4>Información Requerida del Cliente</h4>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Lista de servidores con IPs y nombres</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Credenciales de acceso administrativo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Información de proxy (si aplica)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Aprobación de seguridad para instalación de agentes</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Contacto técnico para soporte durante instalación</label>
+                    </div>
+                </div>
+
+                <h3>Proceso (Timeline, Matriz RACI)</h3>
+                
+                <h4>Timeline del Proyecto</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fase</th>
+                            <th>Duración</th>
+                            <th>Actividades Principales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Semana 1</td>
+                            <td>5 días</td>
+                            <td>Setup inicial, instalación de agentes, validación de conectividad</td>
+                        </tr>
+                        <tr>
+                            <td>Semanas 2-3</td>
+                            <td>14 días</td>
+                            <td>Período de recolección de datos, monitoreo de agentes</td>
+                        </tr>
+                        <tr>
+                            <td>Semana 4</td>
+                            <td>5 días</td>
+                            <td>Análisis de datos, generación de reportes, validación</td>
+                        </tr>
+                        <tr>
+                            <td>Semana 5</td>
+                            <td>3 días</td>
+                            <td>Preparación de presentación, revisión con cliente</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Matriz RACI</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Actividad</th>
+                            <th>Consultor Lead</th>
+                            <th>Consultor Técnico</th>
+                            <th>Cliente IT</th>
+                            <th>Cliente Negocio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Planificación del Assessment</td>
+                            <td>R/A</td>
+                            <td>C</td>
+                            <td>C</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Instalación de Agentes</td>
+                            <td>A</td>
+                            <td>R</td>
+                            <td>C</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Monitoreo de Recolección</td>
+                            <td>A</td>
+                            <td>R</td>
+                            <td>I</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Análisis de Datos</td>
+                            <td>R/A</td>
+                            <td>R</td>
+                            <td>C</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Generación de Reportes</td>
+                            <td>R/A</td>
+                            <td>C</td>
+                            <td>I</td>
+                            <td>I</td>
+                        </tr>
+                        <tr>
+                            <td>Presentación de Resultados</td>
+                            <td>R/A</td>
+                            <td>C</td>
+                            <td>C</td>
+                            <td>A</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><em>R=Responsable, A=Aprobador, C=Consultado, I=Informado</em></p>
+
+                <h3>Plantillas</h3>
+                <p>Descarga las plantillas necesarias para el proyecto Cloudamize:</p>
+                <ul>
+                    <li><a href="#">📄 Plantilla de Inventario de Servidores</a></li>
+                    <li><a href="#">📄 Checklist de Instalación de Agentes</a></li>
+                    <li><a href="#">📄 Template de Reporte de Assessment</a></li>
+                    <li><a href="#">📄 Plantilla de Business Case</a></li>
+                    <li><a href="#">📄 Template de Plan de Migración</a></li>
+                </ul>
+
+                <h3>Manuales</h3>
+                <p>Documentación técnica y guías de usuario:</p>
+                <ul>
+                    <li><a href="#">📘 Manual de Instalación de Agentes Windows</a></li>
+                    <li><a href="#">📘 Manual de Instalación de Agentes Linux</a></li>
+                    <li><a href="#">📘 Guía de Configuración de vCenter Connector</a></li>
+                    <li><a href="#">📘 Manual de Usuario de la Plataforma Cloudamize</a></li>
+                    <li><a href="#">📘 Guía de Interpretación de Reportes</a></li>
+                </ul>
+
+                <h3>Troubleshooting</h3>
+                
+                <h4>Problema: Agente no se conecta a Cloudamize</h4>
+                <p><strong>Síntomas:</strong> El agente está instalado pero no aparece en el portal</p>
+                <p><strong>Soluciones:</strong></p>
+                <ol>
+                    <li>Verificar conectividad: <code>telnet cloudamize.com 443</code></li>
+                    <li>Revisar configuración de proxy en el agente</li>
+                    <li>Verificar que el firewall permita tráfico saliente HTTPS</li>
+                    <li>Revisar logs del agente en: <code>/var/log/cloudamize/</code> (Linux) o <code>C:\ProgramData\Cloudamize\logs\</code> (Windows)</li>
+                    <li>Reiniciar el servicio del agente</li>
+                </ol>
+
+                <h4>Problema: Datos incompletos o inconsistentes</h4>
+                <p><strong>Síntomas:</strong> Faltan métricas o los datos no son coherentes</p>
+                <p><strong>Soluciones:</strong></p>
+                <ol>
+                    <li>Verificar que el período de recolección sea de al menos 2 semanas</li>
+                    <li>Confirmar que los agentes han estado activos todo el período</li>
+                    <li>Revisar si hay servidores apagados o en mantenimiento</li>
+                    <li>Validar permisos del agente para acceder a métricas del sistema</li>
+                </ol>
+
+                <h4>Problema: Alto consumo de recursos por el agente</h4>
+                <p><strong>Síntomas:</strong> El agente consume más CPU/RAM de lo esperado</p>
+                <p><strong>Soluciones:</strong></p>
+                <ol>
+                    <li>Ajustar la frecuencia de recolección de métricas</li>
+                    <li>Verificar que no haya múltiples instancias del agente corriendo</li>
+                    <li>Actualizar a la última versión del agente</li>
+                    <li>Contactar soporte de Cloudamize para optimización</li>
+                </ol>
+
+                <h3>Descargables</h3>
+                <p>Recursos adicionales para el proyecto:</p>
+                <ul>
+                    <li><a href="#">💾 Instalador de Agente Windows (64-bit)</a></li>
+                    <li><a href="#">💾 Instalador de Agente Linux (script)</a></li>
+                    <li><a href="#">💾 Script de Instalación Masiva</a></li>
+                    <li><a href="#">💾 Herramienta de Diagnóstico de Conectividad</a></li>
+                    <li><a href="#">📊 Dashboard de Monitoreo (Excel)</a></li>
+                </ul>
+
+                <h3>Videos de Entrenamiento</h3>
+                <p>Tutoriales en video para el equipo:</p>
+                <ul>
+                    <li><a href="#">🎥 Introducción a Cloudamize (15 min)</a></li>
+                    <li><a href="#">🎥 Instalación de Agentes - Paso a Paso (20 min)</a></li>
+                    <li><a href="#">🎥 Navegación del Portal Cloudamize (25 min)</a></li>
+                    <li><a href="#">🎥 Análisis de Reportes y Recomendaciones (30 min)</a></li>
+                    <li><a href="#">🎥 Troubleshooting Común (15 min)</a></li>
+                    <li><a href="#">🎥 Generación del Business Case (20 min)</a></li>
+                </ul>
+
+                <h3>Checklist de Outputs</h3>
+                <p>Verifica que todos los entregables estén completos antes de finalizar:</p>
+
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Inventario completo de servidores con métricas</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Reporte de análisis de infraestructura actual</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Mapa de dependencias entre aplicaciones</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Recomendaciones de rightsizing para AWS</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Análisis de TCO (on-premises vs AWS)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Business case con proyección de costos</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Plan de migración con waves priorizadas</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Identificación de estrategias de migración (7Rs)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Presentación ejecutiva para stakeholders</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Documentación técnica detallada</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Exportación de datos raw de Cloudamize</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Reporte de riesgos y recomendaciones de mitigación</label>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Próximos Pasos:</strong> Una vez completado el assessment con Cloudamize, procede a consolidar los resultados con el <a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a> y el <a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a>.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+</body>
+</html>

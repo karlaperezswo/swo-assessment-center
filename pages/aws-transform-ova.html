@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Instalación OVA - AWS Transform</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html" class="active">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li>
+                        <a href="immersion-days.html">Immersion Days <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="immersion-days.html#materiales">Materiales de apoyo</a></li>
+                            <li><a href="immersion-days.html#videos">Videos de capacitaciones</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / <a href="aws-transform.html">AWS Transform</a> / Manual de Instalación OVA
+            </div>
+
+            <section class="content-section">
+                <h2>Manual de Instalación del OVA en vCenter</h2>
+                <p>Este documento describe el procedimiento para la instalación, configuración y puesta en marcha del Discovery Tool de AWS Transform en un entorno VMware vCenter, incluyendo los prerrequisitos, despliegue del OVA y configuración inicial.</p>
+
+                <h3>1. Prerrequisitos</h3>
+
+                <h4>1.1 Requisitos Generales</h4>
+                <p>Antes de instalar el Discovery Tool, se deben cumplir los siguientes requisitos:</p>
+                <ul>
+                    <li>Máquina virtual con:
+                        <ul>
+                            <li>4 vCPU</li>
+                            <li>16 GB de RAM</li>
+                            <li>35 GB de almacenamiento</li>
+                        </ul>
+                    </li>
+                    <li>Conectividad de red habilitada</li>
+                    <li>Acceso a los servidores objetivo desde la VM del Discovery Tool</li>
+                </ul>
+
+                <h4>1.2 Puertos de Red Requeridos</h4>
+                <p>El Discovery Tool recopila información mediante conexiones entrantes a los servidores:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sistema Operativo</th>
+                            <th>Protocolo</th>
+                            <th>Puerto</th>
+                            <th>Uso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Linux</td>
+                            <td>SSH</td>
+                            <td>TCP 22</td>
+                            <td>Recolección de datos</td>
+                        </tr>
+                        <tr>
+                            <td>Windows (HTTP)</td>
+                            <td>TCP</td>
+                            <td>5985</td>
+                            <td>WinRM</td>
+                        </tr>
+                        <tr>
+                            <td>Windows (HTTPS)</td>
+                            <td>TCP</td>
+                            <td>5986</td>
+                            <td>WinRM</td>
+                        </tr>
+                        <tr>
+                            <td>SNMP</td>
+                            <td>UDP</td>
+                            <td>161</td>
+                            <td>Recolección de red</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>1.3 Requisitos para Linux</h4>
+                <ul>
+                    <li>Usuario con acceso SSH</li>
+                    <li>Permisos para ejecutar comandos:
+                        <ul>
+                            <li><code>ss</code> o <code>netstat</code></li>
+                            <li><code>dmidecode</code></li>
+                            <li><code>lvdisplay</code></li>
+                        </ul>
+                    </li>
+                    <li>Se recomienda configurar sudo sin contraseña (passwordless sudo) para asegurar la recolección completa de datos</li>
+                </ul>
+
+                <h4>1.4 Requisitos para VMware</h4>
+                <ul>
+                    <li>Versión de VMware vCenter: 6.5, 6.7, 7.0 u 8.0</li>
+                    <li>Permisos:
+                        <ul>
+                            <li>Read y View en el grupo System</li>
+                            <li>Permiso para desplegar OVA</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>2. Descarga del Discovery Tool</h3>
+                <ol>
+                    <li>Acceder al entorno de vCenter</li>
+                    <li>Descargar el archivo OVA desde el siguiente enlace:</li>
+                </ol>
+                <div class="alert alert-info">
+                    <strong>URL de descarga:</strong><br>
+                    <code>https://s3.us-east-1.amazonaws.com/atx.discovery.collector.bundle/releases/latest/AWS-Transform-discovery-tool.ova</code>
+                </div>
+
+                <h3>3. Despliegue del OVA</h3>
+                <ol>
+                    <li>Iniciar sesión en vCenter</li>
+                    <li>Seleccionar el clúster o recurso destino</li>
+                    <li>Ejecutar el proceso estándar: <strong>Deploy OVF Template</strong></li>
+                    <li>Seleccionar el archivo <code>.ova</code> descargado</li>
+                    <li>Configurar:
+                        <ul>
+                            <li>Nombre de la VM</li>
+                            <li>Red</li>
+                            <li>Almacenamiento</li>
+                        </ul>
+                    </li>
+                    <li>Finalizar el despliegue</li>
+                </ol>
+
+                <h3>4. Configuración Inicial</h3>
+
+                <h4>4.1 Acceso a la Interfaz</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parámetro</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>URL de acceso</td>
+                            <td><code>https://&lt;IP_VM&gt;:5000</code></td>
+                        </tr>
+                        <tr>
+                            <td>Usuario</td>
+                            <td><code>discovery</code></td>
+                        </tr>
+                        <tr>
+                            <td>Contraseña inicial</td>
+                            <td><code>Password</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>4.2 Cambio de Contraseña</h4>
+                <div class="alert alert-warning">
+                    <strong>Importante:</strong> Crear una nueva contraseña al ingresar por primera vez.
+                </div>
+
+                <h3>5. Configuración de Acceso a vCenter</h3>
+                <ol>
+                    <li>Ingresar a la opción: <strong>Set up access to connect to your vCenter Server</strong></li>
+                    <li>Introducir:
+                        <ul>
+                            <li>FQDN o IP del vCenter (sin <code>https://</code>)</li>
+                            <li>Usuario y contraseña</li>
+                        </ul>
+                    </li>
+                </ol>
+                <div class="alert alert-info">
+                    <strong>Formato de usuario Windows:</strong> <code>DOMINIO\usuario</code>
+                </div>
+                <ol start="3">
+                    <li>Verificar conexión — Estado esperado: <strong>Connected</strong>. Se mostrará la última fecha de recolección.</li>
+                    <li>Para ejecutar recolección manual: <strong>Actions → Force collection</strong></li>
+                </ol>
+
+                <h3>6. Inventario Descubierto</h3>
+                <p>Acceder a <strong>Discovered Inventory</strong> para visualizar:</p>
+                <ul>
+                    <li>Máquinas virtuales</li>
+                    <li>Servicios</li>
+                    <li>Dependencias</li>
+                </ul>
+
+                <h3>7. Configuración de Acceso a Sistemas Operativos</h3>
+
+                <h4>7.1 Tipos de Credenciales</h4>
+                <ul>
+                    <li>SSH (Linux)</li>
+                    <li>WinRM (Windows)</li>
+                </ul>
+                <div class="alert alert-info">
+                    <strong>Formato Kerberos:</strong> <code>usuario@DOMINIO.TLD</code>
+                </div>
+
+                <h4>7.2 Configuración Automática</h4>
+                <p>Activar <strong>Auto-connect</strong> para aplicar credenciales a todas las VMs automáticamente.</p>
+
+                <h4>7.3 Configuración Manual</h4>
+                <ol>
+                    <li>Ir a <strong>Discovered Inventory</strong></li>
+                    <li>Aplicar filtro (ejemplo: <code>atx-wp</code>)</li>
+                    <li>Seleccionar hosts</li>
+                    <li>Elegir <strong>Manage access credential</strong></li>
+                    <li>Asignar credenciales</li>
+                    <li>Guardar y ejecutar recolección</li>
+                </ol>
+
+                <h4>7.4 Validación</h4>
+                <p>Estado esperado:</p>
+                <ul>
+                    <li>Network Status → <strong>Success</strong></li>
+                    <li>Database Status → <strong>Success</strong> (para Windows con SQL Server)</li>
+                </ul>
+
+                <h3>8. Descargas</h3>
+                <ul>
+                    <li><strong>Inventario:</strong> opción <strong>Download Inventory</strong></li>
+                    <li><strong>Logs:</strong> opción <strong>Download Logs</strong></li>
+                </ul>
+
+                <h3>9. Resultados Esperados</h3>
+                <p>Identificación de:</p>
+                <ul>
+                    <li>Servidores</li>
+                    <li>Aplicaciones</li>
+                    <li>Dependencias</li>
+                </ul>
+                <p>Ejemplo de datos recolectados:</p>
+                <ul>
+                    <li>IP origen y destino</li>
+                    <li>Puertos</li>
+                    <li>Protocolos</li>
+                    <li>Servicios activos</li>
+                </ul>
+
+                <h3>10. Recomendaciones</h3>
+                <div class="alert alert-warning">
+                    <ul>
+                        <li>Verificar conectividad de red antes del despliegue</li>
+                        <li>Utilizar cuentas con permisos adecuados</li>
+                        <li>Configurar acceso automático cuando sea posible</li>
+                        <li>Revisar logs en caso de errores</li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Siguiente paso:</strong> Una vez instalado el Discovery Tool, continúa con el <a href="aws-transform-proceso.html">Proceso de uso de Transform</a>.
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

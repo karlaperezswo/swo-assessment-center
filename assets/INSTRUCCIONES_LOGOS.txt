@@ -1,0 +1,45 @@
+INSTRUCCIONES PARA LOGOS
+========================
+
+Esta carpeta debe contener los logos de SoftwareONE y AWS.
+
+Archivos Requeridos:
+-------------------
+1. softwareone-logo.png
+2. aws-logo.png
+
+Especificaciones Recomendadas:
+------------------------------
+- Formato: PNG con fondo transparente
+- Dimensiones: Aproximadamente 200x50 píxeles (altura de 50px)
+- Resolución: 72-150 DPI para web
+- Tamaño de archivo: Menor a 100 KB
+
+Dónde Obtener los Logos:
+-----------------------
+
+SoftwareONE Logo:
+- Portal de marca corporativa de SoftwareONE
+- Contactar al departamento de Marketing
+- URL: [portal interno de branding]
+
+AWS Logo:
+- AWS Marketing Central: https://aws.amazon.com/architecture/icons/
+- AWS Partner Central (para partners)
+- Usar el logo oficial de AWS en formato horizontal
+
+Notas Importantes:
+-----------------
+- Respetar las guías de marca de ambas compañías
+- No modificar los logos (colores, proporciones, etc.)
+- Usar versiones aprobadas oficialmente
+- Los logos se muestran en el header de todas las páginas
+
+Si no tienes acceso a los logos:
+--------------------------------
+Contacta a:
+- Equipo de Marketing SoftwareONE
+- Tu AWS Partner Development Manager
+- Administrador de la wiki
+
+Última actualización: Febrero 2026

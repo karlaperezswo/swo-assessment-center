@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herramientas de Colecta</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="../assets/imagenes/LogoSoftwareone.png" alt="SoftwareONE" class="logo">
+            <h1>MAP Assessment</h1>
+            <img src="../assets/imagenes/LogoAWS.png" alt="AWS" class="logo">
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="introduccion-programa.html">Introducción al Programa MAP</a></li>
+                    <li>
+                        <a href="map-assessment.html">MAP Assessment <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="map-kickoff-interno.html">Kickoff Interno</a></li>
+                            <li><a href="map-kickoff-externo.html">Kickoff Externo</a></li>
+                            <li><a href="map-seleccion-herramienta.html">Selección de Herramienta</a></li>
+                            <li><a href="map-instalacion-agentes.html">Instalación de Agentes</a></li>
+                            <li><a href="map-recoleccion-datos.html">Recolección de Datos</a></li>
+                            <li><a href="map-validacion-analisis.html">Validación y Análisis</a></li>
+                            <li><a href="map-business-case.html">Business Case</a></li>
+                            <li><a href="map-plan-migracion.html">Plan de Migración</a></li>
+                            <li><a href="map-presentacion.html">Presentación Ejecutiva</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="herramientas-colecta.html" class="active">Herramientas de Colecta <span class="submenu-arrow">▼</span></a>
+                        <ul class="submenu">
+                            <li><a href="herramientas-colecta.html#guia">Guía de selección</a></li>
+                            <li><a href="cloudamize.html">Cloudamize</a></li>
+                            <li><a href="concierto.html">Concierto</a></li>
+                            <li><a href="matilda.html">Matilda</a></li>
+                            <li><a href="aws-transform.html">AWS Transform <span class="submenu-arrow">▼</span></a>
+                                <ul class="submenu">
+                                    <li><a href="aws-transform-ova.html">Manual de Instalación OVA</a></li>
+                                    <li><a href="aws-transform-proceso.html">Proceso de uso de Transform</a></li>
+                                    <li><a href="aws-transform-mgn.html">Uso de MGN Connector</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="rapid-discovery.html">Rapid Discovery</a></li>
+                    <li><a href="cuestionario-infraestructura.html">Cuestionario de Infraestructura</a></li>
+                    <li><a href="diagrama-infraestructura.html">Diagrama de Infraestructura</a></li>
+                    <li><a href="immersion-days.html">Immersion Days</a></li>
+                    <li><a href="checklist-entregables.html">Checklist de Entregables Finales</a></li>
+                    <li><a href="recursos.html">Recursos y Descargables</a></li>
+                    <li><a href="faq.html">Preguntas Frecuentes</a></li>
+                    <li><a href="glosario.html">Glosario de Términos</a></li>
+                    <li><a href="contacto.html">Contacto y Soporte</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../index.html">Inicio</a> / Herramientas de Colecta
+            </div>
+
+            <section class="content-section" id="guia">
+                <h2>Herramientas de Colecta</h2>
+                
+                <h3>Guía de Selección de Herramientas</h3>
+                <p>La selección de la herramienta adecuada es crucial para el éxito del assessment. SoftwareONE trabaja con tres herramientas principales, cada una con características específicas que las hacen más adecuadas para diferentes escenarios.</p>
+
+                <h4>Comparativa de Herramientas</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Característica</th>
+                            <th>Cloudamize</th>
+                            <th>Concierto</th>
+                            <th>Matilda</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tipo de Instalación</td>
+                            <td>Agente ligero</td>
+                            <td>Agentless / Agente</td>
+                            <td>Agente</td>
+                        </tr>
+                        <tr>
+                            <td>Plataformas Soportadas</td>
+                            <td>Windows, Linux, VMware</td>
+                            <td>Multi-cloud, On-premises</td>
+                            <td>Windows, Linux, AIX</td>
+                        </tr>
+                        <tr>
+                            <td>Análisis de Dependencias</td>
+                            <td>Sí (avanzado)</td>
+                            <td>Sí (muy detallado)</td>
+                            <td>Sí (básico)</td>
+                        </tr>
+                        <tr>
+                            <td>Recomendaciones AWS</td>
+                            <td>Automáticas</td>
+                            <td>Automáticas + ML</td>
+                            <td>Manuales</td>
+                        </tr>
+                        <tr>
+                            <td>Complejidad de Setup</td>
+                            <td>Media</td>
+                            <td>Baja</td>
+                            <td>Alta</td>
+                        </tr>
+                        <tr>
+                            <td>Mejor Para</td>
+                            <td>Entornos medianos-grandes</td>
+                            <td>Entornos complejos</td>
+                            <td>Entornos legacy</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Criterios de Selección</h4>
+                <p>Considera los siguientes factores al seleccionar la herramienta:</p>
+
+                <div class="alert alert-info">
+                    <strong>1. Tamaño del Entorno</strong>
+                    <ul>
+                        <li>Pequeño (&lt;100 servidores): Cualquier herramienta</li>
+                        <li>Mediano (100-500 servidores): Cloudamize o Concierto</li>
+                        <li>Grande (&gt;500 servidores): Concierto recomendado</li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>2. Complejidad de la Infraestructura</strong>
+                    <ul>
+                        <li>Infraestructura moderna: Cloudamize</li>
+                        <li>Multi-cloud o híbrida: Concierto</li>
+                        <li>Sistemas legacy (AS/400, mainframes): Matilda</li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>3. Restricciones del Cliente</strong>
+                    <ul>
+                        <li>No permite instalación de agentes: Concierto (modo agentless)</li>
+                        <li>Restricciones de seguridad estrictas: Evaluar caso por caso</li>
+                        <li>Conectividad limitada: Considerar colecta offline</li>
+                    </ul>
+                </div>
+
+                <h4>Troubleshooting General al Seleccionar Herramientas</h4>
+                
+                <h5>Problema: Cliente rechaza instalación de agentes</h5>
+                <p><strong>Solución:</strong></p>
+                <ul>
+                    <li>Opción 1: Utilizar Concierto en modo agentless</li>
+                    <li>Opción 2: Proponer instalación en entorno de prueba primero</li>
+                    <li>Opción 3: Demostrar que los agentes son read-only y no afectan performance</li>
+                    <li>Opción 4: Ofrecer análisis de seguridad de los agentes</li>
+                </ul>
+
+                <h5>Problema: Entorno sin conectividad a internet</h5>
+                <p><strong>Solución:</strong></p>
+                <ul>
+                    <li>Configurar colecta offline con exportación periódica de datos</li>
+                    <li>Establecer un servidor proxy o jump server</li>
+                    <li>Utilizar modo disconnected de la herramienta seleccionada</li>
+                </ul>
+
+                <h5>Problema: Múltiples plataformas y sistemas legacy</h5>
+                <p><strong>Solución:</strong></p>
+                <ul>
+                    <li>Considerar uso de múltiples herramientas en paralelo</li>
+                    <li>Matilda para sistemas legacy + Cloudamize/Concierto para infraestructura moderna</li>
+                    <li>Consolidar datos en una única vista</li>
+                </ul>
+
+                <h4>Checklist de Inputs</h4>
+                <p>Antes de iniciar la instalación de cualquier herramienta, asegúrate de tener:</p>
+
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="input1">
+                        <label for="input1">Lista completa de servidores a evaluar</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="input2">
+                        <label for="input2">Credenciales de acceso con permisos adecuados</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="input3">
+                        <label for="input3">Información de red (IPs, puertos, firewalls)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="input4">
+                        <label for="input4">Aprobaciones de seguridad necesarias</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="input5">
+                        <label for="input5">Ventana de mantenimiento para instalación (si aplica)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="input6">
+                        <label for="input6">Contacto técnico del cliente asignado</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="input7">
+                        <label for="input7">Documentación de la infraestructura existente</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="input8">
+                        <label for="input8">Licencias de la herramienta activadas</label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h3>Herramientas Disponibles</h3>
+                <p>Selecciona una herramienta para ver la documentación detallada:</p>
+
+                <div class="cards-container">
+                    <!-- Cloudamize -->
+                    <div class="card">
+                        <div class="card-icon card-icon-logo" style="display:flex;align-items:center;justify-content:center;min-height:80px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" style="max-height:55px;max-width:180px;">
+                                <text x="10" y="44" font-family="'Helvetica Neue', Arial, sans-serif" font-size="38" font-weight="600" fill="#111111" letter-spacing="-1">Cloudamize</text>
+                                <text x="196" y="20" font-family="Arial, sans-serif" font-size="11" fill="#111111">™</text>
+                            </svg>
+                        </div>
+                        <h4>Cloudamize</h4>
+                        <p>Herramienta líder para assessment y rightsizing en AWS</p>
+                        <a href="cloudamize.html" class="btn">Ver Documentación</a>
+                    </div>
+
+                    <!-- Concierto Migrate -->
+                    <div class="card">
+                        <div class="card-icon card-icon-logo" style="display:flex;align-items:center;justify-content:center;min-height:80px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" style="max-height:75px;max-width:180px;">
+                                <!-- Cloud shape -->
+                                <path d="M60 55 Q55 35 75 32 Q78 18 95 20 Q105 10 118 18 Q135 12 140 28 Q155 28 155 42 Q160 58 145 60 Z" fill="none" stroke="#1a3a6b" stroke-width="3.5" stroke-linejoin="round"/>
+                                <!-- Circuit dot in cloud -->
+                                <circle cx="107" cy="42" r="4" fill="none" stroke="#1a3a6b" stroke-width="2.5"/>
+                                <line x1="107" y1="38" x2="107" y2="30" stroke="#1a3a6b" stroke-width="2"/>
+                                <!-- Orange arc on top -->
+                                <path d="M85 28 Q107 10 129 28" fill="none" stroke="#e87722" stroke-width="3.5" stroke-linecap="round"/>
+                                <!-- CONCIERTO text -->
+                                <text x="100" y="78" font-family="'Arial Black', Arial, sans-serif" font-size="17" font-weight="900" fill="#111111" text-anchor="middle" letter-spacing="2">CONCIERTO</text>
+                                <!-- Orange lines -->
+                                <line x1="38" y1="84" x2="162" y2="84" stroke="#e87722" stroke-width="1.5"/>
+                                <!-- MIGRATE text -->
+                                <text x="100" y="97" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="#555555" text-anchor="middle" letter-spacing="3">MIGRATE</text>
+                                <line x1="38" y1="88" x2="162" y2="88" stroke="#e87722" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                        <h4>Concierto</h4>
+                        <p>Plataforma avanzada para entornos multi-cloud complejos</p>
+                        <a href="concierto.html" class="btn">Ver Documentación</a>
+                    </div>
+
+                    <!-- Matilda Cloud -->
+                    <div class="card">
+                        <div class="card-icon card-icon-logo" style="display:flex;align-items:center;justify-content:center;min-height:80px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 70" style="max-height:60px;max-width:180px;">
+                                <!-- Blue M icon -->
+                                <rect x="5" y="8" width="18" height="54" rx="9" ry="9" fill="#1a7fd4"/>
+                                <rect x="31" y="8" width="18" height="54" rx="9" ry="9" fill="#1a7fd4"/>
+                                <rect x="14" y="8" width="26" height="22" rx="0" ry="0" fill="#1a7fd4"/>
+                                <!-- matilda text -->
+                                <text x="62" y="36" font-family="'Helvetica Neue', Arial, sans-serif" font-size="22" font-weight="700" fill="#111111">matilda</text>
+                                <!-- cloud text -->
+                                <text x="62" y="58" font-family="'Helvetica Neue', Arial, sans-serif" font-size="22" font-weight="400" fill="#111111">cloud</text>
+                            </svg>
+                        </div>
+                        <h4>Matilda</h4>
+                        <p>Especializada en sistemas legacy y mainframes</p>
+                        <a href="matilda.html" class="btn">Ver Documentación</a>
+                    </div>
+
+                    <!-- AWS Transform -->
+                    <div class="card">
+                        <div class="card-icon card-icon-logo" style="display:flex;align-items:center;justify-content:center;min-height:80px;background:#fdf5ee;border-radius:8px;padding:8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 100" style="max-height:80px;max-width:170px;">
+                                <!-- Hexagon with gradient simulation -->
+                                <defs>
+                                    <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#f4a261;stop-opacity:1"/>
+                                        <stop offset="50%" style="stop-color:#e76f8a;stop-opacity:1"/>
+                                        <stop offset="100%" style="stop-color:#9b59b6;stop-opacity:1"/>
+                                    </linearGradient>
+                                </defs>
+                                <!-- Hexagon -->
+                                <polygon points="90,8 118,24 118,56 90,72 62,56 62,24" fill="url(#hexGrad)" opacity="0.9"/>
+                                <!-- Rotation arrows -->
+                                <path d="M55 20 Q40 32 48 50" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+                                <polygon points="46,52 44,44 52,47" fill="#888"/>
+                                <path d="M125 60 Q140 48 132 30" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+                                <polygon points="134,28 136,36 128,33" fill="#888"/>
+                                <!-- Inner hexagon outline -->
+                                <polygon points="90,20 108,30 108,50 90,60 72,50 72,30" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+                                <!-- AWS Transform text -->
+                                <text x="90" y="88" font-family="'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">AWS Transform</text>
+                            </svg>
+                        </div>
+                        <h4>AWS Transform</h4>
+                        <p>Migración de infraestructura VMware a AWS con discovery tool y MGN</p>
+                        <a href="aws-transform.html" class="btn">Ver Documentación</a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 SoftwareONE - AWS MAP Assessment Wiki</p>
+    </footer>
+
+    <script src="../scripts.js"></script>
+</body>
+</html>

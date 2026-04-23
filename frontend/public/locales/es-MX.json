@@ -542,7 +542,9 @@
     "applications": "Aplicaciones",
     "totalStorage": "Almacenamiento Total",
     "portfolioTitle": "Detalle del Portafolio de Aplicaciones",
-    "osDistributionTitle": "Distribución de Sistemas Operativos"
+    "osDistributionTitle": "Distribución de Sistemas Operativos",
+    "osColumn": "SO",
+    "serverCount": "{{count}} servidores ({{percent}}%)"
   },
   "businessCase": {
     "noData": "Completa la fase de Evaluación para ver el caso de negocio",

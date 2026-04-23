@@ -611,7 +611,9 @@
     "applications": "Applications",
     "totalStorage": "Total Storage",
     "portfolioTitle": "Application Portfolio Detail",
-    "osDistributionTitle": "Operating System Distribution"
+    "osDistributionTitle": "Operating System Distribution",
+    "osColumn": "OS",
+    "serverCount": "{{count}} servers ({{percent}}%)"
   },
   "businessCase": {
     "noData": "Complete the Assess phase to view the business case",

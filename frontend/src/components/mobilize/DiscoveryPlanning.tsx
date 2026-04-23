@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ApplicationTable } from '@/components/ApplicationTable';
 import { ExcelData } from '@/types/assessment';
 import { Database, Server, AppWindow, HardDrive } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface DiscoveryPlanningProps {
   excelData: ExcelData | null;
@@ -9,12 +10,14 @@ interface DiscoveryPlanningProps {
 }
 
 export function DiscoveryPlanning({ excelData, totalStorageGB }: DiscoveryPlanningProps) {
+  const { t } = useTranslation();
+
   if (!excelData) {
     return (
       <div className="text-center py-12 text-gray-400">
         <AppWindow className="h-12 w-12 mx-auto mb-3 opacity-50" />
-        <p className="font-medium">No inventory data available</p>
-        <p className="text-sm mt-1">Upload your MPA Excel file in the Assess phase</p>
+        <p className="font-medium">{t('discoveryPlanning.noData')}</p>
+        <p className="text-sm mt-1">{t('discoveryPlanning.noDataDescription')}</p>
       </div>
     );
   }
@@ -24,29 +27,29 @@ export function DiscoveryPlanning({ excelData, totalStorageGB }: DiscoveryPlanni
       {/* Infrastructure Overview */}
       <Card className="bg-gradient-to-br from-violet-50 to-purple-50 border-violet-200">
         <CardHeader>
-          <CardTitle className="text-violet-900">Infrastructure Inventory Overview</CardTitle>
+          <CardTitle className="text-violet-900">{t('discoveryPlanning.overviewTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-lg p-4 border border-violet-100">
               <Server className="h-8 w-8 text-blue-600 mb-2" />
               <p className="text-2xl font-bold text-gray-900">{excelData.servers.length}</p>
-              <p className="text-sm text-gray-600">Servers</p>
+              <p className="text-sm text-gray-600">{t('discoveryPlanning.servers')}</p>
             </div>
             <div className="bg-white rounded-lg p-4 border border-violet-100">
               <Database className="h-8 w-8 text-green-600 mb-2" />
               <p className="text-2xl font-bold text-gray-900">{excelData.databases.length}</p>
-              <p className="text-sm text-gray-600">Databases</p>
+              <p className="text-sm text-gray-600">{t('discoveryPlanning.databases')}</p>
             </div>
             <div className="bg-white rounded-lg p-4 border border-violet-100">
               <AppWindow className="h-8 w-8 text-purple-600 mb-2" />
               <p className="text-2xl font-bold text-gray-900">{excelData.applications.length}</p>
-              <p className="text-sm text-gray-600">Applications</p>
+              <p className="text-sm text-gray-600">{t('discoveryPlanning.applications')}</p>
             </div>
             <div className="bg-white rounded-lg p-4 border border-violet-100">
               <HardDrive className="h-8 w-8 text-orange-600 mb-2" />
               <p className="text-2xl font-bold text-gray-900">{(totalStorageGB / 1024).toFixed(1)} TB</p>
-              <p className="text-sm text-gray-600">Total Storage</p>
+              <p className="text-sm text-gray-600">{t('discoveryPlanning.totalStorage')}</p>
             </div>
           </div>
         </CardContent>
@@ -57,7 +60,7 @@ export function DiscoveryPlanning({ excelData, totalStorageGB }: DiscoveryPlanni
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AppWindow className="h-5 w-5 text-violet-600" />
-            Application Portfolio Detail
+            {t('discoveryPlanning.portfolioTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -68,7 +71,7 @@ export function DiscoveryPlanning({ excelData, totalStorageGB }: DiscoveryPlanni
       {/* OS Distribution */}
       <Card>
         <CardHeader>
-          <CardTitle>Operating System Distribution</CardTitle>
+          <CardTitle>{t('discoveryPlanning.osDistributionTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -82,7 +85,9 @@ export function DiscoveryPlanning({ excelData, totalStorageGB }: DiscoveryPlanni
               return Object.entries(osGroups).map(([os, count]) => (
                 <div key={os} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="font-medium text-sm text-gray-700">{os}</span>
-                  <span className="text-sm text-gray-500">{count} servers ({Math.round((count / excelData.servers.length) * 100)}%)</span>
+                  <span className="text-sm text-gray-500">
+                    {t('discoveryPlanning.serverCount', { count, percent: Math.round((count / excelData.servers.length) * 100) })}
+                  </span>
                 </div>
               ));
             })()}

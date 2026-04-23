@@ -497,7 +497,15 @@
       "securityGroups": "Security Groups"
     },
     "error": "Upload Failed",
-    "errorRetry": "Click to try again"
+    "errorRetry": "Click to try again",
+    "loading": "Loading {{filename}}...",
+    "preparing": "Preparing upload...",
+    "analyzingLocal": "Analyzing data (local mode)...",
+    "clickToSelect": "or click to select file (.xlsx)",
+    "errorToast": "Error loading file: {{message}}",
+    "successLoaded": "{{source}} loaded: {{servers}} servers, {{databases}} databases",
+    "successConnections": "{{count}} connections",
+    "successWaves": "{{count}} migration waves calculated"
   },
   "mraUploader": {
     "toastFileTooLarge": "The PDF file is too large. Maximum 50MB.",
@@ -990,5 +998,46 @@
     "outbound": "Outbound",
     "environment": "Environment",
     "noApps": "No applications found for the selected environment"
+  },
+  "appDependencyMap": {
+    "noDataToExport": "No data to export",
+    "generatingTablePdf": "Generating table PDF...",
+    "tablePdfGenerated": "PDF generated",
+    "errorGeneratingTablePdf": "Error generating PDF",
+    "generatingTableWord": "Generating table Word...",
+    "tableWordGenerated": "Word generated",
+    "errorGeneratingTableWord": "Error generating Word",
+    "graphNotAvailable": "Graph is not available",
+    "generatingGraphPdf": "Generating graph PDF...",
+    "graphPdfGenerated": "Graph PDF generated",
+    "errorGeneratingGraphPdf": "Error generating PDF",
+    "generatingGraphWord": "Generating graph Word...",
+    "graphWordGenerated": "Graph Word generated",
+    "errorGeneratingGraphWord": "Error generating Word",
+    "noDependencies": "No application dependencies",
+    "noDataToChart": "No data to chart"
+  },
+  "dependencyGraph": {
+    "noGraphToExport": "No graph to export",
+    "generatingPdf": "Generating graph PDF...",
+    "pdfGenerated": "PDF generated successfully",
+    "errorGeneratingPdf": "Error generating PDF",
+    "generatingWord": "Generating Word document...",
+    "wordGenerated": "Word document generated",
+    "errorGeneratingWord": "Error generating document",
+    "enterSearchTerm": "Enter a search term",
+    "serverNotFound": "No server found with that name",
+    "serverFound": "Server found: {{server}}",
+    "searchError": "Search error",
+    "noDataToExport": "No data to export",
+    "generatingSrvPdf": "Generating PDF...",
+    "srvPdfGenerated": "PDF generated",
+    "errorGeneratingSrvPdf": "Error generating PDF",
+    "generatingSrvWord": "Generating Word...",
+    "srvWordGenerated": "Word generated",
+    "errorGeneratingSrvWord": "Error generating Word",
+    "noDependencyData": "No dependency data available",
+    "searching": "Searching...",
+    "search": "Search"
   }
 }

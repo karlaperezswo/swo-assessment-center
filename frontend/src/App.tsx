@@ -2,6 +2,11 @@ import { useState } from 'react';
 import apiClient from '@/lib/api';
 import { usePhase } from '@/routing/usePhase';
 import { useTranslation } from '@/i18n/useTranslation';
+import { AgentDrawer } from '@/agent/AgentDrawer';
+import {
+  useAgentContext,
+  useSetAgentSession,
+} from '@/agent/AgentContextProvider';
 import { LanguageSelector } from '@/i18n/LanguageSelector';
 import { PhaseNavigator } from '@/components/layout/PhaseNavigator';
 import { PhaseProgressBar } from '@/components/layout/PhaseProgressBar';
@@ -91,6 +96,17 @@ function App() {
   // Dependency and migration wave data
   const [dependencyData, setDependencyData] = useState<any>(null);
   const [_autoCalculatedWaves, setAutoCalculatedWaves] = useState<any>(null);
+
+  // Tell the AI copilot what session, client, and phase the user is looking at.
+  useSetAgentSession(opportunitySessionId ?? undefined);
+  useAgentContext('phase', { currentPhase, phaseStatus });
+  useAgentContext('client', {
+    clientName: clientData.clientName,
+    vertical: clientData.vertical,
+    awsRegion: clientData.awsRegion,
+    totalServers: uploadSummary?.serverCount ?? clientData.totalServers,
+    priorities: clientData.priorities,
+  });
 
   const handleDataLoaded = (data: ExcelData, summary: UploadSummary, depData?: any, waves?: any) => {
     setExcelData(data);
@@ -629,6 +645,9 @@ function App() {
           {t('footer.copyright')} &copy; {new Date().getFullYear()} {t('header.brand')}
         </div>
       </footer>
+
+      {/* AI copilot — available on every authenticated screen */}
+      <AgentDrawer />
     </div>
   );
 }

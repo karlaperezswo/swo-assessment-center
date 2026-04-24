@@ -1,12 +1,20 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from '@/i18n/useTranslation';
 import { Input } from '@/components/ui/input';
 import { MigrationPlanner } from '@/components/MigrationPlanner';
 import { WavePlannerTool } from '@/components/migrate/WavePlannerTool';
+import { WaveGantt } from '@/components/migrate/WaveGantt';
 
 import { MigrationWave } from '@/types/assessment';
-import { Waves, Plus, Trash2, Play, Pause, CheckCircle, AlertCircle, Settings } from 'lucide-react';
+import { Waves, Plus, Trash2, Play, Pause, CheckCircle, AlertCircle, Settings, Sparkles, ShieldAlert } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import {
+  detectClusters,
+  detectWaveConflicts,
+  suggestWavesFromClusters,
+  DependencyEdge,
+} from '@/lib/dependencyClusters';
+import { toast } from 'sonner';
 
 interface MigrationWavesProps {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -81,6 +89,45 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
     fill: statusConfig[w.status].color,
   }));
 
+  const edges: DependencyEdge[] = useMemo(
+    () => (dependencyData?.dependencies ?? []) as DependencyEdge[],
+    [dependencyData]
+  );
+
+  const conflicts = useMemo(
+    () => (edges.length > 0 ? detectWaveConflicts(waves, edges) : []),
+    [waves, edges]
+  );
+
+  const handleAutoGroup = () => {
+    const allServers: string[] = dependencyData?.servers ?? [];
+    if (allServers.length === 0 || edges.length === 0) {
+      toast.error('No hay datos de dependencias para agrupar');
+      return;
+    }
+    const clusters = detectClusters(allServers, edges);
+    const suggestions = suggestWavesFromClusters(clusters);
+    if (suggestions.length === 0) {
+      toast.error('No se pudieron derivar olas desde los clústeres');
+      return;
+    }
+    const newWaves: MigrationWave[] = suggestions.map((s) => ({
+      id: `wave-cluster-${s.waveNumber}-${Date.now()}`,
+      waveNumber: s.waveNumber,
+      name: `Wave ${s.waveNumber} · cluster (${s.servers.length} srv)`,
+      startDate: '',
+      endDate: '',
+      serverCount: s.servers.length,
+      applicationCount: 0,
+      status: 'planned' as const,
+      strategy: 'Rehost',
+      notes: s.rationale,
+      servers: s.servers,
+    }));
+    onWavesChange(newWaves);
+    toast.success(`${newWaves.length} olas sugeridas a partir de ${clusters.length} clústeres`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -146,7 +193,46 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
           <Settings style={{ width: 14, height: 14 }} />
           Migration Planner
         </button>
+        {edges.length > 0 && (
+          <button onClick={handleAutoGroup}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 8,
+              fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
+              background: 'linear-gradient(90deg, #7c3aed 0%, #a855f7 100%)',
+              color: '#fff', boxShadow: '0 2px 8px rgba(124,58,237,0.3)' }}
+            title="Genera olas a partir de clústeres detectados en el mapa de dependencias">
+            <Sparkles style={{ width: 14, height: 14 }} />
+            Auto-agrupar desde dependencias
+          </button>
+        )}
       </div>
+
+      {conflicts.length > 0 && (
+        <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #fecaca',
+          background: '#fef2f2', boxShadow: '0 1px 4px rgba(239,68,68,0.08)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px',
+            borderBottom: '1px solid #fecaca', background: '#fee2e2' }}>
+            <ShieldAlert style={{ width: 16, height: 16, color: '#b91c1c' }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#991b1b' }}>
+              {conflicts.length} conflicto{conflicts.length === 1 ? '' : 's'} de dependencia entre olas
+            </span>
+          </div>
+          <ul style={{ margin: 0, padding: '8px 16px 12px 32px', listStyle: 'disc' }}>
+            {conflicts.slice(0, 6).map((c, i) => (
+              <li key={i} style={{ fontSize: 12, color: '#7f1d1d', marginTop: 4 }}>
+                <strong style={{ color: c.severity === 'critical' ? '#991b1b' : '#b45309' }}>
+                  [{c.severity === 'critical' ? 'CRÍTICO' : 'aviso'}]
+                </strong>{' '}
+                {c.message}
+              </li>
+            ))}
+            {conflicts.length > 6 && (
+              <li style={{ fontSize: 11, color: '#991b1b', marginTop: 4, fontStyle: 'italic' }}>
+                +{conflicts.length - 6} conflictos más
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
 
       {/* Add Wave Form */}
       {showForm && (
@@ -290,6 +376,9 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
           </div>
         </div>
       )}
+
+      {/* Gantt Timeline */}
+      <WaveGantt waves={waves} />
 
       {/* Migration Planner Modal */}
       {showPlanner && (

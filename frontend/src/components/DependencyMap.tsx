@@ -10,7 +10,7 @@ import {
 import 'reactflow/dist/style.css';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Search, Network, Server, Database, AlertCircle, FileText, ChevronLeft, ChevronRight, Filter, ArrowUpDown, FileDown, Layers } from 'lucide-react';
+import { Search, Network, Server, Database, AlertCircle, FileText, ChevronLeft, ChevronRight, Filter, ArrowUpDown, FileDown, Layers, Image as ImageIcon, Code } from 'lucide-react';
 import { toast } from 'sonner';
 import { DatabaseDependencyMap } from './DatabaseDependencyMap';
 import { AppDependencyMap } from './AppDependencyMap';
@@ -470,6 +470,56 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
       toast.error('Error al generar el PDF', { id: 'graph-export' });
     } finally {
       setIsExportingGraph(false);
+    }
+  };
+
+  const exportGraphToPNG = async () => {
+    if (nodes.length === 0) { toast.error('No hay grafo para exportar'); return; }
+    setIsExportingGraph(true);
+    toast.loading('Generando PNG...', { id: 'graph-export-png' });
+    try {
+      const dataUrl = await captureSvgAsDataUrl();
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `mapa_dependencias_${searchResult?.server ?? 'completo'}_${new Date().toISOString().split('T')[0]}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('PNG descargado', { id: 'graph-export-png', duration: 3000 });
+    } catch (err) {
+      console.error(err);
+      toast.error('Error al generar el PNG', { id: 'graph-export-png' });
+    } finally {
+      setIsExportingGraph(false);
+    }
+  };
+
+  const exportGraphToSVG = () => {
+    if (nodes.length === 0 || !forceSvgRef.current) {
+      toast.error('No hay grafo para exportar');
+      return;
+    }
+    try {
+      const clone = forceSvgRef.current.cloneNode(true) as SVGSVGElement;
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      clone.style.background = '#ffffff';
+      const bbox = forceSvgRef.current.getBoundingClientRect();
+      clone.setAttribute('width', String(bbox.width || 960));
+      clone.setAttribute('height', String(bbox.height || 720));
+      const svgStr = new XMLSerializer().serializeToString(clone);
+      const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `mapa_dependencias_${searchResult?.server ?? 'completo'}_${new Date().toISOString().split('T')[0]}.svg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success('SVG descargado', { duration: 3000 });
+    } catch (err) {
+      console.error(err);
+      toast.error('Error al generar el SVG');
     }
   };
 
@@ -1865,6 +1915,20 @@ ${searchResult.relatedApplications.length > 0 ? `
                     color:'#fff', fontSize:11, fontWeight:600, cursor:'pointer' }}>
                   <FileText style={{ width:12, height:12 }} />
                   {isExportingGraph ? '...' : 'Word'}
+                </button>
+                <button onClick={exportGraphToPNG} disabled={isExportingGraph}
+                  style={{ display:'flex', alignItems:'center', gap:4, padding:'4px 10px', borderRadius:6,
+                    border:'1px solid rgba(255,255,255,0.4)', background:'rgba(255,255,255,0.15)',
+                    color:'#fff', fontSize:11, fontWeight:600, cursor:'pointer' }}>
+                  <ImageIcon style={{ width:12, height:12 }} />
+                  {isExportingGraph ? '...' : 'PNG'}
+                </button>
+                <button onClick={exportGraphToSVG} disabled={isExportingGraph}
+                  style={{ display:'flex', alignItems:'center', gap:4, padding:'4px 10px', borderRadius:6,
+                    border:'1px solid rgba(255,255,255,0.4)', background:'rgba(255,255,255,0.15)',
+                    color:'#fff', fontSize:11, fontWeight:600, cursor:'pointer' }}>
+                  <Code style={{ width:12, height:12 }} />
+                  SVG
                 </button>
               </div>
             </div>

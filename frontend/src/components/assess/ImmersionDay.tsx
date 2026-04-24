@@ -3,9 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ImmersionDayPlan } from '@/types/assessment';
-import { GraduationCap, Plus, Trash2, CheckCircle, Clock, Play } from 'lucide-react';
+import { GraduationCap, Plus, Trash2, CheckCircle, Clock, Play, CalendarPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/i18n/useTranslation';
+import { immersionDaysToIcs, downloadIcs } from '@/lib/icsExport';
+import { toast } from 'sonner';
 
 interface ImmersionDayProps {
   plans: ImmersionDayPlan[];
@@ -117,8 +119,26 @@ export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
 
       {/* Plans list */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">{t('immersionDay.plannedTitle', { count: plans.length })}</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (plans.length === 0) {
+                toast.error('No hay sesiones para exportar');
+                return;
+              }
+              downloadIcs(
+                `immersion_days_${new Date().toISOString().split('T')[0]}.ics`,
+                immersionDaysToIcs(plans)
+              );
+              toast.success('Calendario .ics descargado');
+            }}
+          >
+            <CalendarPlus className="h-4 w-4 mr-1" />
+            Calendario (.ics)
+          </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           {plans.length === 0 && (

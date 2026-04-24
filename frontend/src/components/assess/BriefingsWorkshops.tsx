@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BriefingSession } from '@/types/assessment';
-import { Presentation, Plus, Calendar, Users, Trash2, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Presentation, Plus, Calendar, Users, Trash2, CheckCircle, Clock, XCircle, CalendarPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { briefingsToIcs, downloadIcs } from '@/lib/icsExport';
+import { toast } from 'sonner';
 
 interface BriefingsWorkshopsProps {
   sessions: BriefingSession[];
@@ -109,9 +111,26 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">{t('briefings.sessions')}</CardTitle>
-          <Button onClick={() => setShowForm(!showForm)} size="sm" className="bg-fuchsia-600 hover:bg-fuchsia-700">
-            <Plus className="h-4 w-4 mr-1" /> {t('briefings.addSession')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (sessions.length === 0) {
+                  toast.error('No hay sesiones para exportar');
+                  return;
+                }
+                downloadIcs(`briefings_${new Date().toISOString().split('T')[0]}.ics`, briefingsToIcs(sessions));
+                toast.success('Calendario .ics descargado');
+              }}
+            >
+              <CalendarPlus className="h-4 w-4 mr-1" />
+              Calendario (.ics)
+            </Button>
+            <Button onClick={() => setShowForm(!showForm)} size="sm" className="bg-fuchsia-600 hover:bg-fuchsia-700">
+              <Plus className="h-4 w-4 mr-1" /> {t('briefings.addSession')}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {/* Add form */}

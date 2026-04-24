@@ -6,6 +6,7 @@ import { QuestionnaireUploader } from '@/components/assess/QuestionnaireUploader
 import { Card, CardContent } from '@/components/ui/card';
 import { ExcelData, UploadSummary, ClientFormData } from '@/types/assessment';
 import { Upload, Building2, CheckCircle, FileText, FileQuestion } from 'lucide-react';
+import { ExcelValidationPanel } from '@/components/assess/ExcelValidationPanel';
 
 interface RapidDiscoveryProps {
   excelData: ExcelData | null;
@@ -76,6 +77,8 @@ export function RapidDiscovery({
           )}
         </div>
       )}
+
+      <ExcelValidationPanel excelData={excelData} />
 
       {/* Upload & Form */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

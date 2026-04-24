@@ -3,8 +3,9 @@ import { CostBreakdown, ExcelData, MigrationWave } from '@/types/assessment';
 import {
   TrendingDown, TrendingUp, DollarSign, Zap, Shield, Target,
   ArrowDownCircle, Calendar, Server, Database, AppWindow,
-  HardDrive, Network, Waves, ArrowRight, AlertTriangle,
+  HardDrive, Network, Waves, ArrowRight,
 } from 'lucide-react';
+import { RiskRulesEditor } from '@/components/assess/RiskRulesEditor';
 
 interface ExecutiveSummaryProps {
   clientName: string;
@@ -47,14 +48,6 @@ export function ExecutiveSummary({
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
-
-  // Risk: servers with EOL operating systems
-  const EOL_PATTERNS = ['2003', '2008', '2012', 'rhel 6', 'centos 6', 'centos 7', 'ubuntu 14', 'ubuntu 16', 'windows xp', 'windows 7'];
-  const eolServers = excelData?.servers.filter(s =>
-    EOL_PATTERNS.some(p => s.osName?.toLowerCase().includes(p) || s.osVersion?.toLowerCase().includes(p))
-  ) ?? [];
-  const eolCount = eolServers.length;
-  const eolRisk = eolCount === 0 ? null : eolCount <= 5 ? 'low' : eolCount <= 15 ? 'medium' : 'high';
 
   // Pricing tiers for comparison
   const pricingTiers = [
@@ -279,37 +272,8 @@ export function ExecutiveSummary({
         </CardContent>
       </Card>
 
-      {/* ── Risk Indicators ── */}
-      {excelData && eolRisk && (
-        <Card className={`shadow-lg border-l-4 ${eolRisk === 'high' ? 'border-l-red-500' : eolRisk === 'medium' ? 'border-l-yellow-500' : 'border-l-blue-400'}`}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <AlertTriangle className={`h-5 w-5 ${eolRisk === 'high' ? 'text-red-500' : eolRisk === 'medium' ? 'text-yellow-500' : 'text-blue-400'}`} />
-              Indicadores de Riesgo — SO Fuera de Soporte
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-6">
-              <div className={`text-5xl font-bold ${eolRisk === 'high' ? 'text-red-600' : eolRisk === 'medium' ? 'text-yellow-600' : 'text-blue-500'}`}>
-                {eolCount}
-              </div>
-              <div>
-                <p className="font-semibold text-gray-700">
-                  {eolCount === 1 ? 'servidor con SO fuera de soporte' : 'servidores con SO fuera de soporte'}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  {eolRisk === 'high' ? '⚠️ Riesgo alto — requiere atención inmediata' : eolRisk === 'medium' ? '⚠️ Riesgo medio — planificar migración prioritaria' : 'ℹ️ Riesgo bajo — incluir en plan de migración'}
-                </p>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {[...new Set(eolServers.map(s => s.osName).filter(Boolean))].slice(0, 5).map(os => (
-                    <span key={os} className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">{os}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* ── Risk Indicators (configurable rules) ── */}
+      {excelData && <RiskRulesEditor excelData={excelData} />}
 
       {/* ── Next Step ── */}
       {onGoToMobilize && (

@@ -97,7 +97,7 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
 
   return (
     <div className="relative inline-block">
-      <Button variant="outline" size="sm" onClick={() => setOpen(!open)}>
+      <Button type="button" variant="outline" size="sm" onClick={() => setOpen(!open)} aria-label="Menú de sesión" aria-expanded={open}>
         <Save className="h-4 w-4 mr-1" />
         Sesión
         <ChevronDown className="h-3 w-3 ml-1" />
@@ -108,8 +108,10 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
           <Card className="absolute right-0 top-full mt-1 z-50 w-72 shadow-xl">
             <CardContent className="p-2 space-y-1">
               <button
+                type="button"
                 onClick={handleSaveLocal}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 text-left"
+                aria-label="Guardar sesión en localStorage"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-left"
               >
                 <Save className="h-4 w-4 text-blue-600" />
                 <div className="flex-1">
@@ -118,9 +120,11 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
                 </div>
               </button>
               <button
+                type="button"
                 onClick={handleLoadLocal}
                 disabled={!stored}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Restaurar última sesión guardada"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-left disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Clock className="h-4 w-4 text-green-600" />
                 <div className="flex-1">
@@ -134,8 +138,10 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
               </button>
               <div className="border-t my-1" />
               <button
+                type="button"
                 onClick={handleExport}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 text-left"
+                aria-label="Exportar sesión a archivo JSON"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-left"
               >
                 <Download className="h-4 w-4 text-purple-600" />
                 <div className="flex-1">
@@ -143,7 +149,7 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
                   <div className="text-xs text-gray-500">JSON con auxiliares</div>
                 </div>
               </button>
-              <label className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 text-left cursor-pointer">
+              <label className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-left cursor-pointer">
                 <Upload className="h-4 w-4 text-orange-600" />
                 <div className="flex-1">
                   <div className="font-medium">Importar desde archivo</div>
@@ -159,8 +165,10 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
               </label>
               <div className="border-t my-1" />
               <button
+                type="button"
                 onClick={handleClear}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-red-50 text-red-700 text-left"
+                aria-label="Borrar sesión guardada localmente"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-red-50 dark:hover:bg-red-950 text-red-700 dark:text-red-400 text-left"
               >
                 <Trash2 className="h-4 w-4" />
                 <div className="flex-1">

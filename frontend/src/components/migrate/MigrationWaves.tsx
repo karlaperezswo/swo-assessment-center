@@ -176,7 +176,7 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <button onClick={() => setShowForm(!showForm)}
+        <button type="button" aria-label={showForm ? 'Cancelar formulario' : 'Agregar nueva ola'} onClick={() => setShowForm(!showForm)}
           style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 8,
             fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
             background: showForm ? 'linear-gradient(90deg, #0f766e 0%, #0891b2 100%)' : '#f1f5f9',
@@ -185,7 +185,7 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
           <Plus style={{ width: 14, height: 14 }} />
           {showForm ? 'Cancelar' : 'Agregar Ola'}
         </button>
-        <button onClick={() => setShowWaveTool(true)}
+        <button type="button" aria-label="Abrir Migration Planner" onClick={() => setShowWaveTool(true)}
           style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 8,
             fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
             background: 'linear-gradient(90deg, #0f766e 0%, #0891b2 100%)',
@@ -194,11 +194,11 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
           Migration Planner
         </button>
         {edges.length > 0 && (
-          <button onClick={handleAutoGroup}
+          <button type="button" aria-label="Auto-agrupar olas desde dependencias" onClick={handleAutoGroup}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 8,
               fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
-              background: 'linear-gradient(90deg, #7c3aed 0%, #a855f7 100%)',
-              color: '#fff', boxShadow: '0 2px 8px rgba(124,58,237,0.3)' }}
+              background: 'linear-gradient(90deg, #0f766e 0%, #0891b2 100%)',
+              color: '#fff', boxShadow: '0 2px 8px rgba(8,145,178,0.3)' }}
             title="Genera olas a partir de clústeres detectados en el mapa de dependencias">
             <Sparkles style={{ width: 14, height: 14 }} />
             Auto-agrupar desde dependencias

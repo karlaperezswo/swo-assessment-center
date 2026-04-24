@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { OSMigrationStrategy, MigrationStrategySummary } from '@/types/assessment';
 import { Target, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface MigrationStrategyTableProps {
   migrationStrategies: OSMigrationStrategy[];
@@ -29,6 +30,7 @@ function getRowStyle(strategy: string): string {
 }
 
 export function MigrationStrategyTable({ migrationStrategies, migrationSummary }: MigrationStrategyTableProps) {
+  const { t } = useTranslation();
   // Group by normalized OS, merge counts, keep highest-priority strategy
   const grouped = new Map<string, OSMigrationStrategy>();
   for (const item of migrationStrategies) {
@@ -80,7 +82,7 @@ export function MigrationStrategyTable({ migrationStrategies, migrationSummary }
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Target className="h-5 w-5 text-purple-600" />
-          Estrategia de Migración por Sistema Operativo
+          {t('migrationStrategyTable.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -89,10 +91,10 @@ export function MigrationStrategyTable({ migrationStrategies, migrationSummary }
           <Card className="border-2 border-green-200 bg-green-50">
             <CardContent className="pt-4">
               <div className="text-center">
-                <p className="text-sm font-medium text-green-800">Migrate</p>
+                <p className="text-sm font-medium text-green-800">{t('migrationStrategyTable.migrateLabel')}</p>
                 <p className="text-2xl font-bold text-green-600">{migrationSummary.byCategory.migrate}</p>
                 <p className="text-xs text-green-700 mt-1">
-                  Rehost: {migrationSummary.byStrategy.rehost} | Replatform: {migrationSummary.byStrategy.replatform}
+                  {t('migrationStrategyTable.rehostLbl', { rehost: migrationSummary.byStrategy.rehost, replatform: migrationSummary.byStrategy.replatform })}
                 </p>
               </div>
             </CardContent>
@@ -101,10 +103,14 @@ export function MigrationStrategyTable({ migrationStrategies, migrationSummary }
           <Card className="border-2 border-orange-200 bg-orange-50">
             <CardContent className="pt-4">
               <div className="text-center">
-                <p className="text-sm font-medium text-orange-800">Purchase</p>
+                <p className="text-sm font-medium text-orange-800">{t('migrationStrategyTable.purchaseLabel')}</p>
                 <p className="text-2xl font-bold text-orange-600">{migrationSummary.byCategory.purchase}</p>
                 <p className="text-xs text-orange-700 mt-1">
-                  Retire: {migrationSummary.byStrategy.retire} | Retain: {migrationSummary.byStrategy.retain} | Repurchase: {migrationSummary.byStrategy.repurchase}
+                  {t('migrationStrategyTable.purchaseDetail', {
+                    retire: migrationSummary.byStrategy.retire,
+                    retain: migrationSummary.byStrategy.retain,
+                    repurchase: migrationSummary.byStrategy.repurchase
+                  })}
                 </p>
               </div>
             </CardContent>
@@ -113,9 +119,9 @@ export function MigrationStrategyTable({ migrationStrategies, migrationSummary }
           <Card className="border-2 border-blue-200 bg-blue-50">
             <CardContent className="pt-4">
               <div className="text-center">
-                <p className="text-sm font-medium text-blue-800">Total Servidores</p>
+                <p className="text-sm font-medium text-blue-800">{t('migrationStrategyTable.totalServers')}</p>
                 <p className="text-2xl font-bold text-blue-600">{migrationSummary.totalServers}</p>
-                <p className="text-xs text-blue-700 mt-1">Clasificados por OS</p>
+                <p className="text-xs text-blue-700 mt-1">{t('migrationStrategyTable.classifiedByOS')}</p>
               </div>
             </CardContent>
           </Card>
@@ -123,9 +129,9 @@ export function MigrationStrategyTable({ migrationStrategies, migrationSummary }
 
         {/* Semaphore legend */}
         <div className="flex gap-4 mb-4 text-xs">
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span> Replatform / Refactor — requiere atención</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span> Retire / Retain / Repurchase</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span> Rehost / Relocate</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span> {t('migrationStrategyTable.legendRed')}</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span> {t('migrationStrategyTable.legendYellow')}</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span> {t('migrationStrategyTable.legendGreen')}</span>
         </div>
 
         {/* Table */}
@@ -133,12 +139,12 @@ export function MigrationStrategyTable({ migrationStrategies, migrationSummary }
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-bold">Sistema Operativo</TableHead>
-                <TableHead className="text-center font-bold">Cantidad</TableHead>
-                <TableHead className="text-center font-bold">Soportado</TableHead>
-                <TableHead className="text-center font-bold">Categoría</TableHead>
-                <TableHead className="text-center font-bold">Estrategia</TableHead>
-                <TableHead className="font-bold">Notas</TableHead>
+                <TableHead className="font-bold">{t('migrationStrategyTable.colOS')}</TableHead>
+                <TableHead className="text-center font-bold">{t('migrationStrategyTable.colCount')}</TableHead>
+                <TableHead className="text-center font-bold">{t('migrationStrategyTable.colSupported')}</TableHead>
+                <TableHead className="text-center font-bold">{t('migrationStrategyTable.colCategory')}</TableHead>
+                <TableHead className="text-center font-bold">{t('migrationStrategyTable.colStrategy')}</TableHead>
+                <TableHead className="font-bold">{t('migrationStrategyTable.colNotes')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -169,21 +175,21 @@ export function MigrationStrategyTable({ migrationStrategies, migrationSummary }
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-gray-600 flex-shrink-0 mt-0.5" />
             <div className="space-y-2 text-sm text-gray-700">
-              <p className="font-semibold">Categorías de Migración:</p>
+              <p className="font-semibold">{t('migrationStrategyTable.footerTitle')}</p>
               <ul className="space-y-1 ml-4">
-                <li>• <span className="font-semibold">Purchase:</span> Optimice las condiciones comerciales (Repurchase, Retire, Retain)</li>
-                <li>• <span className="font-semibold">Migrate:</span> Migre las aplicaciones a la nube (Rehost, Relocate, Replatform)</li>
-                <li>• <span className="font-semibold">Modernize:</span> Modernice y cree aplicaciones (Refactor)</li>
+                <li>• {t('migrationStrategyTable.purchase')}</li>
+                <li>• {t('migrationStrategyTable.migrate')}</li>
+                <li>• {t('migrationStrategyTable.modernize')}</li>
               </ul>
               <p className="mt-3 text-xs text-gray-600">
-                Clasificación basada en AWS Application Migration Service —{' '}
+                {t('migrationStrategyTable.footerNote')}{' '}
                 <a
                   href="https://docs.aws.amazon.com/mgn/latest/ug/Supported-Operating-Systems.html"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"
                 >
-                  Ver documentación oficial
+                  {t('migrationStrategyTable.footerLink')}
                 </a>
               </p>
             </div>

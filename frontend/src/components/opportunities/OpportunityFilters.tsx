@@ -91,7 +91,7 @@ export function OpportunityFilters({ filters, onFiltersChange, opportunityCount 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t">
           {/* Priority filters */}
           <div>
-            <Label className="text-sm font-semibold mb-3 block">{t('opportunitiesFilters.priority')}</Label>
+            <Label className="text-sm font-semibold mb-3 block">{t('opportunitiesFilters.priorityLabel')}</Label>
             <div className="space-y-2">
               {['High', 'Medium', 'Low'].map(priority => (
                 <div key={priority} className="flex items-center space-x-2">

@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileSpreadsheet, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +15,7 @@ interface BusinessCaseUploaderProps {
 }
 
 export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, loadedFileName }: BusinessCaseUploaderProps) {
+  const { t } = useTranslation();
   const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>(() =>
     alreadyLoaded ? 'success' : 'idle'
   );
@@ -34,7 +36,7 @@ export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, 
     toast.loading(`Cargando ${file.name}...`, { id: 'business-case-upload' });
 
     try {
-      setUploadProgress('Subiendo archivo...');
+      setUploadProgress(t('uploader.uploading'));
       
       const useLocalUpload = import.meta.env.VITE_USE_LOCAL_UPLOAD === 'true';
 
@@ -71,7 +73,7 @@ export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, 
         }
       } else {
         // ========== MODO PRODUCCIÓN: Upload con S3 ==========
-        setUploadProgress('Preparando carga...');
+        setUploadProgress(t('uploader.preparing'));
         const urlResponse = await apiClient.post('/api/report/get-upload-url', {
           filename: file.name,
           contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -79,13 +81,13 @@ export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, 
         if (!urlResponse.data.success) throw new Error(urlResponse.data.error || 'Failed to get upload URL');
         const { uploadUrl, key } = urlResponse.data.data;
 
-        setUploadProgress('Subiendo a S3...');
+        setUploadProgress(t('uploader.uploadingS3'));
         await fetch(uploadUrl, {
           method: 'PUT', body: file,
           headers: { 'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
         });
 
-        setUploadProgress('Analizando datos...');
+        setUploadProgress(t('uploader.analyzing'));
         const response = await apiClient.post('/api/business-case/upload-from-s3', {
           key,
           clientName: clientData.clientName,
@@ -118,7 +120,7 @@ export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, 
       const raw = error instanceof Error ? error.message : 'Failed to upload file';
       const isNetworkError = raw.toLowerCase().includes('fetch') || raw.toLowerCase().includes('network') || raw.toLowerCase().includes('failed');
       const message = isNetworkError
-        ? 'No se pudo procesar el archivo. Si está abierto en Excel, ciérralo e intenta de nuevo.'
+        ? t('businessCaseUploader.networkError')
         : raw;
       setErrorMessage(message);
       toast.error(`Error al cargar archivo: ${message}`, {
@@ -142,7 +144,7 @@ export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, 
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileSpreadsheet className="h-5 w-5" />
-          Ondemand AS-IS
+          {t('businessCaseUploader.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -162,13 +164,13 @@ export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, 
             <>
               <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
               <p className="text-lg font-medium">
-                {isDragActive ? 'Suelta el archivo Excel aquí' : 'Arrastra y suelta el archivo Excel aquí'}
+                {isDragActive ? t('uploader.dragActive') : t('uploader.dragInactive')}
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                o haz clic para seleccionar archivo (.xlsx, .xls)
+                {t('uploader.clickSelect')}
               </p>
               <p className="text-xs text-gray-400 mt-4">
-                Archivos soportados: Cloudamize, Concierto, Matilda
+                {t('businessCaseUploader.supportedFiles')}
               </p>
             </>
           )}
@@ -194,16 +196,16 @@ export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, 
               <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 animate-in zoom-in duration-300" />
               <p className="text-lg font-medium text-green-700">{fileName}</p>
               <p className="text-xs text-gray-500">{fileSize}</p>
-              <p className="text-sm text-green-600 mt-2">Archivo cargado exitosamente</p>
+              <p className="text-sm text-green-600 mt-2">{t('uploader.success')}</p>
             </>
           )}
 
           {uploadState === 'error' && (
             <>
               <XCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
-              <p className="text-lg font-medium text-red-700">Carga Fallida</p>
+              <p className="text-lg font-medium text-red-700">{t('uploader.failed')}</p>
               <p className="text-sm text-red-600 mt-2">{errorMessage}</p>
-              <p className="text-sm text-gray-500 mt-2">Haz clic para intentar de nuevo</p>
+              <p className="text-sm text-gray-500 mt-2">{t('uploader.retryHint')}</p>
             </>
           )}
         </div>

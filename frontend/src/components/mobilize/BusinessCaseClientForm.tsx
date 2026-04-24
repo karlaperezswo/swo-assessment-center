@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -86,6 +87,7 @@ const ASSESSMENT_TOOLS = [
 ] as const;
 
 export function BusinessCaseClientForm({ clientData, onClientDataChange }: BusinessCaseClientFormProps) {
+  const { t } = useTranslation();
   const [onPremisesCostDisplay, setOnPremisesCostDisplay] = useState<string>(
     clientData.onPremisesCost > 0 ? formatSpanishNumber(clientData.onPremisesCost) : ''
   );
@@ -118,13 +120,13 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Building2 className="h-5 w-5" />
-          Información del Cliente
+          {t('businessCaseClientForm.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="clientName">Nombre del Cliente *</Label>
+            <Label htmlFor="clientName">{t('businessCaseClientForm.clientName')}</Label>
             <Input
               id="clientName"
               {...register('clientName')}
@@ -132,7 +134,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
                 register('clientName').onChange(e);
                 handleChange();
               }}
-              placeholder="Enter client name"
+              placeholder={t('businessCaseClientForm.clientNamePlaceholder')}
             />
             {errors.clientName && (
               <p className="text-sm text-red-500">{errors.clientName.message}</p>
@@ -140,7 +142,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="vertical">Vertical/Industry</Label>
+            <Label htmlFor="vertical">{t('businessCaseClientForm.vertical')}</Label>
             <Select
               value={watchedValues.vertical}
               onValueChange={(value) => {
@@ -149,7 +151,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select industry" />
+                <SelectValue placeholder={t('businessCaseClientForm.selectIndustry')} />
               </SelectTrigger>
               <SelectContent>
                 {VERTICALS.map((vertical) => (
@@ -164,7 +166,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="reportDate">Fecha del Reporte</Label>
+            <Label htmlFor="reportDate">{t('businessCaseClientForm.reportDate')}</Label>
             <Input
               id="reportDate"
               type="date"
@@ -177,7 +179,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="awsRegion">Región AWS</Label>
+            <Label htmlFor="awsRegion">{t('businessCaseClientForm.awsRegion')}</Label>
             <Select
               value={watchedValues.awsRegion}
               onValueChange={(value) => {
@@ -186,7 +188,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select region" />
+                <SelectValue placeholder={t('businessCaseClientForm.selectRegion')} />
               </SelectTrigger>
               <SelectContent>
                 {AWS_REGIONS.map((region) => (
@@ -201,7 +203,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="totalServers">Total Servers in Scope</Label>
+            <Label htmlFor="totalServers">{t('businessCaseClientForm.totalServers')}</Label>
             <Input
               id="totalServers"
               type="text"
@@ -220,12 +222,12 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
                 setValue('totalServers', numValue);
                 handleChange();
               }}
-              placeholder="Ej: 100"
+              placeholder={t('businessCaseClientForm.totalServersPlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="onPremisesCost">On-Premises Cost (USD/year)</Label>
+            <Label htmlFor="onPremisesCost">{t('businessCaseClientForm.onPremisesCost')}</Label>
             <Input
               id="onPremisesCost"
               type="text"
@@ -244,13 +246,13 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
                 setValue('onPremisesCost', numValue);
                 handleChange();
               }}
-              placeholder="Ej: 1.500.000,00"
+              placeholder={t('businessCaseClientForm.onPremisesCostPlaceholder')}
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="companyDescription">Descripción de la Empresa</Label>
+          <Label htmlFor="companyDescription">{t('businessCaseClientForm.companyDescription')}</Label>
           <Textarea
             id="companyDescription"
             {...register('companyDescription')}
@@ -258,13 +260,13 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
               register('companyDescription').onChange(e);
               handleChange();
             }}
-            placeholder="Brief description of the company and their infrastructure..."
+            placeholder={t('businessCaseClientForm.companyDescPlaceholder')}
             rows={3}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Client Priorities</Label>
+          <Label>{t('businessCaseClientForm.priorities')}</Label>
           <div className="grid grid-cols-2 gap-2">
             {PRIORITIES.map((priority) => (
               <div key={priority.value} className="flex items-center space-x-2">
@@ -279,7 +281,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
                   htmlFor={priority.value}
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  {priority.label}
+                  {t(`businessCaseClientForm.priority_${priority.value}`)}
                 </label>
               </div>
             ))}
@@ -288,7 +290,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="assessmentTool">Herramienta de Assessment *</Label>
+            <Label htmlFor="assessmentTool">{t('businessCaseClientForm.assessmentTool')}</Label>
             <Select
               value={watchedValues.assessmentTool}
               onValueChange={(value) => {
@@ -297,7 +299,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select tool" />
+                <SelectValue placeholder={t('businessCaseClientForm.selectTool')} />
               </SelectTrigger>
               <SelectContent>
                 {ASSESSMENT_TOOLS.map((tool) => (
@@ -310,7 +312,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="migrationReadiness">Preparación para Migración</Label>
+            <Label htmlFor="migrationReadiness">{t('businessCaseClientForm.migrationReadiness')}</Label>
             <Select
               value={watchedValues.migrationReadiness}
               onValueChange={(value) => {
@@ -319,12 +321,12 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select readiness status" />
+                <SelectValue placeholder={t('businessCaseClientForm.selectReadiness')} />
               </SelectTrigger>
               <SelectContent>
                 {READINESS_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                    {t(`businessCaseClientForm.readiness_${option.value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -334,7 +336,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
 
         {watchedValues.assessmentTool === 'Otra' && (
           <div className="space-y-2">
-            <Label htmlFor="otherToolName">Nombre de la Herramienta *</Label>
+            <Label htmlFor="otherToolName">{t('businessCaseClientForm.otherToolName')}</Label>
             <Input
               id="otherToolName"
               {...register('otherToolName')}
@@ -342,7 +344,7 @@ export function BusinessCaseClientForm({ clientData, onClientDataChange }: Busin
                 register('otherToolName').onChange(e);
                 handleChange();
               }}
-              placeholder="Especifique la herramienta"
+              placeholder={t('businessCaseClientForm.otherToolPlaceholder')}
             />
           </div>
         )}

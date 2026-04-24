@@ -2,12 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InstanceTypeData } from '@/types/assessment';
 import { Server, TrendingUp } from 'lucide-react';
 import { formatSpanishNumber } from '@/lib/numberFormat';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface InstanceTypesChartProps {
   instanceTypes: InstanceTypeData[];
 }
 
 export function InstanceTypesChart({ instanceTypes }: InstanceTypesChartProps) {
+  const { t } = useTranslation();
   const formatPercent = (num: number): string => {
     return `${num.toFixed(2).replace('.', ',')}%`;
   };
@@ -20,7 +22,7 @@ export function InstanceTypesChart({ instanceTypes }: InstanceTypesChartProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Server className="h-5 w-5 text-indigo-600" />
-          Top 10 Tipos de Instancias Recomendadas
+          {t('instanceTypesChart.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -30,10 +32,10 @@ export function InstanceTypesChart({ instanceTypes }: InstanceTypesChartProps) {
             <TrendingUp className="h-5 w-5 text-indigo-600" />
             <div>
               <p className="text-sm font-medium text-indigo-900">
-                Total de instancias analizadas: <span className="text-lg font-bold">{formatSpanishNumber(instanceTypes.reduce((sum, i) => sum + i.count, 0))}</span>
+                {t('instanceTypesChart.totalLabel')} <span className="text-lg font-bold">{formatSpanishNumber(instanceTypes.reduce((sum, i) => sum + i.count, 0))}</span>
               </p>
               <p className="text-xs text-indigo-700 mt-1">
-                Mostrando las 10 instancias más recomendadas
+                {t('instanceTypesChart.subtitle')}
               </p>
             </div>
           </div>
@@ -54,14 +56,14 @@ export function InstanceTypesChart({ instanceTypes }: InstanceTypesChartProps) {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-semibold text-indigo-600 min-w-[80px] text-right">
-                    {formatSpanishNumber(instance.count)} servidores
+                    {t('instanceTypesChart.servers', { n: formatSpanishNumber(instance.count) })}
                   </span>
                   <span className="text-sm font-medium text-gray-600 min-w-[60px] text-right">
                     {formatPercent(instance.percentage)}
                   </span>
                 </div>
               </div>
-              
+
               {/* Progress Bar */}
               <div className="relative h-8 bg-gray-100 rounded-lg overflow-hidden">
                 <div
@@ -82,8 +84,7 @@ export function InstanceTypesChart({ instanceTypes }: InstanceTypesChartProps) {
         {/* Legend */}
         <div className="mt-6 pt-4 border-t border-gray-200">
           <p className="text-xs text-gray-600">
-            <span className="font-semibold">Nota:</span> Las instancias recomendadas se basan en el análisis de Cloudamize 
-            considerando los recursos observados (vCPU, RAM, Storage) y las características de carga de trabajo.
+            {t('instanceTypesChart.noteLabel')}
           </p>
         </div>
       </CardContent>

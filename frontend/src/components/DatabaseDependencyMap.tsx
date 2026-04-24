@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Database, Server, Network, Filter, ArrowUpDown, ChevronLeft, ChevronRight, FileText, FileSpreadsheet, Download, Search } from 'lucide-react';
 import {
@@ -358,6 +359,7 @@ function DbPieChart({ databases, svgRef: extSvgRef }: { databases: DatabaseInfo[
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDependencyMapProps) {
+  const { t } = useTranslation();
   const [activeView, setActiveView] = useState<'connections' | 'ports' | 'processes'>('connections');
   const [filterText, setFilterText] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -505,16 +507,16 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
   };
 
   const views = [
-    { id: 'connections', label: 'Conexiones DB↔Servidor' },
-    { id: 'ports', label: 'Por Puerto' },
-    { id: 'processes', label: 'Por Proceso' },
+    { id: 'connections', label: t('databaseDependencyMap.viewConnections') },
+    { id: 'ports', label: t('databaseDependencyMap.viewPorts') },
+    { id: 'processes', label: t('databaseDependencyMap.viewProcesses') },
   ] as const;
 
   if (databases.length === 0 && dbDependencies.length === 0) {
     return (
       <Card style={{ border: '1px solid #99f6e4', background: '#f0fdfa' }}>
         <CardContent className="pt-6 text-center text-sm" style={{ color: '#0f766e' }}>
-          No se encontraron bases de datos ni dependencias de bases de datos en el archivo cargado.
+          {t('databaseDependencyMap.noData')}
         </CardContent>
       </Card>
     );
@@ -525,10 +527,10 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { value: databases.length,      label: 'Bases de Datos',    icon: '🗄' },
-          { value: dbDependencies.length, label: 'Conexiones DB',     icon: '🔗' },
-          { value: portMap.size,          label: 'Puertos Únicos',    icon: '🔌' },
-          { value: processMap.size,       label: 'Procesos/Servicios',icon: '⚙️' },
+          { value: databases.length,      label: t('databaseDependencyMap.statDatabases'),  icon: '🗄' },
+          { value: dbDependencies.length, label: t('databaseDependencyMap.statConnections'), icon: '🔗' },
+          { value: portMap.size,          label: t('databaseDependencyMap.statPorts'),       icon: '🔌' },
+          { value: processMap.size,       label: t('databaseDependencyMap.statProcesses'),   icon: '⚙️' },
         ].map((s, i) => (
           <div key={i} style={{ borderRadius: 10, padding: '12px 16px', textAlign: 'center', background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)', border: '1px solid #99f6e4', boxShadow: '0 1px 4px rgba(8,145,178,0.08)' }}>
             <div style={{ fontSize: 11, marginBottom: 2 }}>{s.icon}</div>
@@ -732,7 +734,7 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
                   <div style={{ padding: '16px', background: '#fff' }}>
                     {filteredGraphNodes.length > 0
                       ? <DbForceGraph nodes={filteredGraphNodes} links={filteredGraphLinks} svgRef={graphSvgRef} />
-                      : <div style={{ textAlign: 'center', padding: '48px', color: '#94a3b8', fontSize: 13 }}>Sin datos para graficar</div>}
+                      : <div style={{ textAlign: 'center', padding: '48px', color: '#94a3b8', fontSize: 13 }}>{t('databaseDependencyMap.noDataToGraph')}</div>}
                     <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 16 }}>
                       {Object.entries(DB_COLORS).filter(([k]) => k !== 'default').map(([k, c]) => (
                         <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#475569' }}>
@@ -741,7 +743,7 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
                         </div>
                       ))}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#475569' }}>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#3b82f6' }} />Servidor
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#3b82f6' }} />{t('databaseDependencyMap.server')}
                       </div>
                     </div>
                   </div>
@@ -758,14 +760,14 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
                   <Network style={{ width: 16, height: 16, color: '#fff' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: '0.01em' }}>Conexiones entre Bases de Datos y Servidores</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: '0.01em' }}>{t('databaseDependencyMap.connectionsTitle')}</div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>
-                    Tráfico de red detectado entre instancias de BD y servidores
-                    {selectedDb && <span style={{ marginLeft: 8, background: 'rgba(255,255,255,0.2)', borderRadius: 10, padding: '1px 8px', fontWeight: 700 }}>Filtrando: {selectedDb}</span>}
+                    {t('databaseDependencyMap.connectionsSubtitle')}
+                    {selectedDb && <span style={{ marginLeft: 8, background: 'rgba(255,255,255,0.2)', borderRadius: 10, padding: '1px 8px', fontWeight: 700 }}>{t('databaseDependencyMap.filteringLabel')} {selectedDb}</span>}
                   </div>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: '3px 12px', fontSize: 12, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}>
-                  {filteredConnections.length} conexiones
+                  {filteredConnections.length} {t('databaseDependencyMap.connectionsCount')}
                 </div>
                 <div style={{ display: 'flex', gap: 6, marginLeft: 8 }}>
                   <button onClick={() => doExport('conn-pdf', () => exportConnectionsPDF(filteredConnections, graphSvgRef.current))}
@@ -785,7 +787,7 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
                 <div style={{ position: 'relative' }}>
                   <Filter style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: 'rgba(255,255,255,0.6)' }} />
                   <input
-                    placeholder="Filtrar por servidor, puerto, protocolo, proceso..."
+                    placeholder={t('databaseDependencyMap.filterPlaceholder')}
                     value={filterText}
                     onChange={e => { setFilterText(e.target.value); setCurrentPage(1); }}
                     style={{ width: '100%', paddingLeft: 32, paddingRight: 12, paddingTop: 8, paddingBottom: 8, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 8, fontSize: 12, color: '#fff', outline: 'none', boxSizing: 'border-box' }}
@@ -800,11 +802,11 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
                   <thead>
                     <tr>
                       {([
-                        { key: 'source',      label: 'Servidor Origen',    align: 'left'   },
-                        { key: 'destination', label: 'Servidor Destino',   align: 'left'   },
-                        { key: 'port',        label: 'Puerto',             align: 'center' },
-                        { key: 'protocol',    label: 'Protocolo',          align: 'center' },
-                        { key: 'serviceName', label: 'Proceso / Servicio', align: 'left'   },
+                        { key: 'source',      label: t('databaseDependencyMap.colSourceServer'), align: 'left'   },
+                        { key: 'destination', label: t('databaseDependencyMap.colDestServer'),   align: 'left'   },
+                        { key: 'port',        label: t('databaseDependencyMap.colPort'),         align: 'center' },
+                        { key: 'protocol',    label: t('databaseDependencyMap.colProtocol'),     align: 'center' },
+                        { key: 'serviceName', label: t('databaseDependencyMap.colProcess'),      align: 'left'   },
                       ] as const).map(col => (
                         <th key={col.key} onClick={() => handleSort(col.key)}
                           style={{ padding: '9px 12px', textAlign: col.align, fontSize: '11px', fontWeight: 700, color: '#fff', cursor: 'pointer', whiteSpace: 'nowrap', letterSpacing: '0.02em',
@@ -975,10 +977,10 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
                   </div>
                 ))}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#475569' }}>
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: DB_COLORS.default }} />Otro motor
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: DB_COLORS.default }} />{t('databaseDependencyMap.statDatabases')}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#475569' }}>
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#3b82f6' }} />Servidor
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#3b82f6' }} />{t('databaseDependencyMap.server')}
                 </div>
               </div>
             </CardContent>
@@ -996,7 +998,7 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: '0.01em' }}>Dependencias de Bases de Datos por Puerto</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>Puertos de red utilizados en las conexiones detectadas</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{t('databaseDependencyMap.portsTitle')}</div>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: '3px 12px', fontSize: 12, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}>
                 {portMap.size} puertos
@@ -1026,7 +1028,7 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
                           <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 700, color: '#0f766e', background: '#ccfbf1', border: '1px solid #99f6e4', borderRadius: 4, padding: '2px 6px' }}>{port}</span>
                         </td>
                         <td style={{ padding: '6px 12px' }}>
-                          {KNOWN_PORTS[port] ? <span style={{ fontSize: 10, fontWeight: 600, color: '#0c4a6e', background: '#e0f2fe', padding: '2px 7px', borderRadius: 4 }}>{KNOWN_PORTS[port]}</span> : <span style={{ fontSize: 10, color: '#94a3b8', fontStyle: 'italic' }}>Personalizado</span>}
+                          {KNOWN_PORTS[port] ? <span style={{ fontSize: 10, fontWeight: 600, color: '#0c4a6e', background: '#e0f2fe', padding: '2px 7px', borderRadius: 4 }}>{KNOWN_PORTS[port]}</span> : <span style={{ fontSize: 10, color: '#94a3b8', fontStyle: 'italic' }}>{t('databaseDependencyMap.custom')}</span>}
                         </td>
                         <td style={{ padding: '6px 12px' }}>
                           <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 4, background: [...info.protocols][0] === 'TCP' ? '#dbeafe' : [...info.protocols][0] === 'UDP' ? '#dcfce7' : '#f1f5f9', color: [...info.protocols][0] === 'TCP' ? '#1d4ed8' : [...info.protocols][0] === 'UDP' ? '#16a34a' : '#475569' }}>
@@ -1063,7 +1065,7 @@ export function DatabaseDependencyMap({ databases, allDependencies }: DatabaseDe
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: '0.01em' }}>Dependencias de Bases de Datos por Proceso/Servicio</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>Procesos y servicios involucrados en las conexiones</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{t('databaseDependencyMap.processesTitle')}</div>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: '3px 12px', fontSize: 12, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}>
                 {processMap.size} procesos

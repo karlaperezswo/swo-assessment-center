@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -26,6 +27,7 @@ interface BusinessCaseProps {
 }
 
 export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: BusinessCaseProps) {
+  const { t } = useTranslation();
   const {
     businessCaseData, tco1YearData, carbonReportData,
     assessmentTool, clientData,
@@ -87,9 +89,9 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           <div className="flex items-center gap-3">
             <Briefcase className="h-8 w-8" />
             <div>
-              <h2 className="text-2xl font-bold">Caso de Negocio</h2>
+              <h2 className="text-2xl font-bold">{t('businessCaseModule.title')}</h2>
               <p className="text-sm text-white/80 mt-1">
-                Análisis de costos y beneficios para migración a AWS
+                {t('businessCaseModule.description')}
               </p>
             </div>
           </div>
@@ -102,19 +104,19 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           {businessCaseData && (
             <div className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium">
               <TrendingUp className="h-4 w-4" />
-              Datos cargados ({businessCaseData.summary.totalServers} servidores, {businessCaseData.summary.osDistributionCount} sistemas operativos)
+              {t('businessCaseModule.dataLoaded', { servers: businessCaseData.summary.totalServers, os: businessCaseData.summary.osDistributionCount })}
             </div>
           )}
           {tco1YearData && (
             <div className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full text-sm font-medium">
               <TrendingUp className="h-4 w-4" />
-              TCO 1 Año cargado ({tco1YearData.summary.totalResources} recursos)
+              {t('businessCaseModule.tco1YearLoaded', { resources: tco1YearData.summary.totalResources })}
             </div>
           )}
           {clientData.clientName && (
             <div className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium">
               <TrendingUp className="h-4 w-4" />
-              Cliente: {clientData.clientName}
+              {t('businessCaseModule.clientStatus', { name: clientData.clientName })}
             </div>
           )}
         </div>
@@ -131,16 +133,16 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
             </div>
             <div className="flex-1">
               <Label htmlFor="assessmentTool" className="text-base font-semibold text-purple-900">
-                Herramienta de Assessment *
+                {t('businessCaseModule.assessmentToolLabel')}
               </Label>
               <p className="text-sm text-purple-700 mt-1">
-                Selecciona la herramienta utilizada para el assessment (obligatorio)
+                {t('businessCaseModule.assessmentToolDesc')}
               </p>
             </div>
             <div className="w-64">
               <Select value={assessmentTool} onValueChange={handleToolChange}>
                 <SelectTrigger className="bg-white">
-                  <SelectValue placeholder="Seleccionar herramienta" />
+                  <SelectValue placeholder={t('businessCaseModule.selectTool')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Cloudamize">Cloudamize</SelectItem>
@@ -154,7 +156,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           {!assessmentTool && (
             <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
               <p className="text-sm text-yellow-800 font-medium">
-                ⚠️ Debes seleccionar una herramienta antes de continuar
+                {t('businessCaseModule.selectToolWarning')}
               </p>
             </div>
           )}
@@ -167,7 +169,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Upload className="h-5 w-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-800">Data Upload</h3>
+              <h3 className="font-semibold text-gray-800">{t('businessCaseModule.dataUploadSection')}</h3>
             </div>
             <div className="space-y-4">
               {assessmentTool === 'Matilda' ? (
@@ -203,7 +205,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Building2 className="h-5 w-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-800">Client Information</h3>
+              <h3 className="font-semibold text-gray-800">{t('businessCaseModule.clientInfoSection')}</h3>
             </div>
             <BusinessCaseClientForm 
               clientData={clientData}
@@ -223,7 +225,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
               <Card className="border-2 border-blue-200">
                 <CardContent className="pt-6 text-center">
                   <TrendingUp className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 font-medium">Total Servidores</p>
+                  <p className="text-sm text-gray-600 font-medium">{t('businessCaseModule.totalServers')}</p>
                   <p className="text-3xl font-bold text-blue-600">
                     {businessCaseData.summary.totalServers}
                   </p>
@@ -233,7 +235,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
               <Card className="border-2 border-green-200">
                 <CardContent className="pt-6 text-center">
                   <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 font-medium">Producción</p>
+                  <p className="text-sm text-gray-600 font-medium">{t('businessCaseModule.production')}</p>
                   <p className="text-3xl font-bold text-green-600">
                     {businessCaseData.summary.prodServers}
                   </p>
@@ -243,7 +245,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
               <Card className="border-2 border-yellow-200">
                 <CardContent className="pt-6 text-center">
                   <TrendingUp className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 font-medium">Desarrollo</p>
+                  <p className="text-sm text-gray-600 font-medium">{t('businessCaseModule.development')}</p>
                   <p className="text-3xl font-bold text-yellow-600">
                     {businessCaseData.summary.devServers}
                   </p>
@@ -271,7 +273,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
               >
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-800">Distribución de Sistemas Operativos</h3>
+                  <h3 className="font-semibold text-gray-800">{t('businessCaseModule.osDistribution')}</h3>
                 </div>
                 {showOSDistribution ? (
                   <ChevronUp className="h-5 w-5 text-gray-500" />
@@ -296,7 +298,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
               >
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-green-600" />
-                  <h3 className="font-semibold text-gray-800">Optimización de Recursos</h3>
+                  <h3 className="font-semibold text-gray-800">{t('businessCaseModule.resourceOptimization')}</h3>
                 </div>
                 {showResourceOptimization ? (
                   <ChevronUp className="h-5 w-5 text-gray-500" />
@@ -320,7 +322,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
             >
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-blue-600" />
-                <h3 className="font-semibold text-gray-800">TCO</h3>
+                <h3 className="font-semibold text-gray-800">{t('businessCaseModule.tco')}</h3>
               </div>
               {showTCOChart ? (
                 <ChevronUp className="h-5 w-5 text-gray-500" />
@@ -333,7 +335,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
                 {/* Single scenario (EC2 only) or First scenario when RDS enabled */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <TCOCostInput
-                    title={enableRDSScenario ? "Costos Anuales AWS - EC2 (USD)" : "Costos Anuales AWS (USD)"}
+                    title={enableRDSScenario ? t('businessCaseModule.ec2CostsTitle') : t('businessCaseModule.annualCostTitle')}
                     onDemandAsIs={onDemandAsIs}
                     oneYearOptimized={oneYearOptimized}
                     threeYearOptimized={threeYearOptimized}
@@ -343,7 +345,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
                   />
                   
                   <TCOChart
-                    title={enableRDSScenario ? "Costo Anual EC2 en USD (ARR)" : "Costo Anual en USD (ARR)"}
+                    title={enableRDSScenario ? t('businessCaseModule.ec2ChartTitle') : t('businessCaseModule.annualCostTitle')}
                     onPremisesCost={clientData.onPremisesCost}
                     onDemandAsIs={onDemandAsIs}
                     oneYearOptimized={oneYearOptimized}
@@ -361,7 +363,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
                     className="h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   />
                   <label htmlFor="enableRDS" className="text-sm font-medium text-blue-900 cursor-pointer">
-                    Incluir escenario con RDS (bases de datos)
+                    {t('businessCaseModule.includeRDS')}
                   </label>
                 </div>
 
@@ -370,11 +372,11 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
                   <div className="border-2 border-green-200 rounded-lg p-4 bg-green-50">
                     <h4 className="text-lg font-bold text-green-900 mb-4 flex items-center gap-2">
                       <TrendingUp className="h-5 w-5" />
-                      TCO - RDS
+                      {t('businessCaseModule.tcoRDS')}
                     </h4>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <TCOCostInput
-                        title="Costos Anuales AWS - RDS (USD)"
+                        title={t('businessCaseModule.rdsCostsTitle')}
                         onDemandAsIs={onDemandAsIsRDS}
                         oneYearOptimized={oneYearOptimizedRDS}
                         threeYearOptimized={threeYearOptimizedRDS}
@@ -384,7 +386,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
                       />
                       
                       <TCOChart
-                        title="Costo Anual RDS en USD (ARR)"
+                        title={t('businessCaseModule.rdsChartTitle')}
                         onPremisesCost={clientData.onPremisesCost}
                         onDemandAsIs={onDemandAsIsRDS}
                         oneYearOptimized={oneYearOptimizedRDS}
@@ -406,7 +408,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
               >
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-green-600" />
-                  <h3 className="font-semibold text-gray-800">Reporte de Carbonización</h3>
+                  <h3 className="font-semibold text-gray-800">{t('businessCaseModule.carbonReport')}</h3>
                 </div>
                 {showCarbonReport ? (
                   <ChevronUp className="h-5 w-5 text-gray-500" />
@@ -431,7 +433,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
               >
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-purple-600" />
-                  <h3 className="font-semibold text-gray-800">Estrategia de Migración</h3>
+                  <h3 className="font-semibold text-gray-800">{t('businessCaseModule.migrationStrategy')}</h3>
                 </div>
                 {showMigrationStrategy ? (
                   <ChevronUp className="h-5 w-5 text-gray-500" />
@@ -457,9 +459,9 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
                 <div className="flex items-center gap-3 mb-6">
                   <Briefcase className="h-7 w-7 text-orange-600" />
                   <div>
-                    <h2 className="text-xl font-bold text-orange-900">Anexos</h2>
+                    <h2 className="text-xl font-bold text-orange-900">{t('businessCaseModule.annexes')}</h2>
                     <p className="text-sm text-orange-700 mt-1">
-                      Información adicional y análisis complementarios
+                      {t('businessCaseModule.annexesDesc')}
                     </p>
                   </div>
                 </div>
@@ -474,7 +476,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
                       >
                         <div className="flex items-center gap-2">
                           <TrendingUp className="h-5 w-5 text-blue-600" />
-                          <h3 className="font-semibold text-gray-800">Optimización de Licenciamiento SQL Server</h3>
+                          <h3 className="font-semibold text-gray-800">{t('businessCaseModule.sqlLicensing')}</h3>
                         </div>
                         {showSQLLicensing ? (
                           <ChevronUp className="h-5 w-5 text-gray-500" />
@@ -502,7 +504,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
                       >
                         <div className="flex items-center gap-2">
                           <TrendingUp className="h-5 w-5 text-indigo-600" />
-                          <h3 className="font-semibold text-gray-800">Tipos de Instancias</h3>
+                          <h3 className="font-semibold text-gray-800">{t('businessCaseModule.instanceTypes')}</h3>
                         </div>
                         {showInstanceTypes ? (
                           <ChevronUp className="h-5 w-5 text-gray-500" />
@@ -527,7 +529,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
                       >
                         <div className="flex items-center gap-2">
                           <TrendingUp className="h-5 w-5 text-cyan-600" />
-                          <h3 className="font-semibold text-gray-800">Transferencia de Datos de Red</h3>
+                          <h3 className="font-semibold text-gray-800">{t('businessCaseModule.networkTransfer')}</h3>
                         </div>
                         {showNetworkTransfer ? (
                           <ChevronUp className="h-5 w-5 text-gray-500" />
@@ -552,7 +554,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
                       >
                         <div className="flex items-center gap-2">
                           <TrendingUp className="h-5 w-5 text-red-600" />
-                          <h3 className="font-semibold text-gray-800">Riesgo de Soporte</h3>
+                          <h3 className="font-semibold text-gray-800">{t('businessCaseModule.supportRisk')}</h3>
                         </div>
                         {showSupportRisk ? (
                           <ChevronUp className="h-5 w-5 text-gray-500" />
@@ -577,9 +579,9 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           <CardContent className="py-12">
             <div className="text-center text-gray-500">
               <Briefcase className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-              <p className="text-lg font-medium">No hay datos cargados</p>
+              <p className="text-lg font-medium">{t('businessCaseModule.noDataLoaded')}</p>
               <p className="text-sm mt-2">
-                Sube un archivo Excel de {assessmentTool} para comenzar el análisis
+                {t('businessCaseModule.noDataInstruction', { tool: assessmentTool })}
               </p>
             </div>
           </CardContent>

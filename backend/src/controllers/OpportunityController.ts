@@ -7,7 +7,8 @@ import { S3Service } from '../services/s3Service';
 import { AnonymizationService } from '../services/AnonymizationService';
 import { BedrockService } from '../services/BedrockService';
 import { OpportunityAnalyzerService } from '../services/OpportunityAnalyzerService';
-import { InMemoryOpportunityStorage } from '../services/OpportunityStorageService';
+import { OpportunityStorageService } from '../services/OpportunityStorageService';
+import { getOpportunityStorage } from '../services/opportunityStorageFactory';
 import { ExportService } from '../services/ExportService';
 import { KnowledgeBaseService } from '../services/KnowledgeBaseService';
 import { QuestionnaireParserService } from '../services/QuestionnaireParserService';
@@ -35,7 +36,7 @@ export class OpportunityController {
   private anonymizationService: AnonymizationService;
   private bedrockService: BedrockService;
   private analyzerService: OpportunityAnalyzerService;
-  private storage: InMemoryOpportunityStorage;
+  private storage: OpportunityStorageService;
   private exportService: ExportService;
   private knowledgeBaseService: KnowledgeBaseService;
   private questionnaireParser: QuestionnaireParserService;
@@ -46,7 +47,7 @@ export class OpportunityController {
     this.anonymizationService = new AnonymizationService();
     this.bedrockService = new BedrockService();
     this.analyzerService = new OpportunityAnalyzerService();
-    this.storage = InMemoryOpportunityStorage.getInstance();
+    this.storage = getOpportunityStorage();
     this.exportService = new ExportService();
     this.knowledgeBaseService = new KnowledgeBaseService();
     this.questionnaireParser = new QuestionnaireParserService();

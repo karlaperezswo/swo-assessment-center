@@ -157,23 +157,72 @@ function KickoffInternoPage() {
       </Card>
 
       <Card className="border-fuchsia-100">
-        <CardContent className="pt-5 space-y-3">
+        <CardContent className="pt-5 space-y-4">
           <h3 className="font-semibold text-gray-800">Agenda del Kickoff Interno</h3>
-          <div className="space-y-2">
-            {[
-              { n: '1', t: 'Revisión del Cliente', time: '15 min' },
-              { n: '2', t: 'Alcance del Assessment', time: '20 min' },
-              { n: '3', t: 'Asignación de Roles', time: '15 min' },
-              { n: '4', t: 'Herramientas y Metodología', time: '20 min' },
-              { n: '5', t: 'Próximos Pasos', time: '10 min' },
-            ].map((item) => (
-              <div key={item.n} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
-                <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">{item.n}</span>
-                <span className="text-sm text-gray-700 flex-1">{item.t}</span>
-                <span className="text-xs text-gray-500 bg-white border rounded px-2 py-0.5">{item.time}</span>
+
+          {[
+            {
+              n: '1', t: 'Revisión del Cliente', time: '15 min',
+              items: ['Industria y contexto de negocio', 'Objetivos de la migración', 'Stakeholders clave identificados'],
+            },
+            {
+              n: '2', t: 'Alcance del Assessment', time: '20 min',
+              items: [
+                'Entornos a evaluar (producción, desarrollo, QA)',
+                'Número estimado de servidores y aplicaciones',
+                'Exclusiones y limitaciones',
+                'Timeline y milestones clave',
+                'Presupuesto y recursos asignados',
+              ],
+            },
+            {
+              n: '3', t: 'Asignación de Roles', time: '15 min',
+              items: [
+                'Lead Consultant: Responsable general del proyecto',
+                'Technical Consultants: Ejecución técnica del assessment',
+                'Especialista en herramientas de colecta',
+                'Especialista en análisis de datos y business case',
+                'Especialista en arquitectura AWS',
+              ],
+            },
+            {
+              n: '4', t: 'Herramientas y Metodología', time: '20 min',
+              items: [
+                'Selección preliminar de herramienta de colecta',
+                'Proceso de recolección de datos',
+                'Templates y documentación a utilizar',
+                'Herramientas de colaboración (SharePoint, Teams, etc.)',
+                'Frecuencia de reuniones de seguimiento',
+              ],
+            },
+            {
+              n: '5', t: 'Próximos Pasos', time: '10 min',
+              items: [
+                'Preparación para kickoff con cliente',
+                'Materiales a preparar',
+                'Fecha del kickoff con cliente',
+                'Asignación de tareas inmediatas',
+                'Puntos de contacto con el cliente',
+              ],
+            },
+          ].map((item) => (
+            <div key={item.n} className="flex gap-3">
+              <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</span>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-sm font-semibold text-gray-800">{item.t}</p>
+                  <span className="text-xs text-gray-500 bg-white border rounded px-2 py-0.5">{item.time}</span>
+                </div>
+                <ul className="space-y-1">
+                  {item.items.map((i) => (
+                    <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
+                      <span className="text-fuchsia-400 mt-0.5">•</span>{i}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
@@ -193,6 +242,22 @@ function KickoffInternoPage() {
             Documenta todas las decisiones tomadas durante el kickoff interno y compártelas con el equipo para
             referencia futura.
           </TipAlert>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-3">
+          <h3 className="font-semibold text-gray-800">Plantillas y Recursos</h3>
+          <ul className="space-y-2">
+            {[
+              '📄 Agenda de Kickoff Interno (Template)',
+              '📄 Matriz RACI del Proyecto',
+              '📄 Checklist de Preparación',
+              '📄 Template de Acta de Reunión',
+            ].map((item) => (
+              <li key={item} className="text-sm text-fuchsia-700 bg-fuchsia-50 border border-fuchsia-100 rounded px-3 py-2">{item}</li>
+            ))}
+          </ul>
         </CardContent>
       </Card>
     </div>
@@ -218,26 +283,61 @@ function KickoffExternoPage() {
 
       <Card className="border-fuchsia-100">
         <CardContent className="pt-5 space-y-3">
-          <h3 className="font-semibold text-gray-800">Agenda del Kickoff Externo</h3>
-          <div className="space-y-2">
-            {[
-              { n: '1', t: 'Bienvenida e Introducciones', time: '10 min' },
-              { n: '2', t: 'Objetivos del Proyecto', time: '15 min' },
-              { n: '3', t: 'Alcance del Assessment', time: '20 min' },
-              { n: '4', t: 'Metodología y Proceso', time: '20 min' },
-              { n: '5', t: 'Timeline y Milestones', time: '15 min' },
-              { n: '6', t: 'Requerimientos del Cliente', time: '20 min' },
-              { n: '7', t: 'Comunicación y Gobernanza', time: '15 min' },
-              { n: '8', t: 'Riesgos y Mitigación', time: '10 min' },
-              { n: '9', t: 'Q&A y Próximos Pasos', time: '15 min' },
-            ].map((item) => (
-              <div key={item.n} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
-                <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">{item.n}</span>
-                <span className="text-sm text-gray-700 flex-1">{item.t}</span>
-                <span className="text-xs text-gray-500 bg-white border rounded px-2 py-0.5">{item.time}</span>
-              </div>
-            ))}
+          <h3 className="font-semibold text-gray-800">Participantes</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="p-3 bg-blue-50 border border-blue-100 rounded-lg">
+              <p className="text-xs font-semibold text-blue-800 mb-1.5">Del lado del Cliente</p>
+              <ul className="space-y-1 text-xs text-gray-700">
+                {['Executive Sponsor: Patrocinador ejecutivo', 'IT Leadership: CIO, Director de IT', 'Technical Team: Arquitectos, admins, DBAs', 'Security & Compliance', 'Business Stakeholders: Dueños de apps críticas'].map((i) => (
+                  <li key={i} className="flex items-start gap-1"><span className="text-blue-400 mt-0.5">•</span>{i}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="p-3 bg-fuchsia-50 border border-fuchsia-100 rounded-lg">
+              <p className="text-xs font-semibold text-fuchsia-800 mb-1.5">Del lado de SoftwareONE/AWS</p>
+              <ul className="space-y-1 text-xs text-gray-700">
+                {['Lead Consultant: Líder del proyecto', 'Technical Consultants: Equipo técnico', 'AWS Representative (opcional)', 'Account Manager: Gerente de cuenta'].map((i) => (
+                  <li key={i} className="flex items-start gap-1"><span className="text-fuchsia-400 mt-0.5">•</span>{i}</li>
+                ))}
+              </ul>
+            </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-4">
+          <h3 className="font-semibold text-gray-800">Agenda del Kickoff Externo</h3>
+          {[
+            { n: '1', t: 'Bienvenida e Introducciones', time: '10 min', items: ['Presentación de todos los participantes', 'Roles y responsabilidades de cada uno', 'Establecimiento del tono colaborativo'] },
+            { n: '2', t: 'Objetivos del Proyecto', time: '15 min', items: ['Revisión de los objetivos de negocio del cliente', 'Beneficios esperados de la migración a AWS', 'Métricas de éxito del proyecto', 'Alineación de expectativas'] },
+            { n: '3', t: 'Alcance del Assessment', time: '20 min', items: ['Entornos a evaluar (producción, desarrollo, DR)', 'Aplicaciones y sistemas incluidos', 'Exclusiones explícitas', 'Limitaciones y supuestos'] },
+            { n: '4', t: 'Metodología y Proceso', time: '20 min', items: ['Herramientas de colecta a utilizar', 'Proceso de instalación de agentes', 'Período de recolección de datos', 'Entregables esperados'] },
+            { n: '5', t: 'Timeline y Milestones', time: '15 min', items: ['Cronograma detallado del proyecto', 'Hitos clave y fechas importantes', 'Dependencias críticas', 'Puntos de revisión con el cliente'] },
+            { n: '6', t: 'Requerimientos del Cliente', time: '20 min', items: ['Accesos necesarios (credenciales, VPN, etc.)', 'Información a proporcionar', 'Recursos del cliente requeridos', 'Aprobaciones de seguridad necesarias', 'Ventanas de mantenimiento disponibles'] },
+            { n: '7', t: 'Comunicación y Gobernanza', time: '15 min', items: ['Canales de comunicación (email, Teams, Slack)', 'Frecuencia de reuniones de seguimiento', 'Proceso de escalamiento', 'Gestión de cambios'] },
+            { n: '8', t: 'Riesgos y Mitigación', time: '10 min', items: ['Riesgos identificados', 'Estrategias de mitigación'] },
+            { n: '9', t: 'Q&A y Próximos Pasos', time: '15 min', items: [] },
+          ].map((item) => (
+            <div key={item.n} className="flex gap-3">
+              <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</span>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-sm font-semibold text-gray-800">{item.t}</p>
+                  <span className="text-xs text-gray-500 bg-white border rounded px-2 py-0.5">{item.time}</span>
+                </div>
+                {item.items.length > 0 && (
+                  <ul className="space-y-0.5">
+                    {item.items.map((i) => (
+                      <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
+                        <span className="text-fuchsia-400 mt-0.5">•</span>{i}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
@@ -282,13 +382,32 @@ function SeleccionHerramientaPage() {
           <h3 className="font-semibold text-gray-800">Herramientas Disponibles</h3>
           <div className="space-y-3">
             {[
-              { name: 'Cloudamize', desc: 'Mejor para: Entornos medianos a grandes con infraestructura moderna', color: 'border-blue-300 bg-blue-50' },
-              { name: 'Concierto', desc: 'Mejor para: Entornos complejos, multi-cloud o con restricciones de agentes', color: 'border-purple-300 bg-purple-50' },
-              { name: 'Matilda', desc: 'Mejor para: Sistemas legacy y mainframes', color: 'border-fuchsia-300 bg-fuchsia-50' },
+              {
+                name: 'Cloudamize', color: 'border-blue-300 bg-blue-50',
+                best: 'Entornos medianos a grandes con infraestructura moderna',
+                items: ['Agente ligero y fácil de instalar', 'Análisis automático de rightsizing', 'Recomendaciones precisas de instancias AWS', 'Análisis de dependencias avanzado', 'Soporte para Windows, Linux y VMware'],
+              },
+              {
+                name: 'Concierto', color: 'border-purple-300 bg-purple-50',
+                best: 'Entornos complejos, multi-cloud o con restricciones de agentes',
+                items: ['Modo agentless disponible', 'Soporte multi-cloud (AWS, Azure, GCP)', 'Análisis con machine learning', 'Mapeo de dependencias muy detallado', 'Ideal para entornos grandes y complejos'],
+              },
+              {
+                name: 'Matilda', color: 'border-fuchsia-300 bg-fuchsia-50',
+                best: 'Sistemas legacy y mainframes',
+                items: ['Especializada en sistemas legacy', 'Soporte para AIX, AS/400, mainframes', 'Análisis de código legacy', 'Evaluación de modernización'],
+              },
             ].map((tool) => (
               <div key={tool.name} className={`p-3 rounded-lg border ${tool.color}`}>
                 <p className="font-semibold text-gray-800 text-sm">{tool.name}</p>
-                <p className="text-xs text-gray-600 mt-0.5">{tool.desc}</p>
+                <p className="text-xs text-gray-500 mt-0.5 mb-2">Mejor para: {tool.best}</p>
+                <ul className="space-y-0.5">
+                  {tool.items.map((i) => (
+                    <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700">
+                      <span className="text-fuchsia-400 mt-0.5">•</span>{i}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
@@ -296,23 +415,57 @@ function SeleccionHerramientaPage() {
       </Card>
 
       <Card className="border-fuchsia-100">
-        <CardContent className="pt-5 space-y-3">
-          <h3 className="font-semibold text-gray-800">Criterios de Selección por Tamaño</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-fuchsia-50">
-                  <th className="text-left p-2 font-semibold text-fuchsia-800 rounded-tl-lg">Tamaño</th>
-                  <th className="text-left p-2 font-semibold text-fuchsia-800">Nº de Servidores</th>
-                  <th className="text-left p-2 font-semibold text-fuchsia-800 rounded-tr-lg">Herramienta Recomendada</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-t"><td className="p-2 text-gray-700">Pequeño</td><td className="p-2 text-gray-700">&lt; 100</td><td className="p-2 text-gray-700">Cualquiera</td></tr>
-                <tr className="border-t bg-gray-50"><td className="p-2 text-gray-700">Mediano</td><td className="p-2 text-gray-700">100 – 500</td><td className="p-2 text-gray-700">Cloudamize o Concierto</td></tr>
-                <tr className="border-t"><td className="p-2 text-gray-700">Grande</td><td className="p-2 text-gray-700">&gt; 500</td><td className="p-2 text-gray-700">Concierto</td></tr>
-              </tbody>
-            </table>
+        <CardContent className="pt-5 space-y-4">
+          <h3 className="font-semibold text-gray-800">Criterios de Selección</h3>
+
+          <div>
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">1. Tamaño del Entorno</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="bg-fuchsia-50 text-fuchsia-800 text-left">
+                    <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Tamaño</th>
+                    <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Número de Servidores</th>
+                    <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Herramienta Recomendada</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white"><td className="border border-gray-200 px-3 py-2 text-gray-700">Pequeño</td><td className="border border-gray-200 px-3 py-2 text-gray-700">&lt; 100</td><td className="border border-gray-200 px-3 py-2 text-gray-700">Cualquiera</td></tr>
+                  <tr className="bg-gray-50"><td className="border border-gray-200 px-3 py-2 text-gray-700">Mediano</td><td className="border border-gray-200 px-3 py-2 text-gray-700">100 – 500</td><td className="border border-gray-200 px-3 py-2 text-gray-700">Cloudamize o Concierto</td></tr>
+                  <tr className="bg-white"><td className="border border-gray-200 px-3 py-2 text-gray-700">Grande</td><td className="border border-gray-200 px-3 py-2 text-gray-700">&gt; 500</td><td className="border border-gray-200 px-3 py-2 text-gray-700">Concierto</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">2. Restricciones del Cliente</h4>
+            <ul className="space-y-1.5">
+              <CheckItem><strong>No permite instalación de agentes:</strong> Concierto (agentless)</CheckItem>
+              <CheckItem><strong>Restricciones de seguridad estrictas:</strong> Evaluar caso por caso</CheckItem>
+              <CheckItem><strong>Sin conectividad a internet:</strong> Modo offline disponible</CheckItem>
+              <CheckItem><strong>Entornos regulados:</strong> Verificar compliance de la herramienta</CheckItem>
+              <CheckItem><strong>Sistemas legacy / mainframes:</strong> Matilda</CheckItem>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">3. Proceso de Selección</h4>
+            {[
+              { n: '1', t: 'Recopilar Información', items: ['Número total de servidores', 'Sistemas operativos utilizados', 'Plataformas de virtualización', 'Presencia de sistemas legacy', 'Restricciones de seguridad', 'Conectividad disponible'] },
+              { n: '2', t: 'Evaluar Opciones', items: ['Comparar características de cada herramienta', 'Considerar experiencia previa del equipo', 'Evaluar costos y licenciamiento', 'Verificar disponibilidad de soporte'] },
+              { n: '3', t: 'Validar con el Cliente', items: ['Presentar opciones al equipo de IT', 'Obtener aprobación de seguridad', 'Confirmar disponibilidad de recursos', 'Documentar decisión y justificación'] },
+            ].map((step) => (
+              <div key={step.n} className="flex gap-3 mb-3">
+                <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">{step.n}</span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-800 mb-1">{step.t}</p>
+                  <ul className="space-y-0.5">
+                    {step.items.map((i) => <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600"><span className="text-fuchsia-400 mt-0.5">•</span>{i}</li>)}
+                  </ul>
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -356,31 +509,41 @@ function InstalacionAgentesPage() {
         <CardContent className="pt-5 space-y-3">
           <h3 className="font-semibold text-gray-800">Métodos de Instalación</h3>
           <div className="space-y-3">
-            <div className="p-3 rounded-lg bg-gray-50 border">
-              <p className="font-semibold text-gray-800 text-sm">1. Instalación Manual</p>
-              <p className="text-xs text-gray-600 mt-0.5">Cuándo usar: Entornos pequeños (&lt;20 servidores) o servidores críticos</p>
-            </div>
-            <div className="p-3 rounded-lg bg-gray-50 border">
-              <p className="font-semibold text-gray-800 text-sm">2. Instalación Masiva (Scripted)</p>
-              <p className="text-xs text-gray-600 mt-0.5">Cuándo usar: Entornos medianos a grandes (&gt;20 servidores)</p>
-            </div>
-            <div className="p-3 rounded-lg bg-gray-50 border">
-              <p className="font-semibold text-gray-800 text-sm">3. Instalación Remota</p>
-              <p className="text-xs text-gray-600 mt-0.5">Cuándo usar: Cuando no hay acceso directo a los servidores</p>
-            </div>
+            {[
+              { n: '1', t: 'Instalación Manual', when: 'Entornos pequeños (&lt;20 servidores) o servidores críticos', items: ['Conexión directa a cada servidor', 'Instalación paso a paso', 'Verificación inmediata', 'Mayor control del proceso'] },
+              { n: '2', t: 'Instalación Masiva (Scripted)', when: 'Entornos medianos a grandes (&gt;20 servidores)', items: ['Scripts de PowerShell (Windows)', 'Scripts de Bash (Linux)', 'Ansible playbooks', 'Herramientas de gestión de configuración'] },
+              { n: '3', t: 'Instalación Remota', when: 'Cuando no hay acceso directo a los servidores', items: ['PSExec para Windows', 'SSH para Linux', 'Herramientas de administración remota'] },
+            ].map((m) => (
+              <div key={m.n} className="p-3 rounded-lg bg-gray-50 border">
+                <p className="font-semibold text-gray-800 text-sm">{m.n}. {m.t}</p>
+                <p className="text-xs text-gray-500 mt-0.5 mb-2" dangerouslySetInnerHTML={{ __html: `Cuándo usar: ${m.when}` }} />
+                <ul className="space-y-0.5">
+                  {m.items.map((i) => <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600"><span className="text-fuchsia-400 mt-0.5">•</span>{i}</li>)}
+                </ul>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
 
       <Card className="border-fuchsia-100">
         <CardContent className="pt-5 space-y-3">
-          <h3 className="font-semibold text-gray-800">Verificación Post-Instalación</h3>
-          <ul className="space-y-1.5">
-            <CheckItem>Agente instalado correctamente</CheckItem>
-            <CheckItem>Servicio ejecutándose en todos los servidores</CheckItem>
-            <CheckItem>Datos fluyendo hacia la plataforma de colecta</CheckItem>
-            <CheckItem>Sin alertas de errores en la consola</CheckItem>
-          </ul>
+          <h3 className="font-semibold text-gray-800">Proceso de Instalación</h3>
+          {[
+            { n: '1', t: 'Instalación Piloto', items: ['Seleccionar 2–3 servidores de prueba', 'Instalar agentes manualmente', 'Verificar conectividad y recolección', 'Validar impacto en performance', 'Documentar lecciones aprendidas'] },
+            { n: '2', t: 'Instalación por Fases', items: ['Fase 1: Servidores no críticos (10–20%)', 'Fase 2: Servidores de desarrollo/QA (30–40%)', 'Fase 3: Servidores de producción no críticos (20–30%)', 'Fase 4: Servidores críticos de producción (10–20%)'] },
+            { n: '3', t: 'Verificación Post-Instalación', items: ['Agente instalado correctamente', 'Servicio ejecutándose', 'Conectividad con el servidor de colecta', 'Datos comenzando a recolectarse', 'Sin impacto en performance', 'Logs sin errores'] },
+          ].map((step) => (
+            <div key={step.n} className="flex gap-3">
+              <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">{step.n}</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-800 mb-1">{step.t}</p>
+                <ul className="space-y-1">
+                  {step.items.map((i) => <CheckItem key={i}>{i}</CheckItem>)}
+                </ul>
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
     </div>
@@ -430,11 +593,11 @@ function RecoleccionDatosPage() {
       <Card className="border-fuchsia-100">
         <CardContent className="pt-5 space-y-3">
           <h3 className="font-semibold text-gray-800">Datos Recolectados</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="space-y-3">
             {[
-              { title: 'Métricas de Infraestructura', items: ['CPU, RAM, disco, red', 'Configuración de VMs', 'Sistemas operativos', 'Versiones de software'] },
-              { title: 'Información de Aplicaciones', items: ['Procesos en ejecución', 'Puertos y servicios', 'Dependencias externas', 'Usuarios concurrentes'] },
-              { title: 'Datos de Performance', items: ['Picos de uso', 'Patrones horarios', 'Latencia de red', 'IOPS de almacenamiento'] },
+              { title: 'Métricas de Infraestructura', items: ['CPU: Utilización, cores, velocidad', 'Memoria: Uso, capacidad, disponible', 'Disco: IOPS, throughput, capacidad, uso', 'Red: Ancho de banda, latencia, conexiones', 'Sistema Operativo: Versión, patches, configuración'] },
+              { title: 'Información de Aplicaciones', items: ['Procesos en ejecución', 'Servicios instalados', 'Puertos en uso', 'Conexiones de red', 'Dependencias entre aplicaciones'] },
+              { title: 'Datos de Performance', items: ['Patrones de uso por hora/día/semana', 'Picos de carga', 'Períodos de baja utilización', 'Tendencias de crecimiento'] },
             ].map((group) => (
               <div key={group.title} className="bg-gray-50 rounded-lg p-3 border">
                 <p className="font-semibold text-gray-800 text-xs mb-2">{group.title}</p>
@@ -447,6 +610,34 @@ function RecoleccionDatosPage() {
                 </ul>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-3">
+          <h3 className="font-semibold text-gray-800">Monitoreo Durante la Recolección</h3>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-700 mb-2">Actividades Diarias</p>
+              <ul className="space-y-1.5">
+                <CheckItem>Verificar que todos los agentes estén activos</CheckItem>
+                <CheckItem>Revisar logs de errores</CheckItem>
+                <CheckItem>Validar que los datos se estén recolectando</CheckItem>
+                <CheckItem>Monitorear impacto en performance</CheckItem>
+                <CheckItem>Documentar incidencias</CheckItem>
+              </ul>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-700 mb-2">Actividades Semanales</p>
+              <ul className="space-y-1.5">
+                <CheckItem>Reunión de status con el cliente</CheckItem>
+                <CheckItem>Revisión de calidad de datos</CheckItem>
+                <CheckItem>Identificar servidores con datos incompletos</CheckItem>
+                <CheckItem>Actualizar dashboard de progreso</CheckItem>
+                <CheckItem>Reportar al equipo interno</CheckItem>
+              </ul>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -472,20 +663,54 @@ function ValidacionAnalisisPage() {
       </Card>
 
       <Card className="border-fuchsia-100">
-        <CardContent className="pt-5 space-y-3">
+        <CardContent className="pt-5 space-y-4">
           <h3 className="font-semibold text-gray-800">Validación de Datos</h3>
-          <div className="space-y-3">
-            <div>
-              <p className="text-sm font-semibold text-gray-700 mb-1.5">1. Validación de Completitud</p>
-              <ul className="space-y-1.5 ml-2">
-                <CheckItem>Todos los servidores objetivo tienen datos</CheckItem>
-                <CheckItem>Período de recolección completo</CheckItem>
-                <CheckItem>Métricas clave capturadas (CPU, RAM, disco, red)</CheckItem>
-                <CheckItem>Información de aplicaciones disponible</CheckItem>
-                <CheckItem>Dependencias identificadas</CheckItem>
-              </ul>
+          {[
+            {
+              n: '1', title: 'Validación de Completitud',
+              items: ['Todos los servidores objetivo tienen datos', 'Período de recolección completo', 'Métricas clave capturadas (CPU, RAM, disco, red)', 'Información de aplicaciones disponible', 'Dependencias identificadas'],
+            },
+            {
+              n: '2', title: 'Validación de Calidad',
+              items: ['Consistencia: Datos coherentes sin anomalías inexplicables', 'Precisión: Métricas alineadas con expectativas del cliente', 'Representatividad: Datos capturan patrones de uso reales', 'Actualidad: Información refleja el estado actual'],
+            },
+            {
+              n: '3', title: 'Validación con el Cliente',
+              items: ['Revisar inventario de servidores', 'Confirmar aplicaciones identificadas', 'Validar dependencias críticas', 'Verificar patrones de uso', 'Identificar servidores faltantes o incorrectos'],
+            },
+          ].map((v) => (
+            <div key={v.n} className="flex gap-3">
+              <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">{v.n}</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-800 mb-1.5">{v.title}</p>
+                <ul className="space-y-1.5">
+                  {v.items.map((i) => <CheckItem key={i}>{i}</CheckItem>)}
+                </ul>
+              </div>
             </div>
-          </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-4">
+          <h3 className="font-semibold text-gray-800">Análisis de Datos</h3>
+          {[
+            { n: '1', title: 'Análisis de Utilización', items: ['CPU: Utilización promedio, picos, tendencias', 'Memoria: Uso promedio, máximo, disponible', 'Disco: Capacidad, IOPS, throughput', 'Red: Ancho de banda, latencia, conexiones'] },
+            { n: '2', title: 'Análisis de Patrones', items: ['Patrones diarios (horarios pico)', 'Patrones semanales (días de mayor carga)', 'Patrones mensuales (ciclos de negocio)', 'Estacionalidad', 'Tendencias de crecimiento'] },
+            { n: '3', title: 'Análisis de Dependencias', items: ['Mapeo de comunicación entre servidores', 'Identificación de aplicaciones monolíticas', 'Detección de servicios compartidos', 'Análisis de bases de datos y sus clientes', 'Identificación de puntos únicos de fallo'] },
+            { n: '4', title: 'Rightsizing y Recomendaciones', items: ['Recomendaciones de instancias EC2', 'Opciones de almacenamiento (EBS, S3, EFS)', 'Configuraciones de red', 'Opciones de base de datos (RDS, Aurora, DynamoDB)', 'Oportunidades de optimización'] },
+          ].map((a) => (
+            <div key={a.n} className="flex gap-3">
+              <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">{a.n}</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-800 mb-1.5">{a.title}</p>
+                <ul className="space-y-1.5">
+                  {a.items.map((i) => <CheckItem key={i}>{i}</CheckItem>)}
+                </ul>
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
@@ -545,14 +770,37 @@ function BusinessCasePage() {
 
       <Card className="border-fuchsia-100">
         <CardContent className="pt-5 space-y-3">
+          <h3 className="font-semibold text-gray-800">Estructura del Business Case</h3>
+          <div className="space-y-2">
+            {[
+              { n: '1', t: 'Resumen Ejecutivo', desc: 'Propuesta, beneficios clave, inversión requerida, ROI esperado y recomendación' },
+              { n: '2', t: 'Análisis de Costos (TCO)', desc: 'Comparación costos on-premises vs AWS con proyección a 3–5 años' },
+              { n: '3', t: 'Análisis de Beneficios', desc: 'Financieros, operacionales y estratégicos' },
+              { n: '4', t: 'Plan de Migración', desc: 'Estrategia, fases, timeline y recursos requeridos' },
+              { n: '5', t: 'Análisis de Riesgos', desc: 'Identificación de riesgos y estrategias de mitigación' },
+            ].map((item) => (
+              <div key={item.n} className="flex gap-3 p-2 bg-gray-50 rounded-lg border">
+                <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">{item.n}</span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">{item.t}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-3">
           <h3 className="font-semibold text-gray-800">Costos On-Premises (Baseline)</h3>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-xs border-collapse">
               <thead>
-                <tr className="bg-fuchsia-50">
-                  <th className="text-left p-2 font-semibold text-fuchsia-800">Categoría</th>
-                  <th className="text-left p-2 font-semibold text-fuchsia-800">Componentes</th>
-                  <th className="text-left p-2 font-semibold text-fuchsia-800">Consideraciones</th>
+                <tr className="bg-fuchsia-50 text-fuchsia-800 text-left">
+                  <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Categoría</th>
+                  <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Componentes</th>
+                  <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Consideraciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -562,15 +810,61 @@ function BusinessCasePage() {
                   { cat: 'Datacenter', comp: 'Espacio, energía, refrigeración', con: 'Costos por rack o m²' },
                   { cat: 'Personal', comp: 'Salarios, beneficios, capacitación', con: 'FTEs dedicados a infraestructura' },
                   { cat: 'Mantenimiento', comp: 'Reparaciones, actualizaciones', con: 'Contratos de soporte' },
+                  { cat: 'Seguridad', comp: 'Herramientas, auditorías', con: 'Compliance y certificaciones' },
                 ].map((row, i) => (
-                  <tr key={row.cat} className={`border-t ${i % 2 === 1 ? 'bg-gray-50' : ''}`}>
-                    <td className="p-2 font-medium text-gray-700">{row.cat}</td>
-                    <td className="p-2 text-gray-600">{row.comp}</td>
-                    <td className="p-2 text-gray-600">{row.con}</td>
+                  <tr key={row.cat} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="border border-gray-200 px-3 py-2 font-medium text-gray-800">{row.cat}</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{row.comp}</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{row.con}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-3">
+          <h3 className="font-semibold text-gray-800">Costos en AWS (Proyección)</h3>
+          <ul className="space-y-1.5">
+            <CheckItem>Compute: EC2 (On-Demand, Reserved Instances, Savings Plans)</CheckItem>
+            <CheckItem>Storage: EBS, S3, EFS, Glacier</CheckItem>
+            <CheckItem>Database: RDS, Aurora, DynamoDB</CheckItem>
+            <CheckItem>Networking: VPC, Direct Connect, transferencia de datos</CheckItem>
+            <CheckItem>Servicios adicionales: Load Balancers, CloudWatch, Backup</CheckItem>
+            <CheckItem>Soporte AWS: Business o Enterprise Support</CheckItem>
+          </ul>
+          <TipAlert>
+            Utiliza AWS Pricing Calculator para generar estimaciones precisas basadas en las recomendaciones de rightsizing.
+          </TipAlert>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-3">
+          <h3 className="font-semibold text-gray-800">Análisis de Beneficios</h3>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-700 mb-1.5">Beneficios Financieros</p>
+              <ul className="space-y-1.5">
+                <CheckItem>Reducción de CapEx: Eliminación de inversiones en hardware</CheckItem>
+                <CheckItem>Optimización de OpEx: Pago por uso real</CheckItem>
+                <CheckItem>Rightsizing: Ajuste preciso de recursos</CheckItem>
+                <CheckItem>Elasticidad: Escalado automático según demanda</CheckItem>
+                <CheckItem>Reducción de personal: Menos FTEs en tareas operativas</CheckItem>
+              </ul>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-700 mb-1.5">Beneficios Operacionales</p>
+              <ul className="space-y-1.5">
+                <CheckItem>Agilidad: Provisión de recursos en minutos</CheckItem>
+                <CheckItem>Disponibilidad: SLAs de 99.99% o superior</CheckItem>
+                <CheckItem>Escalabilidad: Crecimiento sin límites físicos</CheckItem>
+                <CheckItem>Automatización: Reducción de tareas manuales</CheckItem>
+                <CheckItem>Innovación: Acceso a servicios avanzados (ML, IoT, Analytics)</CheckItem>
+              </ul>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -597,24 +891,81 @@ function PlanMigracionPage() {
 
       <Card className="border-fuchsia-100">
         <CardContent className="pt-5 space-y-3">
-          <h3 className="font-semibold text-gray-800">Ejemplo de Estrategia por Aplicación</h3>
+          <h3 className="font-semibold text-gray-800">Clasificación de Aplicaciones por Estrategia</h3>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-xs border-collapse">
               <thead>
-                <tr className="bg-fuchsia-50">
-                  <th className="text-left p-2 font-semibold text-fuchsia-800">Aplicación</th>
-                  <th className="text-left p-2 font-semibold text-fuchsia-800">Estrategia</th>
-                  <th className="text-left p-2 font-semibold text-fuchsia-800">Prioridad</th>
-                  <th className="text-left p-2 font-semibold text-fuchsia-800">Duración</th>
+                <tr className="bg-fuchsia-50 text-fuchsia-800 text-left">
+                  <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Aplicación</th>
+                  <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Estrategia</th>
+                  <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Prioridad</th>
+                  <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Complejidad</th>
+                  <th className="border border-fuchsia-100 px-3 py-2 font-semibold">Duración Est.</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-t"><td className="p-2 text-gray-700">App Web Corporativa</td><td className="p-2 text-fuchsia-600 font-medium">Rehost</td><td className="p-2"><span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">Alta</span></td><td className="p-2 text-gray-600">2–3 semanas</td></tr>
-                <tr className="border-t bg-gray-50"><td className="p-2 text-gray-700">Base de Datos Legacy</td><td className="p-2 text-fuchsia-600 font-medium">Replatform</td><td className="p-2"><span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">Alta</span></td><td className="p-2 text-gray-600">4–6 semanas</td></tr>
-                <tr className="border-t"><td className="p-2 text-gray-700">Sistema de Reportes</td><td className="p-2 text-gray-600 font-medium">Retire</td><td className="p-2"><span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">Baja</span></td><td className="p-2 text-gray-600">1 semana</td></tr>
+                {[
+                  { app: 'App Web Corporativa', strat: 'Rehost', pri: 'Alta', comp: 'Media', dur: '2–3 semanas', priColor: 'bg-green-100 text-green-700' },
+                  { app: 'Base de Datos Legacy', strat: 'Replatform', pri: 'Alta', comp: 'Alta', dur: '4–6 semanas', priColor: 'bg-green-100 text-green-700' },
+                  { app: 'Sistema de Reportes', strat: 'Retire', pri: 'Baja', comp: 'Baja', dur: '1 semana', priColor: 'bg-gray-100 text-gray-600' },
+                  { app: 'ERP Crítico', strat: 'Retain', pri: 'N/A', comp: 'N/A', dur: 'Fase 2', priColor: 'bg-amber-100 text-amber-700' },
+                ].map((row, i) => (
+                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-800 font-medium">{row.app}</td>
+                    <td className="border border-gray-200 px-3 py-2 text-fuchsia-700 font-medium">{row.strat}</td>
+                    <td className="border border-gray-200 px-3 py-2"><span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${row.priColor}`}>{row.pri}</span></td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{row.comp}</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{row.dur}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-3">
+          <h3 className="font-semibold text-gray-800">Priorización de Cargas de Trabajo</h3>
+          <p className="text-sm font-semibold text-gray-700 mb-1">Criterios de Priorización</p>
+          <ul className="space-y-1.5">
+            <CheckItem><strong>Valor de negocio:</strong> Impacto en objetivos estratégicos</CheckItem>
+            <CheckItem><strong>Complejidad técnica:</strong> Facilidad de migración</CheckItem>
+            <CheckItem><strong>Dependencias:</strong> Relaciones con otras aplicaciones</CheckItem>
+            <CheckItem><strong>Riesgo:</strong> Criticidad y tolerancia a fallos</CheckItem>
+            <CheckItem><strong>Quick wins:</strong> Oportunidades de éxito temprano</CheckItem>
+            <CheckItem><strong>Costos:</strong> Potencial de ahorro inmediato</CheckItem>
+          </ul>
+
+          <p className="text-sm font-semibold text-gray-700 mt-3 mb-1">Olas de Migración</p>
+          <div className="space-y-2">
+            {[
+              { ola: 'Ola 1 (Piloto)', desc: 'Aplicaciones no críticas, baja complejidad', color: 'bg-blue-50 border-blue-200 text-blue-800' },
+              { ola: 'Ola 2', desc: 'Aplicaciones de producción, complejidad media', color: 'bg-fuchsia-50 border-fuchsia-200 text-fuchsia-800' },
+              { ola: 'Ola 3', desc: 'Aplicaciones críticas, alta complejidad', color: 'bg-purple-50 border-purple-200 text-purple-800' },
+              { ola: 'Ola 4+', desc: 'Modernización y optimización', color: 'bg-amber-50 border-amber-200 text-amber-800' },
+            ].map((o) => (
+              <div key={o.ola} className={`flex gap-2 p-2 rounded-lg border ${o.color}`}>
+                <span className="font-semibold text-xs">{o.ola}:</span>
+                <span className="text-xs">{o.desc}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-3">
+          <h3 className="font-semibold text-gray-800">Diseño de Landing Zone</h3>
+          <ul className="space-y-1.5">
+            <CheckItem>Estructura de cuentas AWS (multi-account strategy)</CheckItem>
+            <CheckItem>Diseño de VPC y subnets</CheckItem>
+            <CheckItem>Conectividad híbrida (Direct Connect, VPN)</CheckItem>
+            <CheckItem>Seguridad y compliance (Security Groups, NACLs, WAF)</CheckItem>
+            <CheckItem>Identidad y acceso (IAM, SSO)</CheckItem>
+            <CheckItem>Monitoreo y logging (CloudWatch, CloudTrail)</CheckItem>
+            <CheckItem>Backup y disaster recovery</CheckItem>
+          </ul>
         </CardContent>
       </Card>
     </div>
@@ -640,6 +991,17 @@ function PresentacionPage() {
 
       <Card className="border-fuchsia-100">
         <CardContent className="pt-5 space-y-3">
+          <h3 className="font-semibold text-gray-800">Audiencia Objetivo</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {['C-Level: CEO, CTO, CFO, CIO', 'Directores: IT, Operaciones, Finanzas, Seguridad', 'Gerentes: Infraestructura, Aplicaciones, Proyectos', 'Sponsors: Patrocinadores del proyecto', 'Partners: AWS, SoftwareONE'].map((item) => (
+              <div key={item} className="p-2 bg-fuchsia-50 border border-fuchsia-100 rounded text-xs text-fuchsia-800">{item}</div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-3">
           <h3 className="font-semibold text-gray-800">Preparación de la Presentación</h3>
           <ul className="space-y-1.5">
             <CheckItem>Validar hallazgos con stakeholders técnicos</CheckItem>
@@ -655,21 +1017,30 @@ function PresentacionPage() {
       <Card className="border-fuchsia-100">
         <CardContent className="pt-5 space-y-3">
           <h3 className="font-semibold text-gray-800">Estructura de la Presentación</h3>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {[
-              { n: '1', t: 'Portada y Agenda', slides: '1 slide' },
-              { n: '2', t: 'Resumen Ejecutivo', slides: '2–3 slides' },
-              { n: '3', t: 'Situación Actual', slides: '2–3 slides' },
-              { n: '4', t: 'Análisis de Costos', slides: '3–4 slides' },
-              { n: '5', t: 'Estrategia de Migración', slides: '2–3 slides' },
-              { n: '6', t: 'Plan de Migración', slides: '2–3 slides' },
-              { n: '7', t: 'Beneficios Esperados', slides: '2 slides' },
-              { n: '8', t: 'Riesgos y Mitigación', slides: '1–2 slides' },
+              { n: '1', t: 'Portada y Agenda', slides: '1 slide', items: ['Título del proyecto', 'Fecha y audiencia', 'Logos (SoftwareONE, AWS, Cliente)', 'Agenda de la sesión'] },
+              { n: '2', t: 'Resumen Ejecutivo', slides: '2–3 slides', items: ['Contexto: Por qué se realizó el assessment', 'Alcance: Qué se evaluó', 'Hallazgos clave: Top 3–5 insights', 'Recomendación: Proceder con la migración', 'Valor esperado: ROI, ahorros, beneficios'] },
+              { n: '3', t: 'Situación Actual', slides: '2–3 slides', items: ['Inventario de infraestructura', 'Utilización de recursos (CPU, RAM, disco)', 'Desafíos identificados', 'Oportunidades de mejora'] },
+              { n: '4', t: 'Análisis de Costos', slides: '3–4 slides', items: ['TCO On-Premises: Desglose de costos actuales', 'TCO AWS: Proyección de costos en cloud', 'Comparación: Gráfico comparativo 3–5 años', 'Ahorros: % de reducción y valor absoluto', 'ROI: Período de recuperación y NPV'] },
+              { n: '5', t: 'Estrategia de Migración', slides: '2–3 slides', items: ['Distribución 7Rs: Gráfico con % por estrategia', 'Priorización: Aplicaciones por ola de migración', 'Quick wins: Oportunidades de éxito temprano', 'Arquitectura objetivo: Diagrama de alto nivel'] },
+              { n: '6', t: 'Plan de Migración', slides: '2–3 slides', items: ['Cronograma: Timeline con hitos clave', 'Fases: Preparación, Piloto, Olas 1–3, Optimización', 'Recursos: Equipo requerido y dedicación', 'Duración total: Tiempo estimado del proyecto'] },
+              { n: '7', t: 'Beneficios Esperados', slides: '2 slides', items: ['Financieros: Ahorros, optimización de CapEx/OpEx', 'Operacionales: Agilidad, escalabilidad, disponibilidad', 'Estratégicos: Innovación, competitividad'] },
+              { n: '8', t: 'Riesgos y Mitigación', slides: '1–2 slides', items: [] },
             ].map((item) => (
-              <div key={item.n} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
-                <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">{item.n}</span>
-                <span className="text-sm text-gray-700 flex-1">{item.t}</span>
-                <span className="text-xs text-gray-500 bg-white border rounded px-2 py-0.5">{item.slides}</span>
+              <div key={item.n} className="flex gap-3">
+                <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</span>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-semibold text-gray-800">{item.t}</p>
+                    <span className="text-xs text-gray-500 bg-white border rounded px-2 py-0.5">{item.slides}</span>
+                  </div>
+                  {item.items.length > 0 && (
+                    <ul className="space-y-0.5">
+                      {item.items.map((i) => <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600"><span className="text-fuchsia-400 mt-0.5">•</span>{i}</li>)}
+                    </ul>
+                  )}
+                </div>
               </div>
             ))}
           </div>

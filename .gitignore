@@ -12,6 +12,11 @@ out/
 # Backend-generated session snapshots
 backend/data/sessions/
 
+# Playwright outputs
+frontend/test-results/
+frontend/playwright-report/
+frontend/.playwright/
+
 # Environment files
 .env
 .env.local

@@ -4,7 +4,11 @@ import path from 'path';
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
 import express from 'express';
-import cors from 'cors';
+import {
+  buildBaseRateLimiter,
+  buildCorsMiddleware,
+  buildHelmetMiddleware,
+} from './middleware/security';
 import { reportRouter } from './routes/reportRoutes';
 import { dependencyRouter } from './routes/dependencyRoutes';
 import { scraperRouter } from './routes/scraperRoutes';
@@ -16,13 +20,12 @@ import { selectorRouter } from './routes/selectorRoutes';
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Middleware
-app.use(cors({
-  origin: ['http://localhost:3005', 'http://localhost:3006', 'http://localhost:5173', 'http://127.0.0.1:3005', 'http://127.0.0.1:3006'],
-  credentials: true,
-}));
+// Middleware chain: security → body parsers → rate limit → routes
+app.use(buildHelmetMiddleware());
+app.use(buildCorsMiddleware());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use('/api', buildBaseRateLimiter());
 
 // Static files for downloads
 app.use('/downloads', express.static(path.join(__dirname, '../generated')));

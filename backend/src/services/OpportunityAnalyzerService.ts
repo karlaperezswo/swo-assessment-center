@@ -12,7 +12,8 @@ import { AnonymizationService } from './AnonymizationService';
 import { BedrockService } from './BedrockService';
 import { KnowledgeBaseService } from './KnowledgeBaseService';
 import { QuestionnaireParserService } from './QuestionnaireParserService';
-import { InMemoryOpportunityStorage } from './OpportunityStorageService';
+import { OpportunityStorageService } from './OpportunityStorageService';
+import { getOpportunityStorage } from './opportunityStorageFactory';
 
 export class OpportunityAnalyzerError extends Error {
   constructor(message: string, public readonly cause?: Error) {
@@ -27,7 +28,7 @@ export class OpportunityAnalyzerService {
   private bedrockService: BedrockService;
   private knowledgeBaseService: KnowledgeBaseService;
   private questionnaireParser: QuestionnaireParserService;
-  private storage: InMemoryOpportunityStorage;
+  private storage: OpportunityStorageService;
   private pdfParser: any; // Lazy loaded
 
   constructor() {
@@ -36,7 +37,7 @@ export class OpportunityAnalyzerService {
     this.bedrockService = new BedrockService();
     this.knowledgeBaseService = new KnowledgeBaseService();
     this.questionnaireParser = new QuestionnaireParserService();
-    this.storage = InMemoryOpportunityStorage.getInstance();
+    this.storage = getOpportunityStorage();
     this.pdfParser = null;
   }
 

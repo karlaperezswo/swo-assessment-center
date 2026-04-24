@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import App from './App';
 import { AuthCallback } from './auth/AuthCallback';
 import { ProtectedRoute } from './auth/ProtectedRoute';
+import { McpSettingsPage } from './pages/McpSettings';
 
 /**
  * Top-level router. Keeps the OIDC callback isolated from the main app tree
@@ -15,6 +16,14 @@ export function RootRouter() {
   return (
     <Routes>
       <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route
+        path="/settings/mcp"
+        element={
+          <ProtectedRoute requires={['mcp-keys:manage:own']}>
+            <McpSettingsPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="*"
         element={

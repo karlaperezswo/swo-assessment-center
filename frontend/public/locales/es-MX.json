@@ -26,7 +26,8 @@
     "tip": "Consejo",
     "savings": "ahorro",
     "downloadStarting": "Iniciando descarga del reporte",
-    "filterByEnvironment": "Filtrar por ambiente"
+    "filterByEnvironment": "Filtrar por ambiente",
+    "and": "y"
   },
   "applicationTable": {
     "title": "Aplicaciones ({{count}})",
@@ -1176,7 +1177,8 @@
     "riskLow": "ℹ️ Riesgo bajo — incluir en plan de migración",
     "continueToMobilize": "Continuar a Mobilize",
     "savingsApprox36": "~36% ahorro",
-    "bestValue": "MEJOR VALOR"
+    "bestValue": "MEJOR VALOR",
+    "serverEOL": "{{count}} servidores con SO fuera de soporte"
   },
   "uploader": {
     "dragActive": "Suelta el archivo aquí",

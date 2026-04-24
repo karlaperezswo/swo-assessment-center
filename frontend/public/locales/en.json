@@ -26,7 +26,8 @@
     "tip": "Tip",
     "savings": "savings",
     "downloadStarting": "Starting report download",
-    "filterByEnvironment": "Filter by environment"
+    "filterByEnvironment": "Filter by environment",
+    "and": "and"
   },
   "header": {
     "title": "AWS Migration Assessment Center",
@@ -1176,7 +1177,8 @@
     "riskLow": "ℹ️ Low risk — include in migration plan",
     "continueToMobilize": "Continue to Mobilize",
     "savingsApprox36": "~36% savings",
-    "bestValue": "BEST VALUE"
+    "bestValue": "BEST VALUE",
+    "serverEOL": "{{count}} servers with end-of-life OS"
   },
   "uploader": {
     "dragActive": "Drop the file here",

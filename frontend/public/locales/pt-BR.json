@@ -26,7 +26,8 @@
     "tip": "Dica",
     "savings": "economia",
     "downloadStarting": "Iniciando download do relatório",
-    "filterByEnvironment": "Filtrar por ambiente"
+    "filterByEnvironment": "Filtrar por ambiente",
+    "and": "e"
   },
   "header": {
     "title": "Centro de Avaliação de Migração AWS",
@@ -1176,7 +1177,8 @@
     "riskLow": "ℹ️ Risco baixo — incluir no plano de migração",
     "continueToMobilize": "Continuar para Mobilize",
     "savingsApprox36": "~36% economia",
-    "bestValue": "MELHOR VALOR"
+    "bestValue": "MELHOR VALOR",
+    "serverEOL": "{{count}} servidores com SO fim de suporte"
   },
   "uploader": {
     "dragActive": "Solte o arquivo aqui",

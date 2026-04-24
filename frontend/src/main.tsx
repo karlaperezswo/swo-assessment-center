@@ -6,6 +6,7 @@ import './index.css';
 import { I18nProvider } from './i18n/I18nProvider';
 import { AuthProvider } from './auth/AuthProvider';
 import { AccessTokenBridge } from './auth/AccessTokenBridge';
+import { AgentContextProvider } from './agent/AgentContextProvider';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -13,7 +14,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <AuthProvider>
           <AccessTokenBridge />
-          <RootRouter />
+          <AgentContextProvider>
+            <RootRouter />
+          </AgentContextProvider>
         </AuthProvider>
       </BrowserRouter>
     </I18nProvider>

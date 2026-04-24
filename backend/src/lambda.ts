@@ -13,6 +13,7 @@ import { businessCaseRouter } from './routes/businessCaseRoutes';
 import { i18nRouter } from './routes/i18nRoutes';
 import { dependencyRouter } from './routes/dependencyRoutes';
 import { scraperRouter } from './routes/scraperRoutes';
+import { agentRouter } from './routes/agentRoutes';
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use('/api/business-case', businessCaseRouter);
 app.use('/api/i18n', i18nRouter);
 app.use('/api/dependencies', dependencyRouter);
 app.use('/api/scraper', scraperRouter);
+app.use('/api/agent', agentRouter);
 
 // Health check
 app.get('/health', (req, res) => {

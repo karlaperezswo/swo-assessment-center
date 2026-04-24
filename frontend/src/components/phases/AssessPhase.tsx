@@ -112,7 +112,7 @@ export function AssessPhase({
     {
       tabs: [
         { value: 'rapid-discovery', label: t('assess.tabs.rapidDiscovery'), icon: <Upload className="h-4 w-4" /> },
-        { value: 'executive-summary', label: 'Executive Summary', icon: <BarChart2 className="h-4 w-4" />, prerequisiteMet: hasCosts, prerequisiteMessage: prereqMsgMpa },
+        { value: 'executive-summary', label: t('assess.tabs.executiveSummary', { defaultValue: 'Executive Summary' }), icon: <BarChart2 className="h-4 w-4" />, prerequisiteMet: hasCosts, prerequisiteMessage: prereqMsgMpa },
         { value: 'dependency-map', label: t('assess.tabs.dependencyMap'), icon: <Network className="h-4 w-4" />, prerequisiteMet: hasDeps, prerequisiteMessage: prereqMsgDeps },
         { value: 'tco-report', label: t('assess.tabs.tcoReport'), icon: <DollarSign className="h-4 w-4" />, prerequisiteMet: hasCosts, prerequisiteMessage: prereqMsgMpa },
         { value: 'migration-readiness', label: t('assess.tabs.migrationReadiness'), icon: <Gauge className="h-4 w-4" />, prerequisiteMet: hasMpa, prerequisiteMessage: prereqMsgMpa },

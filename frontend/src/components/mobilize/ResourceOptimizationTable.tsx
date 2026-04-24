@@ -3,12 +3,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ResourceOptimization } from '@/types/assessment';
 import { TrendingUp, Info } from 'lucide-react';
 import { formatSpanishNumber } from '@/lib/numberFormat';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface ResourceOptimizationTableProps {
   resourceOptimization: ResourceOptimization[];
 }
 
 export function ResourceOptimizationTable({ resourceOptimization }: ResourceOptimizationTableProps) {
+  const { t } = useTranslation();
   const formatNumber = (num: number): string => {
     // Use our utility function to ensure consistent Spanish formatting
     return formatSpanishNumber(num);
@@ -36,10 +38,10 @@ export function ResourceOptimizationTable({ resourceOptimization }: ResourceOpti
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-green-600" />
-            Optimización de Recursos
+            {t('resourceOptimizationTable.title')}
           </CardTitle>
           <div className="flex items-center gap-2 bg-green-100 px-4 py-2 rounded-lg">
-            <span className="text-sm font-medium text-green-800">Promedio de Optimización:</span>
+            <span className="text-sm font-medium text-green-800">{t('resourceOptimizationTable.avgOptimization')}</span>
             <span className="text-lg font-bold text-green-600">{averageOptimization}%</span>
           </div>
         </div>
@@ -49,20 +51,20 @@ export function ResourceOptimizationTable({ resourceOptimization }: ResourceOpti
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-bold">Recurso</TableHead>
-                <TableHead className="text-right font-bold">Observado</TableHead>
+                <TableHead className="font-bold">{t('resourceOptimizationTable.colResource')}</TableHead>
+                <TableHead className="text-right font-bold">{t('resourceOptimizationTable.colObserved')}</TableHead>
                 <TableHead className="text-center font-bold" colSpan={4}>
-                  Recomendado
+                  {t('resourceOptimizationTable.colRecommended')}
                 </TableHead>
-                <TableHead className="text-right font-bold">% Optimización</TableHead>
+                <TableHead className="text-right font-bold">{t('resourceOptimizationTable.colOptPct')}</TableHead>
               </TableRow>
               <TableRow className="bg-gray-50">
                 <TableHead></TableHead>
                 <TableHead></TableHead>
-                <TableHead className="text-right text-xs">Prod</TableHead>
-                <TableHead className="text-right text-xs">Dev</TableHead>
-                <TableHead className="text-right text-xs">QA</TableHead>
-                <TableHead className="text-right text-xs">Total</TableHead>
+                <TableHead className="text-right text-xs">{t('resourceOptimizationTable.subProd')}</TableHead>
+                <TableHead className="text-right text-xs">{t('resourceOptimizationTable.subDev')}</TableHead>
+                <TableHead className="text-right text-xs">{t('resourceOptimizationTable.subQA')}</TableHead>
+                <TableHead className="text-right text-xs">{t('resourceOptimizationTable.subTotal')}</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -97,11 +99,11 @@ export function ResourceOptimizationTable({ resourceOptimization }: ResourceOpti
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-semibold text-blue-900 mb-2">Observaciones:</h4>
+              <h4 className="font-semibold text-blue-900 mb-2">{t('resourceOptimizationTable.obsTitle')}</h4>
               <ul className="space-y-1 text-sm text-blue-800">
-                <li>• Los recursos de RAM, Storage y Network se muestran en GB.</li>
-                <li>• Las recomendaciones están en base a 1 año optimizado.</li>
-                <li>• La información de red considera el total de datos transferidos por los servidores durante el tiempo de la ejecución del Assessment.</li>
+                <li>{t('resourceOptimizationTable.obs1')}</li>
+                <li>{t('resourceOptimizationTable.obs2')}</li>
+                <li>{t('resourceOptimizationTable.obs3')}</li>
               </ul>
             </div>
           </div>

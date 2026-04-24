@@ -2,6 +2,7 @@ import { ChecklistCard } from '@/components/shared/ChecklistCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { SecurityComplianceChecklist } from '@/types/assessment';
 import { Shield, Lock, Network, FileCheck, AlertTriangle } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface SecurityComplianceProps {
   checklist: SecurityComplianceChecklist;
@@ -9,6 +10,8 @@ interface SecurityComplianceProps {
 }
 
 export function SecurityCompliance({ checklist, onChecklistChange }: SecurityComplianceProps) {
+  const { t } = useTranslation();
+
   const handleToggle = (category: keyof SecurityComplianceChecklist, id: string) => {
     onChecklistChange({
       ...checklist,
@@ -35,11 +38,8 @@ export function SecurityCompliance({ checklist, onChecklistChange }: SecurityCom
           <div className="flex items-start gap-3">
             <Shield className="h-6 w-6 text-violet-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-bold text-violet-900 text-lg">Security & Compliance Framework</h3>
-              <p className="text-sm text-violet-700 mt-1">
-                Establish a robust security posture and compliance framework before migrating sensitive workloads.
-                These controls are essential for meeting regulatory requirements and protecting your data.
-              </p>
+              <h3 className="font-bold text-violet-900 text-lg">{t('securityCompliance.title')}</h3>
+              <p className="text-sm text-violet-700 mt-1">{t('securityCompliance.description')}</p>
             </div>
           </div>
         </CardContent>
@@ -48,7 +48,7 @@ export function SecurityCompliance({ checklist, onChecklistChange }: SecurityCom
       {/* Checklists */}
       <div className="space-y-6">
         <ChecklistCard
-          title="Identity & Access Management"
+          title={t('securityCompliance.identityAccess')}
           icon={<Lock className="h-5 w-5" />}
           items={checklist.identityAccess}
           onItemToggle={(id) => handleToggle('identityAccess', id)}
@@ -57,7 +57,7 @@ export function SecurityCompliance({ checklist, onChecklistChange }: SecurityCom
         />
 
         <ChecklistCard
-          title="Data Protection"
+          title={t('securityCompliance.dataProtection')}
           icon={<Shield className="h-5 w-5" />}
           items={checklist.dataProtection}
           onItemToggle={(id) => handleToggle('dataProtection', id)}
@@ -66,7 +66,7 @@ export function SecurityCompliance({ checklist, onChecklistChange }: SecurityCom
         />
 
         <ChecklistCard
-          title="Network Security"
+          title={t('securityCompliance.networkSecurity')}
           icon={<Network className="h-5 w-5" />}
           items={checklist.networkSecurity}
           onItemToggle={(id) => handleToggle('networkSecurity', id)}
@@ -75,7 +75,7 @@ export function SecurityCompliance({ checklist, onChecklistChange }: SecurityCom
         />
 
         <ChecklistCard
-          title="Compliance"
+          title={t('securityCompliance.compliance')}
           icon={<FileCheck className="h-5 w-5" />}
           items={checklist.compliance}
           onItemToggle={(id) => handleToggle('compliance', id)}
@@ -84,7 +84,7 @@ export function SecurityCompliance({ checklist, onChecklistChange }: SecurityCom
         />
 
         <ChecklistCard
-          title="Incident Response"
+          title={t('securityCompliance.incidentResponse')}
           icon={<AlertTriangle className="h-5 w-5" />}
           items={checklist.incidentResponse}
           onItemToggle={(id) => handleToggle('incidentResponse', id)}

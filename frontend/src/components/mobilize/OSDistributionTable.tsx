@@ -1,12 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OSDistribution } from '@/types/assessment';
 import { Monitor } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface OSDistributionTableProps {
   osDistribution: OSDistribution[];
 }
 
 export function OSDistributionTable({ osDistribution }: OSDistributionTableProps) {
+  const { t } = useTranslation();
+
   const totals = osDistribution.reduce(
       (acc, os) => ({
         prod: acc.prod + os.prod,
@@ -22,7 +25,7 @@ export function OSDistributionTable({ osDistribution }: OSDistributionTableProps
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Monitor className="h-5 w-5" />
-          Distribución de Sistemas Operativos
+          {t('discoveryPlanning.osDistributionTitle')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -30,11 +33,11 @@ export function OSDistributionTable({ osDistribution }: OSDistributionTableProps
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-gray-100 border-b-2 border-gray-300">
-                <th className="text-left p-3 font-semibold text-gray-700">SO</th>
+                <th className="text-left p-3 font-semibold text-gray-700">{t('discoveryPlanning.osColumn')}</th>
                 <th className="text-center p-3 font-semibold text-gray-700">Prod</th>
                 <th className="text-center p-3 font-semibold text-gray-700">Dev</th>
                 <th className="text-center p-3 font-semibold text-gray-700">QA</th>
-                <th className="text-center p-3 font-semibold text-gray-700">Total</th>
+                <th className="text-center p-3 font-semibold text-gray-700">{t('costs.total')}</th>
               </tr>
             </thead>
             <tbody>
@@ -56,7 +59,7 @@ export function OSDistributionTable({ osDistribution }: OSDistributionTableProps
                 );
               })}
               <tr className="bg-blue-50 border-t-2 border-blue-300 font-bold">
-                <td className="p-3 text-blue-900">Total</td>
+                <td className="p-3 text-blue-900">{t('costs.total')}</td>
                 <td className="p-3 text-center text-blue-900">{totals.prod}</td>
                 <td className="p-3 text-center text-blue-900">{totals.dev}</td>
                 <td className="p-3 text-center text-blue-900">{totals.qa}</td>

@@ -4,6 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { MigrationWave } from '@/types/assessment';
+import { useTranslation } from '@/i18n/useTranslation';
 
 // ─── Tipos internos normalizados ────────────────────────────────────────────
 type NormalizedEnv = 'DEV' | 'TEST' | 'UAT' | 'PROD' | 'OTHER';
@@ -148,6 +149,7 @@ function buildWaves(serverList: Server[]): { servers: Server[]; waveInfos: WaveI
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 export function WavePlannerTool({ servers: initialServers, onClose, dependencies = [], databases = [] }: WavePlannerToolProps) {
+  const { t } = useTranslation();
   const [servers, setServers] = useState<Server[]>([]);
   const [waves, setWaves] = useState<string[]>([]);
   const [waveInfos, setWaveInfos] = useState<WaveInfo[]>([]);
@@ -194,7 +196,7 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
     const { servers: assigned, waveInfos: infos } = buildWaves(servers);
     applyWaves(assigned, infos);
     setManualMode(false);
-    toast.success('Olas reasignadas automáticamente');
+    toast.success(t('wavePlanner.wavesReassigned'));
   };
 
   const toggleManualMode = () => {
@@ -231,7 +233,7 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
         const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, any>[];
 
         if (jsonData.length === 0) {
-          toast.error('El archivo Excel está vacío', { description: `Hoja: "${sheetName}"`, duration: 6000 });
+          toast.error(t('wavePlanner.excelEmpty'), { description: `Hoja: "${sheetName}"`, duration: 6000 });
           setIsLoadingFile(false);
           return;
         }
@@ -256,7 +258,7 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
         if (!colEnv)    missing.push('Ambiente / Environment — valores: Dev, Test, UAT, Prod');
 
         if (missing.length > 0) {
-          toast.error('Columnas requeridas no encontradas', {
+          toast.error(t('wavePlanner.columnsNotFound'), {
             description:
               `Columnas faltantes:\n• ${missing.join('\n• ')}\n\n` +
               `Columnas detectadas: ${allColumns.slice(0, 12).join(', ')}${allColumns.length > 12 ? ` (+${allColumns.length - 12} más)` : ''}`,
@@ -302,7 +304,7 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
           .filter(Boolean) as Server[];
 
         if (parsed.length === 0) {
-          toast.error('No se encontraron servidores válidos', {
+          toast.error(t('wavePlanner.noValidServers'), {
             description: `Verifica que la columna "${colServer}" tenga valores.`,
             duration: 6000,
           });
@@ -313,20 +315,20 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
         const { servers: assigned, waveInfos: infos } = buildWaves(parsed);
         applyWaves(assigned, infos);
 
-        toast.success('Archivo cargado exitosamente', {
+        toast.success(t('wavePlanner.fileLoaded'), {
           description: `${parsed.length} servidores → ${infos.length} olas generadas`,
           duration: 5000,
         });
 
       } catch (err) {
         console.error('Error procesando Excel:', err);
-        toast.error('Error al procesar el archivo');
+        toast.error(t('wavePlanner.errorProcessing'));
       } finally {
         setIsLoadingFile(false);
       }
     };
 
-    reader.onerror = () => { toast.error('Error al leer el archivo'); setIsLoadingFile(false); };
+    reader.onerror = () => { toast.error(t('wavePlanner.errorReading')); setIsLoadingFile(false); };
     reader.readAsBinaryString(file);
   }, []);
 
@@ -362,7 +364,7 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
       setServers(prev => prev.map(s =>
         s.ServerName === draggedServer.ServerName ? { ...s, Ola: targetWave } : s
       ));
-      toast.success(`${draggedServer.ServerName} → ${targetWave}`, { duration: 2000 });
+      toast.success(t('wavePlanner.serverMoved', { server: draggedServer.ServerName, wave: targetWave }), { duration: 2000 });
     }
     setDraggedServer(null);
     setDragOverWave(null);
@@ -476,7 +478,7 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
     a.download = `plan_migracion_olas_${new Date().toISOString().split('T')[0]}.html`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('PDF generado', { description: 'Abre el archivo y usa Ctrl+P para imprimir como PDF', duration: 6000 });
+    toast.success(t('wavePlanner.pdfGenerated'), { description: t('wavePlanner.pdfDesc'), duration: 6000 });
   };
 
   // ── Exportar Word ─────────────────────────────────────────────────────────
@@ -616,7 +618,7 @@ export function WavePlannerTool({ servers: initialServers, onClose, dependencies
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Word generado', { description: 'El archivo .doc se ha descargado correctamente', duration: 4000 });
+    toast.success(t('wavePlanner.wordGenerated'), { description: t('wavePlanner.wordDesc'), duration: 4000 });
   };
 
   // ── Stats por ola ──────────────────────────────────────────────────────────

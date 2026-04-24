@@ -1,16 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3 } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { formatSpanishNumber } from '@/lib/numberFormat';
 
 interface TCOChartProps {
-  title?: string;
+  title?: string | undefined;
   onPremisesCost: number;
   onDemandAsIs: number;
   oneYearOptimized: number;
   threeYearOptimized: number;
 }
 
-export function TCOChart({ title = 'Costo Anual en USD (ARR)', onPremisesCost, onDemandAsIs, oneYearOptimized, threeYearOptimized }: TCOChartProps) {
+export function TCOChart({ title, onPremisesCost, onDemandAsIs, oneYearOptimized, threeYearOptimized }: TCOChartProps) {
+  const { t } = useTranslation();
   const formatCurrency = (value: number): string => {
     // Format with Spanish locale: dots for thousands, comma for decimals
     const formatted = formatSpanishNumber(value);
@@ -53,7 +55,7 @@ export function TCOChart({ title = 'Costo Anual en USD (ARR)', onPremisesCost, o
 
   const bars = [
     {
-      label: 'On-Premises',
+      label: t('tcoChart.onPremises'),
       value: onPremisesCost,
       color: 'bg-blue-600',
       savings: '0%',
@@ -61,21 +63,21 @@ export function TCOChart({ title = 'Costo Anual en USD (ARR)', onPremisesCost, o
       key: 'onPremises'
     },
     {
-      label: 'Ondemand (As-Is Optimizado)',
+      label: t('tcoChart.onDemand'),
       value: onDemandAsIs,
       color: savingsBadgeColor['onDemand'],
       savings: calculateSavings(onDemandAsIs),
       key: 'onDemand'
     },
     {
-      label: '1 Año Optimizado',
+      label: t('tcoChart.oneYear'),
       value: oneYearOptimized,
       color: savingsBadgeColor['oneYear'],
       savings: calculateSavings(oneYearOptimized),
       key: 'oneYear'
     },
     {
-      label: '3 Años Optimizado',
+      label: t('tcoChart.threeYear'),
       value: threeYearOptimized,
       color: savingsBadgeColor['threeYear'],
       savings: calculateSavings(threeYearOptimized),
@@ -88,7 +90,7 @@ export function TCOChart({ title = 'Costo Anual en USD (ARR)', onPremisesCost, o
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <BarChart3 className="h-5 w-5 text-blue-600" />
-          {title}
+          {title ?? t('tcoChart.defaultTitle')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -104,7 +106,7 @@ export function TCOChart({ title = 'Costo Anual en USD (ARR)', onPremisesCost, o
                       {bar.label}:
                       {isBest && (
                         <span className="bg-orange-500 text-white px-2 py-0.5 rounded text-xs font-bold tracking-wide">
-                          ★ BEST
+                          {t('tcoChart.best')}
                         </span>
                       )}
                     </span>
@@ -137,27 +139,27 @@ export function TCOChart({ title = 'Costo Anual en USD (ARR)', onPremisesCost, o
           <div className="grid grid-cols-4 gap-3 pt-4 border-t">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-blue-600 rounded"></div>
-              <span className="text-sm text-gray-700">COSTO ANUAL</span>
+              <span className="text-sm text-gray-700">{t('tcoChart.annualCost')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-green-500 rounded"></div>
-              <span className="text-sm text-gray-700">MEJOR AHORRO</span>
+              <span className="text-sm text-gray-700">{t('tcoChart.bestSavings')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-cyan-500 rounded"></div>
-              <span className="text-sm text-gray-700">2° AHORRO</span>
+              <span className="text-sm text-gray-700">{t('tcoChart.secondSavings')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-              <span className="text-sm text-gray-700">3° AHORRO</span>
+              <span className="text-sm text-gray-700">{t('tcoChart.thirdSavings')}</span>
             </div>
           </div>
 
           {/* Notes */}
           <div className="bg-gray-50 p-4 rounded-lg space-y-1 text-sm text-gray-600">
-            <p>• Todos los precios están en USD</p>
-            <p>• <span className="font-semibold">NUSP = No Upfront Saving Plan</span></p>
-            <p>• <span className="font-semibold">Todos los consumos proyectados son anuales</span></p>
+            <p>• {t('tcoChart.noteUSD')}</p>
+            <p>• <span className="font-semibold">{t('tcoChart.noteNUSP')}</span></p>
+            <p>• <span className="font-semibold">{t('tcoChart.noteAnnual')}</span></p>
           </div>
         </div>
       </CardContent>

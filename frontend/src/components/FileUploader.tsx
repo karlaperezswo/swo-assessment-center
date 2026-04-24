@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ExcelData, UploadSummary } from '@/types/assessment';
 import apiClient from '@/lib/api';
 import { toast } from 'sonner';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface FileUploaderProps {
   onDataLoaded: (data: ExcelData, summary: UploadSummary, dependencyData?: any, migrationWaves?: any) => void;
@@ -30,6 +31,13 @@ const getDataSourceLabel = (dataSource?: string): string => {
 };
 
 export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName }: FileUploaderProps) {
+  const { t } = useTranslation();
+  const progressLabels: Record<string, string> = {
+    preparing: t('fileUploader.preparing'),
+    uploading: t('fileUploader.uploadingMessage'),
+    analyzing: t('fileUploader.analyzingMessage'),
+    analyzingLocal: t('fileUploader.analyzingLocal'),
+  };
   const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>(
     persistedSummary ? 'success' : 'idle'
   );
@@ -48,7 +56,7 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
     setUploadState('uploading');
     setErrorMessage('');
 
-    toast.loading(`Cargando ${file.name}...`, { id: 'file-upload' });
+    toast.loading(t('fileUploader.loading', { filename: file.name }), { id: 'file-upload' });
 
     try {
       // Intentar primero con S3, si falla usar upload directo local
@@ -56,7 +64,7 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
 
       try {
         // Step 1: Get pre-signed URL for S3 upload
-        setUploadProgress('Preparando carga...');
+        setUploadProgress('preparing');
         const urlResponse = await apiClient.post('/api/report/get-upload-url', {
           filename: file.name,
           contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -67,7 +75,7 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
         const { uploadUrl, key } = urlResponse.data.data;
 
         // Step 2: Upload file directly to S3
-        setUploadProgress('Subiendo a S3...');
+        setUploadProgress('uploading');
         await fetch(uploadUrl, {
           method: 'PUT',
           body: file,
@@ -77,7 +85,7 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
         });
 
         // Step 3: Process file from S3
-        setUploadProgress('Analizando datos...');
+        setUploadProgress('analyzing');
         const response = await apiClient.post('/api/report/upload-from-s3', { key });
         if (!response.data.success) throw new Error(response.data.error || 'S3 processing failed');
 
@@ -94,7 +102,7 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
 
         // Fallback local: upload directo al backend sin S3
         console.warn('S3 no disponible, usando upload directo...');
-        setUploadProgress('Analizando datos (modo local)...');
+        setUploadProgress('analyzingLocal');
 
         const formData = new FormData();
         formData.append('file', file);
@@ -135,14 +143,14 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
 
       // Create success message with data source info
       const dataSourceLabel = getDataSourceLabel(summary.dataSource);
-      let successMsg = `${dataSourceLabel} cargado: ${summary.serverCount} servidores, ${summary.databaseCount} bases de datos`;
+      let successMsg = t('fileUploader.successLoaded', { source: dataSourceLabel, servers: summary.serverCount, databases: summary.databaseCount });
 
       if (summary.communicationCount) {
-        successMsg += `, ${summary.communicationCount} conexiones`;
+        successMsg += `, ${t('fileUploader.successConnections', { count: summary.communicationCount })}`;
       }
 
       if (migrationWaves) {
-        successMsg += `, ${migrationWaves.totalWaves} olas de migración calculadas`;
+        successMsg += `, ${t('fileUploader.successWaves', { count: migrationWaves.totalWaves })}`;
       }
 
       toast.success(successMsg, {
@@ -154,7 +162,7 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
       setUploadState('error');
       const message = error instanceof Error ? error.message : 'Failed to upload file';
       setErrorMessage(message);
-      toast.error(`Error al cargar archivo: ${message}`, {
+      toast.error(t('fileUploader.errorToast', { message }), {
         id: 'file-upload',
         duration: 7000
       });
@@ -174,7 +182,7 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileSpreadsheet className="h-5 w-5" />
-          Cargar Excel MPA
+          {t('fileUploader.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -194,10 +202,10 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
             <>
               <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
               <p className="text-lg font-medium">
-                {isDragActive ? 'Suelta el archivo Excel aquí' : 'Arrastra y suelta el archivo Excel aquí'}
+                {isDragActive ? t('fileUploader.dragDropActive') : t('fileUploader.dragDrop')}
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                o haz clic para seleccionar archivo (.xlsx)
+                {t('fileUploader.clickToSelect')}
               </p>
             </>
           )}
@@ -212,10 +220,10 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
                   <div className="bg-primary h-full rounded-full animate-pulse" style={{ width: '100%' }} />
                 </div>
                 <p className="text-sm text-primary font-medium animate-pulse">
-                  {uploadProgress}
+                  {progressLabels[uploadProgress] ?? uploadProgress}
                 </p>
               </div>
-              {uploadProgress === 'Analizando datos...' && (
+              {uploadProgress === 'analyzing' && (
                 <div className="grid grid-cols-2 gap-4 mt-6">
                   <div className="bg-white rounded p-3 space-y-2">
                     <Skeleton className="h-8 w-12" />
@@ -253,30 +261,30 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
               <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.serverCount}</span>
-                  <p className="text-gray-600">Servidores</p>
+                  <p className="text-gray-600">{t('fileUploader.summary.servers')}</p>
                 </div>
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.databaseCount}</span>
-                  <p className="text-gray-600">Bases de Datos</p>
+                  <p className="text-gray-600">{t('fileUploader.summary.databases')}</p>
                 </div>
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.applicationCount}</span>
-                  <p className="text-gray-600">Aplicaciones</p>
+                  <p className="text-gray-600">{t('fileUploader.summary.applications')}</p>
                 </div>
                 <div className="bg-white rounded p-2">
                   <span className="font-bold text-2xl text-primary">{summary.totalStorageGB.toFixed(0)}</span>
-                  <p className="text-gray-600">GB Totales</p>
+                  <p className="text-gray-600">{t('fileUploader.summary.totalGb')}</p>
                 </div>
                 {summary.communicationCount !== undefined && summary.communicationCount > 0 && (
                   <div className="bg-white rounded p-2">
                     <span className="font-bold text-2xl text-primary">{summary.communicationCount}</span>
-                    <p className="text-gray-600">Conexiones</p>
+                    <p className="text-gray-600">{t('fileUploader.summary.connections')}</p>
                   </div>
                 )}
                 {summary.securityGroupCount !== undefined && summary.securityGroupCount > 0 && (
                   <div className="bg-white rounded p-2">
                     <span className="font-bold text-2xl text-primary">{summary.securityGroupCount}</span>
-                    <p className="text-gray-600">Grupos Seg.</p>
+                    <p className="text-gray-600">{t('fileUploader.summary.securityGroups')}</p>
                   </div>
                 )}
               </div>
@@ -286,9 +294,9 @@ export function FileUploader({ onDataLoaded, persistedSummary, persistedFileName
           {uploadState === 'error' && (
             <>
               <XCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
-              <p className="text-lg font-medium text-red-700">Carga Fallida</p>
+              <p className="text-lg font-medium text-red-700">{t('fileUploader.error')}</p>
               <p className="text-sm text-red-600 mt-2">{errorMessage}</p>
-              <p className="text-sm text-gray-500 mt-2">Haz clic para intentar de nuevo</p>
+              <p className="text-sm text-gray-500 mt-2">{t('fileUploader.errorRetry')}</p>
             </>
           )}
         </div>

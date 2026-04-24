@@ -1,3 +1,4 @@
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -22,6 +23,7 @@ interface BusinessCaseProps {
 }
 
 export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: BusinessCaseProps) {
+  const { t } = useTranslation();
   const {
     businessCaseData,
     tco1YearData,
@@ -81,9 +83,9 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           <div className="flex items-center gap-3">
             <Briefcase className="h-8 w-8" />
             <div>
-              <h2 className="text-2xl font-bold">Caso de Negocio</h2>
+              <h2 className="text-2xl font-bold">{t('businessCaseModule.title')}</h2>
               <p className="text-sm text-white/80 mt-1">
-                Análisis de costos y beneficios para migración a AWS
+                {t('businessCaseModule.description')}
               </p>
             </div>
           </div>
@@ -96,20 +98,19 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           {businessCaseData && (
             <div className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium">
               <TrendingUp className="h-4 w-4" />
-              Datos cargados ({businessCaseData.summary.totalServers} servidores,{' '}
-              {businessCaseData.summary.osDistributionCount} sistemas operativos)
+              {t('businessCaseModule.dataLoaded', { servers: businessCaseData.summary.totalServers, os: businessCaseData.summary.osDistributionCount })}
             </div>
           )}
           {tco1YearData && (
             <div className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full text-sm font-medium">
               <TrendingUp className="h-4 w-4" />
-              TCO 1 Año cargado ({tco1YearData.summary.totalResources} recursos)
+              {t('businessCaseModule.tco1YearLoaded', { resources: tco1YearData.summary.totalResources })}
             </div>
           )}
           {clientData.clientName && (
             <div className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium">
               <TrendingUp className="h-4 w-4" />
-              Cliente: {clientData.clientName}
+              {t('businessCaseModule.clientStatus', { name: clientData.clientName })}
             </div>
           )}
         </div>
@@ -126,16 +127,16 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
             </div>
             <div className="flex-1">
               <Label htmlFor="assessmentTool" className="text-base font-semibold text-purple-900">
-                Herramienta de Assessment *
+                {t('businessCaseModule.assessmentToolLabel')}
               </Label>
               <p className="text-sm text-purple-700 mt-1">
-                Selecciona la herramienta utilizada para el assessment (obligatorio)
+                {t('businessCaseModule.assessmentToolDesc')}
               </p>
             </div>
             <div className="w-64">
               <Select value={assessmentTool} onValueChange={handleToolChange}>
                 <SelectTrigger className="bg-white">
-                  <SelectValue placeholder="Seleccionar herramienta" />
+                  <SelectValue placeholder={t('businessCaseModule.selectTool')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Cloudamize">Cloudamize</SelectItem>
@@ -149,7 +150,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           {!assessmentTool && (
             <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
               <p className="text-sm text-yellow-800 font-medium">
-                ⚠️ Debes seleccionar una herramienta antes de continuar
+                {t('businessCaseModule.selectToolWarning')}
               </p>
             </div>
           )}
@@ -162,7 +163,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Upload className="h-5 w-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-800">Data Upload</h3>
+              <h3 className="font-semibold text-gray-800">{t('businessCaseModule.dataUploadSection')}</h3>
             </div>
             <div className="space-y-4">
               {assessmentTool === 'Matilda' ? (
@@ -196,7 +197,7 @@ export function BusinessCase({ businessCaseState, onBusinessCaseStateChange }: B
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Building2 className="h-5 w-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-800">Client Information</h3>
+              <h3 className="font-semibold text-gray-800">{t('businessCaseModule.clientInfoSection')}</h3>
             </div>
             <BusinessCaseClientForm
               clientData={clientData}

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import * as d3 from 'd3';
 import { Network, FileDown, FileText, Filter, ArrowUpDown, ChevronLeft, ChevronRight, Layers } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from '@/i18n/useTranslation';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface AppDependencyRow {
@@ -200,6 +201,7 @@ function AppForceGraph({
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export function AppDependencyMap({ appDependencies = [], allDependencies = [] }: AppDependencyMapProps) {
+  const { t } = useTranslation();
   const svgRef = useRef<SVGSVGElement>(null);
   const [filterText, setFilterText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -398,22 +400,22 @@ export function AppDependencyMap({ appDependencies = [], allDependencies = [] }:
 
   // ── Export tabla PDF ────────────────────────────────────────────────────────
   const exportTablePDF = async () => {
-    if (!appLinks.length) { toast.error('No hay datos para exportar'); return; }
+    if (!appLinks.length) { toast.error(t('appDependencyMap.noDataToExport')); return; }
     setIsExportingTable(true);
-    toast.loading('Generando PDF de tabla...', { id: 'tbl-pdf' });
+    toast.loading(t('appDependencyMap.generatingTablePdf'), { id: 'tbl-pdf' });
     try {
       const pdf = await buildBasePDF(false);
       pdf.save(`dependencias_aplicaciones_tabla_${fileDate}.pdf`);
-      toast.success('PDF generado', { id: 'tbl-pdf', duration: 4000 });
-    } catch (e) { console.error(e); toast.error('Error al generar PDF', { id: 'tbl-pdf' }); }
+      toast.success(t('appDependencyMap.tablePdfGenerated'), { id: 'tbl-pdf', duration: 4000 });
+    } catch (e) { console.error(e); toast.error(t('appDependencyMap.errorGeneratingTablePdf'), { id: 'tbl-pdf' }); }
     finally { setIsExportingTable(false); }
   };
 
   // ── Export tabla Word ───────────────────────────────────────────────────────
   const exportTableWord = async () => {
-    if (!appLinks.length) { toast.error('No hay datos para exportar'); return; }
+    if (!appLinks.length) { toast.error(t('appDependencyMap.noDataToExport')); return; }
     setIsExportingTable(true);
-    toast.loading('Generando Word de tabla...', { id: 'tbl-word' });
+    toast.loading(t('appDependencyMap.generatingTableWord'), { id: 'tbl-word' });
     try {
       const rows = sorted.map((l, i) => {
         const bg = i % 2 === 0 ? '#ffffff' : '#f0fdfa';
@@ -480,29 +482,29 @@ export function AppDependencyMap({ appDependencies = [], allDependencies = [] }:
       const a = document.createElement('a'); a.href = url;
       a.download = `dependencias_aplicaciones_tabla_${fileDate}.doc`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-      toast.success('Word generado', { id: 'tbl-word', duration: 4000 });
-    } catch (e) { console.error(e); toast.error('Error al generar Word', { id: 'tbl-word' }); }
+      toast.success(t('appDependencyMap.tableWordGenerated'), { id: 'tbl-word', duration: 4000 });
+    } catch (e) { console.error(e); toast.error(t('appDependencyMap.errorGeneratingTableWord'), { id: 'tbl-word' }); }
     finally { setIsExportingTable(false); }
   };
 
   // ── Export grafo PDF ────────────────────────────────────────────────────────
   const exportGraphPDF = async () => {
-    if (!svgRef.current) { toast.error('El grafo no está disponible'); return; }
+    if (!svgRef.current) { toast.error(t('appDependencyMap.graphNotAvailable')); return; }
     setIsExportingGraph(true);
-    toast.loading('Generando PDF del grafo...', { id: 'grph-pdf' });
+    toast.loading(t('appDependencyMap.generatingGraphPdf'), { id: 'grph-pdf' });
     try {
       const pdf = await buildBasePDF(true);
       pdf.save(`dependencias_aplicaciones_grafo_${fileDate}.pdf`);
-      toast.success('PDF del grafo generado', { id: 'grph-pdf', duration: 4000 });
-    } catch (e) { console.error(e); toast.error('Error al generar PDF', { id: 'grph-pdf' }); }
+      toast.success(t('appDependencyMap.graphPdfGenerated'), { id: 'grph-pdf', duration: 4000 });
+    } catch (e) { console.error(e); toast.error(t('appDependencyMap.errorGeneratingGraphPdf'), { id: 'grph-pdf' }); }
     finally { setIsExportingGraph(false); }
   };
 
   // ── Export grafo Word ───────────────────────────────────────────────────────
   const exportGraphWord = async () => {
-    if (!svgRef.current) { toast.error('El grafo no está disponible'); return; }
+    if (!svgRef.current) { toast.error(t('appDependencyMap.graphNotAvailable')); return; }
     setIsExportingGraph(true);
-    toast.loading('Generando Word del grafo...', { id: 'grph-word' });
+    toast.loading(t('appDependencyMap.generatingGraphWord'), { id: 'grph-word' });
     try {
       const imgData = await svgToDataUrl(svgRef.current);
       const rows = sorted.slice(0, 50).map((l, i) => {
@@ -567,8 +569,8 @@ ${moreNote}
       const a = document.createElement('a'); a.href = url;
       a.download = `dependencias_aplicaciones_grafo_${fileDate}.doc`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-      toast.success('Word del grafo generado', { id: 'grph-word', duration: 4000 });
-    } catch (e) { console.error(e); toast.error('Error al generar Word', { id: 'grph-word' }); }
+      toast.success(t('appDependencyMap.graphWordGenerated'), { id: 'grph-word', duration: 4000 });
+    } catch (e) { console.error(e); toast.error(t('appDependencyMap.errorGeneratingGraphWord'), { id: 'grph-word' }); }
     finally { setIsExportingGraph(false); }
   };
 
@@ -741,7 +743,7 @@ ${moreNote}
               })}
               {paginated.length === 0 && (
                 <tr><td colSpan={7} style={{ textAlign: 'center', padding: 32, color: '#94a3b8', fontStyle: 'italic', fontSize: 12 }}>
-                  Sin dependencias de aplicaciones
+                  {t('appDependencyMap.noDependencies')}
                 </td></tr>
               )}
             </tbody>
@@ -813,7 +815,7 @@ ${moreNote}
           {appLinks.length > 0
             ? <AppForceGraph links={graphFilteredLinks} svgRef={svgRef} activeTypeFilter={activeTypeFilter} allLinks={appLinks} />
             : <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 13 }}>
-                Sin datos para graficar
+                {t('appDependencyMap.noDataToChart')}
               </div>}
         </div>
 

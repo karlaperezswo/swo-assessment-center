@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { SupportRiskSummary, OSSupportRiskData } from '@/types/assessment';
 import { AlertTriangle, Shield, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { formatSpanishNumber } from '@/lib/numberFormat';
 
 interface SupportRiskAnalysisProps {
@@ -31,24 +32,25 @@ function getCycleBadge(cycle: string): string {
   return 'bg-blue-100 text-blue-800';
 }
 
-/** Determine required action message */
-function getRequiredAction(item: OSSupportRiskData): { text: string; color: string } {
+/** Determine required action key */
+function getRequiredActionKey(item: OSSupportRiskData): { key: string; color: string } {
   if (item.supportCycle === 'Unsupported') {
-    return { text: 'No se puede migrar sin actualizar', color: 'text-red-700 font-semibold' };
+    return { key: 'actionCannotMigrate', color: 'text-red-700 font-semibold' };
   }
   if (item.supportCycle === 'Extended Support') {
-    return { text: 'Planificar actualización', color: 'text-orange-700 font-semibold' };
+    return { key: 'actionPlanUpdate', color: 'text-orange-700 font-semibold' };
   }
   if (item.endOfSupport !== '---') {
     const end = new Date(item.endOfSupport);
     if (end <= ONE_YEAR_FROM_NOW) {
-      return { text: 'Actualizar antes de migrar', color: 'text-yellow-700 font-semibold' };
+      return { key: 'actionUpdateFirst', color: 'text-yellow-700 font-semibold' };
     }
   }
-  return { text: 'Listo para migrar', color: 'text-green-700' };
+  return { key: 'actionReady', color: 'text-green-700' };
 }
 
 export function SupportRiskAnalysis({ supportRisk }: SupportRiskAnalysisProps) {
+  const { t } = useTranslation();
   const formatPercent = (num: number): string => {
     if (Number.isInteger(num)) return `${num}%`;
     return `${num.toFixed(2).replace('.', ',')}%`;
@@ -78,6 +80,7 @@ export function SupportRiskAnalysis({ supportRisk }: SupportRiskAnalysisProps) {
     if (data.length === 0) return null;
 
     const totalServers = data.reduce((sum, item) => sum + item.count, 0);
+    const totalServersLabel = t('supportRiskAnalysis.totalServers', { count: formatSpanishNumber(totalServers) });
 
     const colors = [
       '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981',
@@ -131,7 +134,7 @@ export function SupportRiskAnalysis({ supportRisk }: SupportRiskAnalysisProps) {
             {title}
           </CardTitle>
           <p className="text-sm text-gray-600 mt-1">
-            Total de servidores: <span className="font-bold">{formatSpanishNumber(totalServers)}</span>
+            {totalServersLabel}
           </p>
         </CardHeader>
         <CardContent className="pt-6">
@@ -141,17 +144,17 @@ export function SupportRiskAnalysis({ supportRisk }: SupportRiskAnalysisProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="font-bold">Versión</TableHead>
-                    <TableHead className="text-right font-bold">Cantidad</TableHead>
-                    <TableHead className="font-bold">Ciclo de Soporte</TableHead>
-                    <TableHead className="font-bold">Fin de Soporte</TableHead>
-                    <TableHead className="text-center font-bold">Riesgo</TableHead>
-                    <TableHead className="font-bold">Acción Requerida</TableHead>
+                    <TableHead className="font-bold">{t('supportRiskAnalysis.colVersion')}</TableHead>
+                    <TableHead className="text-right font-bold">{t('supportRiskAnalysis.colCount')}</TableHead>
+                    <TableHead className="font-bold">{t('supportRiskAnalysis.colSupportCycle')}</TableHead>
+                    <TableHead className="font-bold">{t('supportRiskAnalysis.colEndOfSupport')}</TableHead>
+                    <TableHead className="text-center font-bold">{t('supportRiskAnalysis.colRisk')}</TableHead>
+                    <TableHead className="font-bold">{t('supportRiskAnalysis.colAction')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.map((item) => {
-                    const action = getRequiredAction(item);
+                    const action = getRequiredActionKey(item);
                     return (
                       <TableRow key={item.version} className={getRowHighlight(item)}>
                         <TableCell className="font-medium">{item.version}</TableCell>
@@ -171,7 +174,7 @@ export function SupportRiskAnalysis({ supportRisk }: SupportRiskAnalysisProps) {
                           </div>
                         </TableCell>
                         <TableCell className={`text-xs ${action.color}`}>
-                          {action.text}
+                          {t(`supportRiskAnalysis.${action.key}`)}
                         </TableCell>
                       </TableRow>
                     );
@@ -182,7 +185,7 @@ export function SupportRiskAnalysis({ supportRisk }: SupportRiskAnalysisProps) {
 
             {/* Pie Chart */}
             <div className="flex flex-col items-center">
-              <h4 className="font-semibold text-gray-800 mb-4">Distribución por Versión</h4>
+              <h4 className="font-semibold text-gray-800 mb-4">{t('supportRiskAnalysis.distByVersion')}</h4>
               <svg viewBox="0 0 240 240" className="w-52 h-52">
                 {slices.map((s, index) => (
                   <g key={s.item.version} className="pie-slice-group">
@@ -267,12 +270,12 @@ export function SupportRiskAnalysis({ supportRisk }: SupportRiskAnalysisProps) {
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-900">
-              <p className="font-semibold mb-2">Semáforo de Riesgo:</p>
+              <p className="font-semibold mb-2">{t('supportRiskAnalysis.legendTitle')}</p>
               <ul className="space-y-1 text-xs">
-                <li>• <span className="font-semibold text-red-700">Rojo:</span> Sin soporte — no se puede migrar sin actualizar primero.</li>
-                <li>• <span className="font-semibold text-orange-700">Naranja:</span> Soporte extendido — planificar actualización.</li>
-                <li>• <span className="font-semibold text-yellow-700">Amarillo:</span> Soporte vence en menos de 1 año — actualizar antes de migrar.</li>
-                <li>• <span className="font-semibold text-green-700">Verde:</span> Soporte activo — listo para migrar.</li>
+                <li>• {t('supportRiskAnalysis.legendRed')}</li>
+                <li>• {t('supportRiskAnalysis.legendOrange')}</li>
+                <li>• {t('supportRiskAnalysis.legendYellow')}</li>
+                <li>• {t('supportRiskAnalysis.legendGreen')}</li>
               </ul>
             </div>
           </div>

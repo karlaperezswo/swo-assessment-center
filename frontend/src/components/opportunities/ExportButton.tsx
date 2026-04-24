@@ -4,12 +4,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Download, Loader2 } from 'lucide-react';
 import apiClient from '@/lib/api';
 import { toast } from 'sonner';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface ExportButtonProps {
   sessionId: string;
 }
 
 export function ExportButton({ sessionId }: ExportButtonProps) {
+  const { t } = useTranslation();
   const [format, setFormat] = useState<'pdf' | 'docx'>('docx');
   const [loading, setLoading] = useState(false);
 
@@ -33,13 +35,13 @@ export function ExportButton({ sessionId }: ExportButtonProps) {
         link.click();
         document.body.removeChild(link);
 
-        toast.success(`Playbook exportado exitosamente: ${filename}`);
+        toast.success(t('exportButton.exported', { filename }));
       } else {
-        toast.error(response.data.error || 'Error al exportar playbook');
+        toast.error(response.data.error || t('exportButton.errorExporting'));
       }
     } catch (err: any) {
       console.error('Error exporting playbook:', err);
-      toast.error(err.response?.data?.error || 'Error al exportar playbook');
+      toast.error(err.response?.data?.error || t('exportButton.errorExporting'));
     } finally {
       setLoading(false);
     }
@@ -61,12 +63,12 @@ export function ExportButton({ sessionId }: ExportButtonProps) {
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Exportando...
+            {t('exportButton.exporting')}
           </>
         ) : (
           <>
             <Download className="mr-2 h-4 w-4" />
-            Exportar Playbook
+            {t('exportButton.exportPlaybook')}
           </>
         )}
       </Button>

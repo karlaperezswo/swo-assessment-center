@@ -1,5 +1,6 @@
 import { Opportunity, OpportunityCategory } from '@shared/types/opportunity.types';
 import { OpportunityCard } from './OpportunityCard';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface OpportunityListProps {
   opportunities: Opportunity[];
@@ -7,11 +8,13 @@ interface OpportunityListProps {
 }
 
 export function OpportunityList({ opportunities, onSelectOpportunity }: OpportunityListProps) {
+  const { t } = useTranslation();
+
   if (opportunities.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <p className="text-lg font-medium mb-2">No se encontraron oportunidades</p>
-        <p>Intenta ajustar los filtros de búsqueda</p>
+        <p className="text-lg font-medium mb-2">{t('opportunitiesList.empty')}</p>
+        <p>{t('opportunitiesList.emptyHint')}</p>
       </div>
     );
   }
@@ -56,7 +59,7 @@ export function OpportunityList({ opportunities, onSelectOpportunity }: Opportun
             <h3 className="text-xl font-bold text-primary">
               {category}
               <span className="ml-2 text-sm font-normal text-muted-foreground">
-                ({groupedOpportunities[category].length} {groupedOpportunities[category].length === 1 ? 'oportunidad' : 'oportunidades'})
+                ({groupedOpportunities[category].length} {groupedOpportunities[category].length === 1 ? t('opportunitiesList.opportunity') : t('opportunitiesList.opportunities')})
               </span>
             </h3>
           </div>

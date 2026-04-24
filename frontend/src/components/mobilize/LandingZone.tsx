@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChecklistCard } from '@/components/shared/ChecklistCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,6 +25,7 @@ interface LandingZoneProps {
 }
 
 export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) {
+  const { t } = useTranslation();
   const [config, setConfig] = useState<LandingZoneConfig>(defaultLandingZoneConfig);
   const [showConfig, setShowConfig] = useState(false);
 
@@ -87,9 +89,9 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
             <div className="flex items-center gap-3">
               <Sparkles className="h-6 w-6 text-blue-600" />
               <div>
-                <CardTitle className="text-blue-900">Generador de Templates IaC</CardTitle>
+                <CardTitle className="text-blue-900">{t('landingZone.generatorTitle')}</CardTitle>
                 <p className="text-sm text-blue-700 mt-1">
-                  Genera CloudFormation y Terraform listos para ejecutar con mejores prácticas de AWS
+                  {t('landingZone.generatorDesc')}
                 </p>
               </div>
             </div>
@@ -98,7 +100,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
               onClick={() => setShowConfig(!showConfig)}
               className="border-blue-300"
             >
-              {showConfig ? 'Ocultar Configuración' : 'Configurar'}
+              {showConfig ? t('landingZone.hideConfigBtn') : t('landingZone.configureBtn')}
             </Button>
           </div>
         </CardHeader>
@@ -108,7 +110,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="orgName" className="text-sm font-medium">
-                    Nombre de Organización
+                    {t('landingZone.orgNameLabel')}
                   </Label>
                   <Input
                     id="orgName"
@@ -121,7 +123,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
 
                 <div>
                   <Label htmlFor="primaryRegion" className="text-sm font-medium">
-                    Región Principal
+                    {t('landingZone.primaryRegion')}
                   </Label>
                   <select
                     id="primaryRegion"
@@ -141,7 +143,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
 
                 <div>
                   <Label htmlFor="vpcCidr" className="text-sm font-medium">
-                    VPC CIDR Block
+                    {t('landingZone.vpcCidr')}
                   </Label>
                   <Input
                     id="vpcCidr"
@@ -154,7 +156,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
 
                 <div>
                   <Label htmlFor="accountEmail" className="text-sm font-medium">
-                    Email de Contacto
+                    {t('landingZone.contactEmail')}
                   </Label>
                   <Input
                     id="accountEmail"
@@ -168,7 +170,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Servicios de Seguridad</Label>
+                <Label className="text-sm font-medium">{t('landingZone.securityServices')}</Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -232,7 +234,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
               className="bg-orange-600 hover:bg-orange-700 text-white"
             >
               <FileCode className="h-4 w-4 mr-2" />
-              CloudFormation (.yaml)
+              {t('landingZone.cfnBtn')}
             </Button>
 
             <Button
@@ -240,7 +242,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
               className="bg-purple-600 hover:bg-purple-700 text-white"
             >
               <Code className="h-4 w-4 mr-2" />
-              Terraform (.tf)
+              {t('landingZone.tfBtn')}
             </Button>
 
             <Button
@@ -249,7 +251,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
               className="border-blue-300"
             >
               <BookOpen className="h-4 w-4 mr-2" />
-              Guía README
+              {t('landingZone.readmeBtn')}
             </Button>
 
             <Button
@@ -257,14 +259,13 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Download className="h-4 w-4 mr-2" />
-              Descargar Todo
+              {t('landingZone.downloadAllBtn')}
             </Button>
           </div>
 
           <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-xs text-blue-800">
-              <strong>📌 Próximos pasos:</strong> Descarga los templates, revisa la configuración, y despliega usando AWS CLI o consola web.
-              El README incluye comandos completos para el despliegue.
+              {t('landingZone.nextSteps')}
             </p>
           </div>
         </CardContent>
@@ -276,10 +277,9 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
           <div className="flex items-start gap-3">
             <Cloud className="h-6 w-6 text-violet-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-bold text-violet-900 text-lg">Checklist de Landing Zone</h3>
+              <h3 className="font-bold text-violet-900 text-lg">{t('landingZone.checklistTitle')}</h3>
               <p className="text-sm text-violet-700 mt-1">
-                Utiliza este checklist para hacer seguimiento de las tareas de configuración de tu Landing Zone.
-                Los templates generados arriba automatizan muchas de estas tareas.
+                {t('landingZone.checklistDesc')}
               </p>
             </div>
           </div>
@@ -289,7 +289,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
       {/* Checklists */}
       <div className="space-y-6">
         <ChecklistCard
-          title="Account Structure"
+          title={t('landingZone.accountStructure')}
           icon={<Scale className="h-5 w-5" />}
           items={checklist.accountStructure}
           onItemToggle={(id) => handleToggle('accountStructure', id)}
@@ -298,7 +298,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
         />
 
         <ChecklistCard
-          title="Networking"
+          title={t('landingZone.networking')}
           icon={<Network className="h-5 w-5" />}
           items={checklist.networking}
           onItemToggle={(id) => handleToggle('networking', id)}
@@ -307,7 +307,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
         />
 
         <ChecklistCard
-          title="Security"
+          title={t('landingZone.security')}
           icon={<Shield className="h-5 w-5" />}
           items={checklist.security}
           onItemToggle={(id) => handleToggle('security', id)}
@@ -316,7 +316,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
         />
 
         <ChecklistCard
-          title="Logging & Monitoring"
+          title={t('landingZone.loggingMonitoring')}
           icon={<FileText className="h-5 w-5" />}
           items={checklist.logging}
           onItemToggle={(id) => handleToggle('logging', id)}
@@ -325,7 +325,7 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
         />
 
         <ChecklistCard
-          title="Governance"
+          title={t('landingZone.governance')}
           icon={<Scale className="h-5 w-5" />}
           items={checklist.governance}
           onItemToggle={(id) => handleToggle('governance', id)}

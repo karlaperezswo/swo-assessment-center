@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Search, Network, Server, Database, AlertCircle, FileText, ChevronLeft, ChevronRight, Filter, ArrowUpDown, FileDown, Layers, Image as ImageIcon, Code } from 'lucide-react';
 import { toast } from 'sonner';
 import { DatabaseDependencyMap } from './DatabaseDependencyMap';
+import { useTranslation } from '@/i18n/useTranslation';
 import { AppDependencyMap } from './AppDependencyMap';
 
 interface DependencyNode {
@@ -355,6 +356,7 @@ function getServerTypeInfo(name: string): { icon: string; label: string; color: 
 }
 
 export function DependencyMap({ dependencyData }: DependencyMapProps) {
+  const { t } = useTranslation();
   const [activeMainTab, setActiveMainTab] = useState<'servers' | 'databases' | 'apps'>('servers');
   const [summary, setSummary] = useState<DependencySummary | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -423,9 +425,9 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
   };
 
   const exportGraphToPDF = async () => {
-    if (nodes.length === 0) { toast.error('No hay grafo para exportar'); return; }
+    if (nodes.length === 0) { toast.error(t('dependencyGraph.noGraphToExport')); return; }
     setIsExportingGraph(true);
-    toast.loading('Generando PDF del grafo...', { id: 'graph-export' });
+    toast.loading(t('dependencyGraph.generatingPdf'), { id: 'graph-export' });
     try {
       const jsPDF = (await import('jspdf')).jsPDF;
       const imgData = await captureSvgAsDataUrl();
@@ -464,10 +466,10 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
 
       const filename = `mapa_dependencias_${searchResult?.server ?? 'completo'}_${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(filename);
-      toast.success('PDF generado correctamente', { id: 'graph-export', duration: 4000 });
+      toast.success(t('dependencyGraph.pdfGenerated'), { id: 'graph-export', duration: 4000 });
     } catch (err) {
       console.error(err);
-      toast.error('Error al generar el PDF', { id: 'graph-export' });
+      toast.error(t('dependencyGraph.errorGeneratingPdf'), { id: 'graph-export' });
     } finally {
       setIsExportingGraph(false);
     }
@@ -524,9 +526,9 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
   };
 
   const exportGraphToWord = async () => {
-    if (nodes.length === 0) { toast.error('No hay grafo para exportar'); return; }
+    if (nodes.length === 0) { toast.error(t('dependencyGraph.noGraphToExport')); return; }
     setIsExportingGraph(true);
-    toast.loading('Generando documento Word...', { id: 'graph-export-word' });
+    toast.loading(t('dependencyGraph.generatingWord'), { id: 'graph-export-word' });
     try {
       const imgData = await captureSvgAsDataUrl();
       const label = searchResult ? `Servidor: ${searchResult.server}` : 'Vista completa';
@@ -613,10 +615,10 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast.success('Documento Word generado', { id: 'graph-export-word', duration: 4000 });
+      toast.success(t('dependencyGraph.wordGenerated'), { id: 'graph-export-word', duration: 4000 });
     } catch (err) {
       console.error(err);
-      toast.error('Error al generar el documento', { id: 'graph-export-word' });
+      toast.error(t('dependencyGraph.errorGeneratingWord'), { id: 'graph-export-word' });
     } finally {
       setIsExportingGraph(false);
     }
@@ -692,7 +694,7 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
   // Nueva función de búsqueda local (sin necesidad de backend)
   const handleLocalSearch = () => {
     if (!searchTerm.trim() || allDependencies.length === 0) {
-      toast.error('Ingresa un término de búsqueda');
+      toast.error(t('dependencyGraph.enterSearchTerm'));
       return;
     }
 
@@ -707,7 +709,7 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
       );
 
       if (!matchingServer) {
-        toast.warning('No se encontró ningún servidor con ese nombre');
+        toast.warning(t('dependencyGraph.serverNotFound'));
         setSearchResult(null);
         setIsSearching(false);
         return;
@@ -750,13 +752,13 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
       setSearchResult(result);
       displayGraph(graph);
 
-      toast.success(`Servidor encontrado: ${matchingServer}`, {
+      toast.success(t('dependencyGraph.serverFound', { server: matchingServer }), {
         description: `${incoming.length} entrantes, ${outgoing.length} salientes`,
         duration: 4000
       });
     } catch (error) {
       console.error('Search error:', error);
-      toast.error('Error en búsqueda');
+      toast.error(t('dependencyGraph.searchError'));
     } finally {
       setIsSearching(false);
     }
@@ -795,9 +797,9 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
 
   // ── Export PDF ──────────────────────────────────────────────────────────────
   const exportServersPDF = async () => {
-    if (!summary) { toast.error('No hay datos para exportar'); return; }
+    if (!summary) { toast.error(t('dependencyGraph.noDataToExport')); return; }
     setIsExporting(true);
-    toast.loading('Generando PDF...', { id: 'srv-pdf' });
+    toast.loading(t('dependencyGraph.generatingSrvPdf'), { id: 'srv-pdf' });
     try {
       const jsPDF = (await import('jspdf')).jsPDF;
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
@@ -995,16 +997,16 @@ export function DependencyMap({ dependencyData }: DependencyMapProps) {
       }
 
       pdf.save(`dependencias_servidores_${fileDate}.pdf`);
-      toast.success('PDF generado', { id: 'srv-pdf', duration: 4000 });
-    } catch (e) { console.error(e); toast.error('Error al generar PDF', { id: 'srv-pdf' }); }
+      toast.success(t('dependencyGraph.srvPdfGenerated'), { id: 'srv-pdf', duration: 4000 });
+    } catch (e) { console.error(e); toast.error(t('dependencyGraph.errorGeneratingSrvPdf'), { id: 'srv-pdf' }); }
     finally { setIsExporting(false); }
   };
 
   // ── Export Word ─────────────────────────────────────────────────────────────
   const exportServersWord = async () => {
-    if (!summary) { toast.error('No hay datos para exportar'); return; }
+    if (!summary) { toast.error(t('dependencyGraph.noDataToExport')); return; }
     setIsExporting(true);
-    toast.loading('Generando Word...', { id: 'srv-word' });
+    toast.loading(t('dependencyGraph.generatingSrvWord'), { id: 'srv-word' });
     try {
       const imgData = await captureSvgPng();
 
@@ -1139,8 +1141,8 @@ ${searchResult.relatedApplications.length > 0 ? `
       const a = document.createElement('a');
       a.href = url; a.download = `dependencias_servidores_${fileDate}.doc`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-      toast.success('Word generado', { id: 'srv-word', duration: 4000 });
-    } catch (e) { console.error(e); toast.error('Error al generar Word', { id: 'srv-word' }); }
+      toast.success(t('dependencyGraph.srvWordGenerated'), { id: 'srv-word', duration: 4000 });
+    } catch (e) { console.error(e); toast.error(t('dependencyGraph.errorGeneratingSrvWord'), { id: 'srv-word' }); }
     finally { setIsExporting(false); }
   };
 
@@ -1418,7 +1420,7 @@ ${searchResult.relatedApplications.length > 0 ? `
             <div className="flex items-start gap-3">
               <AlertCircle className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-semibold text-amber-900 mb-2">No hay datos de dependencias disponibles</h4>
+                <h4 className="font-semibold text-amber-900 mb-2">{t('dependencyGraph.noDependencyData')}</h4>
                 <p className="text-sm text-amber-800 mb-3">
                   Para visualizar el mapa de dependencias, necesitas cargar un archivo Excel MPA que contenga 
                   la hoja "Server Communication" con información de conexiones de red.
@@ -1574,7 +1576,7 @@ ${searchResult.relatedApplications.length > 0 ? `
               <button onClick={handleLocalSearch} disabled={isSearching || !searchTerm.trim()}
                 style={{ padding: '7px 18px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.4)',
                   background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                {isSearching ? 'Buscando...' : 'Buscar'}
+                {isSearching ? t('dependencyGraph.searching') : t('dependencyGraph.search')}
               </button>
             </div>
           </CardHeader>

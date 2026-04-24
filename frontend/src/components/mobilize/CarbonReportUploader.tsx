@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { useDropzone } from 'react-dropzone';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
@@ -12,6 +13,7 @@ interface CarbonReportUploaderProps {
 }
 
 export function CarbonReportUploader({ onDataLoaded, alreadyLoaded, loadedFileName }: CarbonReportUploaderProps) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>(() =>
     alreadyLoaded ? 'success' : 'idle'
@@ -86,7 +88,7 @@ export function CarbonReportUploader({ onDataLoaded, alreadyLoaded, loadedFileNa
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileSpreadsheet className="h-5 w-5 text-green-600" />
-          Reporte de Carbonización
+          {t('carbonReportUploader.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -103,33 +105,33 @@ export function CarbonReportUploader({ onDataLoaded, alreadyLoaded, loadedFileNa
           {uploading ? (
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="h-12 w-12 text-green-600 animate-spin" />
-              <p className="text-sm text-gray-600">Procesando archivo...</p>
+              <p className="text-sm text-gray-600">{t('uploader.processing')}</p>
             </div>
           ) : uploadStatus === 'success' ? (
             <div className="flex flex-col items-center gap-3">
               <CheckCircle2 className="h-12 w-12 text-green-600" />
-              <p className="text-sm font-medium text-green-700">Archivo cargado exitosamente</p>
+              <p className="text-sm font-medium text-green-700">{t('uploader.success')}</p>
               <p className="text-xs text-gray-500">{fileName}</p>
-              <p className="text-xs text-gray-400 mt-2">Arrastra otro archivo para reemplazar</p>
+              <p className="text-xs text-gray-400 mt-2">{t('uploader.replaceHint')}</p>
             </div>
           ) : uploadStatus === 'error' ? (
             <div className="flex flex-col items-center gap-3">
               <AlertCircle className="h-12 w-12 text-red-600" />
-              <p className="text-sm font-medium text-red-700">Error al procesar archivo</p>
+              <p className="text-sm font-medium text-red-700">{t('carbonReportUploader.errorTitle')}</p>
               <p className="text-xs text-red-500">{errorMessage}</p>
-              <p className="text-xs text-gray-400 mt-2">Arrastra otro archivo para intentar de nuevo</p>
+              <p className="text-xs text-gray-400 mt-2">{t('uploader.retryHint2')}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-3">
               <Upload className="h-12 w-12 text-gray-400" />
               <div>
                 <p className="text-sm font-medium text-gray-700">
-                  {isDragActive ? 'Suelta el archivo aquí' : 'Arrastra el archivo Excel aquí'}
+                  {isDragActive ? t('uploader.dragActive') : t('uploader.dragInactive')}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">o haz clic para seleccionar</p>
+                <p className="text-xs text-gray-500 mt-1">{t('uploader.clickSelectSimple')}</p>
               </div>
               <p className="text-xs text-gray-400 mt-2">
-                Archivo Excel con datos de carbonización (.xlsx)
+                {t('carbonReportUploader.fileInfo')}
               </p>
             </div>
           )}
@@ -138,7 +140,7 @@ export function CarbonReportUploader({ onDataLoaded, alreadyLoaded, loadedFileNa
         {uploadStatus === 'success' && (
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-sm text-green-800">
-              ✓ Datos de carbonización cargados correctamente
+              {t('carbonReportUploader.dataLoaded')}
             </p>
           </div>
         )}

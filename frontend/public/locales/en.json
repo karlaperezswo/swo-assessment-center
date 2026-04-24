@@ -1078,21 +1078,18 @@
     "errorGeneratingReport": "Error generating report"
   },
   "wavePlanner": {
-    "reAssigned": "Waves automatically reassigned",
-    "manualModeOn": "✏️ Manual mode activated — drag servers between waves",
-    "manualModeOff": "🔒 Manual mode deactivated",
-    "emptyExcel": "Excel file is empty",
-    "missingColumns": "Required columns not found",
+    "wavesReassigned": "Waves automatically reassigned",
+    "excelEmpty": "The Excel file is empty",
+    "columnsNotFound": "Required columns not found",
     "noValidServers": "No valid servers found",
-    "noValidServersDesc": "Check that the \"{{column}}\" column has values.",
     "fileLoaded": "File loaded successfully",
-    "fileLoadedDesc": "{{count}} servers → {{waves}} waves generated",
-    "errorProcessing": "Error processing file",
-    "errorReading": "Error reading file",
+    "errorProcessing": "Error processing the file",
+    "errorReading": "Error reading the file",
     "pdfGenerated": "PDF generated",
-    "pdfPrintDesc": "Open the file and use Ctrl+P to print as PDF",
+    "pdfDesc": "Open the file and use Ctrl+P to print as PDF",
     "wordGenerated": "Word generated",
-    "wordDownloadDesc": "The .doc file has been downloaded"
+    "wordDesc": "The .doc file has been downloaded correctly",
+    "serverMoved": "{{server}} → {{wave}}"
   },
   "businessCaseUploader": {
     "successLoaded": "{{client}} - {{source}} loaded: {{servers}} servers",

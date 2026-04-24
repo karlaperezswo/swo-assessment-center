@@ -1078,21 +1078,18 @@
     "errorGeneratingReport": "Erro ao gerar relatório"
   },
   "wavePlanner": {
-    "reAssigned": "Ondas reatribuídas automaticamente",
-    "manualModeOn": "✏️ Modo manual ativado — arraste servidores entre ondas",
-    "manualModeOff": "🔒 Modo manual desativado",
-    "emptyExcel": "O arquivo Excel está vazio",
-    "missingColumns": "Colunas obrigatórias não encontradas",
+    "wavesReassigned": "Ondas reatribuídas automaticamente",
+    "excelEmpty": "O arquivo Excel está vazio",
+    "columnsNotFound": "Colunas obrigatórias não encontradas",
     "noValidServers": "Nenhum servidor válido encontrado",
-    "noValidServersDesc": "Verifique que a coluna \"{{column}}\" tenha valores.",
     "fileLoaded": "Arquivo carregado com sucesso",
-    "fileLoadedDesc": "{{count}} servidores → {{waves}} ondas geradas",
     "errorProcessing": "Erro ao processar o arquivo",
     "errorReading": "Erro ao ler o arquivo",
     "pdfGenerated": "PDF gerado",
-    "pdfPrintDesc": "Abra o arquivo e use Ctrl+P para imprimir como PDF",
+    "pdfDesc": "Abra o arquivo e use Ctrl+P para imprimir como PDF",
     "wordGenerated": "Word gerado",
-    "wordDownloadDesc": "O arquivo .doc foi baixado"
+    "wordDesc": "O arquivo .doc foi baixado corretamente",
+    "serverMoved": "{{server}} → {{wave}}"
   },
   "businessCaseUploader": {
     "successLoaded": "{{client}} - {{source}} carregado: {{servers}} servidores",

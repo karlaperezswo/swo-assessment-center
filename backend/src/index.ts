@@ -18,6 +18,7 @@ import { i18nRouter } from './routes/i18nRoutes';
 import { opportunityRouter } from './routes/opportunityRoutes';
 import { selectorRouter } from './routes/selectorRoutes';
 import { agentRouter } from './routes/agentRoutes';
+import { mcpKeyRouter, mcpProtocolRouter } from './routes/mcpRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -44,6 +45,11 @@ app.use('/api/i18n', i18nRouter);
 app.use('/api/opportunities', opportunityRouter);
 app.use('/api/selector', selectorRouter);
 app.use('/api/agent', agentRouter);
+app.use('/api/mcp-keys', mcpKeyRouter);
+
+// MCP protocol endpoint — separate mount point so it uses its own API-key
+// auth instead of the /api Cognito JWT middleware.
+app.use('/mcp', mcpProtocolRouter);
 
 // Health check
 app.get('/health', (req, res) => {

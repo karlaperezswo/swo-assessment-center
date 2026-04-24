@@ -1,0 +1,127 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Bedrock Guardrail for the swo-assessment-center AI copilot.
+  Blocks: prompt-injection, denied off-topic categories, sensitive content,
+  and PII / AWS-credential leakage in both prompt and completion.
+
+Parameters:
+  EnvName:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+
+Resources:
+  AssessmentCopilotGuardrail:
+    Type: AWS::Bedrock::Guardrail
+    Properties:
+      Name: !Sub "swo-assessment-copilot-${EnvName}"
+      Description: Guardrail for the SoftwareOne assessment-center copilot.
+      BlockedInputMessaging: >-
+        Lo siento, no puedo procesar esta solicitud. Reformúlala manteniéndote
+        en el alcance del assessment AWS.
+      BlockedOutputsMessaging: >-
+        Esta respuesta fue bloqueada por la política de seguridad. Reformula
+        la pregunta o consulta a tu administrador.
+
+      ContentPolicyConfig:
+        FiltersConfig:
+          - Type: SEXUAL
+            InputStrength: HIGH
+            OutputStrength: HIGH
+          - Type: VIOLENCE
+            InputStrength: HIGH
+            OutputStrength: HIGH
+          - Type: HATE
+            InputStrength: HIGH
+            OutputStrength: HIGH
+          - Type: INSULTS
+            InputStrength: HIGH
+            OutputStrength: HIGH
+          - Type: MISCONDUCT
+            InputStrength: HIGH
+            OutputStrength: HIGH
+          - Type: PROMPT_ATTACK
+            InputStrength: HIGH
+            OutputStrength: NONE
+
+      TopicPolicyConfig:
+        TopicsConfig:
+          - Name: politics-and-elections
+            Type: DENY
+            Definition: >
+              Cualquier discusión sobre elecciones, partidos políticos,
+              candidatos, ideologías o controversias políticas.
+            Examples:
+              - "¿A quién debería votar?"
+              - "Resume las políticas del partido X"
+          - Name: medical-and-legal-advice
+            Type: DENY
+            Definition: >
+              Recomendaciones médicas, diagnósticos, consejería legal
+              personal, asesoría financiera personal o psicológica.
+            Examples:
+              - "¿Tengo COVID si toso?"
+              - "¿Puedo demandar a mi empleador?"
+          - Name: out-of-scope-tech
+            Type: DENY
+            Definition: >
+              Tareas de programación o consultoría que no se relacionan con
+              AWS, migraciones a AWS, assessments de SoftwareOne, ni con
+              los datos de la sesión cargada del cliente.
+            Examples:
+              - "Escríbeme un script en Python para scrapear Twitter"
+              - "Compárame Azure y GCP fuera del contexto de migración"
+
+      SensitiveInformationPolicyConfig:
+        PiiEntitiesConfig:
+          - Type: AWS_ACCESS_KEY
+            Action: BLOCK
+          - Type: AWS_SECRET_KEY
+            Action: BLOCK
+          - Type: PASSWORD
+            Action: BLOCK
+          - Type: CREDIT_DEBIT_CARD_NUMBER
+            Action: BLOCK
+          - Type: CREDIT_DEBIT_CARD_CVV
+            Action: BLOCK
+          - Type: EMAIL
+            Action: ANONYMIZE
+          - Type: PHONE
+            Action: ANONYMIZE
+          - Type: IP_ADDRESS
+            Action: ANONYMIZE
+        RegexesConfig:
+          - Name: aws-account-id
+            Description: Block raw AWS account IDs in output (12-digit numbers in AWS context).
+            Pattern: "\\b\\d{12}\\b"
+            Action: ANONYMIZE
+
+      WordPolicyConfig:
+        ManagedWordListsConfig:
+          - Type: PROFANITY
+
+      Tags:
+        - Key: Project
+          Value: swo-assessment-center
+        - Key: Env
+          Value: !Ref EnvName
+
+  AssessmentCopilotGuardrailVersion:
+    Type: AWS::Bedrock::GuardrailVersion
+    Properties:
+      GuardrailIdentifier: !GetAtt AssessmentCopilotGuardrail.GuardrailId
+      Description: !Sub "Initial published version for env=${EnvName}"
+
+Outputs:
+  GuardrailId:
+    Value: !GetAtt AssessmentCopilotGuardrail.GuardrailId
+    Export:
+      Name: !Sub "${AWS::StackName}-GuardrailId"
+  GuardrailArn:
+    Value: !GetAtt AssessmentCopilotGuardrail.GuardrailArn
+    Export:
+      Name: !Sub "${AWS::StackName}-GuardrailArn"
+  GuardrailVersion:
+    Value: !GetAtt AssessmentCopilotGuardrailVersion.Version
+    Export:
+      Name: !Sub "${AWS::StackName}-GuardrailVersion"

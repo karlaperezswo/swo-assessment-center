@@ -1,8 +1,32 @@
+import { useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { useTranslation } from '@/i18n/useTranslation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { BusinessCaseMetrics } from '@/components/BusinessCaseMetrics';
-import { Card, CardContent } from '@/components/ui/card';
 import { ExcelData, UploadSummary } from '@/types/assessment';
-import { Gauge, Info } from 'lucide-react';
+import {
+  computeReadiness,
+  ReadinessDimension,
+  ReadinessCheck,
+  ReadinessLevel,
+} from '@/lib/migrationReadiness';
+import { useReadinessChecklist, useReadinessAnswers } from '@/lib/readinessStore';
+import { computeProgress } from '@/lib/readinessQuestionnaire';
+import {
+  Gauge,
+  Info,
+  CheckCircle2,
+  AlertCircle,
+  AlertTriangle,
+  ShieldCheck,
+  Database,
+  Users,
+  Cpu,
+  ClipboardList,
+  ArrowRight,
+} from 'lucide-react';
 
 interface MigrationReadinessProps {
   excelData: ExcelData | null;
@@ -10,8 +34,28 @@ interface MigrationReadinessProps {
   migrationReadiness: string;
 }
 
-export function MigrationReadiness({ excelData, uploadSummary, migrationReadiness }: MigrationReadinessProps) {
+const dimensionIcons = {
+  technical: Cpu,
+  data: Database,
+  security: ShieldCheck,
+  organizational: Users,
+} as const;
+
+export function MigrationReadiness({
+  excelData,
+  uploadSummary,
+  migrationReadiness,
+}: MigrationReadinessProps) {
   const { t } = useTranslation();
+  const [manualState, setManualState] = useReadinessChecklist();
+  const [answers] = useReadinessAnswers();
+  const questionnaireProgress = useMemo(() => computeProgress(answers), [answers]);
+
+  const report = useMemo(() => computeReadiness(excelData, manualState), [excelData, manualState]);
+
+  const toggleCheck = (id: string, passed: boolean) => {
+    setManualState((prev) => ({ ...prev, [id]: passed }));
+  };
 
   if (!excelData) {
     return (
@@ -25,24 +69,142 @@ export function MigrationReadiness({ excelData, uploadSummary, migrationReadines
     );
   }
 
+  const levelBadge = levelBadgeStyles(report.level);
+
   return (
     <div className="space-y-6">
-      {/* MRA Intro */}
       <Card className="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-fuchsia-600 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-bold text-fuchsia-900">{t('mra.title')}</h3>
-              <p className="text-sm text-fuchsia-700 mt-1">
-                {t('mra.description')}
-              </p>
+              <p className="text-sm text-fuchsia-700 mt-1">{t('mra.description')}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Existing BusinessCaseMetrics component */}
+      <Card className="border-2 border-fuchsia-200">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Gauge className="h-6 w-6 text-fuchsia-600" />
+              {t('readiness.overall')}
+            </span>
+            <Badge className={levelBadge.className}>{t(`readiness.levels.${report.level}`)}</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
+            <div className="md:col-span-2 text-center">
+              <ScoreDial score={report.overallScore} color={levelBadge.dialColor} />
+            </div>
+            <div className="md:col-span-3 grid grid-cols-2 gap-3">
+              {report.dimensions.map((d, i) => {
+                const Icon = dimensionIcons[d.id];
+                return (
+                  <motion.div
+                    key={d.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.08 }}
+                    className="border rounded-lg p-3 bg-white flex items-center gap-3"
+                  >
+                    <Icon className="h-5 w-5 text-gray-500" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-500">{t(`readiness.dimensions.${d.id}`)}</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <motion.div
+                            className={`h-2 ${scoreBarColor(d.score)}`}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${d.score}%` }}
+                            transition={{ duration: 0.7, delay: 0.2 + i * 0.08, ease: 'easeOut' }}
+                          />
+                        </div>
+                        <span className="text-sm font-semibold">{d.score}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-blue-200 bg-blue-50/30">
+        <CardContent className="pt-4 pb-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <ClipboardList className="h-5 w-5 text-blue-600 flex-shrink-0" />
+            <div className="flex-1 min-w-[200px]">
+              <p className="text-sm font-medium text-blue-900">
+                Cuestionario guiado
+              </p>
+              <p className="text-xs text-blue-700">
+                {questionnaireProgress.answered === 0
+                  ? 'Responde 13 preguntas en Descubrimiento Rápido para auto-marcar los checks manuales.'
+                  : questionnaireProgress.answered === questionnaireProgress.total
+                  ? '✓ Completo — todos los checks manuales mapeados se ajustan según tus respuestas.'
+                  : `${questionnaireProgress.answered}/${questionnaireProgress.total} respondidas. Completa las restantes en Descubrimiento Rápido.`}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-32 h-1.5 bg-blue-100 rounded-full overflow-hidden">
+                <div
+                  className="h-1.5 bg-blue-600 transition-all duration-300"
+                  style={{ width: `${questionnaireProgress.percent}%` }}
+                />
+              </div>
+              <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 flex items-center gap-1">
+                {questionnaireProgress.percent}%
+                <ArrowRight className="h-3 w-3" />
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {report.gaps.length > 0 && (
+        <Card className="border-amber-200 bg-amber-50/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-amber-900">
+              <AlertTriangle className="h-5 w-5" />
+              {t('readiness.gaps.title')} ({report.gaps.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {report.gaps.slice(0, 5).map((g) => (
+                <li key={g.id} className="flex items-start gap-2 text-sm">
+                  <AlertCircle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-medium text-amber-900">{g.title}</span>
+                    {g.recommendation && (
+                      <p className="text-amber-700 text-xs mt-0.5">{g.recommendation}</p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {report.dimensions.map((d) => (
+          <DimensionCard
+            key={d.id}
+            dimension={d}
+            onToggle={toggleCheck}
+            label={t(`readiness.dimensions.${d.id}`)}
+            description={t(`readiness.dimensions.${d.id}Desc`)}
+            autoBadge={t('readiness.autoBadge')}
+          />
+        ))}
+      </div>
+
       <BusinessCaseMetrics
         serverCount={excelData.servers.length}
         databaseCount={excelData.databases.length}
@@ -52,4 +214,171 @@ export function MigrationReadiness({ excelData, uploadSummary, migrationReadines
       />
     </div>
   );
+}
+
+function DimensionCard({
+  dimension,
+  onToggle,
+  label,
+  description,
+  autoBadge,
+}: {
+  dimension: ReadinessDimension;
+  onToggle: (id: string, value: boolean) => void;
+  label: string;
+  description: string;
+  autoBadge: string;
+}) {
+  const Icon = dimensionIcons[dimension.id];
+  const passedCount = dimension.checks.filter((c) => c.passed).length;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between text-base">
+          <span className="flex items-center gap-2">
+            <Icon className="h-5 w-5 text-gray-600" />
+            {label}
+          </span>
+          <span className="text-sm text-gray-500 font-normal">
+            {passedCount}/{dimension.checks.length} · {dimension.score}%
+          </span>
+        </CardTitle>
+        <p className="text-xs text-gray-500">{description}</p>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-3">
+          {dimension.checks.map((check) => (
+            <CheckRow
+              key={check.id}
+              check={check}
+              onToggle={onToggle}
+              isAutomatic={isAutomatic(check.id)}
+              autoBadge={autoBadge}
+            />
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+}
+
+function CheckRow({
+  check,
+  onToggle,
+  isAutomatic,
+  autoBadge,
+}: {
+  check: ReadinessCheck;
+  onToggle: (id: string, value: boolean) => void;
+  isAutomatic: boolean;
+  autoBadge: string;
+}) {
+  return (
+    <li className="flex items-start gap-3">
+      {isAutomatic ? (
+        check.passed ? (
+          <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+        ) : (
+          <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+        )
+      ) : (
+        <Checkbox
+          id={check.id}
+          checked={check.passed}
+          onCheckedChange={(v) => onToggle(check.id, v === true)}
+          className="mt-0.5"
+        />
+      )}
+      <div className="flex-1 min-w-0">
+        <label
+          htmlFor={check.id}
+          className={`text-sm font-medium ${isAutomatic ? '' : 'cursor-pointer'} ${
+            check.passed ? 'text-gray-900' : 'text-gray-700'
+          }`}
+        >
+          {check.title}
+          {isAutomatic && (
+            <Badge variant="outline" className="ml-2 text-[10px] py-0">
+              {autoBadge}
+            </Badge>
+          )}
+        </label>
+        <p className="text-xs text-gray-500 mt-0.5">{check.description}</p>
+        {check.detail && <p className="text-xs text-gray-600 mt-1 italic">{check.detail}</p>}
+        {!check.passed && check.recommendation && (
+          <p className="text-xs text-amber-700 mt-1">→ {check.recommendation}</p>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function isAutomatic(id: string): boolean {
+  return (
+    id.startsWith('tech.') &&
+    id !== 'tech.architecture_review'
+  ) || id === 'data.inventory';
+}
+
+function ScoreDial({ score, color }: { score: number; color: string }) {
+  const circumference = 2 * Math.PI * 50;
+  const offset = circumference - (score / 100) * circumference;
+  return (
+    <div className="relative inline-flex items-center justify-center">
+      <svg className="w-36 h-36 -rotate-90">
+        <circle
+          className="text-gray-200"
+          strokeWidth="10"
+          stroke="currentColor"
+          fill="transparent"
+          r="50"
+          cx="72"
+          cy="72"
+        />
+        <circle
+          className={color}
+          strokeWidth="10"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          stroke="currentColor"
+          fill="transparent"
+          r="50"
+          cx="72"
+          cy="72"
+        />
+      </svg>
+      <div className="absolute text-center">
+        <div className="text-3xl font-bold text-gray-900">{score}</div>
+        <div className="text-xs text-gray-500">/ 100</div>
+      </div>
+    </div>
+  );
+}
+
+function levelBadgeStyles(level: ReadinessLevel) {
+  switch (level) {
+    case 'ready':
+      return {
+        className: 'bg-green-100 text-green-800 hover:bg-green-100',
+        dialColor: 'text-green-500',
+      };
+    case 'evaluating':
+      return {
+        className: 'bg-amber-100 text-amber-800 hover:bg-amber-100',
+        dialColor: 'text-amber-500',
+      };
+    case 'not_ready':
+      return {
+        className: 'bg-red-100 text-red-800 hover:bg-red-100',
+        dialColor: 'text-red-500',
+      };
+  }
+}
+
+function scoreBarColor(score: number): string {
+  if (score >= 80) return 'bg-green-500';
+  if (score >= 55) return 'bg-amber-500';
+  return 'bg-red-500';
 }

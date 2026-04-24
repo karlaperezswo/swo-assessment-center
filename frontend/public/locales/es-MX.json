@@ -26,7 +26,8 @@
     "tip": "Consejo",
     "savings": "ahorro",
     "downloadStarting": "Iniciando descarga del reporte",
-    "filterByEnvironment": "Filtrar por ambiente"
+    "filterByEnvironment": "Filtrar por ambiente",
+    "and": "y"
   },
   "applicationTable": {
     "title": "Aplicaciones ({{count}})",
@@ -38,7 +39,8 @@
     "inbound": "Entrantes",
     "outbound": "Salientes",
     "environment": "Ambiente",
-    "noApps": "No se encontraron aplicaciones para el ambiente seleccionado"
+    "noApps": "No se encontraron aplicaciones para el ambiente seleccionado",
+    "scrollHint": "Scroll dentro de la tabla — los encabezados quedan fijos."
   },
   "header": {
     "title": "Centro de Evaluación de Migración AWS",
@@ -133,24 +135,60 @@
       "modernization": "Modernización de Arquitectura"
     },
     "rightSizing": {
-      "op1": { "title": "Análisis de Utilización de CPU/RAM", "description": "Identifica instancias sobredimensionadas usando CloudWatch metrics y recomienda tipos de instancia más pequeños." },
-      "op2": { "title": "Migración a Graviton (ARM)", "description": "Las instancias AWS Graviton3 ofrecen hasta 40% mejor precio/rendimiento vs instancias x86 equivalentes." },
-      "op3": { "title": "Auto Scaling Dinámico", "description": "Implementa políticas de escalado automático para ajustar capacidad según demanda real." }
+      "op1": {
+        "title": "Análisis de Utilización de CPU/RAM",
+        "description": "Identifica instancias sobredimensionadas usando CloudWatch metrics y recomienda tipos de instancia más pequeños."
+      },
+      "op2": {
+        "title": "Migración a Graviton (ARM)",
+        "description": "Las instancias AWS Graviton3 ofrecen hasta 40% mejor precio/rendimiento vs instancias x86 equivalentes."
+      },
+      "op3": {
+        "title": "Auto Scaling Dinámico",
+        "description": "Implementa políticas de escalado automático para ajustar capacidad según demanda real."
+      }
     },
     "reservedInstances": {
-      "op1": { "title": "3-Year Reserved Instances (No Upfront)", "description": "Compromiso de 3 años sin pago inicial. Ideal para workloads estables y predecibles." },
-      "op2": { "title": "1-Year Reserved Instances", "description": "Balance entre flexibilidad y ahorro. Recomendado para workloads con crecimiento moderado." },
-      "op3": { "title": "Savings Plans (Compute)", "description": "Flexibilidad para cambiar entre familias de instancias, regiones y sistemas operativos." }
+      "op1": {
+        "title": "3-Year Reserved Instances (No Upfront)",
+        "description": "Compromiso de 3 años sin pago inicial. Ideal para workloads estables y predecibles."
+      },
+      "op2": {
+        "title": "1-Year Reserved Instances",
+        "description": "Balance entre flexibilidad y ahorro. Recomendado para workloads con crecimiento moderado."
+      },
+      "op3": {
+        "title": "Savings Plans (Compute)",
+        "description": "Flexibilidad para cambiar entre familias de instancias, regiones y sistemas operativos."
+      }
     },
     "storage": {
-      "op1": { "title": "S3 Intelligent-Tiering", "description": "Mueve automáticamente datos entre tiers de acceso frecuente e infrecuente según patrones de uso." },
-      "op2": { "title": "EBS Volume Optimization", "description": "Migra de gp2 a gp3 para mejor rendimiento a menor costo. gp3 es 20% más barato que gp2." },
-      "op3": { "title": "Lifecycle Policies", "description": "Archiva datos antiguos a S3 Glacier para reducir costos de almacenamiento a largo plazo." }
+      "op1": {
+        "title": "S3 Intelligent-Tiering",
+        "description": "Mueve automáticamente datos entre tiers de acceso frecuente e infrecuente según patrones de uso."
+      },
+      "op2": {
+        "title": "EBS Volume Optimization",
+        "description": "Migra de gp2 a gp3 para mejor rendimiento a menor costo. gp3 es 20% más barato que gp2."
+      },
+      "op3": {
+        "title": "Lifecycle Policies",
+        "description": "Archiva datos antiguos a S3 Glacier para reducir costos de almacenamiento a largo plazo."
+      }
     },
     "modernization": {
-      "op1": { "title": "Serverless con AWS Lambda", "description": "Elimina costos de servidores idle. Paga solo por ejecución. Ideal para workloads intermitentes." },
-      "op2": { "title": "Contenedores con ECS/EKS", "description": "Mayor densidad de workloads por servidor. Reduce número de instancias necesarias." },
-      "op3": { "title": "Managed Services (RDS, ElastiCache)", "description": "Reduce overhead operacional y optimiza costos de licencias de base de datos." }
+      "op1": {
+        "title": "Serverless con AWS Lambda",
+        "description": "Elimina costos de servidores idle. Paga solo por ejecución. Ideal para workloads intermitentes."
+      },
+      "op2": {
+        "title": "Contenedores con ECS/EKS",
+        "description": "Mayor densidad de workloads por servidor. Reduce número de instancias necesarias."
+      },
+      "op3": {
+        "title": "Managed Services (RDS, ElastiCache)",
+        "description": "Reduce overhead operacional y optimiza costos de licencias de base de datos."
+      }
     }
   },
   "modernization": {
@@ -158,33 +196,78 @@
     "description": "Plan estructurado para modernizar tu infraestructura aprovechando servicios nativos de AWS.",
     "benefits": {
       "title": "Beneficios Clave de la Modernización",
-      "innovation": { "title": "Velocidad de Innovación", "description": "Ciclos de desarrollo más rápidos con servicios gestionados y arquitecturas modernas." },
-      "performance": { "title": "Rendimiento Optimizado", "description": "Servicios nativos de AWS diseñados para escalar automáticamente según demanda." },
-      "capabilities": { "title": "Nuevas Capacidades", "description": "Acceso a IA/ML, analytics avanzado y servicios de próxima generación." }
+      "innovation": {
+        "title": "Velocidad de Innovación",
+        "description": "Ciclos de desarrollo más rápidos con servicios gestionados y arquitecturas modernas."
+      },
+      "performance": {
+        "title": "Rendimiento Optimizado",
+        "description": "Servicios nativos de AWS diseñados para escalar automáticamente según demanda."
+      },
+      "capabilities": {
+        "title": "Nuevas Capacidades",
+        "description": "Acceso a IA/ML, analytics avanzado y servicios de próxima generación."
+      }
     },
     "phase1": {
       "title": "Fase 1: Fundamentos Cloud-Ready",
-      "init1": { "title": "Optimización de Base de Datos", "description": "Migrar a Amazon RDS/Aurora para reducir overhead operacional y mejorar disponibilidad." },
-      "init2": { "title": "Implementación de CI/CD", "description": "Automatizar pipelines de deployment con AWS CodePipeline, CodeBuild y CodeDeploy." },
-      "init3": { "title": "Monitoreo y Observabilidad", "description": "Implementar CloudWatch, X-Ray y AWS Config para visibilidad completa del sistema." }
+      "init1": {
+        "title": "Optimización de Base de Datos",
+        "description": "Migrar a Amazon RDS/Aurora para reducir overhead operacional y mejorar disponibilidad."
+      },
+      "init2": {
+        "title": "Implementación de CI/CD",
+        "description": "Automatizar pipelines de deployment con AWS CodePipeline, CodeBuild y CodeDeploy."
+      },
+      "init3": {
+        "title": "Monitoreo y Observabilidad",
+        "description": "Implementar CloudWatch, X-Ray y AWS Config para visibilidad completa del sistema."
+      }
     },
     "phase2": {
       "title": "Fase 2: Containerización",
-      "init1": { "title": "Containerización de Aplicaciones", "description": "Migrar aplicaciones monolíticas a contenedores Docker para mayor portabilidad." },
-      "init2": { "title": "Orquestación con ECS/EKS", "description": "Implementar orquestación de contenedores para escalabilidad y alta disponibilidad." },
-      "init3": { "title": "Service Mesh e Istio", "description": "Implementar comunicación segura y observable entre microservicios." }
+      "init1": {
+        "title": "Containerización de Aplicaciones",
+        "description": "Migrar aplicaciones monolíticas a contenedores Docker para mayor portabilidad."
+      },
+      "init2": {
+        "title": "Orquestación con ECS/EKS",
+        "description": "Implementar orquestación de contenedores para escalabilidad y alta disponibilidad."
+      },
+      "init3": {
+        "title": "Service Mesh e Istio",
+        "description": "Implementar comunicación segura y observable entre microservicios."
+      }
     },
     "phase3": {
       "title": "Fase 3: Arquitectura de Microservicios",
-      "init1": { "title": "Descomposición de Monolitos", "description": "Identificar y extraer bounded contexts para crear microservicios independientes." },
-      "init2": { "title": "Event-Driven Architecture", "description": "Implementar comunicación asíncrona con Amazon SQS, SNS y EventBridge." },
-      "init3": { "title": "API Gateway y GraphQL", "description": "Centralizar gestión de APIs con Amazon API Gateway y AWS AppSync." }
+      "init1": {
+        "title": "Descomposición de Monolitos",
+        "description": "Identificar y extraer bounded contexts para crear microservicios independientes."
+      },
+      "init2": {
+        "title": "Event-Driven Architecture",
+        "description": "Implementar comunicación asíncrona con Amazon SQS, SNS y EventBridge."
+      },
+      "init3": {
+        "title": "API Gateway y GraphQL",
+        "description": "Centralizar gestión de APIs con Amazon API Gateway y AWS AppSync."
+      }
     },
     "phase4": {
       "title": "Fase 4: Cloud-Native e IA",
-      "init1": { "title": "Serverless con Lambda", "description": "Migrar workloads apropiados a arquitectura serverless para máxima eficiencia." },
-      "init2": { "title": "Integración de ML/IA", "description": "Incorporar Amazon SageMaker, Rekognition y Bedrock para capacidades de IA." },
-      "init3": { "title": "Data Lake y Analytics", "description": "Implementar arquitectura de datos moderna con S3, Glue, Athena y QuickSight." }
+      "init1": {
+        "title": "Serverless con Lambda",
+        "description": "Migrar workloads apropiados a arquitectura serverless para máxima eficiencia."
+      },
+      "init2": {
+        "title": "Integración de ML/IA",
+        "description": "Incorporar Amazon SageMaker, Rekognition y Bedrock para capacidades de IA."
+      },
+      "init3": {
+        "title": "Data Lake y Analytics",
+        "description": "Implementar arquitectura de datos moderna con S3, Glue, Athena y QuickSight."
+      }
     },
     "metrics": {
       "title": "Métricas de Éxito Esperadas",
@@ -196,21 +279,60 @@
   },
   "servers": {
     "title": "Servidores",
+    "titleWithCount": "Servidores ({{count}})",
     "count": "{{count}} servidores",
     "hostname": "Hostname",
     "os": "Sistema Operativo",
     "vcpus": "vCPUs",
     "ram": "RAM (GB)",
     "storage": "Almacenamiento (GB)",
+    "avgCpu": "Prom. CPU %",
+    "avgRam": "Prom. RAM %",
+    "recommended": "Recomendado",
+    "estimatedCost": "Costo Est.",
+    "showingCount": "Mostrando {{shown}} de {{total}} servidores",
     "recommendation": "Instancia Recomendada"
   },
   "databases": {
     "title": "Bases de Datos",
+    "titleWithCount": "Bases de Datos ({{count}})",
     "count": "{{count}} bases de datos",
     "name": "Nombre",
+    "dbName": "Nombre de Base de Datos",
     "engine": "Motor",
+    "edition": "Edición",
     "size": "Tamaño (GB)",
+    "targetService": "Servicio Objetivo",
+    "instanceClass": "Clase de Instancia",
+    "estimatedCost": "Costo Est.",
+    "showingCount": "Mostrando {{shown}} de {{total}} bases de datos",
     "recommendation": "Instancia RDS Recomendada"
+  },
+  "costSummary": {
+    "title": "Resumen de Estimación de Costos",
+    "noCommitment": "Sin compromiso requerido",
+    "bestValue": "MEJOR VALOR",
+    "savesPerYear": "Ahorra {{amount}}/año",
+    "savesIn3Years": "Ahorra {{amount}} en 3 años",
+    "monthly": "Mensual",
+    "annual": "Anual",
+    "chartTitle": "Gráfico de Comparación de Costos",
+    "calculatorLinks": "Calculadoras de Precios AWS",
+    "onDemandCalc": "Calculadora On-Demand",
+    "oneYearCalc": "Calculadora NURI 1 Año",
+    "threeYearCalc": "Calculadora NURI 3 Años"
+  },
+  "opportunityDetail": {
+    "priority": "Prioridad",
+    "estimatedArr": "ARR estimado",
+    "opportunityStatus": "Estado de la Oportunidad",
+    "reasoning": "Razonamiento",
+    "evidence": "Evidencia del Análisis",
+    "talkingPoints": "Puntos de Conversación",
+    "nextSteps": "Próximos Pasos",
+    "relatedServices": "Servicios AWS Relacionados",
+    "created": "Creado",
+    "updated": "Actualizado"
   },
   "errors": {
     "uploadFirst": "Por favor sube un archivo Excel e ingresa el nombre del cliente",
@@ -247,12 +369,18 @@
       "immersionDay": "Día de Inmersión",
       "selector": "Selector",
       "dependencyMap": "Mapa de Dependencias",
-      "businessCase": "Caso de Negocio"
+      "businessCase": "Caso de Negocio",
+      "executiveSummary": "Resumen Ejecutivo"
     },
     "requirements": {
       "excelFile": "Cargar archivo Excel MPA",
       "clientName": "Ingresar nombre del cliente",
       "onPremisesCost": "Ingresar costo anual on-premises"
+    },
+    "prereq": {
+      "mpa": "Sube primero el MPA en Descubrimiento Rápido",
+      "deps": "Requiere datos de dependencias del MPA",
+      "opps": "Completa la fase Assess para correr el análisis de oportunidades"
     }
   },
   "mobilize": {
@@ -389,7 +517,17 @@
       "securityGroups": "Grupos Seg."
     },
     "error": "Carga Fallida",
-    "errorRetry": "Haz clic para intentar de nuevo"
+    "errorRetry": "Haz clic para intentar de nuevo",
+    "uploadingFile": "Subiendo archivo...",
+    "uploadedSuccessfully": "Archivo cargado exitosamente",
+    "loading": "Cargando {{filename}}...",
+    "preparing": "Preparando carga...",
+    "analyzingLocal": "Analizando datos (modo local)...",
+    "clickToSelect": "o haz clic para seleccionar archivo (.xlsx)",
+    "errorToast": "Error al cargar archivo: {{message}}",
+    "successLoaded": "{{source}} cargado: {{servers}} servidores, {{databases}} bases de datos",
+    "successConnections": "{{count}} conexiones",
+    "successWaves": "{{count}} olas de migración calculadas"
   },
   "mraUploader": {
     "toastFileTooLarge": "El archivo PDF es demasiado grande. Máximo 50MB.",
@@ -503,7 +641,9 @@
     "applications": "Aplicaciones",
     "totalStorage": "Almacenamiento Total",
     "portfolioTitle": "Detalle del Portafolio de Aplicaciones",
-    "osDistributionTitle": "Distribución de Sistemas Operativos"
+    "osDistributionTitle": "Distribución de Sistemas Operativos",
+    "osColumn": "SO",
+    "serverCount": "{{count}} servidores ({{percent}}%)"
   },
   "businessCase": {
     "noData": "Completa la fase de Evaluación para ver el caso de negocio",
@@ -549,7 +689,11 @@
   },
   "migrationPlan": {
     "strategyTitle": "Estrategia de Migración (7Rs)",
-    "wavesTitle": "Planificación de Olas de Migración"
+    "wavesTitle": "Planificación de Olas de Migración",
+    "wordGenerated": "Informe Word generado",
+    "wordGeneratedDesc": "El archivo .doc se ha descargado correctamente",
+    "csvExported": "Plan de migración exportado",
+    "csvExportedDesc": "El archivo CSV se ha descargado correctamente"
   },
   "immersionDay": {
     "title": "AWS Immersion Days",
@@ -654,7 +798,8 @@
       "high": "Alta",
       "medium": "Media",
       "low": "Baja"
-    }
+    },
+    "priorityLabel": "Prioridad"
   },
   "opportunitiesCard": {
     "relatedService": "servicio AWS relacionado",
@@ -867,6 +1012,697 @@
       "hint": "Edita las recomendaciones por pilar. Todas se incluirán en el documento Word exportado.",
       "recommendations": "{{count}} recomendaciones",
       "addRecommendation": "Agregar recomendación"
+    },
+    "toasts": {
+      "logoLoadError": "No se pudo cargar el logo de SoftwareOne",
+      "logoLoadFailed": "Error al cargar el logo de SoftwareOne",
+      "enterClientUrl": "Ingresa la URL del cliente",
+      "searchingCompanyInfo": "Buscando información de la empresa...",
+      "companyInfoObtained": "Información de la empresa obtenida",
+      "couldNotObtainInfo": "No se pudo obtener la información",
+      "serverConnectionError": "Error al conectar con el servidor",
+      "enterAwsServiceName": "Ingresa el nombre del servicio AWS",
+      "serviceAlreadyAdded": "Este servicio ya fue agregado",
+      "searchingAwsService": "Buscando {{service}} en AWS...",
+      "serviceAdded": "{{title}} agregado al documento y al diccionario",
+      "serviceNotFound": "No se encontró el servicio",
+      "errorSearchingService": "Error al buscar el servicio AWS",
+      "enterUrl": "Ingresa una URL",
+      "extractingFromUrl": "Extrayendo información de la URL...",
+      "serviceAddedFromUrl": "\"{{title}}\" agregado desde URL",
+      "couldNotExtractInfo": "No se pudo extraer información",
+      "enterTermAndDefinition": "Ingresa el término y la definición",
+      "termAdded": "\"{{term}}\" agregado al diccionario",
+      "completeProjectAndClient": "Completa el nombre del proyecto y del cliente antes de exportar",
+      "documentWordGenerated": "Documento Word generado correctamente"
     }
+  },
+  "appDependencyMap": {
+    "noDataToExport": "No hay datos para exportar",
+    "generatingTablePdf": "Generando PDF de tabla...",
+    "tablePdfGenerated": "PDF generado",
+    "errorGeneratingTablePdf": "Error al generar PDF",
+    "generatingTableWord": "Generando Word de tabla...",
+    "tableWordGenerated": "Word generado",
+    "errorGeneratingTableWord": "Error al generar Word",
+    "graphNotAvailable": "El grafo no está disponible",
+    "generatingGraphPdf": "Generando PDF del grafo...",
+    "graphPdfGenerated": "PDF del grafo generado",
+    "errorGeneratingGraphPdf": "Error al generar PDF",
+    "generatingGraphWord": "Generando Word del grafo...",
+    "graphWordGenerated": "Word del grafo generado",
+    "errorGeneratingGraphWord": "Error al generar Word",
+    "noDependencies": "Sin dependencias de aplicaciones",
+    "noDataToChart": "Sin datos para graficar"
+  },
+  "dependencyGraph": {
+    "noGraphToExport": "No hay grafo para exportar",
+    "generatingPdf": "Generando PDF del grafo...",
+    "pdfGenerated": "PDF generado correctamente",
+    "errorGeneratingPdf": "Error al generar el PDF",
+    "generatingWord": "Generando documento Word...",
+    "wordGenerated": "Documento Word generado",
+    "errorGeneratingWord": "Error al generar el documento",
+    "enterSearchTerm": "Ingresa un término de búsqueda",
+    "serverNotFound": "No se encontró ningún servidor con ese nombre",
+    "serverFound": "Servidor encontrado: {{server}}",
+    "searchError": "Error en búsqueda",
+    "noDataToExport": "No hay datos para exportar",
+    "generatingSrvPdf": "Generando PDF...",
+    "srvPdfGenerated": "PDF generado",
+    "errorGeneratingSrvPdf": "Error al generar PDF",
+    "generatingSrvWord": "Generando Word...",
+    "srvWordGenerated": "Word generado",
+    "errorGeneratingSrvWord": "Error al generar Word",
+    "noDependencyData": "No hay datos de dependencias disponibles",
+    "searching": "Buscando...",
+    "search": "Buscar"
+  },
+  "app": {
+    "generatingReport": "Generando reporte Word...",
+    "reportGenerated": "Reporte generado exitosamente",
+    "reportReadyToDownload": "El reporte está listo para descargar",
+    "errorGeneratingReport": "Error al generar reporte"
+  },
+  "wavePlanner": {
+    "wavesReassigned": "Olas reasignadas automáticamente",
+    "excelEmpty": "El archivo Excel está vacío",
+    "columnsNotFound": "Columnas requeridas no encontradas",
+    "noValidServers": "No se encontraron servidores válidos",
+    "fileLoaded": "Archivo cargado exitosamente",
+    "errorProcessing": "Error al procesar el archivo",
+    "errorReading": "Error al leer el archivo",
+    "pdfGenerated": "PDF generado",
+    "pdfDesc": "Abre el archivo y usa Ctrl+P para imprimir como PDF",
+    "wordGenerated": "Word generado",
+    "wordDesc": "El archivo .doc se ha descargado correctamente",
+    "serverMoved": "{{server}} → {{wave}}"
+  },
+  "businessCaseUploader": {
+    "successLoaded": "{{client}} - {{source}} cargado: {{servers}} servidores",
+    "title": "Ondemand AS-IS",
+    "supportedFiles": "Archivos soportados: Cloudamize, Concierto, Matilda",
+    "networkError": "No se pudo procesar el archivo. Si está abierto en Excel, ciérralo e intenta de nuevo.",
+    "uploadError": "Error al cargar archivo: {{message}}"
+  },
+  "tco1Year": {
+    "confirmStorageFirst": "Por favor confirma el porcentaje de incremento de Storage",
+    "confirmStorageDesc": "Debes ingresar y confirmar el porcentaje antes de subir el archivo",
+    "enterIncrement": "Por favor ingresa un porcentaje de incremento",
+    "enterIncrementDesc": "Puedes ingresar 0 si no deseas incremento",
+    "invalidPercent": "Porcentaje inválido",
+    "invalidPercentDesc": "Debe ser un número entre 0 y 100",
+    "recalculating": "Recalculando con nuevo porcentaje...",
+    "percentConfirmed": "Porcentaje confirmado: {{value}}%",
+    "successLoaded": "TCO 1 Año cargado: {{resources}} recursos (Storage +{{increment}}%)"
+  },
+  "exportButton": {
+    "exported": "Playbook exportado exitosamente: {{filename}}",
+    "errorExporting": "Error al exportar playbook",
+    "exporting": "Exportando...",
+    "exportPlaybook": "Exportar Playbook"
+  },
+  "phaseNavigator": {
+    "assess": {
+      "label": "EVALUAR",
+      "subtitle": "Crear un caso de cambio"
+    },
+    "mobilize": {
+      "label": "MOVILIZAR",
+      "subtitle": "Construir preparación a través de experiencias"
+    },
+    "migrate": {
+      "label": "MIGRAR Y MODERNIZAR",
+      "subtitle": "Acelerar la transformación a escala"
+    },
+    "techMemory": {
+      "label": "MEMORIA TÉCNICA",
+      "subtitle": "Documentación técnica AWS con normas APA"
+    }
+  },
+  "executiveSummary": {
+    "subtitle": "Caso de Negocio de Migración a AWS",
+    "annualCostReduction": "Reducción de Costo Anual",
+    "perYear": "/año",
+    "roi3Year": "ROI a 3 Años",
+    "paybackPeriod": "Período de Recuperación",
+    "months": "meses",
+    "tcoSavings3Year": "Ahorro TCO 3 Años",
+    "vsOnPremises": "vs. On-Premises",
+    "infrastructure": "Infraestructura",
+    "serversToMigrate": "Servidores a migrar",
+    "annualOnPremises": "Anual On-Premises",
+    "currentCost": "Costo actual",
+    "awsAnnual3ANURI": "AWS Anual (3A NURI)",
+    "optimizedCost": "Costo optimizado",
+    "inventoryTitle": "Inventario de Infraestructura",
+    "servers": "Servidores",
+    "databases": "Bases de Datos",
+    "applications": "Aplicaciones",
+    "totalStorageGB": "Storage Total (GB)",
+    "osDistribution": "Distribución de SO",
+    "dependenciesTitle": "Complejidad de Dependencias",
+    "connections": "Conexiones",
+    "mappedDBs": "BDs mapeadas",
+    "mappedApps": "Apps mapeadas",
+    "topServersByDeps": "Top servidores por dependencias",
+    "connectionsSuffix": "conexiones",
+    "wavesPlanTitle": "Plan de Olas de Migración",
+    "wavesDefined": "Olas definidas",
+    "serversPlanned": "Servidores planificados",
+    "wavesCompleted": "Olas completadas",
+    "pricingComparisonTitle": "Comparativa de Precios AWS",
+    "savingsPerYear": "Ahorra {{amount}}/año",
+    "perMonth": "/mo",
+    "perYearShort": "/yr",
+    "riskTitle": "Indicadores de Riesgo — SO Fuera de Soporte",
+    "serverEOL_one": "servidor con SO fuera de soporte",
+    "serverEOL_other": "servidores con SO fuera de soporte",
+    "riskHigh": "⚠️ Riesgo alto — requiere atención inmediata",
+    "riskMedium": "⚠️ Riesgo medio — planificar migración prioritaria",
+    "riskLow": "ℹ️ Riesgo bajo — incluir en plan de migración",
+    "continueToMobilize": "Continuar a Mobilize",
+    "savingsApprox36": "~36% ahorro",
+    "bestValue": "MEJOR VALOR",
+    "serverEOL": "{{count}} servidores con SO fuera de soporte"
+  },
+  "uploader": {
+    "dragActive": "Suelta el archivo aquí",
+    "dragInactive": "Arrastra y suelta el archivo Excel aquí",
+    "clickSelect": "o haz clic para seleccionar archivo (.xlsx, .xls)",
+    "clickSelectSimple": "o haz clic para seleccionar",
+    "success": "Archivo cargado exitosamente",
+    "failed": "Carga Fallida",
+    "retryHint": "Haz clic para intentar de nuevo",
+    "replaceHint": "Arrastra otro archivo para reemplazar",
+    "retryHint2": "Arrastra otro archivo para intentar de nuevo",
+    "uploading": "Subiendo archivo...",
+    "preparing": "Preparando carga...",
+    "uploadingS3": "Subiendo a S3...",
+    "analyzing": "Analizando datos...",
+    "processing": "Procesando archivo..."
+  },
+  "businessCaseModule": {
+    "title": "Caso de Negocio",
+    "description": "Análisis de costos y beneficios para migración a AWS",
+    "dataLoaded": "Datos cargados ({{servers}} servidores, {{os}} sistemas operativos)",
+    "tco1YearLoaded": "TCO 1 Año cargado ({{resources}} recursos)",
+    "clientStatus": "Cliente: {{name}}",
+    "assessmentToolLabel": "Herramienta de Assessment *",
+    "assessmentToolDesc": "Selecciona la herramienta utilizada para el assessment (obligatorio)",
+    "selectTool": "Seleccionar herramienta",
+    "selectToolWarning": "⚠️ Debes seleccionar una herramienta antes de continuar",
+    "dataUploadSection": "Data Upload",
+    "clientInfoSection": "Client Information",
+    "totalServers": "Total Servidores",
+    "production": "Producción",
+    "development": "Desarrollo",
+    "qa": "QA",
+    "osDistribution": "Distribución de Sistemas Operativos",
+    "resourceOptimization": "Optimización de Recursos",
+    "tco": "TCO",
+    "ec2CostsTitle": "Costos Anuales AWS - EC2 (USD)",
+    "ec2ChartTitle": "Costo Anual EC2 en USD (ARR)",
+    "annualCostTitle": "Costo Anual en USD (ARR)",
+    "includeRDS": "Incluir escenario con RDS (bases de datos)",
+    "tcoRDS": "TCO - RDS",
+    "rdsCostsTitle": "Costos Anuales AWS - RDS (USD)",
+    "rdsChartTitle": "Costo Anual RDS en USD (ARR)",
+    "carbonReport": "Reporte de Carbonización",
+    "migrationStrategy": "Estrategia de Migración",
+    "annexes": "Anexos",
+    "annexesDesc": "Información adicional y análisis complementarios",
+    "sqlLicensing": "Optimización de Licenciamiento SQL Server",
+    "instanceTypes": "Tipos de Instancias",
+    "networkTransfer": "Transferencia de Datos de Red",
+    "supportRisk": "Riesgo de Soporte",
+    "noDataLoaded": "No hay datos cargados",
+    "noDataInstruction": "Sube un archivo Excel de {{tool}} para comenzar el análisis"
+  },
+  "businessCaseClientForm": {
+    "title": "Información del Cliente",
+    "clientName": "Nombre del Cliente *",
+    "clientNamePlaceholder": "Ingresa el nombre del cliente",
+    "vertical": "Vertical/Industria",
+    "selectIndustry": "Seleccionar industria",
+    "reportDate": "Fecha del Reporte",
+    "awsRegion": "Región AWS",
+    "selectRegion": "Seleccionar región",
+    "totalServers": "Total Servidores en Alcance",
+    "totalServersPlaceholder": "Ej: 100",
+    "onPremisesCost": "Costo On-Premises (USD/año)",
+    "onPremisesCostPlaceholder": "Ej: 1.500.000,00",
+    "companyDescription": "Descripción de la Empresa",
+    "companyDescPlaceholder": "Descripción breve de la empresa y su infraestructura...",
+    "priorities": "Prioridades del Cliente",
+    "assessmentTool": "Herramienta de Assessment *",
+    "selectTool": "Seleccionar herramienta",
+    "migrationReadiness": "Preparación para Migración",
+    "selectReadiness": "Seleccionar estado de preparación",
+    "otherToolName": "Nombre de la Herramienta *",
+    "otherToolPlaceholder": "Especifique la herramienta",
+    "priority_reduced_costs": "Reducción de costos de infraestructura",
+    "priority_operational_resilience": "Mejorar resiliencia operacional",
+    "priority_business_agility": "Agilidad de negocio",
+    "priority_environment_updated": "Ambiente siempre actualizado",
+    "priority_modernize_databases": "Modernizar cargas de trabajo de bases de datos",
+    "priority_security_compliance": "Cumplimiento de seguridad",
+    "readiness_ready": "Listo para migrar",
+    "readiness_evaluating": "Evaluando",
+    "readiness_not_ready": "No está listo aún"
+  },
+  "tco1YearUploader": {
+    "title": "TCO 1 Año",
+    "storageIncrementLabel": "Incremento de Storage (%) *",
+    "storageIncrementPlaceholder": "Ej: 20 o 0 para sin incremento",
+    "confirm": "Confirmar",
+    "change": "Cambiar",
+    "percentConfirmed": "✓ Porcentaje confirmado: {{value}}%",
+    "noIncrement": "(sin incremento)",
+    "confirmFirst": "Ingresa el porcentaje y confirma antes de subir el archivo",
+    "confirmWarning": "⚠️ Debes confirmar el porcentaje de incremento antes de subir el archivo",
+    "sheetInfo": "Archivo TCO 1 Año con hojas: Compute, Storage, Network"
+  },
+  "carbonReportUploader": {
+    "title": "Reporte de Carbonización",
+    "errorTitle": "Error al procesar archivo",
+    "fileInfo": "Archivo Excel con datos de carbonización (.xlsx)",
+    "dataLoaded": "✓ Datos de carbonización cargados correctamente"
+  },
+  "matildaUploader": {
+    "title": "Matilda Discovery Assessment",
+    "description": "Sube el archivo completo de Matilda. Este archivo contiene toda la información necesaria para el análisis.",
+    "fileLabel": "Archivo Excel de Matilda",
+    "dragOrClick": "Arrastra y suelta tu archivo aquí o haz clic para seleccionar",
+    "fileTypes": "Archivos Excel (.xlsx, .xls)",
+    "storageIncrement": "Incremento de Storage (%)",
+    "storageIncrementHelper": "Porcentaje adicional a agregar al storage recomendado (opcional)",
+    "upload": "Subir y Procesar",
+    "processing": "Procesando archivo...",
+    "clientNameRequired": "⚠️ Completa el nombre del cliente en el formulario de la derecha para continuar",
+    "success": "✓ Archivo procesado exitosamente",
+    "invalidFile": "Por favor selecciona un archivo Excel (.xlsx o .xls)",
+    "networkError": "No se pudo conectar con el servidor. Si el archivo Excel está abierto, ciérralo e intenta de nuevo."
+  },
+  "tcoCostInput": {
+    "defaultTitle": "Costos Anuales AWS (USD)",
+    "onDemandLabel": "OnDemand (As-Is Optimizado) *",
+    "onDemandPlaceholder": "Ej: 774.346,80",
+    "onDemandHelper": "Costo anual OnDemand optimizado desde la calculadora AWS",
+    "oneYearLabel": "1 Año Optimizado (NUSP) *",
+    "oneYearPlaceholder": "Ej: 732.272,88",
+    "oneYearHelper": "Costo anual con Saving Plan de 1 año (No Upfront)",
+    "threeYearLabel": "3 Años Optimizado (NUSP) *",
+    "threeYearPlaceholder": "Ej: 693.749,88",
+    "threeYearHelper": "Costo anual con Saving Plan de 3 años (No Upfront)",
+    "note": "Nota: Estos valores se obtienen de la calculadora de AWS proporcionada por el equipo de SWO.",
+    "csvUpload": "Cargar CSV",
+    "csvLoaded": "Cargado",
+    "csvInvalid": "Formato inválido"
+  },
+  "tcoChart": {
+    "defaultTitle": "Costo Anual en USD (ARR)",
+    "onPremises": "On-Premises",
+    "onDemand": "Ondemand (As-Is Optimizado)",
+    "oneYear": "1 Año Optimizado",
+    "threeYear": "3 Años Optimizado",
+    "best": "★ BEST",
+    "annualCost": "COSTO ANUAL",
+    "bestSavings": "MEJOR AHORRO",
+    "secondSavings": "2° AHORRO",
+    "thirdSavings": "3° AHORRO",
+    "noteUSD": "Todos los precios están en USD",
+    "noteNUSP": "NUSP = No Upfront Saving Plan",
+    "noteAnnual": "Todos los consumos proyectados son anuales"
+  },
+  "sqlLicensingTable": {
+    "title": "Optimización de Licenciamiento SQL Server",
+    "restoreBtn": "Restaurar Precios Oficiales",
+    "serverSummaryTitle": "Resumen de Servidores SQL Server",
+    "totalSQLServers": "Total SQL Servers",
+    "developerEdition": "Developer Edition",
+    "expressEdition": "Express Edition",
+    "free": "(Gratis)",
+    "observedCost": "Costo Observado",
+    "recommendedCost": "Costo Recomendado",
+    "totalSavings": "Ahorro Total",
+    "savingsLabel": "{{pct}} de ahorro",
+    "colEdition": "Edición SQL",
+    "colObservedVCPU": "vCPUs Observados",
+    "colRecommendedVCPU": "vCPUs Recomendados",
+    "colOptimPct": "% Optimización",
+    "colListPrice": "Precio Lista (USD/2 cores)",
+    "colObservedCost": "Costo Observado",
+    "colRecommendedCost": "Costo Recomendado",
+    "colSavings": "Ahorro",
+    "colSavingsPct": "% Ahorro",
+    "total": "TOTAL",
+    "outOfSupport": "Fuera de Soporte",
+    "obsTitle": "Observaciones:",
+    "obs1": "• Los precios de lista son por cada 2 cores (licenciamiento Microsoft).",
+    "obs2": "• Los costos se calculan usando la fórmula: (vCPUs / 2) × Precio de Lista.",
+    "obs3": "• Puedes editar los precios de lista para reflejar negociaciones específicas.",
+    "obs4": "• Los precios oficiales de Microsoft para SQL Server 2022: Enterprise $15.123, Standard $3.945 (USD).",
+    "obs4Link": "Ver precios oficiales →",
+    "obs5": "• Web Edition requiere consulta con hosting partner, Developer y Express son gratuitas.",
+    "obs6": "• Las versiones marcadas en ROJO están fuera de soporte y no se pueden adquirir licencias nuevas.",
+    "obs7": "• Al comprar la última versión de SQL Server, puedes hacer downgrade a versiones anteriores soportadas.",
+    "obs7Link": "Ver derechos de downgrade →",
+    "obs8": "• Para productos fuera de soporte, consulta la lista oficial de Microsoft:",
+    "obs8Link": "Productos SQL Server eliminados →",
+    "warnTitle": "⚠️ Advertencia: Versiones Fuera de Soporte",
+    "warnText": "Se detectaron versiones de SQL Server que ya no tienen soporte oficial de Microsoft. Estas versiones están marcadas en rojo y NO se pueden comprar licencias nuevas para ellas. Se recomienda planificar la migración a versiones soportadas (SQL Server 2017 o posterior)."
+  },
+  "supportRiskAnalysis": {
+    "totalServers": "Total de servidores: {{count}}",
+    "colVersion": "Versión",
+    "colCount": "Cantidad",
+    "colSupportCycle": "Ciclo de Soporte",
+    "colEndOfSupport": "Fin de Soporte",
+    "colRisk": "Riesgo",
+    "colAction": "Acción Requerida",
+    "distByVersion": "Distribución por Versión",
+    "actionCannotMigrate": "No se puede migrar sin actualizar",
+    "actionPlanUpdate": "Planificar actualización",
+    "actionUpdateFirst": "Actualizar antes de migrar",
+    "actionReady": "Listo para migrar",
+    "legendTitle": "Semáforo de Riesgo:",
+    "legendRed": "Rojo: Sin soporte — no se puede migrar sin actualizar primero.",
+    "legendOrange": "Naranja: Soporte extendido — planificar actualización.",
+    "legendYellow": "Amarillo: Soporte vence en menos de 1 año — actualizar antes de migrar.",
+    "legendGreen": "Verde: Soporte activo — listo para migrar."
+  },
+  "migrationStrategyTable": {
+    "title": "Estrategia de Migración por Sistema Operativo",
+    "migrateLabel": "Migrate",
+    "purchaseLabel": "Purchase",
+    "totalServers": "Total Servidores",
+    "classifiedByOS": "Clasificados por OS",
+    "rehostLbl": "Rehost: {{rehost}} | Replatform: {{replatform}}",
+    "purchaseDetail": "Retire: {{retire}} | Retain: {{retain}} | Repurchase: {{repurchase}}",
+    "legendRed": "Replatform / Refactor — requiere atención",
+    "legendYellow": "Retire / Retain / Repurchase",
+    "legendGreen": "Rehost / Relocate",
+    "colOS": "Sistema Operativo",
+    "colCount": "Cantidad",
+    "colSupported": "Soportado",
+    "colCategory": "Categoría",
+    "colStrategy": "Estrategia",
+    "colNotes": "Notas",
+    "footerTitle": "Categorías de Migración:",
+    "purchase": "Purchase: Optimice las condiciones comerciales (Repurchase, Retire, Retain)",
+    "migrate": "Migrate: Migre las aplicaciones a la nube (Rehost, Relocate, Replatform)",
+    "modernize": "Modernize: Modernice y cree aplicaciones (Refactor)",
+    "footerNote": "Clasificación basada en AWS Application Migration Service —",
+    "footerLink": "Ver documentación oficial"
+  },
+  "resourceOptimizationTable": {
+    "title": "Optimización de Recursos",
+    "avgOptimization": "Promedio de Optimización:",
+    "colResource": "Recurso",
+    "colObserved": "Observado",
+    "colRecommended": "Recomendado",
+    "colOptPct": "% Optimización",
+    "obsTitle": "Observaciones:",
+    "obs1": "• Los recursos de RAM, Storage y Network se muestran en GB.",
+    "obs2": "• Las recomendaciones están en base a 1 año optimizado.",
+    "obs3": "• La información de red considera el total de datos transferidos por los servidores durante el tiempo de la ejecución del Assessment.",
+    "subProd": "Prod",
+    "subDev": "Dev",
+    "subQA": "QA",
+    "subTotal": "Total"
+  },
+  "carbonReportTable": {
+    "title": "Reporte de Carbonización",
+    "currentUsage": "Uso Actual",
+    "awsUsage": "Uso en AWS",
+    "savings": "Ahorro",
+    "unit": "kgCO2eq",
+    "rowCurrent": "Uso Actual (On-Premises)",
+    "rowAWS": "Uso en AWS",
+    "rowSavings": "Ahorro de Carbono",
+    "colMetric": "Métrica",
+    "colValue": "Valor (kgCO2eq)",
+    "chartCenter": "Ahorro",
+    "legendAWS": "Uso en AWS",
+    "legendSavings": "Ahorro de Carbono",
+    "impactTitle": "Impacto Ambiental:",
+    "impactText": "La migración a AWS reduce las emisiones de carbono en {{savings}} kgCO2eq, lo que representa una reducción del {{pct}} en comparación con la infraestructura actual.",
+    "impactNote": "* kgCO2eq = Kilogramos de dióxido de carbono equivalente"
+  },
+  "networkTransferChart": {
+    "title": "Top 10 Transferencia de Datos de Red",
+    "totalLabel": "Transferencia total mensual:",
+    "subtitle": "Mostrando los 10 servidores con mayor transferencia de datos salientes",
+    "noteLabel": "Nota: Los datos de transferencia representan el tráfico de red saliente (egress) de cada servidor medido en GB por mes durante el período de assessment. Esta información es útil para estimar costos de transferencia de datos en AWS."
+  },
+  "instanceTypesChart": {
+    "title": "Top 10 Tipos de Instancias Recomendadas",
+    "totalLabel": "Total de instancias analizadas:",
+    "subtitle": "Mostrando las 10 instancias más recomendadas",
+    "servers": "{{n}} servidores",
+    "noteLabel": "Nota: Las instancias recomendadas se basan en el análisis de Cloudamize considerando los recursos observados (vCPU, RAM, Storage) y las características de carga de trabajo."
+  },
+  "landingZone": {
+    "generatorTitle": "Generador de Templates IaC",
+    "generatorDesc": "Genera CloudFormation y Terraform listos para ejecutar con mejores prácticas de AWS",
+    "configureBtn": "Configurar",
+    "hideConfigBtn": "Ocultar Configuración",
+    "orgNameLabel": "Nombre de Organización",
+    "primaryRegion": "Región Principal",
+    "vpcCidr": "VPC CIDR Block",
+    "contactEmail": "Email de Contacto",
+    "securityServices": "Servicios de Seguridad",
+    "cfnBtn": "CloudFormation (.yaml)",
+    "tfBtn": "Terraform (.tf)",
+    "readmeBtn": "Guía README",
+    "downloadAllBtn": "Descargar Todo",
+    "nextSteps": "📌 Próximos pasos: Descarga los templates, revisa la configuración, y despliega usando AWS CLI o consola web. El README incluye comandos completos para el despliegue.",
+    "checklistTitle": "Checklist de Landing Zone",
+    "checklistDesc": "Utiliza este checklist para hacer seguimiento de las tareas de configuración de tu Landing Zone. Los templates generados arriba automatizan muchas de estas tareas.",
+    "accountStructure": "Account Structure",
+    "networking": "Networking",
+    "security": "Security",
+    "loggingMonitoring": "Logging & Monitoring",
+    "governance": "Governance"
+  },
+  "opportunitiesList": {
+    "empty": "No se encontraron oportunidades",
+    "emptyHint": "Intenta ajustar los filtros de búsqueda",
+    "opportunity": "oportunidad",
+    "opportunities": "oportunidades"
+  },
+  "businessCaseMetrics": {
+    "readinessTitle": "Evaluación de Preparación para Migración",
+    "readinessScore": "Puntaje de Preparación",
+    "statusLabel": "Estado:",
+    "complexityLabel": "Complejidad de Migración",
+    "riskLevel": "Nivel de Riesgo",
+    "basedOnComplexity": "Basado en la complejidad de la infraestructura",
+    "timelineTitle": "Estimación de Tiempo",
+    "months": "meses",
+    "includingPlanning": "Incluyendo planificación y pruebas",
+    "resourceTitle": "Recursos Necesarios",
+    "fte": "FTE",
+    "fteNeeded": "Equivalentes de tiempo completo necesarios",
+    "costTitle": "Potencial de Reducción de Costos",
+    "annualSavings": "Ahorro Anual",
+    "perYear": "{{amount}}k por año",
+    "recommendationsTitle": "Recomendaciones Estratégicas",
+    "optimizationPotential": "Potencial de Optimización",
+    "optimizationDesc": "Oportunidades de mejora rápida en infraestructura",
+    "costReduction": "Reducción de Costos",
+    "costReductionDesc": "Ahorro anual potencial vs on-premises",
+    "estimatedROI": "ROI Estimado",
+    "monthsBreakEven": "meses para recuperar la inversión",
+    "infraTitle": "Alcance de Infraestructura",
+    "servers": "Servidores",
+    "databases": "Bases de Datos",
+    "applications": "Aplicaciones",
+    "tbStorage": "TB de Almacenamiento",
+    "riskHigh": "Alto",
+    "riskMedium": "Medio",
+    "riskLow": "Bajo",
+    "riskSuffix": "Riesgo"
+  },
+  "sevenRsChart": {
+    "clickDetails": "Click para ver detalles →",
+    "recommendationsTitle": "Recomendaciones Estratégicas",
+    "quickWins": "Victorias Rápidas",
+    "quickWinsDesc": "Servidores Rehost para migración inmediata",
+    "optimizationPotential": "Potencial de Optimización",
+    "optimizationDesc": "Candidatos para modernización",
+    "costReduction": "Reducción de Costos",
+    "costReductionDesc": "Dar de baja para reducir costos",
+    "colHostname": "Hostname",
+    "colStorage": "Storage (GB)"
+  },
+  "architectureDiagram": {
+    "title": "Diagrama de Arquitectura AWS",
+    "implementationScore": "Score de Implementación",
+    "required": "Obligatoria",
+    "stagingAccount": "Staging Account",
+    "stagingDesc": "Pre-producción",
+    "devAccount": "Development Account",
+    "devDesc": "Desarrollo y testing"
+  },
+  "databaseDependencyMap": {
+    "noData": "No se encontraron bases de datos ni dependencias de bases de datos en el archivo cargado.",
+    "statDatabases": "Bases de Datos",
+    "statConnections": "Conexiones DB",
+    "statPorts": "Puertos Únicos",
+    "statProcesses": "Procesos/Servicios",
+    "viewConnections": "Conexiones DB↔Servidor",
+    "viewPorts": "Por Puerto",
+    "viewProcesses": "Por Proceso",
+    "colSourceServer": "Servidor Origen",
+    "colDestServer": "Servidor Destino",
+    "colPort": "Puerto",
+    "colProtocol": "Protocolo",
+    "colProcess": "Proceso / Servicio",
+    "connectionsTitle": "Conexiones entre Bases de Datos y Servidores",
+    "connectionsSubtitle": "Tráfico de red detectado entre instancias de BD y servidores",
+    "filterPlaceholder": "Filtrar por servidor, puerto, protocolo, proceso...",
+    "noDataToGraph": "Sin datos para graficar",
+    "server": "Servidor",
+    "custom": "Personalizado",
+    "filteringLabel": "Filtrando:",
+    "connectionsCount": "conexiones",
+    "portsTitle": "Puertos de red utilizados en las conexiones detectadas",
+    "processesTitle": "Procesos y servicios involucrados en las conexiones"
+  },
+  "readiness": {
+    "overall": "Preparación general",
+    "levels": {
+      "ready": "Listo para migrar",
+      "evaluating": "En evaluación — quedan brechas",
+      "not_ready": "No listo — brechas críticas"
+    },
+    "dimensions": {
+      "technical": "Técnica",
+      "data": "Datos",
+      "security": "Seguridad y cumplimiento",
+      "organizational": "Organizacional",
+      "technicalDesc": "Soportabilidad de la infraestructura y calidad de datos.",
+      "dataDesc": "Inventario, clasificación y estrategia de migración de datos.",
+      "securityDesc": "Guardrails, identidad, protección de datos y cumplimiento regulatorio.",
+      "organizationalDesc": "Patrocinio, modelo operativo, habilidades y financiación."
+    },
+    "gaps": {
+      "title": "Principales brechas a cerrar",
+      "empty": "Sin brechas detectadas — listo para continuar."
+    },
+    "autoBadge": "auto"
+  },
+  "tcoScenarios": {
+    "title": "Comparador de escenarios TCO",
+    "adjust": "Ajustar",
+    "hide": "Ocultar",
+    "exportCsv": "CSV",
+    "best": "MEJOR",
+    "columns": {
+      "scenario": "Escenario",
+      "commitment": "Compromiso",
+      "risk": "Riesgo",
+      "monthly": "Mensual",
+      "annual": "Anual",
+      "threeYear": "3 años",
+      "savings3y": "Ahorro 3a",
+      "percent": "%"
+    },
+    "spotDiscount": "Descuento Spot (%)",
+    "spotHint": "Típico: 60-80% según familia de instancia.",
+    "savingsPlan": "Descuento Savings Plan (fracción del On-Demand)",
+    "savingsPlanHint": "Fracción pagada vs On-Demand. 50% = 50% de ahorro.",
+    "disclaimer": "Los valores Spot y Savings Plan son estimaciones paramétricas. Ajusta los porcentajes arriba según negociación real con AWS."
+  },
+  "riskRules": {
+    "title": "Riesgos detectados",
+    "rulesBtn": "Reglas",
+    "severity": {
+      "high": "alto",
+      "medium": "medio",
+      "low": "bajo"
+    },
+    "severityCount": {
+      "high": "{{count}} alto",
+      "medium": "{{count}} medio",
+      "low": "{{count}} bajo"
+    },
+    "empty": "No se detectaron riesgos con las reglas activas.",
+    "configurable": "Reglas configurables",
+    "reset": "Reset",
+    "newRule": "Nueva regla",
+    "label": "Etiqueta",
+    "pattern": "Patrón (regex)",
+    "severityLabel": "Severidad",
+    "category": "Categoría",
+    "addRule": "Agregar regla"
+  },
+  "excelValidation": {
+    "title": "Validación del MPA",
+    "ok": "OK",
+    "errors": "{{count}} error(es)",
+    "warnings": "{{count}} aviso(s)",
+    "info": "{{count}} info",
+    "stats": {
+      "servers": "Servidores",
+      "databases": "Bases de datos",
+      "applications": "Aplicaciones",
+      "dependencies": "Dependencias"
+    },
+    "allPassed": "Todos los controles pasaron. Los datos están listos para análisis."
+  },
+  "sessionMenu": {
+    "trigger": "Sesión",
+    "ariaLabel": "Menú de sesión",
+    "saveLocal": "Guardar en este navegador",
+    "saveLocalHint": "localStorage",
+    "restore": "Restaurar última sesión",
+    "restoreHintSaved": "Guardada {{date}}",
+    "restoreHintEmpty": "Sin sesión guardada",
+    "export": "Exportar a archivo",
+    "exportHint": "JSON con auxiliares",
+    "import": "Importar desde archivo",
+    "importHint": "JSON de sesión",
+    "clear": "Borrar sesión guardada",
+    "saved": "Sesión guardada localmente",
+    "restored": "Sesión restaurada ({{date}})",
+    "noSession": "No hay sesión guardada",
+    "exported": "Sesión exportada a JSON",
+    "imported": "Sesión importada correctamente",
+    "importError": "Error al importar sesión",
+    "cleared": "Sesión local borrada",
+    "cloudSave": "Guardar en la nube",
+    "cloudSaveHint": "Sincroniza esta sesión al servidor",
+    "cloudRestore": "Restaurar desde la nube",
+    "cloudRestoreHint": "Descarga la última sesión sincronizada",
+    "cloudSaved": "Sesión sincronizada a la nube",
+    "cloudRestored": "Sesión de la nube restaurada ({{date}})",
+    "cloudEmpty": "No hay sesión en la nube para restaurar",
+    "cloudError": "Error al sincronizar con la nube"
+  },
+  "waveIntegration": {
+    "autoGroup": "Auto-agrupar desde dependencias",
+    "autoGroupTooltip": "Genera olas a partir de clústeres detectados en el mapa de dependencias",
+    "autoGroupError": "No hay datos de dependencias para agrupar",
+    "autoGroupSuccess": "{{waves}} olas sugeridas a partir de {{clusters}} clústeres",
+    "waveLabel": "Wave {{n}} · cluster ({{count}} srv)",
+    "conflictsHeader": "{{count}} conflicto(s) de dependencia entre olas",
+    "conflictsMore": "+{{count}} conflictos más",
+    "severityCritical": "CRÍTICO",
+    "severityWarning": "aviso",
+    "gantt": {
+      "title": "Línea de tiempo de olas"
+    }
+  },
+  "icsExport": {
+    "button": "Calendario (.ics)",
+    "empty": "No hay sesiones para exportar",
+    "downloaded": "Calendario .ics descargado"
+  },
+  "theme": {
+    "switchToDark": "Cambiar a modo oscuro",
+    "switchToLight": "Cambiar a modo claro"
   }
 }

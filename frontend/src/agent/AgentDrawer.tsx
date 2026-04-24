@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Sparkles, Send, X, RotateCcw, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import { useAgentContextValue } from './AgentContextProvider';
 import { AgentToolCall, useAgentChat } from './useAgentChat';
@@ -32,15 +33,17 @@ export function AgentDrawer() {
 
   return (
     <>
-      {/* Floating toggle */}
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
-      >
-        <Sparkles className="h-4 w-4" />
-        {isOpen ? 'Ocultar asistente' : 'Asistente AWS'}
-      </button>
+      {/* Floating toggle — only visible when drawer is closed; the in-drawer X handles closing */}
+      {!isOpen && (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
+        >
+          <Sparkles className="h-4 w-4" />
+          Asistente AWS
+        </button>
+      )}
 
       {/* Drawer */}
       <AnimatePresence>
@@ -151,17 +154,113 @@ function MessageBubble({
   return (
     <div className={isUser ? 'flex justify-end' : 'flex justify-start'}>
       <div
-        className={`max-w-[85%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm ${
+        className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
           isUser
-            ? 'bg-primary text-white'
+            ? 'whitespace-pre-wrap bg-primary text-white'
             : error
-            ? 'bg-red-50 text-red-800'
-            : 'bg-gray-50 text-gray-800'
+            ? 'whitespace-pre-wrap bg-red-50 text-red-800'
+            : 'bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
         }`}
       >
-        {error ?? text}
+        {error ? (
+          error
+        ) : isUser ? (
+          text
+        ) : (
+          <AssistantMarkdown text={text} />
+        )}
         {children}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Compact markdown renderer for the agent's assistant messages.
+ *
+ * Tuned for a narrow drawer (max ~360px content width) so we tone down
+ * heading sizes, tighten list margins, and force long inline code to wrap
+ * instead of overflowing the bubble.
+ */
+function AssistantMarkdown({ text }: { text: string }) {
+  return (
+    <div className="agent-md text-[13px] leading-relaxed">
+      <ReactMarkdown
+        components={{
+          h1: ({ node, ...props }) => (
+            <h3 className="mt-1 mb-1.5 text-sm font-bold text-gray-900 dark:text-gray-50" {...props} />
+          ),
+          h2: ({ node, ...props }) => (
+            <h4 className="mt-2 mb-1 text-[13px] font-bold text-gray-900 dark:text-gray-50" {...props} />
+          ),
+          h3: ({ node, ...props }) => (
+            <h5 className="mt-1.5 mb-1 text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300" {...props} />
+          ),
+          h4: ({ node, ...props }) => (
+            <h6 className="mt-1.5 mb-0.5 text-xs font-semibold text-gray-700 dark:text-gray-300" {...props} />
+          ),
+          p: ({ node, ...props }) => <p className="my-1.5" {...props} />,
+          ul: ({ node, ...props }) => <ul className="my-1.5 ml-4 list-disc space-y-0.5" {...props} />,
+          ol: ({ node, ...props }) => <ol className="my-1.5 ml-4 list-decimal space-y-0.5" {...props} />,
+          li: ({ node, ...props }) => <li className="leading-snug" {...props} />,
+          strong: ({ node, ...props }) => (
+            <strong className="font-semibold text-gray-900 dark:text-gray-50" {...props} />
+          ),
+          em: ({ node, ...props }) => <em className="italic" {...props} />,
+          a: ({ node, ...props }) => (
+            <a
+              {...props}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline decoration-primary/40 hover:decoration-primary"
+            />
+          ),
+          hr: () => <hr className="my-2 border-gray-200 dark:border-gray-700" />,
+          blockquote: ({ node, ...props }) => (
+            <blockquote
+              className="my-1.5 border-l-2 border-primary/40 pl-2 italic text-gray-600 dark:text-gray-400"
+              {...props}
+            />
+          ),
+          code: ({ node, className, children, ...props }: any) => {
+            const inline = !className;
+            if (inline) {
+              return (
+                <code
+                  className="rounded bg-gray-200 px-1 py-0.5 text-[12px] font-mono text-gray-900 break-words dark:bg-gray-700 dark:text-gray-100"
+                  {...props}
+                >
+                  {children}
+                </code>
+              );
+            }
+            return (
+              <code className="block" {...props}>
+                {children}
+              </code>
+            );
+          },
+          pre: ({ node, ...props }) => (
+            <pre
+              className="my-1.5 overflow-x-auto rounded-md bg-gray-900 p-2 text-[11px] text-gray-100"
+              {...props}
+            />
+          ),
+          table: ({ node, ...props }) => (
+            <div className="my-1.5 overflow-x-auto">
+              <table className="w-full text-[12px]" {...props} />
+            </div>
+          ),
+          th: ({ node, ...props }) => (
+            <th className="border-b border-gray-300 px-1.5 py-1 text-left font-semibold" {...props} />
+          ),
+          td: ({ node, ...props }) => (
+            <td className="border-b border-gray-100 px-1.5 py-1 align-top" {...props} />
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
     </div>
   );
 }

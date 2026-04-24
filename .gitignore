@@ -9,6 +9,14 @@ build/
 .next/
 out/
 
+# Backend-generated session snapshots
+backend/data/sessions/
+
+# Playwright outputs
+frontend/test-results/
+frontend/playwright-report/
+frontend/.playwright/
+
 # Environment files
 .env
 .env.local
@@ -255,3 +263,6 @@ INICIAR-PROYECTO.bat
 lambda-payload.json
 lambda-response.json
 response.json
+
+# Local-only dev credentials (never commit)
+docs/dev-credentials.md

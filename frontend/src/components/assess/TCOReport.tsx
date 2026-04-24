@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CostBreakdown, ClientFormData, ExcelData } from '@/types/assessment';
 import { DollarSign, TrendingDown, Server, Database, HardDrive, ArrowRight, Cpu, MemoryStick, Layers } from 'lucide-react';
 import { formatCurrency, formatNumber } from '@/lib/utils';
+import { TCOScenarioBuilder } from '@/components/assess/TCOScenarioBuilder';
 
 interface TCOReportProps {
   excelData: ExcelData | null;
@@ -262,6 +263,8 @@ export function TCOReport({ excelData, estimatedCosts, clientData }: TCOReportPr
           </div>
         </CardContent>
       </Card>
+
+      <TCOScenarioBuilder estimatedCosts={estimatedCosts} clientName={clientData.clientName} />
     </div>
   );
 }

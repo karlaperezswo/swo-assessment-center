@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -45,6 +46,7 @@ interface CSVUploadButtonProps {
 }
 
 function CSVUploadButton({ fieldId, onValueParsed }: CSVUploadButtonProps) {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<'idle' | 'ok' | 'error'>('idle');
 
@@ -86,16 +88,16 @@ function CSVUploadButton({ fieldId, onValueParsed }: CSVUploadButtonProps) {
         className="text-xs h-7 px-2 border-dashed border-blue-300 text-blue-600 hover:bg-blue-50"
       >
         <FileUp className="h-3 w-3 mr-1" />
-        Cargar CSV
+        {t('tcoCostInput.csvUpload')}
       </Button>
       {status === 'ok' && (
         <span className="flex items-center gap-1 text-xs text-green-600">
-          <CheckCircle2 className="h-3 w-3" /> Cargado
+          <CheckCircle2 className="h-3 w-3" /> {t('tcoCostInput.csvLoaded')}
         </span>
       )}
       {status === 'error' && (
         <span className="flex items-center gap-1 text-xs text-red-600">
-          <AlertCircle className="h-3 w-3" /> Formato inválido
+          <AlertCircle className="h-3 w-3" /> {t('tcoCostInput.csvInvalid')}
         </span>
       )}
     </div>
@@ -103,7 +105,7 @@ function CSVUploadButton({ fieldId, onValueParsed }: CSVUploadButtonProps) {
 }
 
 export function TCOCostInput({
-  title = 'Costos Anuales AWS (USD)',
+  title,
   onDemandAsIs,
   oneYearOptimized,
   threeYearOptimized,
@@ -111,6 +113,7 @@ export function TCOCostInput({
   onOneYearOptimizedChange,
   onThreeYearOptimizedChange
 }: TCOCostInputProps) {
+  const { t } = useTranslation();
   const [onDemandDisplay, setOnDemandDisplay] = useState<string>(
     onDemandAsIs > 0 ? formatSpanishNumber(onDemandAsIs) : ''
   );
@@ -173,7 +176,7 @@ export function TCOCostInput({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <DollarSign className="h-5 w-5 text-green-600" />
-          {title}
+          {title ?? t('tcoCostInput.defaultTitle')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -182,7 +185,7 @@ export function TCOCostInput({
           {/* OnDemand */}
           <div>
             <Label htmlFor="onDemandAsIs" className="text-sm font-medium">
-              OnDemand (As-Is Optimizado) *
+              {t('tcoCostInput.onDemandLabel')}
             </Label>
             <Input
               id="onDemandAsIs"
@@ -190,7 +193,7 @@ export function TCOCostInput({
               value={onDemandDisplay}
               onChange={(e) => handleOnDemandChange(e.target.value)}
               onBlur={(e) => handleOnDemandBlur(e.target.value)}
-              placeholder="Ej: 774.346,80"
+              placeholder={t('tcoCostInput.onDemandPlaceholder')}
               className="mt-1"
             />
             <CSVUploadButton
@@ -198,14 +201,14 @@ export function TCOCostInput({
               onValueParsed={(v) => handleCSVValue(v, setOnDemandDisplay, onOnDemandAsIsChange)}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Costo anual OnDemand optimizado desde la calculadora AWS
+              {t('tcoCostInput.onDemandHelper')}
             </p>
           </div>
 
           {/* 1 Año */}
           <div>
             <Label htmlFor="oneYearOptimized" className="text-sm font-medium">
-              1 Año Optimizado (NUSP) *
+              {t('tcoCostInput.oneYearLabel')}
             </Label>
             <Input
               id="oneYearOptimized"
@@ -213,7 +216,7 @@ export function TCOCostInput({
               value={oneYearDisplay}
               onChange={(e) => handleOneYearChange(e.target.value)}
               onBlur={(e) => handleOneYearBlur(e.target.value)}
-              placeholder="Ej: 732.272,88"
+              placeholder={t('tcoCostInput.oneYearPlaceholder')}
               className="mt-1"
             />
             <CSVUploadButton
@@ -221,14 +224,14 @@ export function TCOCostInput({
               onValueParsed={(v) => handleCSVValue(v, setOneYearDisplay, onOneYearOptimizedChange)}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Costo anual con Saving Plan de 1 año (No Upfront)
+              {t('tcoCostInput.oneYearHelper')}
             </p>
           </div>
 
           {/* 3 Años */}
           <div>
             <Label htmlFor="threeYearOptimized" className="text-sm font-medium">
-              3 Años Optimizado (NUSP) *
+              {t('tcoCostInput.threeYearLabel')}
             </Label>
             <Input
               id="threeYearOptimized"
@@ -236,7 +239,7 @@ export function TCOCostInput({
               value={threeYearDisplay}
               onChange={(e) => handleThreeYearChange(e.target.value)}
               onBlur={(e) => handleThreeYearBlur(e.target.value)}
-              placeholder="Ej: 693.749,88"
+              placeholder={t('tcoCostInput.threeYearPlaceholder')}
               className="mt-1"
             />
             <CSVUploadButton
@@ -244,13 +247,13 @@ export function TCOCostInput({
               onValueParsed={(v) => handleCSVValue(v, setThreeYearDisplay, onThreeYearOptimizedChange)}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Costo anual con Saving Plan de 3 años (No Upfront)
+              {t('tcoCostInput.threeYearHelper')}
             </p>
           </div>
 
           <div className="pt-4 border-t">
             <p className="text-sm text-gray-600">
-              <span className="font-semibold">Nota:</span> Estos valores se obtienen de la calculadora de AWS proporcionada por el equipo de SWO.
+              {t('tcoCostInput.note')}
             </p>
           </div>
         </div>

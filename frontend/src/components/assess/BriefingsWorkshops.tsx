@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BriefingSession } from '@/types/assessment';
-import { Presentation, Plus, Calendar, Users, Trash2, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Presentation, Plus, Calendar, Users, Trash2, CheckCircle, Clock, XCircle, CalendarPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { briefingsToIcs, downloadIcs } from '@/lib/icsExport';
+import { toast } from 'sonner';
 
 interface BriefingsWorkshopsProps {
   sessions: BriefingSession[];
@@ -109,9 +111,28 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">{t('briefings.sessions')}</CardTitle>
-          <Button onClick={() => setShowForm(!showForm)} size="sm" className="bg-fuchsia-600 hover:bg-fuchsia-700">
-            <Plus className="h-4 w-4 mr-1" /> {t('briefings.addSession')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-label={t('icsExport.button')}
+              onClick={() => {
+                if (sessions.length === 0) {
+                  toast.error(t('icsExport.empty'));
+                  return;
+                }
+                downloadIcs(`briefings_${new Date().toISOString().split('T')[0]}.ics`, briefingsToIcs(sessions));
+                toast.success(t('icsExport.downloaded'));
+              }}
+            >
+              <CalendarPlus className="h-4 w-4 mr-1" />
+              {t('icsExport.button')}
+            </Button>
+            <Button onClick={() => setShowForm(!showForm)} size="sm" className="bg-fuchsia-600 hover:bg-fuchsia-700">
+              <Plus className="h-4 w-4 mr-1" /> {t('briefings.addSession')}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {/* Add form */}
@@ -126,6 +147,8 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
                 <select
                   className="border rounded-md px-3 py-2 text-sm"
                   value={newSession.type}
+                  aria-label={t('briefings.types.briefing')}
+                  title={t('briefings.types.briefing')}
                   onChange={(e) => setNewSession({ ...newSession, type: e.target.value as BriefingSession['type'] })}
                 >
                   <option value="briefing">{t('briefings.types.briefing')}</option>
@@ -160,7 +183,13 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
             const StatusIcon = statusIcons[session.status].icon;
             return (
               <div key={session.id} className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                <button onClick={() => handleToggleStatus(session.id)} className="flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => handleToggleStatus(session.id)}
+                  aria-label={`Toggle status for ${session.title}`}
+                  title={statusIcons[session.status].color}
+                  className="flex-shrink-0"
+                >
                   <StatusIcon className={cn('h-5 w-5', statusIcons[session.status].color)} />
                 </button>
                 <div className="flex-1 min-w-0">
@@ -179,7 +208,13 @@ export function BriefingsWorkshops({ sessions, onSessionsChange }: BriefingsWork
                     )}
                   </div>
                 </div>
-                <button onClick={() => handleRemove(session.id)} className="text-gray-400 hover:text-red-500 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => handleRemove(session.id)}
+                  aria-label={`Remove session ${session.title}`}
+                  title={t('common.remove')}
+                  className="text-gray-400 hover:text-red-500 transition-colors"
+                >
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>

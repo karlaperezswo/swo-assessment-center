@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileSpreadsheet, CheckCircle, XCircle, Loader2, Check } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +17,7 @@ interface BusinessCaseTCO1YearUploaderProps {
 }
 
 export function BusinessCaseTCO1YearUploader({ onDataLoaded, alreadyLoaded, loadedFileName }: BusinessCaseTCO1YearUploaderProps) {
+  const { t } = useTranslation();
   const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>(() =>
     alreadyLoaded ? 'success' : 'idle'
   );
@@ -36,8 +38,8 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded, alreadyLoaded, load
     toast.loading(`Cargando ${file.name}...`, { id: 'tco-1year-upload' });
 
     try {
-      setUploadProgress('Subiendo archivo...');
-      
+      setUploadProgress(t('uploader.uploading'));
+
       const useLocalUpload = import.meta.env.VITE_USE_LOCAL_UPLOAD === 'true';
 
       if (useLocalUpload) {
@@ -63,7 +65,7 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded, alreadyLoaded, load
         }
       } else {
         // ========== MODO PRODUCCIÓN: S3 ==========
-        setUploadProgress('Preparando carga...');
+        setUploadProgress(t('uploader.preparing'));
         const urlResponse = await apiClient.post('/api/report/get-upload-url', {
           filename: file.name,
           contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -71,13 +73,13 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded, alreadyLoaded, load
         if (!urlResponse.data.success) throw new Error(urlResponse.data.error || 'Failed to get upload URL');
         const { uploadUrl, key } = urlResponse.data.data;
 
-        setUploadProgress('Subiendo a S3...');
+        setUploadProgress(t('uploader.uploadingS3'));
         await fetch(uploadUrl, {
           method: 'PUT', body: file,
           headers: { 'Content-Type': file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
         });
 
-        setUploadProgress('Analizando datos...');
+        setUploadProgress(t('uploader.analyzing'));
         const response = await apiClient.post('/api/business-case/upload-tco-1year-from-s3', {
           key, storageIncrement: increment
         });
@@ -175,14 +177,14 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded, alreadyLoaded, load
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileSpreadsheet className="h-5 w-5" />
-          TCO 1 Año
+          {t('tco1YearUploader.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {/* Storage Increment Input */}
         <div className="mb-4 p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
           <Label htmlFor="storageIncrement" className="text-sm font-medium">
-            Incremento de Storage (%) *
+            {t('tco1YearUploader.storageIncrementLabel')}
           </Label>
           <div className="flex gap-2 mt-2">
             <Input
@@ -193,33 +195,33 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded, alreadyLoaded, load
               value={storageIncrement}
               onChange={(e) => handleChangeIncrement(e.target.value)}
               className="flex-1"
-              placeholder="Ej: 20 o 0 para sin incremento"
+              placeholder={t('tco1YearUploader.storageIncrementPlaceholder')}
               disabled={isIncrementConfirmed}
             />
             {!isIncrementConfirmed ? (
-              <Button 
+              <Button
                 onClick={handleConfirmIncrement}
                 className="bg-green-600 hover:bg-green-700"
               >
                 <Check className="h-4 w-4 mr-1" />
-                Confirmar
+                {t('tco1YearUploader.confirm')}
               </Button>
             ) : (
-              <Button 
+              <Button
                 onClick={() => setIsIncrementConfirmed(false)}
                 variant="outline"
               >
-                Cambiar
+                {t('tco1YearUploader.change')}
               </Button>
             )}
           </div>
           {isIncrementConfirmed ? (
             <p className="text-xs text-green-600 font-medium mt-2">
-              ✓ Porcentaje confirmado: {storageIncrement}% {Number(storageIncrement) === 0 ? '(sin incremento)' : ''}
+              {t('tco1YearUploader.percentConfirmed', { value: storageIncrement })}{Number(storageIncrement) === 0 ? ` ${t('tco1YearUploader.noIncrement')}` : ''}
             </p>
           ) : (
             <p className="text-xs text-gray-500 mt-2">
-              Ingresa el porcentaje y confirma antes de subir el archivo
+              {t('tco1YearUploader.confirmFirst')}
             </p>
           )}
         </div>
@@ -227,7 +229,7 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded, alreadyLoaded, load
         {!isIncrementConfirmed && (
           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-800">
-              ⚠️ Debes confirmar el porcentaje de incremento antes de subir el archivo
+              {t('tco1YearUploader.confirmWarning')}
             </p>
           </div>
         )}
@@ -249,13 +251,13 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded, alreadyLoaded, load
             <>
               <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
               <p className="text-lg font-medium">
-                {isDragActive ? 'Suelta el archivo Excel aquí' : 'Arrastra y suelta el archivo Excel aquí'}
+                {isDragActive ? t('uploader.dragActive') : t('uploader.dragInactive')}
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                o haz clic para seleccionar archivo (.xlsx, .xls)
+                {t('uploader.clickSelect')}
               </p>
               <p className="text-xs text-gray-400 mt-4">
-                Archivo TCO 1 Año con hojas: Compute, Storage, Network
+                {t('tco1YearUploader.sheetInfo')}
               </p>
             </>
           )}
@@ -281,16 +283,16 @@ export function BusinessCaseTCO1YearUploader({ onDataLoaded, alreadyLoaded, load
               <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4 animate-in zoom-in duration-300" />
               <p className="text-lg font-medium text-green-700">{fileName}</p>
               <p className="text-xs text-gray-500">{fileSize}</p>
-              <p className="text-sm text-green-600 mt-2">Archivo cargado exitosamente</p>
+              <p className="text-sm text-green-600 mt-2">{t('uploader.success')}</p>
             </>
           )}
 
           {uploadState === 'error' && (
             <>
               <XCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
-              <p className="text-lg font-medium text-red-700">Carga Fallida</p>
+              <p className="text-lg font-medium text-red-700">{t('uploader.failed')}</p>
               <p className="text-sm text-red-600 mt-2">{errorMessage}</p>
-              <p className="text-sm text-gray-500 mt-2">Haz clic para intentar de nuevo</p>
+              <p className="text-sm text-gray-500 mt-2">{t('uploader.retryHint')}</p>
             </>
           )}
         </div>

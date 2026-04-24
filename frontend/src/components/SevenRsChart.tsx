@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   PieChart,
   Pie,
@@ -114,6 +115,7 @@ function assignMigrationStrategy(server: Server): MigrationStrategy {
 }
 
 export function SevenRsChart({ serverCount, servers = [] }: SevenRsChartProps) {
+  const { t } = useTranslation();
   const [selectedStrategy, setSelectedStrategy] = useState<MigrationStrategy | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -230,7 +232,7 @@ export function SevenRsChart({ serverCount, servers = [] }: SevenRsChartProps) {
             <p className="text-sm text-gray-500">{percentage}% of total</p>
           </div>
           {servers.length > 0 && (
-            <p className="text-xs text-blue-600 mt-2">Click para ver detalles →</p>
+            <p className="text-xs text-blue-600 mt-2">{t('sevenRsChart.clickDetails')}</p>
           )}
         </div>
       );
@@ -459,27 +461,27 @@ export function SevenRsChart({ serverCount, servers = [] }: SevenRsChartProps) {
       {/* Strategy Recommendations */}
       <Card className="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200">
         <CardHeader>
-          <CardTitle className="text-blue-900">Strategic Recommendations</CardTitle>
+          <CardTitle className="text-blue-900">{t('sevenRsChart.recommendationsTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white p-4 rounded-lg border border-blue-200">
-              <p className="text-sm font-semibold text-gray-600 mb-1">Quick Wins</p>
+              <p className="text-sm font-semibold text-gray-600 mb-1">{t('sevenRsChart.quickWins')}</p>
               <p className="text-3xl font-bold text-blue-600">{data.find(d => d.name === 'Rehost')?.value || 0}</p>
-              <p className="text-xs text-gray-500 mt-1">Rehost servers for immediate migration</p>
+              <p className="text-xs text-gray-500 mt-1">{t('sevenRsChart.quickWinsDesc')}</p>
             </div>
             <div className="bg-white p-4 rounded-lg border border-purple-200">
-              <p className="text-sm font-semibold text-gray-600 mb-1">Optimization Potential</p>
+              <p className="text-sm font-semibold text-gray-600 mb-1">{t('sevenRsChart.optimizationPotential')}</p>
               <p className="text-3xl font-bold text-purple-600">
                 {(data.find(d => d.name === 'Replatform')?.value || 0) +
                   (data.find(d => d.name === 'Refactor')?.value || 0)}
               </p>
-              <p className="text-xs text-gray-500 mt-1">Modernization candidates</p>
+              <p className="text-xs text-gray-500 mt-1">{t('sevenRsChart.optimizationDesc')}</p>
             </div>
             <div className="bg-white p-4 rounded-lg border border-red-200">
-              <p className="text-sm font-semibold text-gray-600 mb-1">Cost Reduction</p>
+              <p className="text-sm font-semibold text-gray-600 mb-1">{t('sevenRsChart.costReduction')}</p>
               <p className="text-3xl font-bold text-red-600">{data.find(d => d.name === 'Retire')?.value || 0}</p>
-              <p className="text-xs text-gray-500 mt-1">Decommission to reduce costs</p>
+              <p className="text-xs text-gray-500 mt-1">{t('sevenRsChart.costReductionDesc')}</p>
             </div>
           </div>
         </CardContent>
@@ -503,12 +505,12 @@ export function SevenRsChart({ serverCount, servers = [] }: SevenRsChartProps) {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b-2">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold">Hostname</th>
+                    <th className="px-4 py-3 text-left font-semibold">{t('sevenRsChart.colHostname')}</th>
                     <th className="px-4 py-3 text-left font-semibold">IP Address</th>
                     <th className="px-4 py-3 text-left font-semibold">OS</th>
                     <th className="px-4 py-3 text-right font-semibold">CPUs</th>
                     <th className="px-4 py-3 text-right font-semibold">RAM (GB)</th>
-                    <th className="px-4 py-3 text-right font-semibold">Storage (GB)</th>
+                    <th className="px-4 py-3 text-right font-semibold">{t('sevenRsChart.colStorage')}</th>
                     <th className="px-4 py-3 text-right font-semibold">CPU Avg %</th>
                     <th className="px-4 py-3 text-right font-semibold">RAM Avg %</th>
                   </tr>

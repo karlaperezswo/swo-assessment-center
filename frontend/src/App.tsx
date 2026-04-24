@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import apiClient from '@/lib/api';
 import { usePhase } from '@/routing/usePhase';
 import { useTranslation } from '@/i18n/useTranslation';
@@ -40,6 +40,9 @@ import {
 import { RefreshCw, Cloud } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { TechnicalMemory } from '@/components/techMemory/TechnicalMemory';
+import { SessionMenu } from '@/components/layout/SessionMenu';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { saveSession, SessionSnapshot } from '@/lib/sessionPersistence';
 
 function App() {
   const { t } = useTranslation();
@@ -97,6 +100,46 @@ function App() {
   const [dependencyData, setDependencyData] = useState<any>(null);
   const [_autoCalculatedWaves, setAutoCalculatedWaves] = useState<any>(null);
 
+  // Auto-persist session state — debounced via a timeout — whenever tracked
+  // fields change. Skips the empty-initial state so a fresh reload doesn't
+  // overwrite a previously saved session with a blank one.
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!clientData.clientName && briefingSessions.length === 0 && migrationWaves.length === 0) {
+      return;
+    }
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      saveSession({
+        clientData,
+        phaseStatus,
+        briefingSessions,
+        immersionDays,
+        migrationWaves,
+        opportunitySessionId,
+      });
+    }, 800);
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [
+    clientData,
+    phaseStatus,
+    briefingSessions,
+    immersionDays,
+    migrationWaves,
+    opportunitySessionId,
+  ]);
+
+  const handleRestoreSession = (snap: SessionSnapshot) => {
+    setClientData(snap.clientData);
+    setPhaseStatus(snap.phaseStatus);
+    setBriefingSessions(snap.briefingSessions);
+    setImmersionDays(snap.immersionDays);
+    setMigrationWaves(snap.migrationWaves);
+    setOpportunitySessionId(snap.opportunitySessionId);
+  };
+
   // Tell the AI copilot what session, client, and phase the user is looking at.
   useSetAgentSession(opportunitySessionId ?? undefined);
   useAgentContext('phase', { currentPhase, phaseStatus });
@@ -107,6 +150,23 @@ function App() {
     totalServers: uploadSummary?.serverCount ?? clientData.totalServers,
     priorities: clientData.priorities,
   });
+  useAgentContext(
+    'inventory',
+    uploadSummary
+      ? {
+          dataSource: uploadSummary.dataSource,
+          servers: uploadSummary.serverCount,
+          databases: uploadSummary.databaseCount,
+          applications: uploadSummary.applicationCount,
+          dependencies: uploadSummary.communicationCount,
+          securityGroups: uploadSummary.securityGroupCount,
+          totalStorageGB: uploadSummary.totalStorageGB,
+          opportunityAnalysisStatus: opportunitySessionId
+            ? 'completed'
+            : 'pending — inventory uploaded but opportunity analysis not yet run (requires MPA + MRA + Complete Phase). Answer using the inventory counts above without inventing detail you do not have.',
+        }
+      : null
+  );
 
   const handleDataLoaded = (data: ExcelData, summary: UploadSummary, depData?: any, waves?: any) => {
     setExcelData(data);
@@ -282,7 +342,7 @@ function App() {
     setIsGenerating(true);
     setError(null);
 
-    toast.loading('Generando reporte Word...', { id: 'generate-report' });
+    toast.loading(t('app.generatingReport'), { id: 'generate-report' });
 
     try {
       const response = await apiClient.post('/api/report/generate', {
@@ -303,9 +363,9 @@ function App() {
         if (response.data.data.summary.databaseRecommendations) {
           setDbRecommendations(response.data.data.summary.databaseRecommendations);
         }
-        toast.success('Reporte generado exitosamente', {
+        toast.success(t('app.reportGenerated'), {
           id: 'generate-report',
-          description: 'El reporte está listo para descargar',
+          description: t('app.reportReadyToDownload'),
           duration: 5000
         });
       } else {
@@ -314,7 +374,7 @@ function App() {
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to generate report';
       setError(errorMsg);
-      toast.error('Error al generar reporte', {
+      toast.error(t('app.errorGeneratingReport'), {
         id: 'generate-report',
         description: errorMsg,
         duration: 7000
@@ -510,7 +570,7 @@ function App() {
   const handleDownload = () => {
     if (reportResult?.downloadUrl) {
       window.open(reportResult.downloadUrl, '_blank');
-      toast.success('Iniciando descarga del reporte');
+      toast.success(t('common.downloadStarting'));
     }
   };
 
@@ -532,6 +592,19 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <SessionMenu
+              currentSnapshot={{
+                clientData,
+                phaseStatus,
+                briefingSessions,
+                immersionDays,
+                migrationWaves,
+                opportunitySessionId,
+              }}
+              onRestore={handleRestoreSession}
+              onReset={handleReset}
+            />
             <LanguageSelector />
             <span className="text-sm text-gray-500">{t('common.developedBy')}</span>
             <span className="font-bold text-orange-500">{t('header.brand')}</span>

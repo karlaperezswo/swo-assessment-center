@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from '@/i18n/useTranslation';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { LandingZoneChecklist, SecurityComplianceChecklist } from '@/types/assessment';
@@ -134,6 +135,7 @@ const PILLARS = [
 ];
 
 export function ArchitectureDiagram({ landingZone, securityChecklist }: ArchitectureDiagramProps) {
+  const { t } = useTranslation();
   // Initialize with all essential and recommended accounts enabled by default
   const [selectedAccounts, setSelectedAccounts] = useState<Set<string>>(
     new Set(
@@ -218,14 +220,14 @@ export function ArchitectureDiagram({ landingZone, securityChecklist }: Architec
         <CardContent className="pt-6">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-2xl font-bold mb-2">Diagrama de Arquitectura AWS</h2>
+              <h2 className="text-2xl font-bold mb-2">{t('architectureDiagram.title')}</h2>
               <p className="text-white/90 text-sm max-w-3xl">
                 Arquitectura multi-cuenta recomendada por AWS Well-Architected Framework.
                 Personaliza las cuentas según las necesidades de tu organización.
               </p>
             </div>
             <div className="bg-white/20 backdrop-blur rounded-lg px-6 py-4 text-center">
-              <p className="text-sm text-white/80 mb-1">Score de Implementación</p>
+              <p className="text-sm text-white/80 mb-1">{t('architectureDiagram.implementationScore')}</p>
               <p className="text-4xl font-bold">{overallScore}%</p>
             </div>
           </div>
@@ -284,7 +286,7 @@ export function ArchitectureDiagram({ landingZone, securityChecklist }: Architec
                           {getBadgeLabel(account.type)}
                         </Badge>
                         {account.disabled && (
-                          <Badge variant="outline" className="text-xs">Obligatoria</Badge>
+                          <Badge variant="outline" className="text-xs">{t('architectureDiagram.required')}</Badge>
                         )}
                       </div>
                       <p className="text-xs text-gray-600">{account.description}</p>
@@ -462,8 +464,8 @@ export function ArchitectureDiagram({ landingZone, securityChecklist }: Architec
                 <>
                   <rect x="640" y="300" width="220" height="120" rx="6"
                         fill="white" stroke="#0288D1" strokeWidth="2" />
-                  <text x="670" y="330" fill="#232F3E" fontSize="15" fontWeight="bold">Staging Account</text>
-                  <text x="670" y="350" fill="#666" fontSize="12">Pre-producción</text>
+                  <text x="670" y="330" fill="#232F3E" fontSize="15" fontWeight="bold">{t('architectureDiagram.stagingAccount')}</text>
+                  <text x="670" y="350" fill="#666" fontSize="12">{t('architectureDiagram.stagingDesc')}</text>
                   <text x="670" y="370" fill="#666" fontSize="11">• Testing integración</text>
                   <text x="670" y="388" fill="#666" fontSize="11">• Validación deploy</text>
                   <text x="670" y="406" fill="#666" fontSize="11">• Performance testing</text>
@@ -475,8 +477,8 @@ export function ArchitectureDiagram({ landingZone, securityChecklist }: Architec
                 <>
                   <rect x="640" y="440" width="220" height="110" rx="6"
                         fill="white" stroke="#00897B" strokeWidth="2" />
-                  <text x="670" y="470" fill="#232F3E" fontSize="15" fontWeight="bold">Development Account</text>
-                  <text x="670" y="490" fill="#666" fontSize="12">Desarrollo y testing</text>
+                  <text x="670" y="470" fill="#232F3E" fontSize="15" fontWeight="bold">{t('architectureDiagram.devAccount')}</text>
+                  <text x="670" y="490" fill="#666" fontSize="12">{t('architectureDiagram.devDesc')}</text>
                   <text x="670" y="510" fill="#666" fontSize="11">• Sandbox environments</text>
                   <text x="670" y="528" fill="#666" fontSize="11">• Feature branches</text>
                   <text x="670" y="546" fill="#666" fontSize="11">• Costos controlados</text>

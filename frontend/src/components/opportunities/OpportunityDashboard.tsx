@@ -1,13 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from '@/i18n/useTranslation';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { OpportunityList } from './OpportunityList';
 import { OpportunityFilters } from './OpportunityFilters';
 import { OpportunityDetail } from './OpportunityDetail';
 import { ExportButton } from './ExportButton';
+import { OpportunityEditDialog } from './OpportunityEditDialog';
 import { Opportunity, OpportunityFilters as FilterType } from '@shared/types/opportunity.types';
 import apiClient from '@/lib/api';
-import { Loader2, AlertCircle, Upload, FileText } from 'lucide-react';
+import { Loader2, AlertCircle, Upload, FileText, Plus } from 'lucide-react';
+import {
+  loadManualOpportunities,
+  saveManualOpportunities,
+  OpportunityDraft,
+  draftToOpportunity,
+  toDraft,
+  isManualOpportunity,
+} from '@/lib/manualOpportunities';
+import { toast } from 'sonner';
 
 interface OpportunityDashboardProps {
   sessionId: string | null;
@@ -16,19 +27,38 @@ interface OpportunityDashboardProps {
 
 export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
   const { t } = useTranslation();
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+  const [backendOpportunities, setBackendOpportunities] = useState<Opportunity[]>([]);
+  const [manualOpportunities, setManualOpportunities] = useState<Opportunity[]>(() =>
+    loadManualOpportunities(sessionId)
+  );
   const [filteredOpportunities, setFilteredOpportunities] = useState<Opportunity[]>([]);
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
   const [filters, setFilters] = useState<FilterType>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editDraft, setEditDraft] = useState<OpportunityDraft | undefined>(undefined);
+  const [editMode, setEditMode] = useState<'create' | 'edit'>('create');
+
+  const opportunities = useMemo(
+    () => [...manualOpportunities, ...backendOpportunities],
+    [manualOpportunities, backendOpportunities]
+  );
 
   // Load opportunities when sessionId changes
   useEffect(() => {
+    setManualOpportunities(loadManualOpportunities(sessionId));
     if (sessionId) {
       loadOpportunities();
+    } else {
+      setBackendOpportunities([]);
     }
   }, [sessionId]);
+
+  // Persist manual opportunities whenever they change
+  useEffect(() => {
+    saveManualOpportunities(sessionId, manualOpportunities);
+  }, [sessionId, manualOpportunities]);
 
   // Apply filters when opportunities or filters change
   useEffect(() => {
@@ -47,7 +77,7 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
       });
 
       if (response.data.success) {
-        setOpportunities(response.data.data.opportunities);
+        setBackendOpportunities(response.data.data.opportunities);
       } else {
         setError(response.data.error || t('opportunitiesDashboard.error'));
       }
@@ -94,18 +124,33 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
   };
 
   const handleStatusUpdate = async (opportunityId: string, newStatus: string) => {
+    // Manual opportunities are persisted locally — no backend call needed.
+    if (opportunityId.startsWith('manual-')) {
+      setManualOpportunities((prev) =>
+        prev.map((o) =>
+          o.id === opportunityId
+            ? { ...o, status: newStatus as Opportunity['status'], updatedAt: new Date() }
+            : o
+        )
+      );
+      if (selectedOpportunity?.id === opportunityId) {
+        setSelectedOpportunity({
+          ...selectedOpportunity,
+          status: newStatus as Opportunity['status'],
+          updatedAt: new Date(),
+        });
+      }
+      return;
+    }
     try {
       const response = await apiClient.patch(`/api/opportunities/${opportunityId}/status`, {
         status: newStatus
       });
 
       if (response.data.success) {
-        // Update local state
-        setOpportunities(prev =>
+        setBackendOpportunities(prev =>
           prev.map(opp => opp.id === opportunityId ? response.data.data : opp)
         );
-        
-        // Update selected opportunity if it's the one being updated
         if (selectedOpportunity?.id === opportunityId) {
           setSelectedOpportunity(response.data.data);
         }
@@ -116,7 +161,39 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
     }
   };
 
-  if (!sessionId) {
+  const openCreateDialog = () => {
+    setEditDraft(undefined);
+    setEditMode('create');
+    setEditOpen(true);
+  };
+
+  const openEditDialog = (opportunity: Opportunity) => {
+    setEditDraft(toDraft(opportunity));
+    setEditMode('edit');
+    setEditOpen(true);
+  };
+
+  const handleSubmitDraft = (draft: OpportunityDraft) => {
+    if (editMode === 'create') {
+      const next = draftToOpportunity(draft);
+      setManualOpportunities((prev) => [next, ...prev]);
+      toast.success('Oportunidad creada');
+    } else {
+      const existing = manualOpportunities.find((o) => o.id === draft.id);
+      const updated = draftToOpportunity(draft, existing);
+      setManualOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+      if (selectedOpportunity?.id === updated.id) setSelectedOpportunity(updated);
+      toast.success('Oportunidad actualizada');
+    }
+  };
+
+  const handleDeleteManual = (opportunityId: string) => {
+    setManualOpportunities((prev) => prev.filter((o) => o.id !== opportunityId));
+    if (selectedOpportunity?.id === opportunityId) setSelectedOpportunity(null);
+    toast.success('Oportunidad eliminada');
+  };
+
+  if (!sessionId && manualOpportunities.length === 0) {
     return (
       <div className="space-y-6">
         <Card className="p-12 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
@@ -187,8 +264,21 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
                 💡 <strong>{t('common.tip')}:</strong> {t('opportunitiesDashboard.tipMessage')}
               </p>
             </div>
+            <div className="mt-6">
+              <Button type="button" variant="outline" onClick={openCreateDialog}>
+                <Plus className="h-4 w-4 mr-1" />
+                Crear oportunidad manual
+              </Button>
+            </div>
           </div>
         </Card>
+        <OpportunityEditDialog
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          initial={editDraft}
+          onSubmit={handleSubmitDraft}
+          mode={editMode}
+        />
       </div>
     );
   }
@@ -219,14 +309,25 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
   return (
     <div className="space-y-6">
       {/* Header with export button */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-2">
         <div>
           <h2 className="text-2xl font-bold">{t('opportunitiesDashboard.title')}</h2>
           <p className="text-muted-foreground">
             {filteredOpportunities.length} {t('opportunitiesDashboard.of')} {opportunities.length} {t('opportunitiesDashboard.opportunities')}
+            {manualOpportunities.length > 0 && (
+              <span className="ml-2 text-xs text-fuchsia-600">
+                ({manualOpportunities.length} manual)
+              </span>
+            )}
           </p>
         </div>
-        <ExportButton sessionId={sessionId} />
+        <div className="flex items-center gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={openCreateDialog}>
+            <Plus className="h-4 w-4 mr-1" />
+            Nueva oportunidad
+          </Button>
+          {sessionId && <ExportButton sessionId={sessionId} />}
+        </div>
       </div>
 
       {/* Filters */}
@@ -248,8 +349,18 @@ export function OpportunityDashboard({ sessionId }: OpportunityDashboardProps) {
           opportunity={selectedOpportunity}
           onClose={() => setSelectedOpportunity(null)}
           onStatusUpdate={handleStatusUpdate}
+          onEdit={isManualOpportunity(selectedOpportunity) ? () => openEditDialog(selectedOpportunity) : undefined}
+          onDelete={isManualOpportunity(selectedOpportunity) ? () => handleDeleteManual(selectedOpportunity.id) : undefined}
         />
       )}
+
+      <OpportunityEditDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        initial={editDraft}
+        onSubmit={handleSubmitDraft}
+        mode={editMode}
+      />
     </div>
   );
 }

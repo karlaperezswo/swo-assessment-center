@@ -222,6 +222,7 @@ export interface MigrationWave {
   status: 'planned' | 'in_progress' | 'completed' | 'blocked';
   strategy: string;
   notes: string;
+  servers?: string[];
 }
 
 export interface SkillAssessment {

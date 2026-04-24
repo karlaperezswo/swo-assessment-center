@@ -62,10 +62,10 @@ export function ApplicationTable({ applications }: ApplicationTableProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <div className="overflow-auto rounded-md border max-h-[60vh]">
           <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50">
+            <thead className="bg-muted/50 backdrop-blur">
+              <tr className="border-b">
                 <th className="text-left p-2 font-medium">{t('applicationTable.appName')}</th>
                 <th className="text-left p-2 font-medium">{t('applicationTable.type')}</th>
                 <th className="text-right p-2 font-medium">{t('applicationTable.totalConnections')}</th>
@@ -103,6 +103,11 @@ export function ApplicationTable({ applications }: ApplicationTableProps) {
             </p>
           )}
         </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          {t('applicationTable.scrollHint', {
+            defaultValue: 'Scroll dentro de la tabla — los encabezados quedan fijos.',
+          })}
+        </p>
       </CardContent>
     </Card>
   );

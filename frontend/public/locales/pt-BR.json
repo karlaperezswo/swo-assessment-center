@@ -952,7 +952,8 @@
     "inbound": "Entrada",
     "outbound": "Saída",
     "environment": "Ambiente",
-    "noApps": "Nenhuma aplicação encontrada para o ambiente selecionado"
+    "noApps": "Nenhuma aplicação encontrada para o ambiente selecionado",
+    "scrollHint": "Role dentro da tabela — os cabeçalhos ficam fixos."
   },
   "readiness": {
     "overall": "Prontidão geral",

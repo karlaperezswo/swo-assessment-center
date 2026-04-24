@@ -952,7 +952,8 @@
     "inbound": "Inbound",
     "outbound": "Outbound",
     "environment": "Environment",
-    "noApps": "No applications found for the selected environment"
+    "noApps": "No applications found for the selected environment",
+    "scrollHint": "Scroll inside the table — headers stay pinned."
   },
   "readiness": {
     "overall": "Overall Readiness",

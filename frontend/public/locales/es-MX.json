@@ -38,7 +38,8 @@
     "inbound": "Entrantes",
     "outbound": "Salientes",
     "environment": "Ambiente",
-    "noApps": "No se encontraron aplicaciones para el ambiente seleccionado"
+    "noApps": "No se encontraron aplicaciones para el ambiente seleccionado",
+    "scrollHint": "Scroll dentro de la tabla — los encabezados quedan fijos."
   },
   "header": {
     "title": "Centro de Evaluación de Migración AWS",

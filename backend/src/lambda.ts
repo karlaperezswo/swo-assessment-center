@@ -5,6 +5,7 @@ import {
   buildCorsMiddleware,
   buildHelmetMiddleware,
 } from './middleware/security';
+import { authenticate } from './middleware/auth';
 import { reportRouter } from './routes/reportRoutes';
 import { selectorRouter } from './routes/selectorRoutes';
 import { opportunityRouter } from './routes/opportunityRoutes';
@@ -27,6 +28,7 @@ app.options('*', corsMiddleware);
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/api', buildBaseRateLimiter());
+app.use('/api', authenticate());
 
 // Routes
 app.use('/api/report', reportRouter);

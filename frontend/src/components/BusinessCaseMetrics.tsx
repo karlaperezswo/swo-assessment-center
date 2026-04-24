@@ -10,6 +10,7 @@ import {
   Cpu,
   HardDrive
 } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface BusinessCaseMetricsProps {
   serverCount: number;
@@ -26,6 +27,7 @@ export function BusinessCaseMetrics({
   totalStorageGB,
   migrationReadiness
 }: BusinessCaseMetricsProps) {
+  const { t } = useTranslation();
   // Calculate complexity score (0-100)
   const complexityScore = Math.min(
     100,
@@ -59,9 +61,9 @@ export function BusinessCaseMetrics({
 
   // Risk level
   const getRiskLevel = () => {
-    if (complexityScore > 70) return { level: 'High', color: 'red', bgColor: 'bg-red-50', textColor: 'text-red-700', borderColor: 'border-red-200' };
-    if (complexityScore > 40) return { level: 'Medium', color: 'yellow', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700', borderColor: 'border-yellow-200' };
-    return { level: 'Low', color: 'green', bgColor: 'bg-green-50', textColor: 'text-green-700', borderColor: 'border-green-200' };
+    if (complexityScore > 70) return { level: t('businessCaseMetrics.riskHigh'), color: 'red', bgColor: 'bg-red-50', textColor: 'text-red-700', borderColor: 'border-red-200' };
+    if (complexityScore > 40) return { level: t('businessCaseMetrics.riskMedium'), color: 'yellow', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700', borderColor: 'border-yellow-200' };
+    return { level: t('businessCaseMetrics.riskLow'), color: 'green', bgColor: 'bg-green-50', textColor: 'text-green-700', borderColor: 'border-green-200' };
   };
 
   const risk = getRiskLevel();
@@ -114,7 +116,7 @@ export function BusinessCaseMetrics({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-purple-900">
             <Gauge className="h-6 w-6" />
-            Migration Readiness Assessment
+            {t('businessCaseMetrics.readinessTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -149,9 +151,9 @@ export function BusinessCaseMetrics({
                   {readiness.score}%
                 </span>
               </div>
-              <p className="mt-3 font-semibold text-gray-900">Readiness Score</p>
+              <p className="mt-3 font-semibold text-gray-900">{t('businessCaseMetrics.readinessScore')}</p>
               <p className={`text-sm ${readiness.color} font-medium mt-1`}>
-                Status: {migrationReadiness}
+                {t('businessCaseMetrics.statusLabel')} {migrationReadiness}
               </p>
             </div>
 
@@ -159,7 +161,7 @@ export function BusinessCaseMetrics({
             <div className="space-y-4">
               <div className={`p-4 rounded-lg border-2 ${risk.borderColor} ${risk.bgColor}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-600">Migration Complexity</span>
+                  <span className="text-sm font-medium text-gray-600">{t('businessCaseMetrics.complexityLabel')}</span>
                   <span className={`text-2xl font-bold ${risk.textColor}`}>{complexityScore}/100</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
@@ -173,11 +175,11 @@ export function BusinessCaseMetrics({
               <div className={`p-4 rounded-lg border ${risk.borderColor} ${risk.bgColor}`}>
                 <div className="flex items-center gap-2 mb-2">
                   <ShieldCheck className={`h-5 w-5 ${risk.textColor}`} />
-                  <span className="text-sm font-medium text-gray-600">Risk Level</span>
+                  <span className="text-sm font-medium text-gray-600">{t('businessCaseMetrics.riskLevel')}</span>
                 </div>
-                <p className={`text-xl font-bold ${risk.textColor}`}>{risk.level} Risk</p>
+                <p className={`text-xl font-bold ${risk.textColor}`}>{risk.level} {t('businessCaseMetrics.riskSuffix')}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Based on infrastructure complexity
+                  {t('businessCaseMetrics.basedOnComplexity')}
                 </p>
               </div>
             </div>
@@ -191,16 +193,16 @@ export function BusinessCaseMetrics({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Clock className="h-5 w-5 text-blue-600" />
-              Timeline Estimate
+              {t('businessCaseMetrics.timelineTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold text-blue-600 mb-2">
               {estimatedTimeline}
             </div>
-            <p className="text-sm text-gray-600">months</p>
+            <p className="text-sm text-gray-600">{t('businessCaseMetrics.months')}</p>
             <p className="text-xs text-gray-500 mt-2">
-              Including planning & testing
+              {t('businessCaseMetrics.includingPlanning')}
             </p>
           </CardContent>
         </Card>
@@ -209,16 +211,16 @@ export function BusinessCaseMetrics({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Users className="h-5 w-5 text-purple-600" />
-              Resource Requirements
+              {t('businessCaseMetrics.resourceTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold text-purple-600 mb-2">
               {estimatedFTE}
             </div>
-            <p className="text-sm text-gray-600">FTE</p>
+            <p className="text-sm text-gray-600">{t('businessCaseMetrics.fte')}</p>
             <p className="text-xs text-gray-500 mt-2">
-              Full-time equivalents needed
+              {t('businessCaseMetrics.fteNeeded')}
             </p>
           </CardContent>
         </Card>
@@ -227,16 +229,16 @@ export function BusinessCaseMetrics({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-green-600" />
-              Cost Reduction Potential
+              {t('businessCaseMetrics.costTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold text-green-600 mb-2">
               {costReductionPercentage}%
             </div>
-            <p className="text-sm text-gray-600">Annual Savings</p>
+            <p className="text-sm text-gray-600">{t('businessCaseMetrics.annualSavings')}</p>
             <p className="text-xs text-gray-500 mt-2">
-              ${(estimatedAnnualSavings / 1000).toFixed(0)}k per year
+              ${t('businessCaseMetrics.perYear', { amount: (estimatedAnnualSavings / 1000).toFixed(0) })}
             </p>
           </CardContent>
         </Card>
@@ -247,37 +249,37 @@ export function BusinessCaseMetrics({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-blue-900">
             <Zap className="h-6 w-6" />
-            Strategic Recommendations
+            {t('businessCaseMetrics.recommendationsTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Quick Wins - Optimization Potential */}
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-              <p className="text-sm text-gray-600 font-medium mb-2">Optimization Potential</p>
+              <p className="text-sm text-gray-600 font-medium mb-2">{t('businessCaseMetrics.optimizationPotential')}</p>
               <p className="text-3xl font-bold text-blue-600 mb-1">{optimizationPotential}</p>
               <p className="text-xs text-gray-500">
-                Quick win opportunities across infrastructure
+                {t('businessCaseMetrics.optimizationDesc')}
               </p>
             </div>
 
             {/* Cost Reduction */}
             <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-              <p className="text-sm text-gray-600 font-medium mb-2">Cost Reduction</p>
+              <p className="text-sm text-gray-600 font-medium mb-2">{t('businessCaseMetrics.costReduction')}</p>
               <p className="text-3xl font-bold text-green-600 mb-1">{costReductionPercentage}%</p>
               <p className="text-xs text-gray-500">
-                Potential annual savings vs on-premises
+                {t('businessCaseMetrics.costReductionDesc')}
               </p>
             </div>
 
             {/* ROI Timeline */}
             <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-              <p className="text-sm text-gray-600 font-medium mb-2">Estimated ROI</p>
+              <p className="text-sm text-gray-600 font-medium mb-2">{t('businessCaseMetrics.estimatedROI')}</p>
               <p className="text-3xl font-bold text-purple-600 mb-1">
                 {Math.ceil(estimatedAnnualSavings / 1000) > 0 ? Math.ceil((serverCount * 50000) / estimatedAnnualSavings) : 'N/A'}
               </p>
               <p className="text-xs text-gray-500">
-                months to break even
+                {t('businessCaseMetrics.monthsBreakEven')}
               </p>
             </div>
           </div>
@@ -289,7 +291,7 @@ export function BusinessCaseMetrics({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5" />
-            Infrastructure Scope
+            {t('businessCaseMetrics.infraTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -297,19 +299,19 @@ export function BusinessCaseMetrics({
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
               <Cpu className="h-8 w-8 text-blue-600 mb-3" />
               <p className="text-2xl font-bold text-blue-900">{serverCount}</p>
-              <p className="text-sm text-blue-600 font-medium">Servers</p>
+              <p className="text-sm text-blue-600 font-medium">{t('businessCaseMetrics.servers')}</p>
             </div>
 
             <div className="bg-green-50 rounded-lg p-4 border border-green-100">
               <Database className="h-8 w-8 text-green-600 mb-3" />
               <p className="text-2xl font-bold text-green-900">{databaseCount}</p>
-              <p className="text-sm text-green-600 font-medium">Databases</p>
+              <p className="text-sm text-green-600 font-medium">{t('businessCaseMetrics.databases')}</p>
             </div>
 
             <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
               <Sparkles className="h-8 w-8 text-purple-600 mb-3" />
               <p className="text-2xl font-bold text-purple-900">{applicationCount}</p>
-              <p className="text-sm text-purple-600 font-medium">Applications</p>
+              <p className="text-sm text-purple-600 font-medium">{t('businessCaseMetrics.applications')}</p>
             </div>
 
             <div className="bg-orange-50 rounded-lg p-4 border border-orange-100">
@@ -317,7 +319,7 @@ export function BusinessCaseMetrics({
               <p className="text-2xl font-bold text-orange-900">
                 {(totalStorageGB / 1024).toFixed(1)}
               </p>
-              <p className="text-sm text-orange-600 font-medium">TB Storage</p>
+              <p className="text-sm text-orange-600 font-medium">{t('businessCaseMetrics.tbStorage')}</p>
             </div>
           </div>
         </CardContent>

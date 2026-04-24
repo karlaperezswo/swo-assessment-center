@@ -1114,7 +1114,9 @@
   },
   "exportButton": {
     "exported": "Playbook exportado exitosamente: {{filename}}",
-    "errorExporting": "Error al exportar playbook"
+    "errorExporting": "Error al exportar playbook",
+    "exporting": "Exportando...",
+    "exportPlaybook": "Exportar Playbook"
   },
   "phaseNavigator": {
     "assess": {
@@ -1478,5 +1480,90 @@
     "security": "Security",
     "loggingMonitoring": "Logging & Monitoring",
     "governance": "Governance"
+  },
+  "opportunitiesList": {
+    "empty": "No se encontraron oportunidades",
+    "emptyHint": "Intenta ajustar los filtros de búsqueda",
+    "opportunity": "oportunidad",
+    "opportunities": "oportunidades"
+  },
+  "businessCaseMetrics": {
+    "readinessTitle": "Evaluación de Preparación para Migración",
+    "readinessScore": "Puntaje de Preparación",
+    "statusLabel": "Estado:",
+    "complexityLabel": "Complejidad de Migración",
+    "riskLevel": "Nivel de Riesgo",
+    "basedOnComplexity": "Basado en la complejidad de la infraestructura",
+    "timelineTitle": "Estimación de Tiempo",
+    "months": "meses",
+    "includingPlanning": "Incluyendo planificación y pruebas",
+    "resourceTitle": "Recursos Necesarios",
+    "fte": "FTE",
+    "fteNeeded": "Equivalentes de tiempo completo necesarios",
+    "costTitle": "Potencial de Reducción de Costos",
+    "annualSavings": "Ahorro Anual",
+    "perYear": "{{amount}}k por año",
+    "recommendationsTitle": "Recomendaciones Estratégicas",
+    "optimizationPotential": "Potencial de Optimización",
+    "optimizationDesc": "Oportunidades de mejora rápida en infraestructura",
+    "costReduction": "Reducción de Costos",
+    "costReductionDesc": "Ahorro anual potencial vs on-premises",
+    "estimatedROI": "ROI Estimado",
+    "monthsBreakEven": "meses para recuperar la inversión",
+    "infraTitle": "Alcance de Infraestructura",
+    "servers": "Servidores",
+    "databases": "Bases de Datos",
+    "applications": "Aplicaciones",
+    "tbStorage": "TB de Almacenamiento",
+    "riskHigh": "Alto",
+    "riskMedium": "Medio",
+    "riskLow": "Bajo",
+    "riskSuffix": "Riesgo"
+  },
+  "sevenRsChart": {
+    "clickDetails": "Click para ver detalles →",
+    "recommendationsTitle": "Recomendaciones Estratégicas",
+    "quickWins": "Victorias Rápidas",
+    "quickWinsDesc": "Servidores Rehost para migración inmediata",
+    "optimizationPotential": "Potencial de Optimización",
+    "optimizationDesc": "Candidatos para modernización",
+    "costReduction": "Reducción de Costos",
+    "costReductionDesc": "Dar de baja para reducir costos",
+    "colHostname": "Hostname",
+    "colStorage": "Storage (GB)"
+  },
+  "architectureDiagram": {
+    "title": "Diagrama de Arquitectura AWS",
+    "implementationScore": "Score de Implementación",
+    "required": "Obligatoria",
+    "stagingAccount": "Staging Account",
+    "stagingDesc": "Pre-producción",
+    "devAccount": "Development Account",
+    "devDesc": "Desarrollo y testing"
+  },
+  "databaseDependencyMap": {
+    "noData": "No se encontraron bases de datos ni dependencias de bases de datos en el archivo cargado.",
+    "statDatabases": "Bases de Datos",
+    "statConnections": "Conexiones DB",
+    "statPorts": "Puertos Únicos",
+    "statProcesses": "Procesos/Servicios",
+    "viewConnections": "Conexiones DB↔Servidor",
+    "viewPorts": "Por Puerto",
+    "viewProcesses": "Por Proceso",
+    "colSourceServer": "Servidor Origen",
+    "colDestServer": "Servidor Destino",
+    "colPort": "Puerto",
+    "colProtocol": "Protocolo",
+    "colProcess": "Proceso / Servicio",
+    "connectionsTitle": "Conexiones entre Bases de Datos y Servidores",
+    "connectionsSubtitle": "Tráfico de red detectado entre instancias de BD y servidores",
+    "filterPlaceholder": "Filtrar por servidor, puerto, protocolo, proceso...",
+    "noDataToGraph": "Sin datos para graficar",
+    "server": "Servidor",
+    "custom": "Personalizado",
+    "filteringLabel": "Filtrando:",
+    "connectionsCount": "conexiones",
+    "portsTitle": "Puertos de red utilizados en las conexiones detectadas",
+    "processesTitle": "Procesos y servicios involucrados en las conexiones"
   }
 }

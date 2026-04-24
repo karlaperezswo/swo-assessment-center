@@ -1114,7 +1114,9 @@
   },
   "exportButton": {
     "exported": "Playbook exported successfully: {{filename}}",
-    "errorExporting": "Error exporting playbook"
+    "errorExporting": "Error exporting playbook",
+    "exporting": "Exporting...",
+    "exportPlaybook": "Export Playbook"
   },
   "phaseNavigator": {
     "assess": {
@@ -1478,5 +1480,90 @@
     "security": "Security",
     "loggingMonitoring": "Logging & Monitoring",
     "governance": "Governance"
+  },
+  "opportunitiesList": {
+    "empty": "No opportunities found",
+    "emptyHint": "Try adjusting the search filters",
+    "opportunity": "opportunity",
+    "opportunities": "opportunities"
+  },
+  "businessCaseMetrics": {
+    "readinessTitle": "Migration Readiness Assessment",
+    "readinessScore": "Readiness Score",
+    "statusLabel": "Status:",
+    "complexityLabel": "Migration Complexity",
+    "riskLevel": "Risk Level",
+    "basedOnComplexity": "Based on infrastructure complexity",
+    "timelineTitle": "Timeline Estimate",
+    "months": "months",
+    "includingPlanning": "Including planning & testing",
+    "resourceTitle": "Resource Requirements",
+    "fte": "FTE",
+    "fteNeeded": "Full-time equivalents needed",
+    "costTitle": "Cost Reduction Potential",
+    "annualSavings": "Annual Savings",
+    "perYear": "{{amount}}k per year",
+    "recommendationsTitle": "Strategic Recommendations",
+    "optimizationPotential": "Optimization Potential",
+    "optimizationDesc": "Quick win opportunities across infrastructure",
+    "costReduction": "Cost Reduction",
+    "costReductionDesc": "Potential annual savings vs on-premises",
+    "estimatedROI": "Estimated ROI",
+    "monthsBreakEven": "months to break even",
+    "infraTitle": "Infrastructure Scope",
+    "servers": "Servers",
+    "databases": "Databases",
+    "applications": "Applications",
+    "tbStorage": "TB Storage",
+    "riskHigh": "High",
+    "riskMedium": "Medium",
+    "riskLow": "Low",
+    "riskSuffix": "Risk"
+  },
+  "sevenRsChart": {
+    "clickDetails": "Click to see details →",
+    "recommendationsTitle": "Strategic Recommendations",
+    "quickWins": "Quick Wins",
+    "quickWinsDesc": "Rehost servers for immediate migration",
+    "optimizationPotential": "Optimization Potential",
+    "optimizationDesc": "Modernization candidates",
+    "costReduction": "Cost Reduction",
+    "costReductionDesc": "Decommission to reduce costs",
+    "colHostname": "Hostname",
+    "colStorage": "Storage (GB)"
+  },
+  "architectureDiagram": {
+    "title": "AWS Architecture Diagram",
+    "implementationScore": "Implementation Score",
+    "required": "Required",
+    "stagingAccount": "Staging Account",
+    "stagingDesc": "Pre-production",
+    "devAccount": "Development Account",
+    "devDesc": "Development and testing"
+  },
+  "databaseDependencyMap": {
+    "noData": "No databases or database dependencies were found in the loaded file.",
+    "statDatabases": "Databases",
+    "statConnections": "DB Connections",
+    "statPorts": "Unique Ports",
+    "statProcesses": "Processes/Services",
+    "viewConnections": "DB↔Server Connections",
+    "viewPorts": "By Port",
+    "viewProcesses": "By Process",
+    "colSourceServer": "Source Server",
+    "colDestServer": "Destination Server",
+    "colPort": "Port",
+    "colProtocol": "Protocol",
+    "colProcess": "Process / Service",
+    "connectionsTitle": "Connections between Databases and Servers",
+    "connectionsSubtitle": "Network traffic detected between DB instances and servers",
+    "filterPlaceholder": "Filter by server, port, protocol, process...",
+    "noDataToGraph": "No data to graph",
+    "server": "Server",
+    "custom": "Custom",
+    "filteringLabel": "Filtering:",
+    "connectionsCount": "connections",
+    "portsTitle": "Network ports used in detected connections",
+    "processesTitle": "Processes and services involved in connections"
   }
 }

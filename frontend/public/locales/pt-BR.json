@@ -1114,7 +1114,9 @@
   },
   "exportButton": {
     "exported": "Playbook exportado com sucesso: {{filename}}",
-    "errorExporting": "Erro ao exportar playbook"
+    "errorExporting": "Erro ao exportar playbook",
+    "exporting": "Exportando...",
+    "exportPlaybook": "Exportar Playbook"
   },
   "phaseNavigator": {
     "assess": {
@@ -1478,5 +1480,90 @@
     "security": "Security",
     "loggingMonitoring": "Logging & Monitoring",
     "governance": "Governance"
+  },
+  "opportunitiesList": {
+    "empty": "Nenhuma oportunidade encontrada",
+    "emptyHint": "Tente ajustar os filtros de busca",
+    "opportunity": "oportunidade",
+    "opportunities": "oportunidades"
+  },
+  "businessCaseMetrics": {
+    "readinessTitle": "Avaliação de Prontidão para Migração",
+    "readinessScore": "Pontuação de Prontidão",
+    "statusLabel": "Status:",
+    "complexityLabel": "Complexidade de Migração",
+    "riskLevel": "Nível de Risco",
+    "basedOnComplexity": "Baseado na complexidade da infraestrutura",
+    "timelineTitle": "Estimativa de Prazo",
+    "months": "meses",
+    "includingPlanning": "Incluindo planejamento e testes",
+    "resourceTitle": "Recursos Necessários",
+    "fte": "FTE",
+    "fteNeeded": "Equivalentes de tempo integral necessários",
+    "costTitle": "Potencial de Redução de Custos",
+    "annualSavings": "Economia Anual",
+    "perYear": "{{amount}}k por ano",
+    "recommendationsTitle": "Recomendações Estratégicas",
+    "optimizationPotential": "Potencial de Otimização",
+    "optimizationDesc": "Oportunidades de melhoria rápida na infraestrutura",
+    "costReduction": "Redução de Custos",
+    "costReductionDesc": "Economia anual potencial vs on-premises",
+    "estimatedROI": "ROI Estimado",
+    "monthsBreakEven": "meses para recuperar o investimento",
+    "infraTitle": "Escopo de Infraestrutura",
+    "servers": "Servidores",
+    "databases": "Bancos de Dados",
+    "applications": "Aplicações",
+    "tbStorage": "TB de Armazenamento",
+    "riskHigh": "Alto",
+    "riskMedium": "Médio",
+    "riskLow": "Baixo",
+    "riskSuffix": "Risco"
+  },
+  "sevenRsChart": {
+    "clickDetails": "Clique para ver detalhes →",
+    "recommendationsTitle": "Recomendações Estratégicas",
+    "quickWins": "Ganhos Rápidos",
+    "quickWinsDesc": "Servidores Rehost para migração imediata",
+    "optimizationPotential": "Potencial de Otimização",
+    "optimizationDesc": "Candidatos à modernização",
+    "costReduction": "Redução de Custos",
+    "costReductionDesc": "Descomissionar para reduzir custos",
+    "colHostname": "Hostname",
+    "colStorage": "Storage (GB)"
+  },
+  "architectureDiagram": {
+    "title": "Diagrama de Arquitetura AWS",
+    "implementationScore": "Pontuação de Implementação",
+    "required": "Obrigatória",
+    "stagingAccount": "Staging Account",
+    "stagingDesc": "Pré-produção",
+    "devAccount": "Development Account",
+    "devDesc": "Desenvolvimento e testes"
+  },
+  "databaseDependencyMap": {
+    "noData": "Nenhum banco de dados ou dependência de banco de dados foi encontrado no arquivo carregado.",
+    "statDatabases": "Bancos de Dados",
+    "statConnections": "Conexões BD",
+    "statPorts": "Portas Únicas",
+    "statProcesses": "Processos/Serviços",
+    "viewConnections": "Conexões BD↔Servidor",
+    "viewPorts": "Por Porta",
+    "viewProcesses": "Por Processo",
+    "colSourceServer": "Servidor Origem",
+    "colDestServer": "Servidor Destino",
+    "colPort": "Porta",
+    "colProtocol": "Protocolo",
+    "colProcess": "Processo / Serviço",
+    "connectionsTitle": "Conexões entre Bancos de Dados e Servidores",
+    "connectionsSubtitle": "Tráfego de rede detectado entre instâncias de BD e servidores",
+    "filterPlaceholder": "Filtrar por servidor, porta, protocolo, processo...",
+    "noDataToGraph": "Sem dados para graficar",
+    "server": "Servidor",
+    "custom": "Personalizado",
+    "filteringLabel": "Filtrando:",
+    "connectionsCount": "conexões",
+    "portsTitle": "Portas de rede utilizadas nas conexões detectadas",
+    "processesTitle": "Processos e serviços envolvidos nas conexões"
   }
 }

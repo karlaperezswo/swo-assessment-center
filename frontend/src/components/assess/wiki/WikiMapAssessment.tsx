@@ -1351,8 +1351,8 @@ function PresentacionPage() {
 }
 
 // ─── EXPORT ───────────────────────────────────────────────────────────────────
-export function WikiMapAssessment() {
-  const [activePage, setActivePage] = useState<MapPage>('overview');
+export function WikiMapAssessment({ initialPage = 'overview' }: { initialPage?: MapPage }) {
+  const [activePage, setActivePage] = useState<MapPage>(initialPage);
 
   const content: Record<MapPage, React.ReactNode> = {
     'overview': <OverviewPage />,

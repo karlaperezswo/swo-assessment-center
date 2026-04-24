@@ -717,8 +717,8 @@ function AwsTransformMgnPage() {
 }
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
-export function WikiHerramientas() {
-  const [activePage, setActivePage] = useState<HerramientaPage>('guia');
+export function WikiHerramientas({ initialPage = 'guia' }: { initialPage?: HerramientaPage }) {
+  const [activePage, setActivePage] = useState<HerramientaPage>(initialPage);
 
   const content: Record<HerramientaPage, React.ReactNode> = {
     'guia': <GuiaPage />,

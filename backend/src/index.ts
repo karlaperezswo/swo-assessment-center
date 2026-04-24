@@ -17,6 +17,7 @@ import { businessCaseRouter } from './routes/businessCaseRoutes';
 import { i18nRouter } from './routes/i18nRoutes';
 import { opportunityRouter } from './routes/opportunityRoutes';
 import { selectorRouter } from './routes/selectorRoutes';
+import { agentRouter } from './routes/agentRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -42,6 +43,7 @@ app.use('/api/business-case', businessCaseRouter);
 app.use('/api/i18n', i18nRouter);
 app.use('/api/opportunities', opportunityRouter);
 app.use('/api/selector', selectorRouter);
+app.use('/api/agent', agentRouter);
 
 // Health check
 app.get('/health', (req, res) => {

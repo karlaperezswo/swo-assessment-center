@@ -21,10 +21,10 @@ export function DatabaseTable({ databases, recommendations }: DatabaseTableProps
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <div className="overflow-auto rounded-md border max-h-[60vh]">
           <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50">
+            <thead className="bg-muted/50 backdrop-blur">
+              <tr className="border-b">
                 <th className="text-left p-2 font-medium">Nombre de Base de Datos</th>
                 <th className="text-left p-2 font-medium">Motor</th>
                 <th className="text-left p-2 font-medium">Edición</th>
@@ -39,7 +39,7 @@ export function DatabaseTable({ databases, recommendations }: DatabaseTableProps
               </tr>
             </thead>
             <tbody>
-              {databases.slice(0, 30).map((db, index) => {
+              {databases.map((db, index) => {
                 const rec = getRecommendation(db.dbName);
 
                 return (
@@ -70,12 +70,10 @@ export function DatabaseTable({ databases, recommendations }: DatabaseTableProps
               })}
             </tbody>
           </table>
-          {databases.length > 30 && (
-            <p className="text-sm text-muted-foreground mt-2 text-center">
-              Mostrando 30 de {databases.length} bases de datos
-            </p>
-          )}
         </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          {databases.length} bases de datos · scroll dentro de la tabla — los encabezados quedan fijos.
+        </p>
       </CardContent>
     </Card>
   );

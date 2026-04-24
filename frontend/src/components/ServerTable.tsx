@@ -21,10 +21,10 @@ export function ServerTable({ servers, recommendations }: ServerTableProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <div className="overflow-auto rounded-md border max-h-[60vh]">
           <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50">
+            <thead className="bg-muted/50 backdrop-blur">
+              <tr className="border-b">
                 <th className="text-left p-2 font-medium">Hostname</th>
                 <th className="text-left p-2 font-medium">OS</th>
                 <th className="text-right p-2 font-medium">vCPUs</th>
@@ -41,16 +41,16 @@ export function ServerTable({ servers, recommendations }: ServerTableProps) {
               </tr>
             </thead>
             <tbody>
-              {servers.slice(0, 50).map((server, index) => {
+              {servers.map((server, index) => {
                 const rec = getRecommendation(server.hostname);
                 const vcpus = server.numCpus * server.numCoresPerCpu * (server.numThreadsPerCore || 1);
 
                 return (
                   <tr key={server.serverId || index} className="border-b hover:bg-muted/30">
                     <td className="p-2 font-medium">{server.hostname}</td>
-                    <td className="p-2 text-muted-foreground">
+                    <td className="p-2 text-muted-foreground" title={server.osName}>
                       {server.osName?.substring(0, 20)}
-                      {server.osName?.length > 20 ? '...' : ''}
+                      {server.osName?.length > 20 ? '…' : ''}
                     </td>
                     <td className="p-2 text-right">{vcpus}</td>
                     <td className="p-2 text-right">{server.totalRAM?.toFixed(0) || 0}</td>
@@ -82,12 +82,10 @@ export function ServerTable({ servers, recommendations }: ServerTableProps) {
               })}
             </tbody>
           </table>
-          {servers.length > 50 && (
-            <p className="text-sm text-muted-foreground mt-2 text-center">
-              Showing 50 of {servers.length} servers
-            </p>
-          )}
         </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          {servers.length} servers · scroll dentro de la tabla — los encabezados quedan fijos.
+        </p>
       </CardContent>
     </Card>
   );

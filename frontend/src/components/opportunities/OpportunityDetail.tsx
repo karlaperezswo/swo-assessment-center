@@ -1,17 +1,20 @@
 import { Opportunity, OpportunityPriority } from '@shared/types/opportunity.types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { DollarSign, Target, MessageSquare, ListChecks, Cloud, FileText } from 'lucide-react';
+import { DollarSign, Target, MessageSquare, ListChecks, Cloud, FileText, Pencil, Trash2 } from 'lucide-react';
 
 interface OpportunityDetailProps {
   opportunity: Opportunity;
   onClose: () => void;
   onStatusUpdate: (opportunityId: string, newStatus: string) => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export function OpportunityDetail({ opportunity, onClose, onStatusUpdate }: OpportunityDetailProps) {
+export function OpportunityDetail({ opportunity, onClose, onStatusUpdate, onEdit, onDelete }: OpportunityDetailProps) {
   const priorityColors: Record<OpportunityPriority, string> = {
     High: 'bg-red-100 text-red-800 border-red-300',
     Medium: 'bg-yellow-100 text-yellow-800 border-yellow-300',
@@ -26,7 +29,36 @@ export function OpportunityDetail({ opportunity, onClose, onStatusUpdate }: Oppo
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">{opportunity.title}</DialogTitle>
+          <div className="flex items-start justify-between gap-3">
+            <DialogTitle className="text-2xl">{opportunity.title}</DialogTitle>
+            {(onEdit || onDelete) && (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {onEdit && (
+                  <Button type="button" variant="outline" size="sm" onClick={onEdit} aria-label="Editar oportunidad">
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Editar
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (window.confirm('¿Eliminar esta oportunidad?')) {
+                        onDelete();
+                      }
+                    }}
+                    aria-label="Eliminar oportunidad"
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Eliminar
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </DialogHeader>
 
         <div className="space-y-6">

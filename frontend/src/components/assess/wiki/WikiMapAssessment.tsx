@@ -71,17 +71,17 @@ function OverviewPage() {
     <div className="space-y-5">
       <Card className="border-fuchsia-100">
         <CardContent className="pt-5 space-y-3">
-          <h3 className="font-semibold text-gray-800">MAP Assessment</h3>
+          <h3 className="font-semibold text-gray-800">Introducción a la Fase</h3>
           <p className="text-sm text-gray-700 leading-relaxed">
             La fase de Assessment es el punto de partida fundamental del programa MAP. Durante esta etapa, se realiza un
             análisis exhaustivo del entorno actual del cliente para comprender su infraestructura, aplicaciones,
             dependencias y costos operativos.
           </p>
           <InfoAlert>
-            <strong>Objetivo Principal:</strong> Proporcionar una visión clara del estado actual de la infraestructura
-            y desarrollar un plan de migración estratégico basado en datos reales.
+            <strong>Objetivo Principal:</strong> Proporcionar una visión clara y detallada del estado actual de la
+            infraestructura y desarrollar un plan de migración estratégico basado en datos reales.
           </InfoAlert>
-          <p className="text-sm text-gray-700">Entregables clave de esta fase:</p>
+          <p className="text-sm text-gray-700">Los entregables clave de esta fase incluyen:</p>
           <ul className="space-y-1.5">
             <CheckItem>Inventario completo de la infraestructura</CheckItem>
             <CheckItem>Análisis de dependencias entre aplicaciones</CheckItem>
@@ -100,6 +100,8 @@ function OverviewPage() {
             className="w-full rounded-xl border border-gray-200 shadow-sm"
           />
           <h3 className="font-semibold text-gray-800">Proceso de Assessment</h3>
+          <p className="text-sm text-gray-600">El proceso de Assessment se ejecuta siguiendo estos pasos estructurados:</p>
+
           <div className="space-y-4">
             <div><StepHeader number="1" title="Preparación Inicial" />
               <ul className="space-y-1.5 ml-8">
@@ -111,9 +113,9 @@ function OverviewPage() {
             </div>
             <div><StepHeader number="2" title="Descubrimiento de Infraestructura" />
               <ul className="space-y-1.5 ml-8">
-                <CheckItem>Selección de herramienta de colecta</CheckItem>
+                <CheckItem>Selección de herramienta de colecta (Cloudamize, Concierto o Matilda)</CheckItem>
                 <CheckItem>Instalación y configuración de agentes</CheckItem>
-                <CheckItem>Recolección de datos (mínimo 2 semanas)</CheckItem>
+                <CheckItem>Recolección de datos durante el período definido (mínimo 2 semanas)</CheckItem>
                 <CheckItem>Validación de datos recolectados</CheckItem>
               </ul>
             </div>
@@ -122,17 +124,100 @@ function OverviewPage() {
                 <CheckItem>Análisis de patrones de uso y performance</CheckItem>
                 <CheckItem>Mapeo de dependencias</CheckItem>
                 <CheckItem>Evaluación de estrategias de migración (7Rs)</CheckItem>
-                <CheckItem>Cálculo de TCO</CheckItem>
+                <CheckItem>Cálculo de TCO (Total Cost of Ownership)</CheckItem>
               </ul>
             </div>
             <div><StepHeader number="4" title="Desarrollo del Business Case" />
               <ul className="space-y-1.5 ml-8">
-                <CheckItem>Análisis comparativo de costos on-premises vs AWS</CheckItem>
+                <CheckItem>Análisis comparativo de costos on-premises vs. AWS</CheckItem>
                 <CheckItem>Identificación de beneficios tangibles e intangibles</CheckItem>
-                <CheckItem>Desarrollo del plan de migración</CheckItem>
+                <CheckItem>Proyección de ROI</CheckItem>
+                <CheckItem>Análisis de riesgos</CheckItem>
+              </ul>
+            </div>
+            <div><StepHeader number="5" title="Plan de Migración" />
+              <ul className="space-y-1.5 ml-8">
+                <CheckItem>Agrupación de aplicaciones en waves</CheckItem>
+                <CheckItem>Priorización basada en complejidad y valor de negocio</CheckItem>
+                <CheckItem>Definición de timeline y recursos necesarios</CheckItem>
+                <CheckItem>Identificación de quick wins</CheckItem>
               </ul>
             </div>
           </div>
+
+          <TipAlert>
+            <strong>Duración Típica:</strong> Un MAP Assessment completo suele tomar entre 4 a 8 semanas,
+            dependiendo del tamaño y complejidad del entorno.
+          </TipAlert>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-3">
+          <h3 className="font-semibold text-gray-800">Checklist de Seguimiento (MAP Assessments)</h3>
+          <p className="text-sm text-gray-600">
+            Te recomendamos utilizar el siguiente checklist para asegurar que todos los componentes del assessment
+            se completen correctamente:
+          </p>
+          <ul className="space-y-1.5">
+            <CheckItem>Kickoff interno realizado con el equipo</CheckItem>
+            <CheckItem>Kickoff con cliente completado</CheckItem>
+            <CheckItem>Herramienta de colecta seleccionada</CheckItem>
+            <CheckItem>Agentes instalados y recolectando datos</CheckItem>
+            <CheckItem>Cuestionario de infraestructura completado</CheckItem>
+            <CheckItem>Período de recolección completado (mínimo 2 semanas)</CheckItem>
+            <CheckItem>Datos validados y analizados</CheckItem>
+            <CheckItem>Diagrama de infraestructura creado</CheckItem>
+            <CheckItem>Business case desarrollado</CheckItem>
+            <CheckItem>Plan de migración documentado</CheckItem>
+            <CheckItem>Presentación ejecutiva preparada</CheckItem>
+            <CheckItem>Revisión final con stakeholders completada</CheckItem>
+          </ul>
+        </CardContent>
+      </Card>
+
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-4">
+          <h3 className="font-semibold text-gray-800">Kickoff Interno y Externo</h3>
+          <p className="text-sm text-gray-700 leading-relaxed">
+            El kickoff interno es una reunión crucial que debe realizarse antes de iniciar el engagement con el cliente.
+            Su propósito es alinear al equipo de consultores sobre los objetivos, alcance y metodología del assessment.
+          </p>
+
+          <div>
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">Agenda del Kickoff Interno</h4>
+            <div className="space-y-3">
+              {[
+                { n: '1', t: 'Revisión del Cliente', time: '15 min', items: ['Información general del cliente', 'Industria y contexto de negocio', 'Objetivos de la migración'] },
+                { n: '2', t: 'Alcance del Assessment', time: '20 min', items: ['Entornos a evaluar', 'Exclusiones y limitaciones', 'Timeline y milestones'] },
+                { n: '3', t: 'Asignación de Roles', time: '15 min', items: ['Lead consultant', 'Technical consultants', 'Especialistas por área'] },
+                { n: '4', t: 'Herramientas y Metodología', time: '20 min', items: ['Selección de herramienta de colecta', 'Proceso de recolección de datos', 'Templates y documentación a utilizar'] },
+                { n: '5', t: 'Próximos Pasos', time: '10 min', items: ['Preparación para kickoff con cliente', 'Materiales a preparar', 'Fecha del kickoff con cliente'] },
+              ].map((item) => (
+                <div key={item.n} className="flex gap-3">
+                  <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</span>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-sm font-semibold text-gray-800">{item.t}</p>
+                      <span className="text-xs text-gray-500 bg-white border rounded px-2 py-0.5">{item.time}</span>
+                    </div>
+                    <ul className="space-y-0.5">
+                      {item.items.map((i) => (
+                        <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
+                          <span className="text-fuchsia-400 mt-0.5">•</span>{i}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <TipAlert>
+            Documenta todas las decisiones tomadas durante el kickoff interno y compártelas con el equipo para
+            referencia futura.
+          </TipAlert>
         </CardContent>
       </Card>
     </div>

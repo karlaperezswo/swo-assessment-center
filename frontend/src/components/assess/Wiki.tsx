@@ -188,8 +188,16 @@ export function Wiki() {
                     {/* Main nav item */}
                     <button
                       onClick={() => {
-                        navigateTo(item.value);
-                        if (item.expandable) toggleExpand(item.value);
+                        setActivePage(item.value);
+                        if (item.expandable) {
+                          // Always keep expandable sections open when navigating to them;
+                          // only collapse when clicking the chevron on an already-active section
+                          if (activePage === item.value) {
+                            toggleExpand(item.value);
+                          } else {
+                            setExpandedSections(prev => new Set([...prev, item.value]));
+                          }
+                        }
                       }}
                       className={cn(
                         'w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium text-left transition-all',

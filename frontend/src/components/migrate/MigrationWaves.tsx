@@ -102,19 +102,19 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
   const handleAutoGroup = () => {
     const allServers: string[] = dependencyData?.servers ?? [];
     if (allServers.length === 0 || edges.length === 0) {
-      toast.error('No hay datos de dependencias para agrupar');
+      toast.error(t('waveIntegration.autoGroupError'));
       return;
     }
     const clusters = detectClusters(allServers, edges);
     const suggestions = suggestWavesFromClusters(clusters);
     if (suggestions.length === 0) {
-      toast.error('No se pudieron derivar olas desde los clústeres');
+      toast.error(t('waveIntegration.autoGroupError'));
       return;
     }
     const newWaves: MigrationWave[] = suggestions.map((s) => ({
       id: `wave-cluster-${s.waveNumber}-${Date.now()}`,
       waveNumber: s.waveNumber,
-      name: `Wave ${s.waveNumber} · cluster (${s.servers.length} srv)`,
+      name: t('waveIntegration.waveLabel', { n: s.waveNumber, count: s.servers.length }),
       startDate: '',
       endDate: '',
       serverCount: s.servers.length,
@@ -125,7 +125,7 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
       servers: s.servers,
     }));
     onWavesChange(newWaves);
-    toast.success(`${newWaves.length} olas sugeridas a partir de ${clusters.length} clústeres`);
+    toast.success(t('waveIntegration.autoGroupSuccess', { waves: newWaves.length, clusters: clusters.length }));
   };
 
   return (
@@ -194,14 +194,14 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
           Migration Planner
         </button>
         {edges.length > 0 && (
-          <button type="button" aria-label="Auto-agrupar olas desde dependencias" onClick={handleAutoGroup}
+          <button type="button" aria-label={t('waveIntegration.autoGroup')} onClick={handleAutoGroup}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 8,
               fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
               background: 'linear-gradient(90deg, #0f766e 0%, #0891b2 100%)',
               color: '#fff', boxShadow: '0 2px 8px rgba(8,145,178,0.3)' }}
-            title="Genera olas a partir de clústeres detectados en el mapa de dependencias">
+            title={t('waveIntegration.autoGroupTooltip')}>
             <Sparkles style={{ width: 14, height: 14 }} />
-            Auto-agrupar desde dependencias
+            {t('waveIntegration.autoGroup')}
           </button>
         )}
       </div>
@@ -213,21 +213,21 @@ export function MigrationWaves({ waves, onWavesChange, dependencyData }: Migrati
             borderBottom: '1px solid #fecaca', background: '#fee2e2' }}>
             <ShieldAlert style={{ width: 16, height: 16, color: '#b91c1c' }} />
             <span style={{ fontSize: 13, fontWeight: 700, color: '#991b1b' }}>
-              {conflicts.length} conflicto{conflicts.length === 1 ? '' : 's'} de dependencia entre olas
+              {t('waveIntegration.conflictsHeader', { count: conflicts.length })}
             </span>
           </div>
           <ul style={{ margin: 0, padding: '8px 16px 12px 32px', listStyle: 'disc' }}>
             {conflicts.slice(0, 6).map((c, i) => (
               <li key={i} style={{ fontSize: 12, color: '#7f1d1d', marginTop: 4 }}>
                 <strong style={{ color: c.severity === 'critical' ? '#991b1b' : '#b45309' }}>
-                  [{c.severity === 'critical' ? 'CRÍTICO' : 'aviso'}]
+                  [{c.severity === 'critical' ? t('waveIntegration.severityCritical') : t('waveIntegration.severityWarning')}]
                 </strong>{' '}
                 {c.message}
               </li>
             ))}
             {conflicts.length > 6 && (
               <li style={{ fontSize: 11, color: '#991b1b', marginTop: 4, fontStyle: 'italic' }}>
-                +{conflicts.length - 6} conflictos más
+                {t('waveIntegration.conflictsMore', { count: conflicts.length - 6 })}
               </li>
             )}
           </ul>

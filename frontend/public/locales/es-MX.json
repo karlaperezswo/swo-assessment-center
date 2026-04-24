@@ -133,24 +133,60 @@
       "modernization": "Modernización de Arquitectura"
     },
     "rightSizing": {
-      "op1": { "title": "Análisis de Utilización de CPU/RAM", "description": "Identifica instancias sobredimensionadas usando CloudWatch metrics y recomienda tipos de instancia más pequeños." },
-      "op2": { "title": "Migración a Graviton (ARM)", "description": "Las instancias AWS Graviton3 ofrecen hasta 40% mejor precio/rendimiento vs instancias x86 equivalentes." },
-      "op3": { "title": "Auto Scaling Dinámico", "description": "Implementa políticas de escalado automático para ajustar capacidad según demanda real." }
+      "op1": {
+        "title": "Análisis de Utilización de CPU/RAM",
+        "description": "Identifica instancias sobredimensionadas usando CloudWatch metrics y recomienda tipos de instancia más pequeños."
+      },
+      "op2": {
+        "title": "Migración a Graviton (ARM)",
+        "description": "Las instancias AWS Graviton3 ofrecen hasta 40% mejor precio/rendimiento vs instancias x86 equivalentes."
+      },
+      "op3": {
+        "title": "Auto Scaling Dinámico",
+        "description": "Implementa políticas de escalado automático para ajustar capacidad según demanda real."
+      }
     },
     "reservedInstances": {
-      "op1": { "title": "3-Year Reserved Instances (No Upfront)", "description": "Compromiso de 3 años sin pago inicial. Ideal para workloads estables y predecibles." },
-      "op2": { "title": "1-Year Reserved Instances", "description": "Balance entre flexibilidad y ahorro. Recomendado para workloads con crecimiento moderado." },
-      "op3": { "title": "Savings Plans (Compute)", "description": "Flexibilidad para cambiar entre familias de instancias, regiones y sistemas operativos." }
+      "op1": {
+        "title": "3-Year Reserved Instances (No Upfront)",
+        "description": "Compromiso de 3 años sin pago inicial. Ideal para workloads estables y predecibles."
+      },
+      "op2": {
+        "title": "1-Year Reserved Instances",
+        "description": "Balance entre flexibilidad y ahorro. Recomendado para workloads con crecimiento moderado."
+      },
+      "op3": {
+        "title": "Savings Plans (Compute)",
+        "description": "Flexibilidad para cambiar entre familias de instancias, regiones y sistemas operativos."
+      }
     },
     "storage": {
-      "op1": { "title": "S3 Intelligent-Tiering", "description": "Mueve automáticamente datos entre tiers de acceso frecuente e infrecuente según patrones de uso." },
-      "op2": { "title": "EBS Volume Optimization", "description": "Migra de gp2 a gp3 para mejor rendimiento a menor costo. gp3 es 20% más barato que gp2." },
-      "op3": { "title": "Lifecycle Policies", "description": "Archiva datos antiguos a S3 Glacier para reducir costos de almacenamiento a largo plazo." }
+      "op1": {
+        "title": "S3 Intelligent-Tiering",
+        "description": "Mueve automáticamente datos entre tiers de acceso frecuente e infrecuente según patrones de uso."
+      },
+      "op2": {
+        "title": "EBS Volume Optimization",
+        "description": "Migra de gp2 a gp3 para mejor rendimiento a menor costo. gp3 es 20% más barato que gp2."
+      },
+      "op3": {
+        "title": "Lifecycle Policies",
+        "description": "Archiva datos antiguos a S3 Glacier para reducir costos de almacenamiento a largo plazo."
+      }
     },
     "modernization": {
-      "op1": { "title": "Serverless con AWS Lambda", "description": "Elimina costos de servidores idle. Paga solo por ejecución. Ideal para workloads intermitentes." },
-      "op2": { "title": "Contenedores con ECS/EKS", "description": "Mayor densidad de workloads por servidor. Reduce número de instancias necesarias." },
-      "op3": { "title": "Managed Services (RDS, ElastiCache)", "description": "Reduce overhead operacional y optimiza costos de licencias de base de datos." }
+      "op1": {
+        "title": "Serverless con AWS Lambda",
+        "description": "Elimina costos de servidores idle. Paga solo por ejecución. Ideal para workloads intermitentes."
+      },
+      "op2": {
+        "title": "Contenedores con ECS/EKS",
+        "description": "Mayor densidad de workloads por servidor. Reduce número de instancias necesarias."
+      },
+      "op3": {
+        "title": "Managed Services (RDS, ElastiCache)",
+        "description": "Reduce overhead operacional y optimiza costos de licencias de base de datos."
+      }
     }
   },
   "modernization": {
@@ -158,33 +194,78 @@
     "description": "Plan estructurado para modernizar tu infraestructura aprovechando servicios nativos de AWS.",
     "benefits": {
       "title": "Beneficios Clave de la Modernización",
-      "innovation": { "title": "Velocidad de Innovación", "description": "Ciclos de desarrollo más rápidos con servicios gestionados y arquitecturas modernas." },
-      "performance": { "title": "Rendimiento Optimizado", "description": "Servicios nativos de AWS diseñados para escalar automáticamente según demanda." },
-      "capabilities": { "title": "Nuevas Capacidades", "description": "Acceso a IA/ML, analytics avanzado y servicios de próxima generación." }
+      "innovation": {
+        "title": "Velocidad de Innovación",
+        "description": "Ciclos de desarrollo más rápidos con servicios gestionados y arquitecturas modernas."
+      },
+      "performance": {
+        "title": "Rendimiento Optimizado",
+        "description": "Servicios nativos de AWS diseñados para escalar automáticamente según demanda."
+      },
+      "capabilities": {
+        "title": "Nuevas Capacidades",
+        "description": "Acceso a IA/ML, analytics avanzado y servicios de próxima generación."
+      }
     },
     "phase1": {
       "title": "Fase 1: Fundamentos Cloud-Ready",
-      "init1": { "title": "Optimización de Base de Datos", "description": "Migrar a Amazon RDS/Aurora para reducir overhead operacional y mejorar disponibilidad." },
-      "init2": { "title": "Implementación de CI/CD", "description": "Automatizar pipelines de deployment con AWS CodePipeline, CodeBuild y CodeDeploy." },
-      "init3": { "title": "Monitoreo y Observabilidad", "description": "Implementar CloudWatch, X-Ray y AWS Config para visibilidad completa del sistema." }
+      "init1": {
+        "title": "Optimización de Base de Datos",
+        "description": "Migrar a Amazon RDS/Aurora para reducir overhead operacional y mejorar disponibilidad."
+      },
+      "init2": {
+        "title": "Implementación de CI/CD",
+        "description": "Automatizar pipelines de deployment con AWS CodePipeline, CodeBuild y CodeDeploy."
+      },
+      "init3": {
+        "title": "Monitoreo y Observabilidad",
+        "description": "Implementar CloudWatch, X-Ray y AWS Config para visibilidad completa del sistema."
+      }
     },
     "phase2": {
       "title": "Fase 2: Containerización",
-      "init1": { "title": "Containerización de Aplicaciones", "description": "Migrar aplicaciones monolíticas a contenedores Docker para mayor portabilidad." },
-      "init2": { "title": "Orquestación con ECS/EKS", "description": "Implementar orquestación de contenedores para escalabilidad y alta disponibilidad." },
-      "init3": { "title": "Service Mesh e Istio", "description": "Implementar comunicación segura y observable entre microservicios." }
+      "init1": {
+        "title": "Containerización de Aplicaciones",
+        "description": "Migrar aplicaciones monolíticas a contenedores Docker para mayor portabilidad."
+      },
+      "init2": {
+        "title": "Orquestación con ECS/EKS",
+        "description": "Implementar orquestación de contenedores para escalabilidad y alta disponibilidad."
+      },
+      "init3": {
+        "title": "Service Mesh e Istio",
+        "description": "Implementar comunicación segura y observable entre microservicios."
+      }
     },
     "phase3": {
       "title": "Fase 3: Arquitectura de Microservicios",
-      "init1": { "title": "Descomposición de Monolitos", "description": "Identificar y extraer bounded contexts para crear microservicios independientes." },
-      "init2": { "title": "Event-Driven Architecture", "description": "Implementar comunicación asíncrona con Amazon SQS, SNS y EventBridge." },
-      "init3": { "title": "API Gateway y GraphQL", "description": "Centralizar gestión de APIs con Amazon API Gateway y AWS AppSync." }
+      "init1": {
+        "title": "Descomposición de Monolitos",
+        "description": "Identificar y extraer bounded contexts para crear microservicios independientes."
+      },
+      "init2": {
+        "title": "Event-Driven Architecture",
+        "description": "Implementar comunicación asíncrona con Amazon SQS, SNS y EventBridge."
+      },
+      "init3": {
+        "title": "API Gateway y GraphQL",
+        "description": "Centralizar gestión de APIs con Amazon API Gateway y AWS AppSync."
+      }
     },
     "phase4": {
       "title": "Fase 4: Cloud-Native e IA",
-      "init1": { "title": "Serverless con Lambda", "description": "Migrar workloads apropiados a arquitectura serverless para máxima eficiencia." },
-      "init2": { "title": "Integración de ML/IA", "description": "Incorporar Amazon SageMaker, Rekognition y Bedrock para capacidades de IA." },
-      "init3": { "title": "Data Lake y Analytics", "description": "Implementar arquitectura de datos moderna con S3, Glue, Athena y QuickSight." }
+      "init1": {
+        "title": "Serverless con Lambda",
+        "description": "Migrar workloads apropiados a arquitectura serverless para máxima eficiencia."
+      },
+      "init2": {
+        "title": "Integración de ML/IA",
+        "description": "Incorporar Amazon SageMaker, Rekognition y Bedrock para capacidades de IA."
+      },
+      "init3": {
+        "title": "Data Lake y Analytics",
+        "description": "Implementar arquitectura de datos moderna con S3, Glue, Athena y QuickSight."
+      }
     },
     "metrics": {
       "title": "Métricas de Éxito Esperadas",
@@ -868,5 +949,127 @@
       "recommendations": "{{count}} recomendaciones",
       "addRecommendation": "Agregar recomendación"
     }
+  },
+  "readiness": {
+    "overall": "Preparación general",
+    "levels": {
+      "ready": "Listo para migrar",
+      "evaluating": "En evaluación — quedan brechas",
+      "not_ready": "No listo — brechas críticas"
+    },
+    "dimensions": {
+      "technical": "Técnica",
+      "data": "Datos",
+      "security": "Seguridad y cumplimiento",
+      "organizational": "Organizacional",
+      "technicalDesc": "Soportabilidad de la infraestructura y calidad de datos.",
+      "dataDesc": "Inventario, clasificación y estrategia de migración de datos.",
+      "securityDesc": "Guardrails, identidad, protección de datos y cumplimiento regulatorio.",
+      "organizationalDesc": "Patrocinio, modelo operativo, habilidades y financiación."
+    },
+    "gaps": {
+      "title": "Principales brechas a cerrar",
+      "empty": "Sin brechas detectadas — listo para continuar."
+    },
+    "autoBadge": "auto"
+  },
+  "tcoScenarios": {
+    "title": "Comparador de escenarios TCO",
+    "adjust": "Ajustar",
+    "hide": "Ocultar",
+    "exportCsv": "CSV",
+    "best": "MEJOR",
+    "columns": {
+      "scenario": "Escenario",
+      "commitment": "Compromiso",
+      "risk": "Riesgo",
+      "monthly": "Mensual",
+      "annual": "Anual",
+      "threeYear": "3 años",
+      "savings3y": "Ahorro 3a",
+      "percent": "%"
+    },
+    "spotDiscount": "Descuento Spot (%)",
+    "spotHint": "Típico: 60-80% según familia de instancia.",
+    "savingsPlan": "Descuento Savings Plan (fracción del On-Demand)",
+    "savingsPlanHint": "Fracción pagada vs On-Demand. 50% = 50% de ahorro.",
+    "disclaimer": "Los valores Spot y Savings Plan son estimaciones paramétricas. Ajusta los porcentajes arriba según negociación real con AWS."
+  },
+  "riskRules": {
+    "title": "Riesgos detectados",
+    "rulesBtn": "Reglas",
+    "severity": {
+      "high": "alto",
+      "medium": "medio",
+      "low": "bajo"
+    },
+    "severityCount": {
+      "high": "{{count}} alto",
+      "medium": "{{count}} medio",
+      "low": "{{count}} bajo"
+    },
+    "empty": "No se detectaron riesgos con las reglas activas.",
+    "configurable": "Reglas configurables",
+    "reset": "Reset",
+    "newRule": "Nueva regla",
+    "label": "Etiqueta",
+    "pattern": "Patrón (regex)",
+    "severityLabel": "Severidad",
+    "category": "Categoría",
+    "addRule": "Agregar regla"
+  },
+  "excelValidation": {
+    "title": "Validación del MPA",
+    "ok": "OK",
+    "errors": "{{count}} error(es)",
+    "warnings": "{{count}} aviso(s)",
+    "info": "{{count}} info",
+    "stats": {
+      "servers": "Servidores",
+      "databases": "Bases de datos",
+      "applications": "Aplicaciones",
+      "dependencies": "Dependencias"
+    },
+    "allPassed": "Todos los controles pasaron. Los datos están listos para análisis."
+  },
+  "sessionMenu": {
+    "trigger": "Sesión",
+    "ariaLabel": "Menú de sesión",
+    "saveLocal": "Guardar en este navegador",
+    "saveLocalHint": "localStorage",
+    "restore": "Restaurar última sesión",
+    "restoreHintSaved": "Guardada {{date}}",
+    "restoreHintEmpty": "Sin sesión guardada",
+    "export": "Exportar a archivo",
+    "exportHint": "JSON con auxiliares",
+    "import": "Importar desde archivo",
+    "importHint": "JSON de sesión",
+    "clear": "Borrar sesión guardada",
+    "saved": "Sesión guardada localmente",
+    "restored": "Sesión restaurada ({{date}})",
+    "noSession": "No hay sesión guardada",
+    "exported": "Sesión exportada a JSON",
+    "imported": "Sesión importada correctamente",
+    "importError": "Error al importar sesión",
+    "cleared": "Sesión local borrada"
+  },
+  "waveIntegration": {
+    "autoGroup": "Auto-agrupar desde dependencias",
+    "autoGroupTooltip": "Genera olas a partir de clústeres detectados en el mapa de dependencias",
+    "autoGroupError": "No hay datos de dependencias para agrupar",
+    "autoGroupSuccess": "{{waves}} olas sugeridas a partir de {{clusters}} clústeres",
+    "waveLabel": "Wave {{n}} · cluster ({{count}} srv)",
+    "conflictsHeader": "{{count}} conflicto(s) de dependencia entre olas",
+    "conflictsMore": "+{{count}} conflictos más",
+    "severityCritical": "CRÍTICO",
+    "severityWarning": "aviso",
+    "gantt": {
+      "title": "Línea de tiempo de olas"
+    }
+  },
+  "icsExport": {
+    "button": "Calendario (.ics)",
+    "empty": "No hay sesiones para exportar",
+    "downloaded": "Calendario .ics descargado"
   }
 }

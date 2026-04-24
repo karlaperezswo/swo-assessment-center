@@ -7,10 +7,10 @@ import { BusinessCaseMetrics } from '@/components/BusinessCaseMetrics';
 import { ExcelData, UploadSummary } from '@/types/assessment';
 import {
   computeReadiness,
-  readinessLevelLabel,
   ManualChecklistState,
   ReadinessDimension,
   ReadinessCheck,
+  ReadinessLevel,
 } from '@/lib/migrationReadiness';
 import { usePersistedState } from '@/lib/usePersistedState';
 import {
@@ -88,9 +88,9 @@ export function MigrationReadiness({
           <CardTitle className="flex items-center justify-between">
             <span className="flex items-center gap-2">
               <Gauge className="h-6 w-6 text-fuchsia-600" />
-              Overall Readiness
+              {t('readiness.overall')}
             </span>
-            <Badge className={levelBadge.className}>{readinessLevelLabel(report.level)}</Badge>
+            <Badge className={levelBadge.className}>{t(`readiness.levels.${report.level}`)}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -108,7 +108,7 @@ export function MigrationReadiness({
                   >
                     <Icon className="h-5 w-5 text-gray-500" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500">{d.label}</p>
+                      <p className="text-xs text-gray-500">{t(`readiness.dimensions.${d.id}`)}</p>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                           <div
@@ -132,7 +132,7 @@ export function MigrationReadiness({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-amber-900">
               <AlertTriangle className="h-5 w-5" />
-              Top gaps to close ({report.gaps.length})
+              {t('readiness.gaps.title')} ({report.gaps.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -155,7 +155,14 @@ export function MigrationReadiness({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {report.dimensions.map((d) => (
-          <DimensionCard key={d.id} dimension={d} onToggle={toggleCheck} />
+          <DimensionCard
+            key={d.id}
+            dimension={d}
+            onToggle={toggleCheck}
+            label={t(`readiness.dimensions.${d.id}`)}
+            description={t(`readiness.dimensions.${d.id}Desc`)}
+            autoBadge={t('readiness.autoBadge')}
+          />
         ))}
       </div>
 
@@ -173,9 +180,15 @@ export function MigrationReadiness({
 function DimensionCard({
   dimension,
   onToggle,
+  label,
+  description,
+  autoBadge,
 }: {
   dimension: ReadinessDimension;
   onToggle: (id: string, value: boolean) => void;
+  label: string;
+  description: string;
+  autoBadge: string;
 }) {
   const Icon = dimensionIcons[dimension.id];
   const passedCount = dimension.checks.filter((c) => c.passed).length;
@@ -186,18 +199,24 @@ function DimensionCard({
         <CardTitle className="flex items-center justify-between text-base">
           <span className="flex items-center gap-2">
             <Icon className="h-5 w-5 text-gray-600" />
-            {dimension.label}
+            {label}
           </span>
           <span className="text-sm text-gray-500 font-normal">
             {passedCount}/{dimension.checks.length} · {dimension.score}%
           </span>
         </CardTitle>
-        <p className="text-xs text-gray-500">{dimension.description}</p>
+        <p className="text-xs text-gray-500">{description}</p>
       </CardHeader>
       <CardContent>
         <ul className="space-y-3">
           {dimension.checks.map((check) => (
-            <CheckRow key={check.id} check={check} onToggle={onToggle} isAutomatic={isAutomatic(check.id)} />
+            <CheckRow
+              key={check.id}
+              check={check}
+              onToggle={onToggle}
+              isAutomatic={isAutomatic(check.id)}
+              autoBadge={autoBadge}
+            />
           ))}
         </ul>
       </CardContent>
@@ -209,10 +228,12 @@ function CheckRow({
   check,
   onToggle,
   isAutomatic,
+  autoBadge,
 }: {
   check: ReadinessCheck;
   onToggle: (id: string, value: boolean) => void;
   isAutomatic: boolean;
+  autoBadge: string;
 }) {
   return (
     <li className="flex items-start gap-3">
@@ -240,7 +261,7 @@ function CheckRow({
           {check.title}
           {isAutomatic && (
             <Badge variant="outline" className="ml-2 text-[10px] py-0">
-              auto
+              {autoBadge}
             </Badge>
           )}
         </label>
@@ -297,7 +318,7 @@ function ScoreDial({ score, color }: { score: number; color: string }) {
   );
 }
 
-function levelBadgeStyles(level: 'ready' | 'evaluating' | 'not_ready') {
+function levelBadgeStyles(level: ReadinessLevel) {
   switch (level) {
     case 'ready':
       return {

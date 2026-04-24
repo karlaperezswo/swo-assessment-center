@@ -948,5 +948,127 @@
     "outbound": "Outbound",
     "environment": "Environment",
     "noApps": "No applications found for the selected environment"
+  },
+  "readiness": {
+    "overall": "Overall Readiness",
+    "levels": {
+      "ready": "Ready to migrate",
+      "evaluating": "Evaluating — gaps remain",
+      "not_ready": "Not ready — critical gaps"
+    },
+    "dimensions": {
+      "technical": "Technical",
+      "data": "Data",
+      "security": "Security & Compliance",
+      "organizational": "Organizational",
+      "technicalDesc": "Infrastructure supportability and data quality.",
+      "dataDesc": "Data inventory, classification, and migration strategy.",
+      "securityDesc": "Guardrails, identity, data protection, and regulatory readiness.",
+      "organizationalDesc": "Sponsorship, operating model, skills, and funding."
+    },
+    "gaps": {
+      "title": "Top gaps to close",
+      "empty": "No gaps detected — ready to proceed."
+    },
+    "autoBadge": "auto"
+  },
+  "tcoScenarios": {
+    "title": "TCO Scenario Comparator",
+    "adjust": "Adjust",
+    "hide": "Hide",
+    "exportCsv": "CSV",
+    "best": "BEST",
+    "columns": {
+      "scenario": "Scenario",
+      "commitment": "Commitment",
+      "risk": "Risk",
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "threeYear": "3 years",
+      "savings3y": "3Y Savings",
+      "percent": "%"
+    },
+    "spotDiscount": "Spot discount (%)",
+    "spotHint": "Typical: 60-80% depending on instance family.",
+    "savingsPlan": "Savings Plan discount (fraction of On-Demand)",
+    "savingsPlanHint": "Fraction paid vs On-Demand. 50% = 50% savings.",
+    "disclaimer": "Spot and Savings Plan values are parametric estimates. Adjust percentages above based on actual AWS negotiation."
+  },
+  "riskRules": {
+    "title": "Detected risks",
+    "rulesBtn": "Rules",
+    "severity": {
+      "high": "high",
+      "medium": "medium",
+      "low": "low"
+    },
+    "severityCount": {
+      "high": "{{count}} high",
+      "medium": "{{count}} medium",
+      "low": "{{count}} low"
+    },
+    "empty": "No risks detected with the active rules.",
+    "configurable": "Configurable rules",
+    "reset": "Reset",
+    "newRule": "New rule",
+    "label": "Label",
+    "pattern": "Pattern (regex)",
+    "severityLabel": "Severity",
+    "category": "Category",
+    "addRule": "Add rule"
+  },
+  "excelValidation": {
+    "title": "MPA validation",
+    "ok": "OK",
+    "errors": "{{count}} error(s)",
+    "warnings": "{{count}} warning(s)",
+    "info": "{{count}} info",
+    "stats": {
+      "servers": "Servers",
+      "databases": "Databases",
+      "applications": "Applications",
+      "dependencies": "Dependencies"
+    },
+    "allPassed": "All checks passed. Data is ready for analysis."
+  },
+  "sessionMenu": {
+    "trigger": "Session",
+    "ariaLabel": "Session menu",
+    "saveLocal": "Save in this browser",
+    "saveLocalHint": "localStorage",
+    "restore": "Restore last session",
+    "restoreHintSaved": "Saved {{date}}",
+    "restoreHintEmpty": "No saved session",
+    "export": "Export to file",
+    "exportHint": "JSON with auxiliaries",
+    "import": "Import from file",
+    "importHint": "Session JSON",
+    "clear": "Delete saved session",
+    "saved": "Session saved locally",
+    "restored": "Session restored ({{date}})",
+    "noSession": "No saved session",
+    "exported": "Session exported to JSON",
+    "imported": "Session imported successfully",
+    "importError": "Error importing session",
+    "cleared": "Local session deleted"
+  },
+  "waveIntegration": {
+    "autoGroup": "Auto-group from dependencies",
+    "autoGroupTooltip": "Generate waves from clusters detected in the dependency map",
+    "autoGroupError": "No dependency data to group",
+    "autoGroupSuccess": "{{waves}} waves suggested from {{clusters}} clusters",
+    "waveLabel": "Wave {{n}} · cluster ({{count}} srv)",
+    "conflictsHeader": "{{count}} dependency conflict(s) between waves",
+    "conflictsMore": "+{{count}} more conflicts",
+    "severityCritical": "CRITICAL",
+    "severityWarning": "warning",
+    "gantt": {
+      "title": "Wave timeline"
+    }
+  },
+  "icsExport": {
+    "button": "Calendar (.ics)",
+    "empty": "No sessions to export",
+    "downloaded": ".ics calendar downloaded"
   }
 }

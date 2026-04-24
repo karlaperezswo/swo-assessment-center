@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Save, Upload, Download, Clock, Trash2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   SessionSnapshot,
   saveSession,
@@ -20,24 +21,25 @@ interface SessionMenuProps {
 }
 
 export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenuProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const stored = loadSession();
 
   const handleSaveLocal = () => {
     saveSession(currentSnapshot);
-    toast.success('Sesión guardada localmente');
+    toast.success(t('sessionMenu.saved'));
     setOpen(false);
   };
 
   const handleLoadLocal = () => {
     const snap = loadSession();
     if (!snap) {
-      toast.error('No hay sesión guardada');
+      toast.error(t('sessionMenu.noSession'));
       return;
     }
     onRestore(snap);
-    toast.success(`Sesión restaurada (${new Date(snap.savedAt).toLocaleString()})`);
+    toast.success(t('sessionMenu.restored', { date: new Date(snap.savedAt).toLocaleString() }));
     setOpen(false);
   };
 
@@ -66,7 +68,7 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success('Sesión exportada a JSON');
+    toast.success(t('sessionMenu.exported'));
     setOpen(false);
   };
 
@@ -79,9 +81,9 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
       if (parsed.auxiliary) applyAuxiliaryState(parsed.auxiliary);
       const snap = await importSessionFromFile(file);
       onRestore(snap);
-      toast.success('Sesión importada correctamente');
+      toast.success(t('sessionMenu.imported'));
     } catch (err: any) {
-      toast.error('Error al importar sesión', { description: err?.message });
+      toast.error(t('sessionMenu.importError'), { description: err?.message });
     } finally {
       if (fileRef.current) fileRef.current.value = '';
       setOpen(false);
@@ -91,15 +93,15 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
   const handleClear = () => {
     clearSession();
     onReset();
-    toast.success('Sesión local borrada');
+    toast.success(t('sessionMenu.cleared'));
     setOpen(false);
   };
 
   return (
     <div className="relative inline-block">
-      <Button type="button" variant="outline" size="sm" onClick={() => setOpen(!open)} aria-label="Menú de sesión" aria-expanded={open}>
+      <Button type="button" variant="outline" size="sm" onClick={() => setOpen(!open)} aria-label={t('sessionMenu.ariaLabel')} aria-expanded={open}>
         <Save className="h-4 w-4 mr-1" />
-        Sesión
+        {t('sessionMenu.trigger')}
         <ChevronDown className="h-3 w-3 ml-1" />
       </Button>
       {open && (
@@ -115,8 +117,8 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
               >
                 <Save className="h-4 w-4 text-blue-600" />
                 <div className="flex-1">
-                  <div className="font-medium">Guardar en este navegador</div>
-                  <div className="text-xs text-gray-500">localStorage</div>
+                  <div className="font-medium">{t('sessionMenu.saveLocal')}</div>
+                  <div className="text-xs text-gray-500">{t('sessionMenu.saveLocalHint')}</div>
                 </div>
               </button>
               <button
@@ -128,11 +130,11 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
               >
                 <Clock className="h-4 w-4 text-green-600" />
                 <div className="flex-1">
-                  <div className="font-medium">Restaurar última sesión</div>
+                  <div className="font-medium">{t('sessionMenu.restore')}</div>
                   <div className="text-xs text-gray-500">
                     {stored
-                      ? `Guardada ${new Date(stored.savedAt).toLocaleString()}`
-                      : 'Sin sesión guardada'}
+                      ? t('sessionMenu.restoreHintSaved', { date: new Date(stored.savedAt).toLocaleString() })
+                      : t('sessionMenu.restoreHintEmpty')}
                   </div>
                 </div>
               </button>
@@ -145,15 +147,15 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
               >
                 <Download className="h-4 w-4 text-purple-600" />
                 <div className="flex-1">
-                  <div className="font-medium">Exportar a archivo</div>
-                  <div className="text-xs text-gray-500">JSON con auxiliares</div>
+                  <div className="font-medium">{t('sessionMenu.export')}</div>
+                  <div className="text-xs text-gray-500">{t('sessionMenu.exportHint')}</div>
                 </div>
               </button>
               <label className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-left cursor-pointer">
                 <Upload className="h-4 w-4 text-orange-600" />
                 <div className="flex-1">
-                  <div className="font-medium">Importar desde archivo</div>
-                  <div className="text-xs text-gray-500">JSON de sesión</div>
+                  <div className="font-medium">{t('sessionMenu.import')}</div>
+                  <div className="text-xs text-gray-500">{t('sessionMenu.importHint')}</div>
                 </div>
                 <input
                   ref={fileRef}
@@ -172,7 +174,7 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
               >
                 <Trash2 className="h-4 w-4" />
                 <div className="flex-1">
-                  <div className="font-medium">Borrar sesión guardada</div>
+                  <div className="font-medium">{t('sessionMenu.clear')}</div>
                 </div>
               </button>
             </CardContent>

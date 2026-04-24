@@ -948,5 +948,127 @@
     "outbound": "Saída",
     "environment": "Ambiente",
     "noApps": "Nenhuma aplicação encontrada para o ambiente selecionado"
+  },
+  "readiness": {
+    "overall": "Prontidão geral",
+    "levels": {
+      "ready": "Pronto para migrar",
+      "evaluating": "Em avaliação — há lacunas",
+      "not_ready": "Não pronto — lacunas críticas"
+    },
+    "dimensions": {
+      "technical": "Técnica",
+      "data": "Dados",
+      "security": "Segurança e Conformidade",
+      "organizational": "Organizacional",
+      "technicalDesc": "Suportabilidade da infraestrutura e qualidade dos dados.",
+      "dataDesc": "Inventário, classificação e estratégia de migração de dados.",
+      "securityDesc": "Guardrails, identidade, proteção de dados e conformidade.",
+      "organizationalDesc": "Patrocínio, modelo operacional, habilidades e orçamento."
+    },
+    "gaps": {
+      "title": "Principais lacunas a fechar",
+      "empty": "Sem lacunas detectadas — pronto para prosseguir."
+    },
+    "autoBadge": "auto"
+  },
+  "tcoScenarios": {
+    "title": "Comparador de cenários TCO",
+    "adjust": "Ajustar",
+    "hide": "Ocultar",
+    "exportCsv": "CSV",
+    "best": "MELHOR",
+    "columns": {
+      "scenario": "Cenário",
+      "commitment": "Compromisso",
+      "risk": "Risco",
+      "monthly": "Mensal",
+      "annual": "Anual",
+      "threeYear": "3 anos",
+      "savings3y": "Economia 3a",
+      "percent": "%"
+    },
+    "spotDiscount": "Desconto Spot (%)",
+    "spotHint": "Típico: 60-80% dependendo da família de instância.",
+    "savingsPlan": "Desconto Savings Plan (fração do On-Demand)",
+    "savingsPlanHint": "Fração paga vs On-Demand. 50% = 50% de economia.",
+    "disclaimer": "Valores Spot e Savings Plan são estimativas paramétricas. Ajuste conforme negociação real com AWS."
+  },
+  "riskRules": {
+    "title": "Riscos detectados",
+    "rulesBtn": "Regras",
+    "severity": {
+      "high": "alto",
+      "medium": "médio",
+      "low": "baixo"
+    },
+    "severityCount": {
+      "high": "{{count}} alto",
+      "medium": "{{count}} médio",
+      "low": "{{count}} baixo"
+    },
+    "empty": "Nenhum risco detectado com as regras ativas.",
+    "configurable": "Regras configuráveis",
+    "reset": "Reset",
+    "newRule": "Nova regra",
+    "label": "Rótulo",
+    "pattern": "Padrão (regex)",
+    "severityLabel": "Severidade",
+    "category": "Categoria",
+    "addRule": "Adicionar regra"
+  },
+  "excelValidation": {
+    "title": "Validação do MPA",
+    "ok": "OK",
+    "errors": "{{count}} erro(s)",
+    "warnings": "{{count}} aviso(s)",
+    "info": "{{count}} info",
+    "stats": {
+      "servers": "Servidores",
+      "databases": "Bancos de dados",
+      "applications": "Aplicações",
+      "dependencies": "Dependências"
+    },
+    "allPassed": "Todas as verificações passaram. Dados prontos para análise."
+  },
+  "sessionMenu": {
+    "trigger": "Sessão",
+    "ariaLabel": "Menu de sessão",
+    "saveLocal": "Salvar neste navegador",
+    "saveLocalHint": "localStorage",
+    "restore": "Restaurar última sessão",
+    "restoreHintSaved": "Salva em {{date}}",
+    "restoreHintEmpty": "Sem sessão salva",
+    "export": "Exportar para arquivo",
+    "exportHint": "JSON com auxiliares",
+    "import": "Importar de arquivo",
+    "importHint": "JSON de sessão",
+    "clear": "Excluir sessão salva",
+    "saved": "Sessão salva localmente",
+    "restored": "Sessão restaurada ({{date}})",
+    "noSession": "Sem sessão salva",
+    "exported": "Sessão exportada para JSON",
+    "imported": "Sessão importada com sucesso",
+    "importError": "Erro ao importar sessão",
+    "cleared": "Sessão local excluída"
+  },
+  "waveIntegration": {
+    "autoGroup": "Auto-agrupar a partir de dependências",
+    "autoGroupTooltip": "Gera ondas a partir de clusters detectados no mapa de dependências",
+    "autoGroupError": "Sem dados de dependência para agrupar",
+    "autoGroupSuccess": "{{waves}} ondas sugeridas a partir de {{clusters}} clusters",
+    "waveLabel": "Wave {{n}} · cluster ({{count}} srv)",
+    "conflictsHeader": "{{count}} conflito(s) de dependência entre ondas",
+    "conflictsMore": "+{{count}} conflitos a mais",
+    "severityCritical": "CRÍTICO",
+    "severityWarning": "aviso",
+    "gantt": {
+      "title": "Linha do tempo de ondas"
+    }
+  },
+  "icsExport": {
+    "button": "Calendário (.ics)",
+    "empty": "Sem sessões para exportar",
+    "downloaded": "Calendário .ics baixado"
   }
 }

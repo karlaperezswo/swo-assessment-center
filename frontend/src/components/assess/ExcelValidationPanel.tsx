@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { ExcelData } from '@/types/assessment';
 import { validateExcelData } from '@/lib/excelValidation';
 import { CheckCircle2, AlertTriangle, AlertCircle, Info, FileCheck } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface ExcelValidationPanelProps {
   excelData: ExcelData | null;
@@ -28,6 +29,7 @@ const badgeStyles = {
 } as const;
 
 export function ExcelValidationPanel({ excelData }: ExcelValidationPanelProps) {
+  const { t } = useTranslation();
   const result = useMemo(() => validateExcelData(excelData), [excelData]);
 
   if (!excelData) return null;
@@ -43,25 +45,27 @@ export function ExcelValidationPanel({ excelData }: ExcelValidationPanelProps) {
               <AlertCircle className="h-5 w-5 text-red-600" />
             )}
             <FileCheck className="h-4 w-4 text-gray-500" />
-            Validación del MPA
+            {t('excelValidation.title')}
           </span>
           <span className="flex items-center gap-2 text-xs font-normal">
             {result.issues.length === 0 ? (
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">OK</Badge>
+              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">{t('excelValidation.ok')}</Badge>
             ) : (
               <>
                 {countBy(result.issues, 'error') > 0 && (
                   <Badge className={badgeStyles.error}>
-                    {countBy(result.issues, 'error')} error{countBy(result.issues, 'error') === 1 ? '' : 'es'}
+                    {t('excelValidation.errors', { count: countBy(result.issues, 'error') })}
                   </Badge>
                 )}
                 {countBy(result.issues, 'warning') > 0 && (
                   <Badge className={badgeStyles.warning}>
-                    {countBy(result.issues, 'warning')} aviso{countBy(result.issues, 'warning') === 1 ? '' : 's'}
+                    {t('excelValidation.warnings', { count: countBy(result.issues, 'warning') })}
                   </Badge>
                 )}
                 {countBy(result.issues, 'info') > 0 && (
-                  <Badge className={badgeStyles.info}>{countBy(result.issues, 'info')} info</Badge>
+                  <Badge className={badgeStyles.info}>
+                    {t('excelValidation.info', { count: countBy(result.issues, 'info') })}
+                  </Badge>
                 )}
               </>
             )}
@@ -70,15 +74,13 @@ export function ExcelValidationPanel({ excelData }: ExcelValidationPanelProps) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 text-sm">
-          <Stat label="Servidores" value={result.stats.servers} />
-          <Stat label="Bases de datos" value={result.stats.databases} />
-          <Stat label="Aplicaciones" value={result.stats.applications} />
-          <Stat label="Dependencias" value={result.stats.dependencies} />
+          <Stat label={t('excelValidation.stats.servers')} value={result.stats.servers} />
+          <Stat label={t('excelValidation.stats.databases')} value={result.stats.databases} />
+          <Stat label={t('excelValidation.stats.applications')} value={result.stats.applications} />
+          <Stat label={t('excelValidation.stats.dependencies')} value={result.stats.dependencies} />
         </div>
         {result.issues.length === 0 ? (
-          <p className="text-sm text-green-700">
-            Todos los controles pasaron. Los datos están listos para análisis.
-          </p>
+          <p className="text-sm text-green-700">{t('excelValidation.allPassed')}</p>
         ) : (
           <ul className="space-y-2">
             {result.issues.map((issue, i) => {

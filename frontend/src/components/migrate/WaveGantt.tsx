@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { MigrationWave } from '@/types/assessment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CalendarRange } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface WaveGanttProps {
   waves: MigrationWave[];
@@ -15,6 +16,7 @@ const STATUS_COLORS: Record<MigrationWave['status'], string> = {
 };
 
 export function WaveGantt({ waves }: WaveGanttProps) {
+  const { t } = useTranslation();
   const { rows, startMs, endMs, monthMarkers } = useMemo(() => computeTimeline(waves), [waves]);
 
   if (rows.length === 0) {
@@ -28,7 +30,7 @@ export function WaveGantt({ waves }: WaveGanttProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <CalendarRange className="h-5 w-5 text-teal-700" />
-          Wave timeline
+          {t('waveIntegration.gantt.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>

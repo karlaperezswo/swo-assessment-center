@@ -122,22 +122,24 @@ export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">{t('immersionDay.plannedTitle', { count: plans.length })}</CardTitle>
           <Button
+            type="button"
             variant="outline"
             size="sm"
+            aria-label={t('icsExport.button')}
             onClick={() => {
               if (plans.length === 0) {
-                toast.error('No hay sesiones para exportar');
+                toast.error(t('icsExport.empty'));
                 return;
               }
               downloadIcs(
                 `immersion_days_${new Date().toISOString().split('T')[0]}.ics`,
                 immersionDaysToIcs(plans)
               );
-              toast.success('Calendario .ics descargado');
+              toast.success(t('icsExport.downloaded'));
             }}
           >
             <CalendarPlus className="h-4 w-4 mr-1" />
-            Calendario (.ics)
+            {t('icsExport.button')}
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -152,7 +154,13 @@ export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
               <div key={plan.id} className={cn('rounded-lg border p-4', config.bg)}>
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <button onClick={() => handleStatusChange(plan.id)} className="mt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => handleStatusChange(plan.id)}
+                      aria-label={`Toggle status for ${plan.topic}`}
+                      title={config.label}
+                      className="mt-0.5"
+                    >
                       <StatusIcon className={cn('h-5 w-5', config.color)} />
                     </button>
                     <div>
@@ -173,7 +181,13 @@ export function ImmersionDay({ plans, onPlansChange }: ImmersionDayProps) {
                       onChange={(e) => handleDateChange(plan.id, e.target.value)}
                       className="w-36 text-xs"
                     />
-                    <button onClick={() => handleRemove(plan.id)} className="text-gray-400 hover:text-red-500">
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(plan.id)}
+                      aria-label={`Remove ${plan.topic}`}
+                      title={t('common.remove')}
+                      className="text-gray-400 hover:text-red-500"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>

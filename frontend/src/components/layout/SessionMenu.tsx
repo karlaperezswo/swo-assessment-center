@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Save, Upload, Download, Clock, Trash2, ChevronDown } from 'lucide-react';
@@ -104,10 +105,18 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
         {t('sessionMenu.trigger')}
         <ChevronDown className="h-3 w-3 ml-1" />
       </Button>
+      <AnimatePresence>
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <Card className="absolute right-0 top-full mt-1 z-50 w-72 shadow-xl">
+          <motion.div
+            className="absolute right-0 top-full mt-1 z-50 w-72"
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+          >
+          <Card className="shadow-xl">
             <CardContent className="p-2 space-y-1">
               <button
                 type="button"
@@ -179,8 +188,10 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
               </button>
             </CardContent>
           </Card>
+          </motion.div>
         </>
       )}
+      </AnimatePresence>
     </div>
   );
 }

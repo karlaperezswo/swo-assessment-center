@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -99,11 +100,14 @@ export function MigrationReadiness({
               <ScoreDial score={report.overallScore} color={levelBadge.dialColor} />
             </div>
             <div className="md:col-span-3 grid grid-cols-2 gap-3">
-              {report.dimensions.map((d) => {
+              {report.dimensions.map((d, i) => {
                 const Icon = dimensionIcons[d.id];
                 return (
-                  <div
+                  <motion.div
                     key={d.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.08 }}
                     className="border rounded-lg p-3 bg-white flex items-center gap-3"
                   >
                     <Icon className="h-5 w-5 text-gray-500" />
@@ -111,15 +115,17 @@ export function MigrationReadiness({
                       <p className="text-xs text-gray-500">{t(`readiness.dimensions.${d.id}`)}</p>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
+                          <motion.div
                             className={`h-2 ${scoreBarColor(d.score)}`}
-                            style={{ width: `${d.score}%` }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${d.score}%` }}
+                            transition={{ duration: 0.7, delay: 0.2 + i * 0.08, ease: 'easeOut' }}
                           />
                         </div>
                         <span className="text-sm font-semibold">{d.score}</span>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>

@@ -265,7 +265,7 @@ function App() {
     setIsGenerating(true);
     setError(null);
 
-    toast.loading('Generando reporte Word...', { id: 'generate-report' });
+    toast.loading(t('app.generatingReport'), { id: 'generate-report' });
 
     try {
       const response = await apiClient.post('/api/report/generate', {
@@ -286,9 +286,9 @@ function App() {
         if (response.data.data.summary.databaseRecommendations) {
           setDbRecommendations(response.data.data.summary.databaseRecommendations);
         }
-        toast.success('Reporte generado exitosamente', {
+        toast.success(t('app.reportGenerated'), {
           id: 'generate-report',
-          description: 'El reporte está listo para descargar',
+          description: t('app.reportReadyToDownload'),
           duration: 5000
         });
       } else {
@@ -297,7 +297,7 @@ function App() {
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to generate report';
       setError(errorMsg);
-      toast.error('Error al generar reporte', {
+      toast.error(t('app.errorGeneratingReport'), {
         id: 'generate-report',
         description: errorMsg,
         duration: 7000
@@ -493,7 +493,7 @@ function App() {
   const handleDownload = () => {
     if (reportResult?.downloadUrl) {
       window.open(reportResult.downloadUrl, '_blank');
-      toast.success('Iniciando descarga del reporte');
+      toast.success(t('common.downloadStarting'));
     }
   };
 

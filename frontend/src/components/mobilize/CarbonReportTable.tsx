@@ -3,12 +3,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { CarbonReportData } from '@/types/assessment';
 import { Leaf } from 'lucide-react';
 import { formatSpanishNumber } from '@/lib/numberFormat';
+import { useTranslation } from '@/i18n/useTranslation';
 
 interface CarbonReportTableProps {
   carbonData: CarbonReportData;
 }
 
 export function CarbonReportTable({ carbonData }: CarbonReportTableProps) {
+  const { t } = useTranslation();
   const formatCarbon = (value: number): string => {
     return formatSpanishNumber(value);
   };
@@ -53,7 +55,7 @@ export function CarbonReportTable({ carbonData }: CarbonReportTableProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Leaf className="h-5 w-5 text-green-600" />
-          Reporte de Carbonización
+          {t('carbonReportTable.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -62,9 +64,9 @@ export function CarbonReportTable({ carbonData }: CarbonReportTableProps) {
           <Card className="border-2 border-gray-200 bg-gray-50">
             <CardContent className="pt-4">
               <div className="text-center">
-                <p className="text-sm font-medium text-gray-800">Uso Actual</p>
+                <p className="text-sm font-medium text-gray-800">{t('carbonReportTable.currentUsage')}</p>
                 <p className="text-2xl font-bold text-gray-600">{formatCarbon(carbonData.currentUsage)}</p>
-                <p className="text-xs text-gray-600 mt-1">kgCO2eq</p>
+                <p className="text-xs text-gray-600 mt-1">{t('carbonReportTable.unit')}</p>
               </div>
             </CardContent>
           </Card>
@@ -72,9 +74,9 @@ export function CarbonReportTable({ carbonData }: CarbonReportTableProps) {
           <Card className="border-2 border-blue-200 bg-blue-50">
             <CardContent className="pt-4">
               <div className="text-center">
-                <p className="text-sm font-medium text-blue-800">Uso en AWS</p>
+                <p className="text-sm font-medium text-blue-800">{t('carbonReportTable.awsUsage')}</p>
                 <p className="text-2xl font-bold text-blue-600">{formatCarbon(carbonData.awsUsage)}</p>
-                <p className="text-xs text-blue-700 mt-1">kgCO2eq</p>
+                <p className="text-xs text-blue-700 mt-1">{t('carbonReportTable.unit')}</p>
               </div>
             </CardContent>
           </Card>
@@ -82,10 +84,10 @@ export function CarbonReportTable({ carbonData }: CarbonReportTableProps) {
           <Card className="border-2 border-green-200 bg-green-50">
             <CardContent className="pt-4">
               <div className="text-center">
-                <p className="text-sm font-medium text-green-800">Ahorro</p>
+                <p className="text-sm font-medium text-green-800">{t('carbonReportTable.savings')}</p>
                 <p className="text-2xl font-bold text-green-600">{formatCarbon(carbonData.savings)}</p>
                 <p className="text-xs text-green-700 mt-1">
-                  kgCO2eq ({formatPercent(carbonData.savingsPercent)})
+                  {t('carbonReportTable.unit')} ({formatPercent(carbonData.savingsPercent)})
                 </p>
               </div>
             </CardContent>
@@ -97,25 +99,25 @@ export function CarbonReportTable({ carbonData }: CarbonReportTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-bold">Métrica</TableHead>
-                <TableHead className="text-right font-bold">Valor (kgCO2eq)</TableHead>
+                <TableHead className="font-bold">{t('carbonReportTable.colMetric')}</TableHead>
+                <TableHead className="text-right font-bold">{t('carbonReportTable.colValue')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell className="font-medium">Uso Actual (On-Premises)</TableCell>
+                <TableCell className="font-medium">{t('carbonReportTable.rowCurrent')}</TableCell>
                 <TableCell className="text-right font-semibold">
                   {formatCarbon(carbonData.currentUsage)} (100,00%)
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Uso en AWS</TableCell>
+                <TableCell className="font-medium">{t('carbonReportTable.rowAWS')}</TableCell>
                 <TableCell className="text-right font-semibold text-blue-600">
                   {formatCarbon(carbonData.awsUsage)} ({formatPercent(total > 0 ? (carbonData.awsUsage / total) * 100 : 0)})
                 </TableCell>
               </TableRow>
               <TableRow className="bg-green-50">
-                <TableCell className="font-bold text-green-800">Ahorro de Carbono</TableCell>
+                <TableCell className="font-bold text-green-800">{t('carbonReportTable.rowSavings')}</TableCell>
                 <TableCell className="text-right font-bold text-green-600">
                   {formatCarbon(carbonData.savings)} ({formatPercent(carbonData.savingsPercent)})
                 </TableCell>
@@ -133,7 +135,7 @@ export function CarbonReportTable({ carbonData }: CarbonReportTableProps) {
             <path d={awsSlice} fill="#3b82f6" />
             {/* Center label */}
             <text x={cx} y={cy - 8} textAnchor="middle" fontSize="13" fontWeight="bold" fill="#166534">
-              Ahorro
+              {t('carbonReportTable.chartCenter')}
             </text>
             <text x={cx} y={cy + 12} textAnchor="middle" fontSize="14" fontWeight="bold" fill="#166534">
               {formatPercent(savingsPct)}
@@ -143,14 +145,14 @@ export function CarbonReportTable({ carbonData }: CarbonReportTableProps) {
           <div className="flex gap-6 text-sm">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span className="text-gray-700">Uso en AWS</span>
+              <span className="text-gray-700">{t('carbonReportTable.legendAWS')}</span>
               <span className="font-semibold text-blue-700">
                 {formatCarbon(carbonData.awsUsage)} kgCO2eq ({formatPercent(total > 0 ? (carbonData.awsUsage / total) * 100 : 0)})
               </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              <span className="text-gray-700">Ahorro de Carbono</span>
+              <span className="text-gray-700">{t('carbonReportTable.legendSavings')}</span>
               <span className="font-semibold text-green-700">
                 {formatCarbon(carbonData.savings)} kgCO2eq ({formatPercent(savingsPct)})
               </span>
@@ -163,13 +165,15 @@ export function CarbonReportTable({ carbonData }: CarbonReportTableProps) {
           <div className="flex items-start gap-3">
             <Leaf className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div className="space-y-1 text-sm text-green-800">
-              <p className="font-semibold">Impacto Ambiental:</p>
+              <p className="font-semibold">{t('carbonReportTable.impactTitle')}</p>
               <p>
-                La migración a AWS reduce las emisiones de carbono en <span className="font-bold">{formatCarbon(carbonData.savings)} kgCO2eq</span>,
-                lo que representa una reducción del <span className="font-bold">{formatPercent(carbonData.savingsPercent)}</span> en comparación con la infraestructura actual.
+                {t('carbonReportTable.impactText', {
+                  savings: formatCarbon(carbonData.savings),
+                  pct: formatPercent(carbonData.savingsPercent)
+                })}
               </p>
               <p className="text-xs text-green-700 mt-2">
-                * kgCO2eq = Kilogramos de dióxido de carbono equivalente
+                {t('carbonReportTable.impactNote')}
               </p>
             </div>
           </div>

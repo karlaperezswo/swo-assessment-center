@@ -4,6 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { MigrationWave } from '@/types/assessment';
+import { useTranslation } from '@/i18n/useTranslation';
 
 // ─── Tipos internos normalizados ────────────────────────────────────────────
 type NormalizedEnv = 'DEV' | 'TEST' | 'UAT' | 'PROD' | 'OTHER';
@@ -148,6 +149,7 @@ function buildWaves(serverList: Server[]): { servers: Server[]; waveInfos: WaveI
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 export function WavePlannerTool({ servers: initialServers, onClose, dependencies = [], databases = [] }: WavePlannerToolProps) {
+  const { t } = useTranslation();
   const [servers, setServers] = useState<Server[]>([]);
   const [waves, setWaves] = useState<string[]>([]);
   const [waveInfos, setWaveInfos] = useState<WaveInfo[]>([]);

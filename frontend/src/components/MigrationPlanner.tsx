@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Download, RefreshCw, AlertCircle, Server, Layers, TrendingUp, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from '@/i18n/useTranslation';
 
 // Vis.js types
 interface VisNode {
@@ -69,6 +70,7 @@ interface MigrationPlannerProps {
 }
 
 export function MigrationPlanner({ dependencies, onClose }: MigrationPlannerProps) {
+  const { t } = useTranslation();
   const [waves, setWaves] = useState<Wave[]>([]);
   const [selectedServer, setSelectedServer] = useState<string | null>(null);
   const [selectedWave, setSelectedWave] = useState<number | null>(null);
@@ -418,7 +420,7 @@ export function MigrationPlanner({ dependencies, onClose }: MigrationPlannerProp
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    toast.success('Informe Word generado', { description: 'El archivo .doc se ha descargado correctamente' });
+    toast.success(t('migrationPlan.wordGenerated'), { description: t('migrationPlan.wordGeneratedDesc') });
   };
 
   // Exportar a CSV
@@ -448,8 +450,8 @@ export function MigrationPlanner({ dependencies, onClose }: MigrationPlannerProp
     a.click();
     URL.revokeObjectURL(url);
 
-    toast.success('Plan de migración exportado', {
-      description: 'El archivo CSV se ha descargado correctamente',
+    toast.success(t('migrationPlan.csvExported'), {
+      description: t('migrationPlan.csvExportedDesc'),
     });
   };
 

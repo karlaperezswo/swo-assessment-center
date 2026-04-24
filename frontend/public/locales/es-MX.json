@@ -1076,5 +1076,9 @@
     "button": "Calendario (.ics)",
     "empty": "No hay sesiones para exportar",
     "downloaded": "Calendario .ics descargado"
+  },
+  "theme": {
+    "switchToDark": "Cambiar a modo oscuro",
+    "switchToLight": "Cambiar a modo claro"
   }
 }

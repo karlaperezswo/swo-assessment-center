@@ -41,6 +41,7 @@ import { RefreshCw, Cloud } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { TechnicalMemory } from '@/components/techMemory/TechnicalMemory';
 import { SessionMenu } from '@/components/layout/SessionMenu';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { saveSession, SessionSnapshot } from '@/lib/sessionPersistence';
 
 function App() {
@@ -591,6 +592,7 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <SessionMenu
               currentSnapshot={{
                 clientData,

@@ -1075,5 +1075,9 @@
     "button": "Calendar (.ics)",
     "empty": "No sessions to export",
     "downloaded": ".ics calendar downloaded"
+  },
+  "theme": {
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode"
   }
 }

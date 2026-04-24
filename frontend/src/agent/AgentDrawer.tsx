@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Sparkles, Send, X, RotateCcw, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAgentContextValue } from './AgentContextProvider';
@@ -42,12 +43,16 @@ export function AgentDrawer() {
       </button>
 
       {/* Drawer */}
-      <aside
-        className={`fixed right-0 top-0 z-30 flex h-screen w-[min(420px,95vw)] flex-col border-l border-gray-200 bg-white shadow-xl transition-transform duration-200 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-        aria-hidden={!isOpen}
-      >
+      <AnimatePresence>
+        {isOpen && (
+          <motion.aside
+            key="agent-drawer"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+            className="fixed right-0 top-0 z-30 flex h-screen w-[min(420px,95vw)] flex-col border-l border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-950"
+          >
         <header className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
@@ -98,7 +103,7 @@ export function AgentDrawer() {
           ))}
         </div>
 
-        <div className="border-t border-gray-100 p-3">
+        <div className="border-t border-gray-100 p-3 dark:border-gray-800">
           <div className="flex items-end gap-2">
             <textarea
               value={input}
@@ -111,7 +116,7 @@ export function AgentDrawer() {
               }}
               rows={2}
               placeholder="Escribe tu pregunta… (Enter para enviar)"
-              className="flex-1 resize-none rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              className="flex-1 resize-none rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
             />
             {isSending ? (
               <Button variant="outline" size="icon" onClick={cancel} title="Cancelar">
@@ -124,7 +129,9 @@ export function AgentDrawer() {
             )}
           </div>
         </div>
-      </aside>
+          </motion.aside>
+        )}
+      </AnimatePresence>
     </>
   );
 }

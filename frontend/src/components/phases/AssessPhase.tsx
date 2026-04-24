@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { lazy, Suspense, useState, useCallback } from 'react';
 import { useTranslation } from '@/i18n/useTranslation';
 import { SubTabLayout, SubTabGroup } from '@/components/layout/SubTabLayout';
 import { PhaseCompleteButton } from '@/components/shared/PhaseCompleteButton';
@@ -11,8 +11,13 @@ import { MigrationWaves } from '@/components/migrate/MigrationWaves';
 import { OpportunityDashboard } from '@/components/opportunities/OpportunityDashboard';
 import { SelectorPhase } from '@/components/phases/SelectorPhase';
 import { BusinessCase } from '@/components/mobilize/BusinessCase';
-import { DependencyMap } from '@/components/DependencyMap';
 import { ExecutiveSummary } from '@/components/ExecutiveSummary';
+
+// DependencyMap pulls in d3 + vis-network (~2100 lines + ~400KB).
+// Lazy-load it so the bundle stays lean on the first render.
+const DependencyMap = lazy(() =>
+  import('@/components/DependencyMap').then((m) => ({ default: m.DependencyMap }))
+);
 import {
   ExcelData, UploadSummary, ClientFormData, CostBreakdown,
   PhaseStatus, BriefingSession, ImmersionDayPlan, MigrationWave,
@@ -142,7 +147,9 @@ export function AssessPhase({
           />
         )}
         {activeTab === 'dependency-map' && (
-          <DependencyMap dependencyData={dependencyData} />
+          <Suspense fallback={<div className="p-6 text-sm text-gray-500">Cargando mapa de dependencias…</div>}>
+            <DependencyMap dependencyData={dependencyData} />
+          </Suspense>
         )}
         {activeTab === 'tco-report' && (
           <TCOReport

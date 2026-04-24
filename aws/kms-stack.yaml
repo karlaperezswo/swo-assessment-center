@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Customer-managed KMS key for swo-assessment-center v2. Used to encrypt
+  DynamoDB (swo-assessments table) and the S3 bucket that holds uploads
+  and generated reports.
+
+Parameters:
+  EnvName:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+  AdditionalPrincipalArns:
+    Type: CommaDelimitedList
+    Default: ""
+    Description: Extra IAM principal ARNs allowed to use the key (e.g. Lambda exec roles). Leave empty if none.
+
+Conditions:
+  HasAdditionalPrincipals: !Not [!Equals [!Join ['', !Ref AdditionalPrincipalArns], ""]]
+
+Resources:
+  SwoCmk:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: !Sub "swo-assessment ${EnvName} — DynamoDB + S3 encryption"
+      EnableKeyRotation: true
+      KeyUsage: ENCRYPT_DECRYPT
+      MultiRegion: false
+      PendingWindowInDays: 30
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: RootAccount
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
+          - !If
+            - HasAdditionalPrincipals
+            - Sid: AllowListedPrincipals
+              Effect: Allow
+              Principal:
+                AWS: !Ref AdditionalPrincipalArns
+              Action:
+                - kms:Encrypt
+                - kms:Decrypt
+                - kms:ReEncrypt*
+                - kms:GenerateDataKey*
+                - kms:DescribeKey
+              Resource: "*"
+            - !Ref AWS::NoValue
+
+  SwoCmkAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub "alias/swo-assessment-${EnvName}"
+      TargetKeyId: !Ref SwoCmk
+
+Outputs:
+  KeyArn:
+    Value: !GetAtt SwoCmk.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-KeyArn"
+  KeyId:
+    Value: !Ref SwoCmk
+    Export:
+      Name: !Sub "${AWS::StackName}-KeyId"
+  KeyAlias:
+    Value: !Ref SwoCmkAlias

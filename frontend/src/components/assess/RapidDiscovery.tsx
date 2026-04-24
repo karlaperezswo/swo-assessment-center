@@ -81,69 +81,67 @@ export function RapidDiscovery({
 
       <ExcelValidationPanel excelData={excelData} />
 
-      {/* Upload & Form */}
+      {/* Row 1 — Primary inputs: MPA inventory + client info side by side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Upload className="h-5 w-5 text-fuchsia-600" />
-              <h3 className="font-semibold text-gray-800">{t('rapidDiscovery.mpaExcelUpload')}</h3>
-            </div>
-            <FileUploader
-              onDataLoaded={onDataLoaded}
-              persistedSummary={excelData ? {
-                serverCount: excelData.servers.length,
-                databaseCount: excelData.databases.length,
-                applicationCount: excelData.applications.length,
-                totalStorageGB: excelData.servers.reduce((s, srv) => s + (srv.totalDiskSize || 0), 0),
-                communicationCount: excelData.serverCommunications?.length,
-                dataSource: excelData.dataSource,
-              } : null}
-            />
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <Upload className="h-5 w-5 text-fuchsia-600" />
+            <h3 className="font-semibold text-gray-800">{t('rapidDiscovery.mpaExcelUpload')}</h3>
           </div>
+          <FileUploader
+            onDataLoaded={onDataLoaded}
+            persistedSummary={excelData ? {
+              serverCount: excelData.servers.length,
+              databaseCount: excelData.databases.length,
+              applicationCount: excelData.applications.length,
+              totalStorageGB: excelData.servers.reduce((s, srv) => s + (srv.totalDiskSize || 0), 0),
+              communicationCount: excelData.serverCommunications?.length,
+              dataSource: excelData.dataSource,
+            } : null}
+          />
+        </section>
 
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <FileText className="h-5 w-5 text-fuchsia-600" />
-              <h3 className="font-semibold text-gray-800">{t('rapidDiscovery.mraPdfUpload')}</h3>
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                {t('rapidDiscovery.forAiAnalysis')}
-              </span>
-            </div>
-            <MRAUploader
-              selectedFile={mraFile}
-              onFileSelected={onMRAFileChange}
-            />
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <FileQuestion className="h-5 w-5 text-blue-600" />
-              <h3 className="font-semibold text-gray-800">{t('rapidDiscovery.infrastructureQuestionnaire')}</h3>
-              <span className="text-xs text-blue-600 bg-blue-100 px-2 py-0.5 rounded">
-                {t('rapidDiscovery.improvesAnalysis')}
-              </span>
-            </div>
-            <QuestionnaireUploader
-              selectedFile={questionnaireFile}
-              onFileSelected={onQuestionnaireFileChange}
-            />
-          </div>
-        </div>
-
-        <div>
+        <section>
           <div className="flex items-center gap-2 mb-3">
             <Building2 className="h-5 w-5 text-fuchsia-600" />
             <h3 className="font-semibold text-gray-800">{t('rapidDiscovery.clientInfo')}</h3>
           </div>
           <ClientForm onFormChange={onFormChange} initialData={clientData} />
-        </div>
+        </section>
       </div>
 
-      {/* Guided readiness questionnaire — sits with the other context inputs
-          (MRA + Cuestionario de Infraestructura) so consultants capture
-          organizational and security context in one place. Answers feed the
-          Migration Readiness scoring via a shared store. */}
+      {/* Row 2 — Optional context: MRA PDF + Infrastructure questionnaire upload
+          side by side so neither column is left dangling under primary inputs. */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="h-5 w-5 text-fuchsia-600" />
+            <h3 className="font-semibold text-gray-800">{t('rapidDiscovery.mraPdfUpload')}</h3>
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+              {t('rapidDiscovery.forAiAnalysis')}
+            </span>
+          </div>
+          <MRAUploader selectedFile={mraFile} onFileSelected={onMRAFileChange} />
+        </section>
+
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <FileQuestion className="h-5 w-5 text-blue-600" />
+            <h3 className="font-semibold text-gray-800">{t('rapidDiscovery.infrastructureQuestionnaire')}</h3>
+            <span className="text-xs text-blue-600 bg-blue-100 px-2 py-0.5 rounded">
+              {t('rapidDiscovery.improvesAnalysis')}
+            </span>
+          </div>
+          <QuestionnaireUploader
+            selectedFile={questionnaireFile}
+            onFileSelected={onQuestionnaireFileChange}
+          />
+        </section>
+      </div>
+
+      {/* Row 3 — Guided readiness questionnaire (full width, collapsed by default).
+          Captures organizational + security context that complements the MRA PDF
+          upload. Answers feed Migration Readiness scoring via a shared store. */}
       <ReadinessQuestionnaire defaultCollapsed />
     </div>
   );

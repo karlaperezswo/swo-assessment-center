@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getAccessToken } from '@/auth/tokenBridge';
 
 // Configuración de la API
 // - En desarrollo local: usa el proxy de Vite (URLs relativas)
@@ -14,16 +15,23 @@ const apiClient = axios.create({
 // Interceptor para logging (opcional, útil para debug)
 apiClient.interceptors.request.use(
   (config) => {
+    // Attach Cognito bearer when available (handled by AccessTokenBridge).
+    const token = getAccessToken();
+    if (token) {
+      config.headers = config.headers ?? {};
+      (config.headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+    }
+
     const url = config.baseURL
       ? `${config.baseURL}${config.url}`
       : config.url;
     console.log(`📡 API Request: ${config.method?.toUpperCase()} ${url}`);
-    
+
     // Log adicional para multipart/form-data
     if (String(config.headers['Content-Type'] ?? '').includes('multipart/form-data')) {
       console.log('📎 Enviando archivo...');
     }
-    
+
     return config;
   },
   (error) => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import apiClient from '@/lib/api';
 import { usePhase } from '@/routing/usePhase';
 import { useTranslation } from '@/i18n/useTranslation';
@@ -40,6 +40,8 @@ import {
 import { RefreshCw, Cloud } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { TechnicalMemory } from '@/components/techMemory/TechnicalMemory';
+import { SessionMenu } from '@/components/layout/SessionMenu';
+import { saveSession, SessionSnapshot } from '@/lib/sessionPersistence';
 
 function App() {
   const { t } = useTranslation();
@@ -96,6 +98,46 @@ function App() {
   // Dependency and migration wave data
   const [dependencyData, setDependencyData] = useState<any>(null);
   const [_autoCalculatedWaves, setAutoCalculatedWaves] = useState<any>(null);
+
+  // Auto-persist session state — debounced via a timeout — whenever tracked
+  // fields change. Skips the empty-initial state so a fresh reload doesn't
+  // overwrite a previously saved session with a blank one.
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!clientData.clientName && briefingSessions.length === 0 && migrationWaves.length === 0) {
+      return;
+    }
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      saveSession({
+        clientData,
+        phaseStatus,
+        briefingSessions,
+        immersionDays,
+        migrationWaves,
+        opportunitySessionId,
+      });
+    }, 800);
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [
+    clientData,
+    phaseStatus,
+    briefingSessions,
+    immersionDays,
+    migrationWaves,
+    opportunitySessionId,
+  ]);
+
+  const handleRestoreSession = (snap: SessionSnapshot) => {
+    setClientData(snap.clientData);
+    setPhaseStatus(snap.phaseStatus);
+    setBriefingSessions(snap.briefingSessions);
+    setImmersionDays(snap.immersionDays);
+    setMigrationWaves(snap.migrationWaves);
+    setOpportunitySessionId(snap.opportunitySessionId);
+  };
 
   // Tell the AI copilot what session, client, and phase the user is looking at.
   useSetAgentSession(opportunitySessionId ?? undefined);
@@ -549,6 +591,18 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <SessionMenu
+              currentSnapshot={{
+                clientData,
+                phaseStatus,
+                briefingSessions,
+                immersionDays,
+                migrationWaves,
+                opportunitySessionId,
+              }}
+              onRestore={handleRestoreSession}
+              onReset={handleReset}
+            />
             <LanguageSelector />
             <span className="text-sm text-gray-500">{t('common.developedBy')}</span>
             <span className="font-bold text-orange-500">{t('header.brand')}</span>

@@ -8,13 +8,12 @@ import { BusinessCaseMetrics } from '@/components/BusinessCaseMetrics';
 import { ExcelData, UploadSummary } from '@/types/assessment';
 import {
   computeReadiness,
-  ManualChecklistState,
   ReadinessDimension,
   ReadinessCheck,
   ReadinessLevel,
 } from '@/lib/migrationReadiness';
-import { usePersistedState } from '@/lib/usePersistedState';
-import { ReadinessQuestionnaire } from '@/components/assess/ReadinessQuestionnaire';
+import { useReadinessChecklist, useReadinessAnswers } from '@/lib/readinessStore';
+import { computeProgress } from '@/lib/readinessQuestionnaire';
 import {
   Gauge,
   Info,
@@ -25,6 +24,8 @@ import {
   Database,
   Users,
   Cpu,
+  ClipboardList,
+  ArrowRight,
 } from 'lucide-react';
 
 interface MigrationReadinessProps {
@@ -46,10 +47,9 @@ export function MigrationReadiness({
   migrationReadiness,
 }: MigrationReadinessProps) {
   const { t } = useTranslation();
-  const [manualState, setManualState] = usePersistedState<ManualChecklistState>(
-    'readiness.checklist',
-    {}
-  );
+  const [manualState, setManualState] = useReadinessChecklist();
+  const [answers] = useReadinessAnswers();
+  const questionnaireProgress = useMemo(() => computeProgress(answers), [answers]);
 
   const report = useMemo(() => computeReadiness(excelData, manualState), [excelData, manualState]);
 
@@ -134,10 +134,37 @@ export function MigrationReadiness({
         </CardContent>
       </Card>
 
-      <ReadinessQuestionnaire
-        currentChecklist={manualState}
-        onChecklistUpdate={setManualState}
-      />
+      <Card className="border-blue-200 bg-blue-50/30">
+        <CardContent className="pt-4 pb-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <ClipboardList className="h-5 w-5 text-blue-600 flex-shrink-0" />
+            <div className="flex-1 min-w-[200px]">
+              <p className="text-sm font-medium text-blue-900">
+                Cuestionario guiado
+              </p>
+              <p className="text-xs text-blue-700">
+                {questionnaireProgress.answered === 0
+                  ? 'Responde 13 preguntas en Descubrimiento Rápido para auto-marcar los checks manuales.'
+                  : questionnaireProgress.answered === questionnaireProgress.total
+                  ? '✓ Completo — todos los checks manuales mapeados se ajustan según tus respuestas.'
+                  : `${questionnaireProgress.answered}/${questionnaireProgress.total} respondidas. Completa las restantes en Descubrimiento Rápido.`}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-32 h-1.5 bg-blue-100 rounded-full overflow-hidden">
+                <div
+                  className="h-1.5 bg-blue-600 transition-all duration-300"
+                  style={{ width: `${questionnaireProgress.percent}%` }}
+                />
+              </div>
+              <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 flex items-center gap-1">
+                {questionnaireProgress.percent}%
+                <ArrowRight className="h-3 w-3" />
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {report.gaps.length > 0 && (
         <Card className="border-amber-200 bg-amber-50/50">

@@ -4,19 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   READINESS_QUESTIONS,
-  AnswersState,
   QuestionAnswer,
   applyAnswersToChecklist,
   computeProgress,
 } from '@/lib/readinessQuestionnaire';
-import { ManualChecklistState } from '@/lib/migrationReadiness';
-import { usePersistedState } from '@/lib/usePersistedState';
+import { useReadinessChecklist, useReadinessAnswers } from '@/lib/readinessStore';
 import { ClipboardList, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ReadinessQuestionnaireProps {
-  onChecklistUpdate: (next: ManualChecklistState) => void;
-  currentChecklist: ManualChecklistState;
+  /** When true, render collapsed by default with just progress + toggle. */
+  defaultCollapsed?: boolean;
 }
 
 const answerButtonStyles: Record<QuestionAnswer, string> = {
@@ -33,19 +31,17 @@ const answerLabels: Record<QuestionAnswer, string> = {
   unknown: 'No sé',
 };
 
-export function ReadinessQuestionnaire({
-  onChecklistUpdate,
-  currentChecklist,
-}: ReadinessQuestionnaireProps) {
-  const [answers, setAnswers] = usePersistedState<AnswersState>('readiness.questionnaire', {});
-  const [expanded, setExpanded] = useState(false);
+export function ReadinessQuestionnaire({ defaultCollapsed = false }: ReadinessQuestionnaireProps) {
+  const [answers, setAnswers] = useReadinessAnswers();
+  const [, setChecklist] = useReadinessChecklist();
+  const [expanded, setExpanded] = useState(!defaultCollapsed);
 
   const progress = computeProgress(answers);
 
   const handleAnswer = (questionId: string, answer: QuestionAnswer) => {
-    const next = { ...answers, [questionId]: answer };
-    setAnswers(next);
-    onChecklistUpdate(applyAnswersToChecklist(next, currentChecklist));
+    const nextAnswers = { ...answers, [questionId]: answer };
+    setAnswers(nextAnswers);
+    setChecklist((currentChecklist) => applyAnswersToChecklist(nextAnswers, currentChecklist));
   };
 
   const handleReset = () => {
@@ -66,18 +62,26 @@ export function ReadinessQuestionnaire({
               {progress.answered}/{progress.total} · {progress.percent}%
             </Badge>
             {progress.answered > 0 && (
-              <Button type="button" variant="outline" size="sm" onClick={handleReset}>
+              <Button type="button" variant="outline" size="sm" onClick={handleReset} aria-label="Reset questionnaire answers">
                 <RotateCcw className="h-3 w-3 mr-1" />
                 Reset
               </Button>
             )}
-            <Button type="button" variant="outline" size="sm" onClick={() => setExpanded(!expanded)}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setExpanded(!expanded)}
+              aria-label={expanded ? 'Colapsar cuestionario' : 'Expandir cuestionario'}
+              aria-expanded={expanded}
+            >
               {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             </Button>
           </div>
         </CardTitle>
         <p className="text-xs text-gray-500 mt-1">
-          Responde cada pregunta para marcar automáticamente los checks correspondientes.
+          Responde cada pregunta para marcar automáticamente los checks correspondientes en
+          Preparación para Migración.
         </p>
       </CardHeader>
       {expanded && (

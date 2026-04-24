@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ExcelData, UploadSummary, ClientFormData } from '@/types/assessment';
 import { Upload, Building2, CheckCircle, FileText, FileQuestion } from 'lucide-react';
 import { ExcelValidationPanel } from '@/components/assess/ExcelValidationPanel';
+import { ReadinessQuestionnaire } from '@/components/assess/ReadinessQuestionnaire';
 
 interface RapidDiscoveryProps {
   excelData: ExcelData | null;
@@ -138,6 +139,12 @@ export function RapidDiscovery({
           <ClientForm onFormChange={onFormChange} initialData={clientData} />
         </div>
       </div>
+
+      {/* Guided readiness questionnaire — sits with the other context inputs
+          (MRA + Cuestionario de Infraestructura) so consultants capture
+          organizational and security context in one place. Answers feed the
+          Migration Readiness scoring via a shared store. */}
+      <ReadinessQuestionnaire defaultCollapsed />
     </div>
   );
 }

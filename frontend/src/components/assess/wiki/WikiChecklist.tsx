@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle, Circle, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Circle, AlertTriangle, PartyPopper, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const sections = [
@@ -28,44 +28,120 @@ const sections = [
   {
     title: '3. Recomendaciones de Migración',
     items: [
-      'Estrategia de migración (7Rs) por aplicación documentada',
-      'Rightsizing de instancias EC2 recomendado',
-      'Estrategia de base de datos definida',
-      'Plan de licenciamiento en AWS',
-      'Arquitectura target en AWS diseñada',
+      'Estrategia de migración (7Rs) por aplicación',
+      'Recomendaciones de rightsizing para AWS',
+      'Mapeo de servicios on-premises a servicios AWS',
+      'Identificación de oportunidades de modernización',
+      'Recomendaciones de arquitectura AWS',
+      'Plan de optimización de costos',
     ],
   },
   {
     title: '4. Business Case',
     items: [
-      'Costos on-premises actuales documentados y validados',
-      'Proyección de costos AWS calculada (3 años)',
-      'ROI y período de recuperación de inversión calculados',
-      'Beneficios intangibles identificados',
-      'Análisis de sensibilidad completado',
+      'Análisis de TCO (Total Cost of Ownership) actual',
+      'Proyección de costos en AWS (3-5 años)',
+      'Análisis comparativo de costos (on-premises vs AWS)',
+      'Cálculo de ROI y período de recuperación',
+      'Identificación de beneficios tangibles e intangibles',
+      'Análisis de sensibilidad y escenarios alternativos',
+      'Información sobre créditos y financiamiento MAP',
     ],
   },
   {
     title: '5. Plan de Migración',
     items: [
-      'Waves de migración definidas y priorizadas',
-      'Timeline de migración detallado',
-      'Recursos y responsabilidades asignados',
-      'Plan de pruebas y validación definido',
-      'Plan de rollback documentado',
-      'Criterios de éxito definidos',
+      'Agrupación de aplicaciones en migration waves',
+      'Priorización de waves basada en valor y complejidad',
+      'Timeline detallado de migración',
+      'Identificación de quick wins',
+      'Recursos necesarios por wave (equipo, herramientas)',
+      'Plan de gestión de riesgos',
+      'Estrategia de rollback por wave',
     ],
   },
   {
-    title: '6. Presentación Ejecutiva',
+    title: '6. Diagramas y Arquitectura',
     items: [
-      'Presentación preparada y revisada',
-      'Hallazgos validados con equipo técnico del cliente',
-      'Números financieros verificados',
-      'Presentación ensayada (dry run)',
-      'Material de respaldo preparado',
+      'Diagrama de infraestructura actual (As-Is)',
+      'Diagrama de arquitectura propuesta en AWS (To-Be)',
+      'Diagrama de dependencias de aplicaciones',
+      'Diagrama de migration waves',
+      'Diagramas de red (VPC, subnets, conectividad)',
+      'Diagramas de seguridad (zonas, controles)',
     ],
   },
+  {
+    title: '7. Reportes Técnicos',
+    items: [
+      'Reporte de assessment de herramienta de colecta',
+      'Reporte de análisis de performance',
+      'Reporte de análisis de seguridad',
+      'Reporte de análisis de compliance',
+      'Reporte de licenciamiento',
+      'Documentación técnica detallada',
+    ],
+  },
+  {
+    title: '8. Presentaciones',
+    items: [
+      'Presentación ejecutiva (para C-level y stakeholders de negocio)',
+      'Presentación técnica (para equipos de IT)',
+      'Presentación de business case (para finanzas)',
+      'Presentación de roadmap de migración',
+    ],
+  },
+  {
+    title: '9. Documentación de Soporte',
+    items: [
+      'Glosario de términos técnicos',
+      'FAQ (Preguntas Frecuentes)',
+      'Guía de próximos pasos',
+      'Contactos y recursos de soporte',
+      'Referencias y documentación adicional',
+    ],
+  },
+  {
+    title: '10. Datos Raw y Exportaciones',
+    items: [
+      'Exportación de datos de herramienta de colecta',
+      'Hojas de cálculo con inventarios detallados',
+      'Logs y evidencia de recolección de datos',
+      'Backup de configuraciones y reportes',
+    ],
+  },
+  {
+    title: '11. Control de Calidad',
+    items: [
+      'Revisión de ortografía y gramática en todos los documentos',
+      'Validación de números y cálculos',
+      'Consistencia de branding (logos, colores, fuentes)',
+      'Verificación de enlaces y referencias',
+      'Revisión por par (peer review)',
+      'Aprobación del lead consultant',
+    ],
+  },
+  {
+    title: '12. Entrega y Cierre',
+    items: [
+      'Organización de archivos en estructura clara',
+      'Creación de índice de documentos',
+      'Empaquetado de entregables para entrega',
+      'Programación de presentación final',
+      'Preparación de sesión de Q&A',
+      'Documentación de lecciones aprendidas',
+      'Encuesta de satisfacción del cliente',
+      'Cierre formal del proyecto',
+    ],
+  },
+];
+
+const plantillas = [
+  '📦 Estructura de Carpetas para Entregables',
+  '📄 Template de Índice de Documentos',
+  '📄 Email de Entrega de Documentos',
+  '📄 Agenda de Presentación Final',
+  '📄 Encuesta de Satisfacción del Cliente',
 ];
 
 export function WikiChecklist() {
@@ -83,10 +159,12 @@ export function WikiChecklist() {
   const total = sections.reduce((acc, s) => acc + s.items.length, 0);
   const done = checked.size;
   const pct = Math.round((done / total) * 100);
+  const isComplete = done === total;
 
   return (
     <div className="space-y-5">
-      <Card className="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200">
+      {/* Progress bar */}
+      <Card className={`border-fuchsia-200 transition-all ${isComplete ? 'bg-gradient-to-r from-green-50 to-emerald-50' : 'bg-gradient-to-r from-fuchsia-50 to-pink-50'}`}>
         <CardContent className="pt-5">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold text-fuchsia-900">Progreso General</p>
@@ -94,26 +172,37 @@ export function WikiChecklist() {
           </div>
           <div className="w-full bg-fuchsia-100 rounded-full h-2.5">
             <div
-              className="bg-fuchsia-500 h-2.5 rounded-full transition-all duration-300"
+              className={`h-2.5 rounded-full transition-all duration-500 ${isComplete ? 'bg-green-500' : 'bg-fuchsia-500'}`}
               style={{ width: `${pct}%` }}
             />
           </div>
+          {isComplete && (
+            <p className="text-xs text-green-700 font-medium mt-2 text-center">¡Checklist completo! Listo para entrega al cliente.</p>
+          )}
         </CardContent>
       </Card>
 
+      {/* Warning */}
       <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
         <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-        <p>Todos los entregables deben ser revisados por al menos dos miembros del equipo antes de la entrega final al cliente.</p>
+        <p><strong>Importante:</strong> Todos los entregables deben ser revisados por al menos dos miembros del equipo antes de la entrega final al cliente.</p>
       </div>
 
+      {/* Checklist sections */}
       {sections.map((section) => {
         const sectionDone = section.items.filter((item) => checked.has(`${section.title}:${item}`)).length;
+        const sectionComplete = sectionDone === section.items.length;
         return (
-          <Card key={section.title} className="border-fuchsia-100">
+          <Card key={section.title} className={`border-fuchsia-100 transition-all ${sectionComplete ? 'border-green-200 bg-green-50/30' : ''}`}>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-semibold text-gray-800">{section.title}</CardTitle>
-                <span className="text-xs text-gray-500">{sectionDone}/{section.items.length}</span>
+                <CardTitle className={`text-sm font-semibold ${sectionComplete ? 'text-green-700' : 'text-gray-800'}`}>
+                  {sectionComplete && <span className="mr-1.5">✓</span>}
+                  {section.title}
+                </CardTitle>
+                <span className={`text-xs font-medium ${sectionComplete ? 'text-green-600' : 'text-gray-500'}`}>
+                  {sectionDone}/{section.items.length}
+                </span>
               </div>
             </CardHeader>
             <CardContent className="pt-0 space-y-2">
@@ -140,6 +229,30 @@ export function WikiChecklist() {
           </Card>
         );
       })}
+
+      {/* Congratulations */}
+      <div className="flex items-start gap-2 bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-800">
+        <PartyPopper className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+        <div>
+          <strong>¡Felicitaciones!</strong> Una vez completado este checklist, tu MAP Assessment está listo para entrega.
+          Asegúrate de programar una sesión de presentación efectiva y de mantener comunicación abierta con el cliente para próximos pasos.
+        </div>
+      </div>
+
+      {/* Plantillas de Entrega */}
+      <Card className="border-fuchsia-100">
+        <CardContent className="pt-5 space-y-3">
+          <h3 className="font-semibold text-gray-800">Plantillas de Entrega</h3>
+          <ul className="space-y-1">
+            {plantillas.map((item) => (
+              <li key={item} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg text-sm text-fuchsia-700">
+                <FileText className="h-4 w-4 text-fuchsia-400 flex-shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
     </div>
   );
 }

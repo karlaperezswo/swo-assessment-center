@@ -64,7 +64,7 @@ export function WikiDiagrama() {
               <CheckItem>Aplicaciones y sus componentes</CheckItem>
               <CheckItem>Bases de datos asociadas</CheckItem>
               <CheckItem>Servicios compartidos</CheckItem>
-              <CheckItem>APIs e integraciones</CheckItem>
+              <CheckItem>APIs y integraciones</CheckItem>
               <CheckItem>Dependencias críticas</CheckItem>
               <CheckItem>Flujos de comunicación</CheckItem>
             </ul>

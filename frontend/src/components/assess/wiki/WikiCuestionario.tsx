@@ -205,7 +205,8 @@ export function WikiCuestionario() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-gray-700 mb-2">Áreas Críticas a Profundizar</h4>
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">Preguntas Clave a Profundizar</h4>
+            <p className="text-xs text-gray-500 mb-1.5">Áreas Críticas:</p>
             <ul className="space-y-1.5">
               <CheckItem>Aplicaciones con dependencias complejas</CheckItem>
               <CheckItem>Requisitos de compliance específicos</CheckItem>

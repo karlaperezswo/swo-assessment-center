@@ -9,6 +9,7 @@ import {
   buildCorsMiddleware,
   buildHelmetMiddleware,
 } from './middleware/security';
+import { authenticate } from './middleware/auth';
 import { reportRouter } from './routes/reportRoutes';
 import { dependencyRouter } from './routes/dependencyRoutes';
 import { scraperRouter } from './routes/scraperRoutes';
@@ -26,6 +27,9 @@ app.use(buildCorsMiddleware());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/api', buildBaseRateLimiter());
+// Auth gate: requires a valid Cognito JWT when AUTH_ENABLED=true.
+// No-op otherwise so local dev keeps working without a user pool.
+app.use('/api', authenticate());
 
 // Static files for downloads
 app.use('/downloads', express.static(path.join(__dirname, '../generated')));

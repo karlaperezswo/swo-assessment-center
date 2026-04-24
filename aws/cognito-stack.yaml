@@ -1,0 +1,160 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Cognito User Pool for swo-assessment-center v2.
+  Provides authentication + MFA + SAML federation + role groups (superadmin,
+  consultor, cliente-readonly). A PreTokenGeneration Lambda stamps orgId/role
+  onto the access token.
+
+Parameters:
+  EnvName:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+
+  CallbackURLs:
+    Type: CommaDelimitedList
+    Default: "http://localhost:5173/auth/callback"
+    Description: Allowed post-login redirect URLs (SPA).
+
+  LogoutURLs:
+    Type: CommaDelimitedList
+    Default: "http://localhost:5173/"
+    Description: Allowed post-logout redirect URLs.
+
+  DomainPrefix:
+    Type: String
+    Default: swo-assessment
+    Description: Hosted UI domain prefix. Must be globally unique per region.
+
+  MfaEnforced:
+    Type: String
+    Default: "ON"
+    AllowedValues: ["ON", "OPTIONAL", "OFF"]
+    Description: TOTP MFA policy. Prod/staging should be ON.
+
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      UserPoolName: !Sub "swo-assessment-users-${EnvName}"
+      DeletionProtection: ACTIVE
+      MfaConfiguration: !Ref MfaEnforced
+      EnabledMfas:
+        - SOFTWARE_TOKEN_MFA
+      AutoVerifiedAttributes: [email]
+      UsernameAttributes: [email]
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 12
+          RequireLowercase: true
+          RequireUppercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          TemporaryPasswordValidityDays: 3
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: false
+        - Name: given_name
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+        - Name: family_name
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+        - Name: "custom:orgId"
+          AttributeDataType: String
+          Mutable: true
+        - Name: "custom:role"
+          AttributeDataType: String
+          Mutable: true
+      UserPoolAddOns:
+        AdvancedSecurityMode: AUDIT
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Sub "${DomainPrefix}-${EnvName}"
+      UserPoolId: !Ref UserPool
+
+  SuperAdminGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: superadmin
+      Description: Full platform admin — cross-org access.
+      Precedence: 1
+      UserPoolId: !Ref UserPool
+
+  ConsultorGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: consultor
+      Description: SoftwareOne consultant — scoped to their organization.
+      Precedence: 10
+      UserPoolId: !Ref UserPool
+
+  ClienteReadonlyGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: cliente-readonly
+      Description: Client user with read-only access to shared sessions.
+      Precedence: 100
+      UserPoolId: !Ref UserPool
+
+  SpaClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub "swo-assessment-spa-${EnvName}"
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows: [code]
+      AllowedOAuthScopes: [openid, email, profile]
+      CallbackURLs: !Ref CallbackURLs
+      LogoutURLs: !Ref LogoutURLs
+      SupportedIdentityProviders: [COGNITO]
+      AccessTokenValidity: 60
+      IdTokenValidity: 60
+      RefreshTokenValidity: 30
+      TokenValidityUnits:
+        AccessToken: minutes
+        IdToken: minutes
+        RefreshToken: days
+
+Outputs:
+  UserPoolId:
+    Value: !Ref UserPool
+    Export:
+      Name: !Sub "${AWS::StackName}-UserPoolId"
+  UserPoolArn:
+    Value: !GetAtt UserPool.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-UserPoolArn"
+  SpaClientId:
+    Value: !Ref SpaClient
+    Export:
+      Name: !Sub "${AWS::StackName}-SpaClientId"
+  HostedUIDomain:
+    Value: !Sub "${DomainPrefix}-${EnvName}.auth.${AWS::Region}.amazoncognito.com"
+    Export:
+      Name: !Sub "${AWS::StackName}-HostedUIDomain"
+  Issuer:
+    Value: !Sub "https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}"
+    Export:
+      Name: !Sub "${AWS::StackName}-Issuer"
+  JwksUri:
+    Value: !Sub "https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}/.well-known/jwks.json"
+    Export:
+      Name: !Sub "${AWS::StackName}-JwksUri"

@@ -1,6 +1,11 @@
 import serverless from 'serverless-http';
 import express from 'express';
-import cors from 'cors';
+import {
+  buildBaseRateLimiter,
+  buildCorsMiddleware,
+  buildHelmetMiddleware,
+} from './middleware/security';
+import { authenticate } from './middleware/auth';
 import { reportRouter } from './routes/reportRoutes';
 import { selectorRouter } from './routes/selectorRoutes';
 import { opportunityRouter } from './routes/opportunityRoutes';
@@ -8,26 +13,24 @@ import { businessCaseRouter } from './routes/businessCaseRoutes';
 import { i18nRouter } from './routes/i18nRoutes';
 import { dependencyRouter } from './routes/dependencyRoutes';
 import { scraperRouter } from './routes/scraperRoutes';
+import { agentRouter } from './routes/agentRoutes';
+import { mcpKeyRouter, mcpProtocolRouter } from './routes/mcpRoutes';
 
 const app = express();
 
 // Disable automatic charset for binary responses
 app.set('etag', false);
 
-// Configure CORS to allow all origins and methods
-const corsOptions = {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: true,
-  maxAge: 86400 // 24 hours
-};
-
-// Middleware
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
+// Security first, then body parsers, then per-API rate limit.
+// CORS allowlist is env-driven (see middleware/security.ts).
+const corsMiddleware = buildCorsMiddleware();
+app.use(buildHelmetMiddleware());
+app.use(corsMiddleware);
+app.options('*', corsMiddleware);
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use('/api', buildBaseRateLimiter());
+app.use('/api', authenticate());
 
 // Routes
 app.use('/api/report', reportRouter);
@@ -37,6 +40,9 @@ app.use('/api/business-case', businessCaseRouter);
 app.use('/api/i18n', i18nRouter);
 app.use('/api/dependencies', dependencyRouter);
 app.use('/api/scraper', scraperRouter);
+app.use('/api/agent', agentRouter);
+app.use('/api/mcp-keys', mcpKeyRouter);
+app.use('/mcp', mcpProtocolRouter);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import apiClient from '@/lib/api';
+import { usePhase } from '@/routing/usePhase';
 import { useTranslation } from '@/i18n/useTranslation';
 import { LanguageSelector } from '@/i18n/LanguageSelector';
 import { PhaseNavigator } from '@/components/layout/PhaseNavigator';
@@ -59,8 +60,8 @@ function App() {
   const [ec2Recommendations, setEc2Recommendations] = useState<EC2Recommendation[]>([]);
   const [dbRecommendations, setDbRecommendations] = useState<DatabaseRecommendation[]>([]);
 
-  // Phase navigation state
-  const [currentPhase, setCurrentPhase] = useState<MigrationPhase>('assess');
+  // Phase navigation state — backed by React Router so URLs are shareable.
+  const [currentPhase, setCurrentPhase] = usePhase();
   const [phaseStatus, setPhaseStatus] = useState<PhaseStatus>({
     assess: 'in_progress',
     mobilize: 'not_started',

@@ -1,6 +1,10 @@
 import serverless from 'serverless-http';
 import express from 'express';
-import cors from 'cors';
+import {
+  buildBaseRateLimiter,
+  buildCorsMiddleware,
+  buildHelmetMiddleware,
+} from './middleware/security';
 import { reportRouter } from './routes/reportRoutes';
 import { selectorRouter } from './routes/selectorRoutes';
 import { opportunityRouter } from './routes/opportunityRoutes';
@@ -14,20 +18,15 @@ const app = express();
 // Disable automatic charset for binary responses
 app.set('etag', false);
 
-// Configure CORS to allow all origins and methods
-const corsOptions = {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: true,
-  maxAge: 86400 // 24 hours
-};
-
-// Middleware
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
+// Security first, then body parsers, then per-API rate limit.
+// CORS allowlist is env-driven (see middleware/security.ts).
+const corsMiddleware = buildCorsMiddleware();
+app.use(buildHelmetMiddleware());
+app.use(corsMiddleware);
+app.options('*', corsMiddleware);
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use('/api', buildBaseRateLimiter());
 
 // Routes
 app.use('/api/report', reportRouter);

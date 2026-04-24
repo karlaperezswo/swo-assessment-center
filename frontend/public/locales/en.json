@@ -1055,7 +1055,15 @@
     "exported": "Session exported to JSON",
     "imported": "Session imported successfully",
     "importError": "Error importing session",
-    "cleared": "Local session deleted"
+    "cleared": "Local session deleted",
+    "cloudSave": "Save to cloud",
+    "cloudSaveHint": "Sync this session to the server",
+    "cloudRestore": "Restore from cloud",
+    "cloudRestoreHint": "Pull the latest synced session",
+    "cloudSaved": "Session synced to cloud",
+    "cloudRestored": "Cloud session restored ({{date}})",
+    "cloudEmpty": "No cloud session to restore",
+    "cloudError": "Cloud sync failed"
   },
   "waveIntegration": {
     "autoGroup": "Auto-group from dependencies",

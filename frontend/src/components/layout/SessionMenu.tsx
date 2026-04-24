@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Save, Upload, Download, Clock, Trash2, ChevronDown } from 'lucide-react';
+import { Save, Upload, Download, Clock, Trash2, ChevronDown, Cloud, DownloadCloud } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from '@/i18n/useTranslation';
 import {
@@ -13,6 +13,8 @@ import {
   importSessionFromFile,
   collectAuxiliaryState,
   applyAuxiliaryState,
+  pushSessionToCloud,
+  pullSessionFromCloud,
 } from '@/lib/sessionPersistence';
 
 interface SessionMenuProps {
@@ -98,6 +100,42 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
     setOpen(false);
   };
 
+  const handleCloudSync = async () => {
+    try {
+      await pushSessionToCloud(currentSnapshot);
+      toast.success(t('sessionMenu.cloudSaved'));
+    } catch (err: any) {
+      toast.error(t('sessionMenu.cloudError'), {
+        description: err?.response?.data?.error ?? err?.message,
+      });
+    } finally {
+      setOpen(false);
+    }
+  };
+
+  const handleCloudRestore = async () => {
+    try {
+      const bundle = await pullSessionFromCloud();
+      if (!bundle) {
+        toast.error(t('sessionMenu.cloudEmpty'));
+        return;
+      }
+      if (bundle.auxiliary) applyAuxiliaryState(bundle.auxiliary);
+      onRestore(bundle.snapshot);
+      toast.success(
+        t('sessionMenu.cloudRestored', {
+          date: new Date(bundle.snapshot.savedAt).toLocaleString(),
+        })
+      );
+    } catch (err: any) {
+      toast.error(t('sessionMenu.cloudError'), {
+        description: err?.response?.data?.error ?? err?.message,
+      });
+    } finally {
+      setOpen(false);
+    }
+  };
+
   return (
     <div className="relative inline-block">
       <Button type="button" variant="outline" size="sm" onClick={() => setOpen(!open)} aria-label={t('sessionMenu.ariaLabel')} aria-expanded={open}>
@@ -174,6 +212,31 @@ export function SessionMenu({ currentSnapshot, onRestore, onReset }: SessionMenu
                   onChange={handleImport}
                 />
               </label>
+              <div className="border-t my-1" />
+              <button
+                type="button"
+                onClick={handleCloudSync}
+                aria-label={t('sessionMenu.cloudSave')}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-left"
+              >
+                <Cloud className="h-4 w-4 text-sky-600" />
+                <div className="flex-1">
+                  <div className="font-medium">{t('sessionMenu.cloudSave')}</div>
+                  <div className="text-xs text-gray-500">{t('sessionMenu.cloudSaveHint')}</div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={handleCloudRestore}
+                aria-label={t('sessionMenu.cloudRestore')}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-left"
+              >
+                <DownloadCloud className="h-4 w-4 text-sky-600" />
+                <div className="flex-1">
+                  <div className="font-medium">{t('sessionMenu.cloudRestore')}</div>
+                  <div className="text-xs text-gray-500">{t('sessionMenu.cloudRestoreHint')}</div>
+                </div>
+              </button>
               <div className="border-t my-1" />
               <button
                 type="button"

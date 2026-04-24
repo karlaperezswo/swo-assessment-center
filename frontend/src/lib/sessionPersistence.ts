@@ -6,6 +6,7 @@ import {
   PhaseStatus,
 } from '@/types/assessment';
 import { readPersisted, writePersisted, clearPersisted, storageKey } from '@/lib/usePersistedState';
+import apiClient from '@/lib/api';
 
 export interface SessionSnapshot {
   version: 1;
@@ -90,5 +91,60 @@ export function applyAuxiliaryState(aux: PersistedKeysSnapshot | undefined): voi
   if (!aux) return;
   Object.entries(aux).forEach(([k, v]) => {
     writePersisted(k, v);
+  });
+}
+
+/**
+ * Pull and push session snapshots against the backend `/api/session` endpoint.
+ * Backend persists keyed by Cognito sub when auth is on, or by the
+ * `x-session-key` header when running unauthenticated locally.
+ */
+const SESSION_KEY_HEADER = 'x-session-key';
+const LOCAL_SESSION_KEY = 'session.remoteKey';
+
+function resolveRemoteKey(): string {
+  let key = readPersisted<string | null>(LOCAL_SESSION_KEY, null);
+  if (!key) {
+    key = `anon-${crypto.randomUUID?.() ?? Date.now()}`;
+    writePersisted(LOCAL_SESSION_KEY, key);
+  }
+  return key;
+}
+
+export interface RemoteSessionBundle {
+  snapshot: SessionSnapshot;
+  auxiliary?: PersistedKeysSnapshot;
+}
+
+export async function pushSessionToCloud(
+  snapshot: Omit<SessionSnapshot, 'version' | 'savedAt'>
+): Promise<void> {
+  const full: SessionSnapshot = {
+    ...snapshot,
+    version: 1,
+    savedAt: new Date().toISOString(),
+  };
+  const bundle: RemoteSessionBundle = {
+    snapshot: full,
+    auxiliary: collectAuxiliaryState(),
+  };
+  await apiClient.put('/api/session', bundle, {
+    headers: { [SESSION_KEY_HEADER]: resolveRemoteKey() },
+  });
+}
+
+export async function pullSessionFromCloud(): Promise<RemoteSessionBundle | null> {
+  const response = await apiClient.get('/api/session', {
+    headers: { [SESSION_KEY_HEADER]: resolveRemoteKey() },
+  });
+  if (!response.data?.success) return null;
+  const bundle = response.data.data as RemoteSessionBundle | null;
+  if (!bundle || !bundle.snapshot) return null;
+  return bundle;
+}
+
+export async function deleteCloudSession(): Promise<void> {
+  await apiClient.delete('/api/session', {
+    headers: { [SESSION_KEY_HEADER]: resolveRemoteKey() },
   });
 }

@@ -1056,7 +1056,15 @@
     "exported": "Sesión exportada a JSON",
     "imported": "Sesión importada correctamente",
     "importError": "Error al importar sesión",
-    "cleared": "Sesión local borrada"
+    "cleared": "Sesión local borrada",
+    "cloudSave": "Guardar en la nube",
+    "cloudSaveHint": "Sincroniza esta sesión al servidor",
+    "cloudRestore": "Restaurar desde la nube",
+    "cloudRestoreHint": "Descarga la última sesión sincronizada",
+    "cloudSaved": "Sesión sincronizada a la nube",
+    "cloudRestored": "Sesión de la nube restaurada ({{date}})",
+    "cloudEmpty": "No hay sesión en la nube para restaurar",
+    "cloudError": "Error al sincronizar con la nube"
   },
   "waveIntegration": {
     "autoGroup": "Auto-agrupar desde dependencias",

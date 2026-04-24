@@ -1055,7 +1055,15 @@
     "exported": "Sessão exportada para JSON",
     "imported": "Sessão importada com sucesso",
     "importError": "Erro ao importar sessão",
-    "cleared": "Sessão local excluída"
+    "cleared": "Sessão local excluída",
+    "cloudSave": "Salvar na nuvem",
+    "cloudSaveHint": "Sincronize esta sessão com o servidor",
+    "cloudRestore": "Restaurar da nuvem",
+    "cloudRestoreHint": "Baixe a última sessão sincronizada",
+    "cloudSaved": "Sessão sincronizada com a nuvem",
+    "cloudRestored": "Sessão da nuvem restaurada ({{date}})",
+    "cloudEmpty": "Sem sessão na nuvem para restaurar",
+    "cloudError": "Falha ao sincronizar com a nuvem"
   },
   "waveIntegration": {
     "autoGroup": "Auto-agrupar a partir de dependências",

@@ -9,6 +9,9 @@ build/
 .next/
 out/
 
+# Backend-generated session snapshots
+backend/data/sessions/
+
 # Environment files
 .env
 .env.local

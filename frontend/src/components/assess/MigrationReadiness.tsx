@@ -14,6 +14,7 @@ import {
   ReadinessLevel,
 } from '@/lib/migrationReadiness';
 import { usePersistedState } from '@/lib/usePersistedState';
+import { ReadinessQuestionnaire } from '@/components/assess/ReadinessQuestionnaire';
 import {
   Gauge,
   Info,
@@ -132,6 +133,11 @@ export function MigrationReadiness({
           </div>
         </CardContent>
       </Card>
+
+      <ReadinessQuestionnaire
+        currentChecklist={manualState}
+        onChecklistUpdate={setManualState}
+      />
 
       {report.gaps.length > 0 && (
         <Card className="border-amber-200 bg-amber-50/50">

@@ -14,6 +14,7 @@ import { i18nRouter } from './routes/i18nRoutes';
 import { dependencyRouter } from './routes/dependencyRoutes';
 import { scraperRouter } from './routes/scraperRoutes';
 import { agentRouter } from './routes/agentRoutes';
+import { mcpKeyRouter, mcpProtocolRouter } from './routes/mcpRoutes';
 
 const app = express();
 
@@ -40,6 +41,8 @@ app.use('/api/i18n', i18nRouter);
 app.use('/api/dependencies', dependencyRouter);
 app.use('/api/scraper', scraperRouter);
 app.use('/api/agent', agentRouter);
+app.use('/api/mcp-keys', mcpKeyRouter);
+app.use('/mcp', mcpProtocolRouter);
 
 // Health check
 app.get('/health', (req, res) => {

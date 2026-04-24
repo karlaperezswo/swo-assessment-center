@@ -32,15 +32,17 @@ export function AgentDrawer() {
 
   return (
     <>
-      {/* Floating toggle */}
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
-      >
-        <Sparkles className="h-4 w-4" />
-        {isOpen ? 'Ocultar asistente' : 'Asistente AWS'}
-      </button>
+      {/* Floating toggle — only visible when drawer is closed; the in-drawer X handles closing */}
+      {!isOpen && (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
+        >
+          <Sparkles className="h-4 w-4" />
+          Asistente AWS
+        </button>
+      )}
 
       {/* Drawer */}
       <AnimatePresence>

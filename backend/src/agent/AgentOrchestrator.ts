@@ -42,8 +42,10 @@ interface ClaudeMessage {
 }
 
 const DEFAULT_MODEL = process.env.BEDROCK_MODEL_ID ??
-  'us.anthropic.claude-3-5-sonnet-20241022-v2:0';
+  'us.anthropic.claude-sonnet-4-6';
 const DEFAULT_MAX_TOKENS = Number(process.env.BEDROCK_MAX_TOKENS ?? 2048);
+const GUARDRAIL_ID = process.env.BEDROCK_GUARDRAIL_ID;
+const GUARDRAIL_VERSION = process.env.BEDROCK_GUARDRAIL_VERSION;
 
 /**
  * Transversal-copilot orchestrator.
@@ -133,13 +135,7 @@ export class AgentOrchestrator {
     const payload = {
       anthropic_version: 'bedrock-2023-05-31',
       max_tokens: opts.maxTokens ?? DEFAULT_MAX_TOKENS,
-      system: [
-        {
-          type: 'text',
-          text: AGENT_SYSTEM_PROMPT,
-          cache_control: { type: 'ephemeral' as const },
-        },
-      ],
+      system: buildSystemBlocks(opts.context),
       tools: toolsForBedrock(),
       messages: history,
     };
@@ -149,6 +145,9 @@ export class AgentOrchestrator {
       body: JSON.stringify(payload),
       contentType: 'application/json',
       accept: 'application/json',
+      ...(GUARDRAIL_ID && GUARDRAIL_VERSION
+        ? { guardrailIdentifier: GUARDRAIL_ID, guardrailVersion: GUARDRAIL_VERSION }
+        : {}),
     });
 
     let response;
@@ -250,7 +249,7 @@ export class AgentOrchestrator {
     const payload = {
       anthropic_version: 'bedrock-2023-05-31',
       max_tokens: opts.maxTokens ?? DEFAULT_MAX_TOKENS,
-      system: [{ type: 'text', text: AGENT_SYSTEM_PROMPT }],
+      system: buildSystemBlocks(opts.context),
       tools: toolsForBedrock(),
       messages: history,
     };
@@ -259,6 +258,9 @@ export class AgentOrchestrator {
       body: JSON.stringify(payload),
       contentType: 'application/json',
       accept: 'application/json',
+      ...(GUARDRAIL_ID && GUARDRAIL_VERSION
+        ? { guardrailIdentifier: GUARDRAIL_ID, guardrailVersion: GUARDRAIL_VERSION }
+        : {}),
     });
     const res = await this.client.send(command);
     const body = new TextDecoder().decode(res.body);
@@ -280,3 +282,36 @@ export class AgentOrchestrator {
 }
 
 export const AGENT_TOOL_NAMES = AGENT_TOOLS.map((t) => t.name);
+
+function buildSystemBlocks(ctx: AgentToolContext) {
+  const blocks: Array<{
+    type: 'text';
+    text: string;
+    cache_control?: { type: 'ephemeral' };
+  }> = [
+    {
+      type: 'text',
+      text: AGENT_SYSTEM_PROMPT,
+      cache_control: { type: 'ephemeral' },
+    },
+  ];
+
+  const ctxLines: string[] = [];
+  if (ctx.sessionId) ctxLines.push(`sessionId: ${ctx.sessionId}`);
+  if (ctx.orgId) ctxLines.push(`orgId: ${ctx.orgId}`);
+  if (ctx.userId) ctxLines.push(`userId: ${ctx.userId}`);
+  if (ctx.pageContext && Object.keys(ctx.pageContext).length > 0) {
+    ctxLines.push(
+      `pageContext (what the user is currently looking at):\n${JSON.stringify(ctx.pageContext, null, 2)}`
+    );
+  }
+
+  if (ctxLines.length > 0) {
+    blocks.push({
+      type: 'text',
+      text: `<runtime_context>\n${ctxLines.join('\n')}\n</runtime_context>`,
+    });
+  }
+
+  return blocks;
+}

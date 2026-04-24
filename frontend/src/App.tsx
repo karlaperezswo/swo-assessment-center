@@ -107,6 +107,23 @@ function App() {
     totalServers: uploadSummary?.serverCount ?? clientData.totalServers,
     priorities: clientData.priorities,
   });
+  useAgentContext(
+    'inventory',
+    uploadSummary
+      ? {
+          dataSource: uploadSummary.dataSource,
+          servers: uploadSummary.serverCount,
+          databases: uploadSummary.databaseCount,
+          applications: uploadSummary.applicationCount,
+          dependencies: uploadSummary.communicationCount,
+          securityGroups: uploadSummary.securityGroupCount,
+          totalStorageGB: uploadSummary.totalStorageGB,
+          opportunityAnalysisStatus: opportunitySessionId
+            ? 'completed'
+            : 'pending — inventory uploaded but opportunity analysis not yet run (requires MPA + MRA + Complete Phase). Answer using the inventory counts above without inventing detail you do not have.',
+        }
+      : null
+  );
 
   const handleDataLoaded = (data: ExcelData, summary: UploadSummary, depData?: any, waves?: any) => {
     setExcelData(data);

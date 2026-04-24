@@ -66,12 +66,18 @@ Resources:
           AttributeDataType: String
           Required: false
           Mutable: true
-        - Name: "custom:orgId"
+        - Name: orgId
           AttributeDataType: String
           Mutable: true
-        - Name: "custom:role"
+          StringAttributeConstraints:
+            MinLength: "1"
+            MaxLength: "256"
+        - Name: role
           AttributeDataType: String
           Mutable: true
+          StringAttributeConstraints:
+            MinLength: "1"
+            MaxLength: "64"
       UserPoolAddOns:
         AdvancedSecurityMode: AUDIT
       AccountRecoverySetting:

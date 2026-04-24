@@ -5,11 +5,16 @@ import { AgentOrchestrator } from '../agent/AgentOrchestrator';
 import type { AgentUserMessage } from '../agent/AgentOrchestrator';
 import { getAgentThreadRepository } from '../db/AgentThreadRepository';
 import { getAuditLog } from '../services/AuditLogService';
+import {
+  evaluateInput,
+  userMessageFor,
+  MAX_MESSAGE_CHARS,
+} from '../agent/guardrails';
 
 const chatSchema = z.object({
   threadId: z.string().uuid().optional(),
   sessionId: z.string().optional(),
-  message: z.string().min(1).max(8000),
+  message: z.string().min(1).max(MAX_MESSAGE_CHARS),
   pageContext: z.record(z.unknown()).optional(),
 });
 
@@ -46,6 +51,36 @@ export class AgentController {
     const user = req.user;
     const threadId = incomingThreadId ?? uuidv4();
 
+    const threads = getAgentThreadRepository();
+    let thread = sessionId ? await threads.get(sessionId, threadId) : null;
+
+    const guardrail = evaluateInput({
+      message,
+      pageContext,
+      caller: { sub: user?.sub, orgId: user?.orgId },
+      existingThread: thread,
+    });
+    if (!guardrail.ok) {
+      await getAuditLog().record({
+        action: 'agent:chat',
+        resource: `thread:${threadId}`,
+        actor: {
+          userId: user?.sub ?? 'anonymous',
+          orgId: user?.orgId,
+          role: user?.role,
+          ip: req.ip,
+        },
+        status: 'failure',
+        metadata: { blocked: true, code: guardrail.code, reason: guardrail.reason },
+      });
+      res.status(guardrail.code === 'tenant_mismatch' ? 403 : 400).json({
+        success: false,
+        error: userMessageFor(guardrail.code),
+        code: guardrail.code,
+      });
+      return;
+    }
+
     res.set({
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
@@ -54,9 +89,6 @@ export class AgentController {
     });
     res.flushHeaders?.();
     writeSse(res, 'thread', { threadId });
-
-    const threads = getAgentThreadRepository();
-    let thread = sessionId ? await threads.get(sessionId, threadId) : null;
     if (!thread) {
       thread = {
         sessionId: sessionId ?? 'standalone',

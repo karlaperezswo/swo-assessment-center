@@ -35,22 +35,26 @@ export function WaveGantt({ waves }: WaveGanttProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
-          <div className="min-w-[600px]">
-            <div className="relative h-6 border-b border-gray-200 mb-2">
-              {monthMarkers.map((m) => {
-                const left = ((m.ms - startMs) / totalRange) * 100;
-                return (
-                  <div
-                    key={m.ms}
-                    className="absolute top-0 text-[10px] text-gray-500 -translate-x-1/2"
-                    style={{ left: `${left}%` }}
-                  >
-                    <div className="h-2 w-px bg-gray-300 mx-auto mb-0.5" />
-                    {m.label}
-                  </div>
-                );
-              })}
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="min-w-[560px] px-4 sm:px-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-28 sm:w-40 flex-shrink-0" />
+              <div className="relative flex-1 h-6 border-b border-gray-200">
+                {monthMarkers.map((m) => {
+                  const left = ((m.ms - startMs) / totalRange) * 100;
+                  return (
+                    <div
+                      key={m.ms}
+                      className="absolute top-0 text-[10px] text-gray-500 -translate-x-1/2"
+                      style={{ left: `${left}%` }}
+                    >
+                      <div className="h-2 w-px bg-gray-300 mx-auto mb-0.5" />
+                      {m.label}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="w-20 sm:w-24 flex-shrink-0" />
             </div>
             <div className="space-y-1">
               {rows.map((row, i) => {
@@ -67,8 +71,9 @@ export function WaveGantt({ waves }: WaveGanttProps) {
                     transition={{ duration: 0.25, delay: i * 0.05 }}
                     className="flex items-center gap-3"
                   >
-                    <div className="w-40 flex-shrink-0 text-xs text-gray-700 truncate">
-                      Wave {row.waveNumber}: {row.name}
+                    <div className="w-28 sm:w-40 flex-shrink-0 text-xs text-gray-700 truncate">
+                      <span className="font-medium">W{row.waveNumber}</span>
+                      <span className="hidden sm:inline">: {row.name}</span>
                     </div>
                     <div className="relative flex-1 h-6 bg-gray-50 rounded">
                       <motion.div
@@ -82,7 +87,7 @@ export function WaveGantt({ waves }: WaveGanttProps) {
                         {width > 10 ? `${row.serverCount} srv` : ''}
                       </motion.div>
                     </div>
-                    <div className="w-24 flex-shrink-0 text-[11px] text-gray-500 text-right">
+                    <div className="w-20 sm:w-24 flex-shrink-0 text-[11px] text-gray-500 text-right">
                       {row.startDate || '—'}
                     </div>
                   </motion.div>

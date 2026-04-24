@@ -120,7 +120,8 @@ export function TCOScenarioBuilder({ estimatedCosts, clientName }: TCOScenarioBu
           </div>
         )}
 
-        <div className="overflow-x-auto">
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs text-gray-500">
@@ -171,6 +172,57 @@ export function TCOScenarioBuilder({ estimatedCosts, clientName }: TCOScenarioBu
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {scenarios.map((s) => {
+            const isBest = s.id === best.id && s.savingsVsOnDemand > 0;
+            return (
+              <div
+                key={s.id}
+                className={`rounded-lg border p-3 ${isBest ? 'bg-green-50 border-green-300' : 'bg-white'}`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm flex items-center gap-2 flex-wrap">
+                      {s.label}
+                      {isBest && (
+                        <Badge className="bg-green-500 text-white hover:bg-green-500 text-[10px] py-0">
+                          {t('tcoScenarios.best')}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-0.5">{s.description}</p>
+                  </div>
+                  <Badge className={`${riskBadge[s.risk]} flex-shrink-0`}>{s.risk}</Badge>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t text-[11px]">
+                  <div>
+                    <div className="text-gray-500">{t('tcoScenarios.columns.monthly')}</div>
+                    <div className="font-mono text-gray-900">{fmt(s.monthly)}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">{t('tcoScenarios.columns.annual')}</div>
+                    <div className="font-mono text-gray-900">{fmt(s.annual)}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">{t('tcoScenarios.columns.threeYear')}</div>
+                    <div className="font-mono font-semibold text-gray-900">{fmt(s.threeYear)}</div>
+                  </div>
+                </div>
+                {s.savingsVsOnDemand > 0 && (
+                  <div className="mt-2 pt-2 border-t text-xs text-green-700 flex items-center justify-between">
+                    <span>{t('tcoScenarios.columns.savings3y')}</span>
+                    <span className="font-semibold font-mono">
+                      {fmt(s.savingsVsOnDemand)} ({s.savingsPercent.toFixed(0)}%)
+                    </span>
+                  </div>
+                )}
+                <p className="text-[10px] text-gray-400 mt-2">{t('tcoScenarios.columns.commitment')}: {s.commitment}</p>
+              </div>
+            );
+          })}
         </div>
         <p className="text-xs text-gray-500 mt-3">{t('tcoScenarios.disclaimer')}</p>
       </CardContent>

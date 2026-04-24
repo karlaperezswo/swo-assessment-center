@@ -321,6 +321,11 @@
       "excelFile": "Upload MPA Excel file",
       "clientName": "Enter client name",
       "onPremisesCost": "Enter annual on-premises cost"
+    },
+    "prereq": {
+      "mpa": "Upload the MPA first in Rapid Discovery",
+      "deps": "Requires dependency data from the MPA",
+      "opps": "Complete the Assess phase to run opportunity analysis"
     }
   },
   "mobilize": {

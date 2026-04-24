@@ -321,6 +321,11 @@
       "excelFile": "Enviar arquivo Excel MPA",
       "clientName": "Inserir nome do cliente",
       "onPremisesCost": "Inserir custo anual on-premises"
+    },
+    "prereq": {
+      "mpa": "Envie o MPA primeiro em Descoberta Rápida",
+      "deps": "Requer dados de dependência do MPA",
+      "opps": "Complete a fase Assess para rodar análise de oportunidades"
     }
   },
   "mobilize": {

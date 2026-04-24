@@ -1,13 +1,20 @@
 import { cn } from '@/lib/utils';
+import { Lock } from 'lucide-react';
+
+export interface SubTabDefinition {
+  value: string;
+  label: string;
+  icon: React.ReactNode;
+  disabled?: boolean;
+  /** When false, the tab is reachable but its prerequisites are not yet met. */
+  prerequisiteMet?: boolean;
+  /** Tooltip shown when hovering a tab with unmet prerequisites. */
+  prerequisiteMessage?: string;
+}
 
 export interface SubTabGroup {
   groupLabel?: string;
-  tabs: {
-    value: string;
-    label: string;
-    icon: React.ReactNode;
-    disabled?: boolean;
-  }[];
+  tabs: SubTabDefinition[];
 }
 
 interface SubTabLayoutProps {
@@ -44,24 +51,39 @@ export function SubTabLayout({ groups, activeTab, onTabChange, phaseColor, child
                 </p>
               )}
               <div className="flex flex-wrap gap-1">
-                {group.tabs.map((tab) => (
-                  <button
-                    key={tab.value}
-                    onClick={() => !tab.disabled && onTabChange(tab.value)}
-                    disabled={tab.disabled}
-                    className={cn(
-                      'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-all',
-                      activeTab === tab.value
-                        ? activeTabStyles[phaseColor]
-                        : tab.disabled
-                        ? 'text-gray-300 border-transparent cursor-not-allowed'
-                        : 'text-gray-600 border-transparent hover:bg-gray-100 hover:border-gray-200'
-                    )}
-                  >
-                    {tab.icon}
-                    <span className="hidden sm:inline">{tab.label}</span>
-                  </button>
-                ))}
+                {group.tabs.map((tab) => {
+                  const prereqUnmet = tab.prerequisiteMet === false;
+                  const title =
+                    prereqUnmet && tab.prerequisiteMessage
+                      ? tab.prerequisiteMessage
+                      : tab.label;
+                  return (
+                    <button
+                      type="button"
+                      key={tab.value}
+                      onClick={() => !tab.disabled && onTabChange(tab.value)}
+                      disabled={tab.disabled}
+                      title={title}
+                      aria-label={title}
+                      className={cn(
+                        'relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-all',
+                        activeTab === tab.value
+                          ? activeTabStyles[phaseColor]
+                          : tab.disabled
+                          ? 'text-gray-300 border-transparent cursor-not-allowed'
+                          : prereqUnmet
+                          ? 'text-gray-400 border-transparent hover:bg-gray-50 hover:border-gray-200'
+                          : 'text-gray-600 border-transparent hover:bg-gray-100 hover:border-gray-200'
+                      )}
+                    >
+                      {tab.icon}
+                      <span className="hidden sm:inline">{tab.label}</span>
+                      {prereqUnmet && (
+                        <Lock className="h-3 w-3 text-gray-400" aria-hidden="true" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}

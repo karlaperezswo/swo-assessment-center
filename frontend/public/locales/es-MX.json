@@ -334,6 +334,11 @@
       "excelFile": "Cargar archivo Excel MPA",
       "clientName": "Ingresar nombre del cliente",
       "onPremisesCost": "Ingresar costo anual on-premises"
+    },
+    "prereq": {
+      "mpa": "Sube primero el MPA en Descubrimiento Rápido",
+      "deps": "Requiere datos de dependencias del MPA",
+      "opps": "Completa la fase Assess para correr el análisis de oportunidades"
     }
   },
   "mobilize": {

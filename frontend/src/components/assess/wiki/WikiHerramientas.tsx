@@ -557,6 +557,16 @@ function AwsTransformOvaPage() {
       <Card className="border-fuchsia-100"><CardContent className="pt-5 space-y-3">
         <SectionTitle>8. Descargas y Resultados Esperados</SectionTitle>
         <ul className="space-y-1.5"><CheckItem>Inventario: opción Download Inventory</CheckItem><CheckItem>Logs: opción Download Logs</CheckItem><CheckItem>Identificación de: Servidores, Aplicaciones, Dependencias</CheckItem><CheckItem>Datos de red: IP origen/destino, Puertos, Protocolos, Servicios activos</CheckItem></ul>
+      </CardContent></Card>
+
+      <Card className="border-fuchsia-100"><CardContent className="pt-5 space-y-3">
+        <SectionTitle>10. Recomendaciones</SectionTitle>
+        <ul className="space-y-1.5">
+          <CheckItem>Verificar conectividad de red antes del despliegue</CheckItem>
+          <CheckItem>Utilizar cuentas con permisos adecuados</CheckItem>
+          <CheckItem>Configurar acceso automático cuando sea posible</CheckItem>
+          <CheckItem>Revisar logs en caso de errores</CheckItem>
+        </ul>
         <WarnAlert>Siguiente paso: Una vez instalado el Discovery Tool, continúa con el Proceso de uso de Transform.</WarnAlert>
       </CardContent></Card>
     </div>
@@ -606,6 +616,9 @@ function AwsTransformProcesoPage() {
             <tr key={i} className={`border-t ${i%2===1?'bg-gray-50':''}`}><td className="p-2 font-mono text-xs text-fuchsia-700">{row[0]}</td><td className="p-2 text-gray-700">{row[1]}</td></tr>
           ))}</tbody>
         </table></div>
+        <div className="mt-3">
+          <WarnAlert>Siguiente paso: Para configurar el conector MGN en el entorno on-premises, consulta la guía de Uso de MGN Connector.</WarnAlert>
+        </div>
       </CardContent></Card>
     </div>
   );
@@ -657,7 +670,20 @@ function AwsTransformMgnPage() {
       </CardContent></Card>
 
       <Card className="border-fuchsia-100"><CardContent className="pt-5 space-y-3">
-        <SectionTitle>6. Instalación del MGN Connector</SectionTitle>
+        <SectionTitle>6. Arquitectura</SectionTitle>
+        <p className="text-sm text-gray-700">Flujo del conector:</p>
+        <div className="space-y-2">
+          {['On-prem Connector','Registro vía SSM','Conexión a AWS','Conexión a vCenter','Descubrimiento de VMs','Instalación de agentes'].map((step, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <span className="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0">{i + 1}</span>
+              <span className="text-sm text-gray-700">{step}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent></Card>
+
+      <Card className="border-fuchsia-100"><CardContent className="pt-5 space-y-3">
+        <SectionTitle>7. Instalación del MGN Connector</SectionTitle>
         <p className="text-sm font-medium text-gray-700 mb-2">6.1 Descargar el instalador:</p>
         <div className="bg-gray-900 text-green-400 rounded-lg p-3 text-xs font-mono whitespace-pre">{`wget -O ./aws-vcenter-client-installer-init.py \\
   https://aws-application-migration-service-us-east-1.s3.us-east-1.amazonaws.com/latest/vcenter-client/linux/aws-vcenter-client-installer-init.py`}</div>
@@ -671,7 +697,7 @@ function AwsTransformMgnPage() {
       </CardContent></Card>
 
       <Card className="border-fuchsia-100"><CardContent className="pt-5 space-y-3">
-        <SectionTitle>7. Instalación del Agente MGN</SectionTitle>
+        <SectionTitle>8. Instalación del Agente MGN</SectionTitle>
         <p className="text-sm text-gray-700">Se recomienda usar la opción <strong>Install agent (automático)</strong> desde la consola de AWS MGN para simplificar el proceso.</p>
       </CardContent></Card>
 

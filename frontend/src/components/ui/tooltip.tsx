@@ -4,7 +4,10 @@ import * as React from 'react';
 interface TooltipProps {
   content: React.ReactNode;
   side?: 'top' | 'bottom' | 'left' | 'right';
+  /** Classes for the floating tooltip bubble. */
   className?: string;
+  /** Classes for the wrapper span (e.g. `w-full block` to stretch in flex parents). */
+  wrapperClassName?: string;
   children: React.ReactElement;
   /** When false, just renders the child without wrapping. */
   enabled?: boolean;
@@ -21,11 +24,23 @@ const sideStyles: Record<NonNullable<TooltipProps['side']>, string> = {
  * Lightweight CSS-only tooltip. Appears on hover/focus of the wrapper.
  * Use for short hints (under ~80 chars). For long-form content, use a popover.
  */
-export function Tooltip({ content, side = 'top', className, children, enabled = true }: TooltipProps) {
+export function Tooltip({
+  content,
+  side = 'top',
+  className,
+  wrapperClassName,
+  children,
+  enabled = true,
+}: TooltipProps) {
   if (!enabled || !content) return children;
 
   return (
-    <span className="relative inline-flex group focus-within:z-20 hover:z-20">
+    <span
+      className={cn(
+        'relative inline-flex group focus-within:z-20 hover:z-20',
+        wrapperClassName
+      )}
+    >
       {children}
       <span
         role="tooltip"

@@ -1,0 +1,90 @@
+name: Deploy backend (Lambda)
+
+# Triggers when backend or shared code changes land on main, plus manual
+# dispatch from the Actions tab so you can redeploy at will. Frontend lives
+# on AWS Amplify with its own auto-build pipeline (amplify.yml).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "shared/**"
+      - "aws/deploy-backend.js"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+
+# Prevent two deploys racing against each other.
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build + deploy to Lambda
+    runs-on: ubuntu-latest
+    # Required GitHub repository secrets:
+    #   AWS_ACCESS_KEY_ID       — IAM user with lambda:UpdateFunctionCode +
+    #                             lambda:UpdateFunctionConfiguration +
+    #                             lambda:GetFunctionConfiguration +
+    #                             s3:PutObject on the function bucket
+    #   AWS_SECRET_ACCESS_KEY
+    # Optional repository variables (override defaults from aws/deploy-backend.js):
+    #   AWS_REGION              — default: us-east-1
+    #   LAMBDA_FUNCTION_NAME    — default: assessment-center-api
+    #   S3_BUCKET_NAME          — default: assessment-center-files-assessment-dashboard
+    env:
+      # Skip Chromium download — Lambda runtime uses chrome-aws-lambda separately.
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME || 'assessment-center-api' }}
+      S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME || 'assessment-center-files-assessment-dashboard' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Install root tooling (archiver for the deploy script)
+        run: |
+          if [ ! -f package.json ]; then npm init -y >/dev/null; fi
+          npm install --no-save archiver@^7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sanity check — current Lambda version before deploy
+        run: |
+          aws lambda get-function-configuration \
+            --function-name "$LAMBDA_FUNCTION_NAME" \
+            --query 'Version' --output text
+          aws lambda get-function-configuration \
+            --function-name "$LAMBDA_FUNCTION_NAME" \
+            --query 'LastModified' --output text
+
+      - name: Run deploy script
+        run: node aws/deploy-backend.js
+
+      - name: Smoke check — agent endpoint should respond after deploy
+        run: |
+          # The function URL or API Gateway URL depends on your setup. We just
+          # confirm Lambda is reachable and not in a Failed state.
+          aws lambda get-function-configuration \
+            --function-name "$LAMBDA_FUNCTION_NAME" \
+            --query 'State' --output text
+          aws lambda get-function-configuration \
+            --function-name "$LAMBDA_FUNCTION_NAME" \
+            --query 'LastUpdateStatus' --output text

@@ -47,15 +47,15 @@ export function AgentDrawer() {
 
   return (
     <>
-      {/* Floating toggle — pinned to the bottom-left so it never overlaps with
-          the phase footer "Siguiente" CTA on the right. Bottom offset is large
-          on desktop and a touch smaller on mobile. */}
+      {/* Floating toggle — bottom-right, lifted above the phase footer
+          "Siguiente" CTA so it never overlaps. The lift accounts for
+          the PhaseFooterNav button row (~64px) plus padding. */}
       {!isOpen && (
         <button
           type="button"
           onClick={() => setOpen(true)}
           aria-label={assistantTitle}
-          className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-40 flex h-12 w-12 sm:h-auto sm:w-auto items-center justify-center sm:gap-2 rounded-full bg-primary sm:px-4 sm:py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
+          className="fixed bottom-24 right-4 sm:bottom-28 sm:right-6 z-40 flex h-12 w-12 sm:h-auto sm:w-auto items-center justify-center sm:gap-2 rounded-full bg-primary sm:px-4 sm:py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
         >
           <Sparkles className="h-5 w-5 sm:h-4 sm:w-4" />
           <span className="hidden sm:inline">{assistantTitle}</span>

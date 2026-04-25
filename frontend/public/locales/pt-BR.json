@@ -1,8 +1,8 @@
 {
   "agent": {
     "assistantTitle": {
-      "aws": "Assistente AWS",
-      "multi": "Assistente Cloud"
+      "aws": "Smart SWO",
+      "multi": "Smart SWO"
     },
     "placeholder": "Digite sua pergunta… (Enter para enviar)"
   },

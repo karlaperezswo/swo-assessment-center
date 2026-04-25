@@ -23,11 +23,11 @@ export function AgentDrawer() {
   const { state: cloudState } = useActiveClouds();
   const isMultiCloud = cloudState.active.length > 1;
 
-  // Title rebrands automatically: AWS-only → "Asistente AWS" (legacy),
-  // multi-cloud → "Asistente Cloud" (new).
+  // Single brand for all configurations: "Smart SWO". The multi/aws split
+  // remains in i18n keys so future variants are possible without code changes.
   const assistantTitle = isMultiCloud
-    ? t('agent.assistantTitle.multi', { defaultValue: 'Asistente Cloud' })
-    : t('agent.assistantTitle.aws', { defaultValue: 'Asistente AWS' });
+    ? t('agent.assistantTitle.multi', { defaultValue: 'Smart SWO' })
+    : t('agent.assistantTitle.aws', { defaultValue: 'Smart SWO' });
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -47,13 +47,15 @@ export function AgentDrawer() {
 
   return (
     <>
-      {/* Floating toggle — only visible when drawer is closed; the in-drawer X handles closing */}
+      {/* Floating toggle — pinned to the bottom-left so it never overlaps with
+          the phase footer "Siguiente" CTA on the right. Bottom offset is large
+          on desktop and a touch smaller on mobile. */}
       {!isOpen && (
         <button
           type="button"
           onClick={() => setOpen(true)}
           aria-label={assistantTitle}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex h-12 w-12 sm:h-auto sm:w-auto items-center justify-center sm:gap-2 rounded-full bg-primary sm:px-4 sm:py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
+          className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-40 flex h-12 w-12 sm:h-auto sm:w-auto items-center justify-center sm:gap-2 rounded-full bg-primary sm:px-4 sm:py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
         >
           <Sparkles className="h-5 w-5 sm:h-4 sm:w-4" />
           <span className="hidden sm:inline">{assistantTitle}</span>

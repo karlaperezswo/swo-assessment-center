@@ -17,6 +17,14 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    # Puppeteer is a transitive dep used only at runtime in production for
+    # PDF/HTML scraping (sqlPricingService). CI doesn't exercise it, and
+    # downloading the bundled Chromium (~150MB) was making `npm ci` take
+    # 20+ minutes per run. Skip both the Puppeteer and Puppeteer-Core
+    # download so the install step stays under a minute on cache miss.
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
     steps:
       - uses: actions/checkout@v4
 

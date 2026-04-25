@@ -44,7 +44,7 @@ export function PhaseStrip({ currentPhase, onPhaseChange, phaseStatus }: PhaseSt
   return (
     <nav
       aria-label="Migration phases"
-      className="rounded-xl border bg-card shadow-elev-1 p-1.5 flex items-center gap-1 overflow-x-auto"
+      className="rounded-xl border bg-card shadow-elev-1 p-1.5 flex items-stretch gap-1"
     >
       {PHASES.map((phase, index) => {
         const status = phaseStatus[phase.key];
@@ -60,8 +60,9 @@ export function PhaseStrip({ currentPhase, onPhaseChange, phaseStatus }: PhaseSt
             onClick={() => !isLocked && onPhaseChange(phase.key)}
             disabled={isLocked}
             aria-current={isActive ? 'page' : undefined}
+            aria-label={label}
             className={cn(
-              'group relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex-1 min-w-0 justify-center sm:justify-start',
+              'group relative flex items-center gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition-colors w-full justify-center sm:justify-start',
               isActive
                 ? phase.soft
                 : isLocked
@@ -88,29 +89,41 @@ export function PhaseStrip({ currentPhase, onPhaseChange, phaseStatus }: PhaseSt
               {isDone ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
             </span>
             <Icon className="h-4 w-4 shrink-0" />
-            <span className="truncate">{label}</span>
+            <span className="hidden sm:inline truncate">{label}</span>
             {isActive && (
               <span
                 aria-hidden
-                className="absolute inset-x-3 bottom-0 h-0.5 rounded-full"
+                className="absolute inset-x-2 sm:inset-x-3 bottom-0 h-0.5 rounded-full"
                 style={{ backgroundColor: `hsl(var(--${phase.accent}))` }}
               />
             )}
           </button>
         );
 
+        const wrapperClass = 'flex-1 min-w-0 flex';
+
         if (isLocked) {
           const reason =
             phase.key === 'mobilize'
-              ? t('phases.locked.mobilize', { defaultValue: 'Termina la fase Assess para desbloquear' })
-              : t('phases.locked.migrate', { defaultValue: 'Termina la fase Mobilize para desbloquear' });
+              ? t('phases.locked.mobilize', {
+                  defaultValue: 'Termina la fase Assess para desbloquear',
+                })
+              : t('phases.locked.migrate', {
+                  defaultValue: 'Termina la fase Mobilize para desbloquear',
+                });
           return (
-            <Tooltip key={phase.key} content={reason}>
-              {button}
-            </Tooltip>
+            <div key={phase.key} className={wrapperClass}>
+              <Tooltip content={reason} wrapperClassName="w-full">
+                {button}
+              </Tooltip>
+            </div>
           );
         }
-        return <div key={phase.key} className="flex-1 min-w-0">{button}</div>;
+        return (
+          <div key={phase.key} className={wrapperClass}>
+            {button}
+          </div>
+        );
       })}
     </nav>
   );

@@ -617,7 +617,7 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 pb-28 sm:pb-6 space-y-6">
         {/* Phase strip — only on real phases, hide it on Tech Memory */}
         {!isTechMemory && (
           <PhaseStrip

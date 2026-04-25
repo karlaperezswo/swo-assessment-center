@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/i18n/useTranslation';
 
@@ -10,13 +10,17 @@ interface PhaseCompleteButtonProps {
   isCompleted: boolean;
   onComplete: () => void;
   completionRequirements: string[];
-  accentColor: 'fuchsia' | 'violet' | 'amber';
+  /** Phase tone for button accent. Legacy values kept for backward compat. */
+  accentColor: 'fuchsia' | 'violet' | 'amber' | 'assess' | 'mobilize' | 'migrate';
 }
 
-const buttonStyles = {
-  fuchsia: 'bg-fuchsia-600 hover:bg-fuchsia-700 text-white',
-  violet: 'bg-violet-600 hover:bg-violet-700 text-white',
-  amber: 'bg-amber-600 hover:bg-amber-700 text-white',
+const accentVar: Record<PhaseCompleteButtonProps['accentColor'], string> = {
+  fuchsia: '--phase-assess',
+  assess: '--phase-assess',
+  violet: '--phase-mobilize',
+  mobilize: '--phase-mobilize',
+  amber: '--phase-migrate',
+  migrate: '--phase-migrate',
 };
 
 export function PhaseCompleteButton({
@@ -29,58 +33,84 @@ export function PhaseCompleteButton({
   accentColor,
 }: PhaseCompleteButtonProps) {
   const { t } = useTranslation();
+  const cssVar = `hsl(var(${accentVar[accentColor]}))`;
 
   if (isCompleted) {
     return (
-      <div className="flex items-center justify-center gap-3 py-6">
-        <div className="flex items-center gap-2 bg-green-100 text-green-800 px-6 py-3 rounded-lg border border-green-300">
-          <CheckCircle className="h-5 w-5" />
-          <span className="font-semibold">{t('phaseComplete.completed', { phaseLabel: phaseLabel })}</span>
-        </div>
+      <div
+        className={cn(
+          'flex items-center justify-center gap-2 rounded-xl border bg-success/5 text-success',
+          'border-success/30 px-5 py-3'
+        )}
+      >
+        <CheckCircle2 className="h-5 w-5" />
+        <span className="font-semibold">
+          {t('phaseComplete.completed', { phaseLabel })}
+        </span>
       </div>
     );
   }
 
-  // const unmetRequirements = completionRequirements.filter((_, i) => !canComplete && i >= 0);
-
   return (
-    <div className="border-t pt-6 mt-8">
-      <div className="flex flex-col items-center gap-4">
-        <Button
-          onClick={onComplete}
-          disabled={!canComplete}
-          size="lg"
-          className={cn(
-            'px-8 py-6 text-lg font-semibold rounded-xl shadow-lg transition-all',
-            canComplete ? buttonStyles[accentColor] : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          )}
-        >
-          {canComplete ? (
-            <>
-              {t('phaseComplete.button', { phase: phaseLabel })}
-              {nextPhaseLabel && <ArrowRight className="h-5 w-5 ml-2" />}
-            </>
-          ) : (
-            <>
-              <Lock className="h-5 w-5 mr-2" />
-              {t('phaseComplete.button', { phase: phaseLabel })}
-            </>
-          )}
-        </Button>
-        {!canComplete && (
-          <div className="text-center">
-            <p className="text-sm text-gray-500 mb-2">{t('phaseComplete.requirements')}</p>
-            <ul className="text-sm text-gray-400 space-y-1">
-              {completionRequirements.map((req, i) => (
-                <li key={i} className="flex items-center gap-2 justify-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
-                  {req}
-                </li>
-              ))}
-            </ul>
-          </div>
+    <div
+      className={cn(
+        'rounded-xl border bg-card shadow-elev-1 p-4',
+        'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'
+      )}
+    >
+      <div className="min-w-0">
+        <p className="text-sm font-semibold leading-tight">
+          {canComplete
+            ? t('phaseComplete.readyTitle', {
+                defaultValue: '¿Listo para avanzar?',
+              })
+            : t('phaseComplete.requirements', { defaultValue: 'Falta antes de avanzar:' })}
+        </p>
+        {canComplete ? (
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {nextPhaseLabel
+              ? t('phaseComplete.readyDescNext', {
+                  next: nextPhaseLabel,
+                  defaultValue: 'Marca esta fase como completa y pasa a {{next}}.',
+                })
+              : t('phaseComplete.readyDesc', {
+                  defaultValue: 'Marca esta fase como completa.',
+                })}
+          </p>
+        ) : (
+          <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground">
+            {completionRequirements.map((req, i) => (
+              <li key={i} className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/60" />
+                {req}
+              </li>
+            ))}
+          </ul>
         )}
       </div>
+      <Button
+        type="button"
+        onClick={onComplete}
+        disabled={!canComplete}
+        size="lg"
+        className={cn(
+          'shrink-0 text-white shadow-elev-2',
+          !canComplete && 'opacity-60'
+        )}
+        style={canComplete ? { backgroundColor: cssVar } : undefined}
+      >
+        {canComplete ? (
+          <>
+            {t('phaseComplete.button', { phase: phaseLabel })}
+            {nextPhaseLabel && <ArrowRight className="h-4 w-4 ml-2" />}
+          </>
+        ) : (
+          <>
+            <Lock className="h-4 w-4 mr-2" />
+            {t('phaseComplete.button', { phase: phaseLabel })}
+          </>
+        )}
+      </Button>
     </div>
   );
 }

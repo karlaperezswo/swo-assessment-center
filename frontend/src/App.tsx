@@ -7,14 +7,12 @@ import {
   useAgentContext,
   useSetAgentSession,
 } from '@/agent/AgentContextProvider';
-import { LanguageSelector } from '@/i18n/LanguageSelector';
-import { PhaseNavigator } from '@/components/layout/PhaseNavigator';
-import { PhaseProgressBar } from '@/components/layout/PhaseProgressBar';
+import { PhaseStrip } from '@/components/layout/PhaseStrip';
 import { AssessPhase } from '@/components/phases/AssessPhase';
 import { MobilizePhase } from '@/components/phases/MobilizePhase';
 import { MigratePhase } from '@/components/phases/MigratePhase';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { InfoBanner } from '@/components/ui/info-banner';
+import { AppToolbar } from '@/components/layout/AppToolbar';
 import {
   createDefaultLandingZoneChecklist,
   createDefaultSecurityChecklist,
@@ -37,12 +35,10 @@ import {
   LandingZoneChecklist,
   SecurityComplianceChecklist,
 } from '@/types/assessment';
-import { RefreshCw, Cloud } from 'lucide-react';
+import { Cloud } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { TechnicalMemory } from '@/components/techMemory/TechnicalMemory';
 import { SessionMenu } from '@/components/layout/SessionMenu';
-import { ThemeToggle } from '@/components/layout/ThemeToggle';
-import { McpKeysLink } from '@/components/layout/McpKeysLink';
 import { saveSession, SessionSnapshot } from '@/lib/sessionPersistence';
 
 function App() {
@@ -575,26 +571,31 @@ function App() {
     }
   };
 
+  const isTechMemory = currentPhase === 'tech-memory';
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground">
       <Toaster position="top-right" richColors closeButton />
-      {/* Header */}
-      <header className="bg-white border-b shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Cloud className="h-8 w-8 text-primary" />
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">
+
+      {/* Header — slim, brand on the left, single overflow menu on the right */}
+      <header className="sticky top-0 z-30 bg-card/85 backdrop-blur border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+              <Cloud className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-base font-semibold leading-tight truncate">
                 {t('header.title')}
               </h1>
-              <p className="text-sm text-gray-500">
-                {t('header.subtitle')}
+              <p className="text-xs text-muted-foreground truncate">
+                {clientData.clientName
+                  ? `${clientData.clientName} · ${clientData.vertical}`
+                  : t('header.subtitle')}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <McpKeysLink />
             <SessionMenu
               currentSnapshot={{
                 clientData,
@@ -607,117 +608,108 @@ function App() {
               onRestore={handleRestoreSession}
               onReset={handleReset}
             />
-            <LanguageSelector />
-            <span className="text-sm text-gray-500">{t('common.developedBy')}</span>
-            <span className="font-bold text-orange-500">{t('header.brand')}</span>
+            <AppToolbar
+              currentPhase={currentPhase}
+              onPhaseChange={setCurrentPhase}
+              onReset={handleReset}
+            />
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Phase Progress Bar */}
-        <PhaseProgressBar phaseStatus={phaseStatus} currentPhase={currentPhase} />
-
-        {/* Phase Navigator and Content */}
-        <PhaseNavigator
-          currentPhase={currentPhase}
-          onPhaseChange={setCurrentPhase}
-          phaseStatus={phaseStatus}
-        >
-          {currentPhase === 'assess' && (
-            <AssessPhase
-              excelData={excelData}
-              uploadSummary={uploadSummary}
-              clientData={clientData}
-              estimatedCosts={estimatedCosts}
-              onDataLoaded={handleDataLoaded}
-              onFormChange={handleFormChange}
-              phaseStatus={phaseStatus}
-              onCompletePhase={() => handlePhaseComplete('assess')}
-              briefingSessions={briefingSessions}
-              onBriefingSessionsChange={setBriefingSessions}
-              immersionDays={immersionDays}
-              onImmersionDaysChange={setImmersionDays}
-              migrationWaves={migrationWaves}
-              onMigrationWavesChange={setMigrationWaves}
-              opportunitySessionId={opportunitySessionId}
-              onOpportunitySessionIdChange={setOpportunitySessionId}
-              mraFile={mraFile}
-              onMRAFileChange={setMraFile}
-              questionnaireFile={questionnaireFile}
-              onQuestionnaireFileChange={setQuestionnaireFile}
-              dependencyData={dependencyData}
-            />
-          )}
-
-          {currentPhase === 'mobilize' && (
-            <MobilizePhase
-              excelData={excelData}
-              uploadSummary={uploadSummary}
-              clientData={clientData}
-              estimatedCosts={estimatedCosts}
-              ec2Recommendations={ec2Recommendations}
-              dbRecommendations={dbRecommendations}
-              reportResult={reportResult}
-              migrationWaves={migrationWaves}
-              onMigrationWavesChange={setMigrationWaves}
-              skillAssessments={skillAssessments}
-              onSkillAssessmentsChange={setSkillAssessments}
-              landingZoneChecklist={landingZoneChecklist}
-              onLandingZoneChange={setLandingZoneChecklist}
-              securityChecklist={securityChecklist}
-              onSecurityChecklistChange={setSecurityChecklist}
-              phaseStatus={phaseStatus}
-              onCompletePhase={() => handlePhaseComplete('mobilize')}
-            />
-          )}
-
-          {currentPhase === 'migrate' && (
-            <MigratePhase
-              excelData={excelData}
-              clientData={clientData}
-              estimatedCosts={estimatedCosts}
-              ec2Recommendations={ec2Recommendations}
-              dbRecommendations={dbRecommendations}
-              migrationWaves={migrationWaves}
-              onMigrationWavesChange={setMigrationWaves}
-              phaseStatus={phaseStatus}
-              onCompletePhase={() => handlePhaseComplete('migrate')}
-              reportResult={reportResult}
-              onGenerateReport={handleGenerateReport}
-              onDownloadReport={handleDownload}
-              isGenerating={isGenerating}
-            />
-          )}
-
-          {currentPhase === 'tech-memory' && (
-            <TechnicalMemory />
-          )}
-        </PhaseNavigator>
-
-        {/* Error Message */}
-        {error && (
-          <Card className="border-red-200 bg-red-50">
-            <CardContent className="pt-6">
-              <p className="text-red-700">{error}</p>
-            </CardContent>
-          </Card>
+        {/* Phase strip — only on real phases, hide it on Tech Memory */}
+        {!isTechMemory && (
+          <PhaseStrip
+            currentPhase={currentPhase}
+            onPhaseChange={setCurrentPhase}
+            phaseStatus={phaseStatus}
+          />
         )}
 
-        {/* Global Reset */}
-        <div className="flex justify-center">
-          <Button variant="outline" onClick={handleReset}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Reiniciar Todo
-          </Button>
-        </div>
+        {currentPhase === 'assess' && (
+          <AssessPhase
+            excelData={excelData}
+            uploadSummary={uploadSummary}
+            clientData={clientData}
+            estimatedCosts={estimatedCosts}
+            onDataLoaded={handleDataLoaded}
+            onFormChange={handleFormChange}
+            phaseStatus={phaseStatus}
+            onCompletePhase={() => handlePhaseComplete('assess')}
+            briefingSessions={briefingSessions}
+            onBriefingSessionsChange={setBriefingSessions}
+            immersionDays={immersionDays}
+            onImmersionDaysChange={setImmersionDays}
+            migrationWaves={migrationWaves}
+            onMigrationWavesChange={setMigrationWaves}
+            opportunitySessionId={opportunitySessionId}
+            onOpportunitySessionIdChange={setOpportunitySessionId}
+            mraFile={mraFile}
+            onMRAFileChange={setMraFile}
+            questionnaireFile={questionnaireFile}
+            onQuestionnaireFileChange={setQuestionnaireFile}
+            dependencyData={dependencyData}
+          />
+        )}
+
+        {currentPhase === 'mobilize' && (
+          <MobilizePhase
+            excelData={excelData}
+            uploadSummary={uploadSummary}
+            clientData={clientData}
+            estimatedCosts={estimatedCosts}
+            ec2Recommendations={ec2Recommendations}
+            dbRecommendations={dbRecommendations}
+            reportResult={reportResult}
+            migrationWaves={migrationWaves}
+            onMigrationWavesChange={setMigrationWaves}
+            skillAssessments={skillAssessments}
+            onSkillAssessmentsChange={setSkillAssessments}
+            landingZoneChecklist={landingZoneChecklist}
+            onLandingZoneChange={setLandingZoneChecklist}
+            securityChecklist={securityChecklist}
+            onSecurityChecklistChange={setSecurityChecklist}
+            phaseStatus={phaseStatus}
+            onCompletePhase={() => handlePhaseComplete('mobilize')}
+          />
+        )}
+
+        {currentPhase === 'migrate' && (
+          <MigratePhase
+            excelData={excelData}
+            clientData={clientData}
+            estimatedCosts={estimatedCosts}
+            ec2Recommendations={ec2Recommendations}
+            dbRecommendations={dbRecommendations}
+            migrationWaves={migrationWaves}
+            onMigrationWavesChange={setMigrationWaves}
+            phaseStatus={phaseStatus}
+            onCompletePhase={() => handlePhaseComplete('migrate')}
+            reportResult={reportResult}
+            onGenerateReport={handleGenerateReport}
+            onDownloadReport={handleDownload}
+            isGenerating={isGenerating}
+          />
+        )}
+
+        {currentPhase === 'tech-memory' && <TechnicalMemory />}
+
+        {error && (
+          <InfoBanner tone="danger" title={t('common.error', { defaultValue: 'Error' })}>
+            {error}
+          </InfoBanner>
+        )}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t mt-12">
-        <div className="max-w-7xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
-          {t('footer.copyright')} &copy; {new Date().getFullYear()} {t('header.brand')}
+      <footer className="border-t border-border mt-12 bg-card">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-muted-foreground">
+          <span>
+            {t('footer.copyright')} &copy; {new Date().getFullYear()} {t('header.brand')}
+          </span>
+          <span className="hidden sm:inline">
+            {t('common.developedBy')} <span className="font-semibold text-foreground">{t('header.brand')}</span>
+          </span>
         </div>
       </footer>
 

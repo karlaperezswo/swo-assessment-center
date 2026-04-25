@@ -1,7 +1,30 @@
 import { useEffect, useState } from 'react';
-import { Copy, Plus, Trash2, Loader2, CheckCircle2, Key } from 'lucide-react';
+import {
+  Copy,
+  Plus,
+  Trash2,
+  Loader2,
+  CheckCircle2,
+  Key,
+  KeyRound,
+  ShieldAlert,
+  ArrowLeft,
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import apiClient from '@/lib/api';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { PageHeader } from '@/components/ui/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
+import { InfoBanner } from '@/components/ui/info-banner';
+import { Tooltip } from '@/components/ui/tooltip';
 
 interface ApiKey {
   keyId: string;
@@ -15,17 +38,21 @@ interface ApiKey {
 }
 
 /**
- * /settings/mcp — consultor-facing screen to list, generate and revoke
- * MCP API keys. The freshly-minted secret is shown exactly once in a
- * modal-ish banner; after that only the keyId metadata is displayed.
+ * /settings/mcp — issue, list and revoke MCP API keys.
+ *
+ * The freshly-minted secret is shown in a modal that requires explicit
+ * confirmation ("I have stored this securely") before it can be closed —
+ * this stops accidental dismissals while the secret is still onscreen.
  */
 export function McpSettingsPage() {
+  const navigate = useNavigate();
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [issuing, setIssuing] = useState(false);
   const [newLabel, setNewLabel] = useState('');
   const [freshSecret, setFreshSecret] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [acknowledged, setAcknowledged] = useState(false);
+  const [copied, setCopied] = useState<'secret' | 'snippet' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function loadKeys() {
@@ -54,6 +81,7 @@ export function McpSettingsPage() {
         scopes: ['mcp:read', 'mcp:tools:call'],
       });
       setFreshSecret(res.data.secret);
+      setAcknowledged(false);
       setNewLabel('');
       await loadKeys();
     } catch (err) {
@@ -64,7 +92,12 @@ export function McpSettingsPage() {
   }
 
   async function revoke(keyId: string) {
-    if (!confirm('¿Revocar esta API key? Los clientes que la usen dejarán de funcionar inmediatamente.')) return;
+    if (
+      !confirm(
+        '¿Revocar esta API key? Los clientes que la usen dejarán de funcionar inmediatamente.'
+      )
+    )
+      return;
     try {
       await apiClient.delete(`/api/mcp-keys/${keyId}`);
       await loadKeys();
@@ -74,125 +107,253 @@ export function McpSettingsPage() {
   }
 
   const apiBase =
-    (import.meta as unknown as { env?: Record<string, string | undefined> }).env
-      ?.VITE_API_URL ?? window.location.origin;
+    (import.meta as unknown as { env?: Record<string, string | undefined> }).env?.VITE_API_URL ??
+    window.location.origin;
 
-  return (
-    <div className="mx-auto max-w-4xl px-6 py-10 space-y-8">
-      <header className="flex items-center gap-3">
-        <Key className="h-6 w-6 text-primary" />
-        <div>
-          <h1 className="text-xl font-semibold">MCP Access Keys</h1>
-          <p className="text-sm text-gray-500">
-            Autoriza clientes MCP externos (Claude Desktop, IDEs, scripts) a consumir tu sesión
-            del Assessment Center.
-          </p>
-        </div>
-      </header>
-
-      {freshSecret && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4">
-          <div className="flex items-start gap-2">
-            <CheckCircle2 className="mt-0.5 h-5 w-5 text-amber-600" />
-            <div className="flex-1">
-              <div className="font-medium">Tu nueva API key</div>
-              <div className="mt-1 text-xs text-amber-900">
-                Cópiala ahora. No volverá a mostrarse. Si la pierdes, revócala y genera otra.
-              </div>
-              <div className="mt-3 flex items-center gap-2">
-                <code className="flex-1 rounded bg-white px-3 py-2 font-mono text-xs break-all">
-                  {freshSecret}
-                </code>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(freshSecret);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  }}
-                >
-                  <Copy className="mr-1 h-3 w-3" />
-                  {copied ? 'Copiada' : 'Copiar'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setFreshSecret(null)}
-                >
-                  Cerrar
-                </Button>
-              </div>
-
-              <div className="mt-4 text-xs">
-                <div className="font-medium">Snippet para Claude Desktop (~/.config/claude/mcp.json):</div>
-                <pre className="mt-1 overflow-x-auto rounded bg-white p-3 font-mono text-[11px]">{`{
+  const snippet = freshSecret
+    ? `{
   "mcpServers": {
     "swo-assessment": {
       "url": "${apiBase}/mcp",
       "headers": { "Authorization": "Bearer ${freshSecret}" }
     }
   }
-}`}</pre>
+}`
+    : '';
+
+  const copy = async (kind: 'secret' | 'snippet', value: string) => {
+    await navigator.clipboard.writeText(value);
+    setCopied(kind);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 bg-card/85 backdrop-blur border-b border-border">
+        <div className="max-w-4xl mx-auto px-6 py-3 flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/')}
+            aria-label="Volver"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Volver
+          </Button>
+          <span className="text-sm text-muted-foreground">·</span>
+          <span className="text-sm font-medium">MCP Access Keys</span>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-4xl px-6 py-8 space-y-6">
+        <PageHeader
+          icon={<Key className="h-5 w-5" />}
+          title="MCP Access Keys"
+          description="Autoriza clientes MCP externos (Claude Desktop, IDEs, scripts) a consumir tu sesión del Assessment Center."
+        />
+
+        {/* Issue form */}
+        <section className="rounded-xl border bg-card shadow-elev-1 p-4">
+          <label className="text-sm font-medium" htmlFor="mcp-key-label">
+            Generar una nueva key
+          </label>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Asígnale un nombre que recuerdes después (el dispositivo o cliente que la usará).
+          </p>
+          <div className="mt-3 flex flex-col sm:flex-row gap-2">
+            <input
+              id="mcp-key-label"
+              value={newLabel}
+              onChange={(e) => setNewLabel(e.target.value)}
+              placeholder="ej. Claude Desktop laptop personal"
+              className="flex-1 rounded-md border border-input bg-card px-3 py-2 text-sm focus:border-ring focus:outline-none"
+            />
+            <Button onClick={issue} disabled={issuing || !newLabel.trim()}>
+              {issuing ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="mr-2 h-4 w-4" />
+              )}
+              Generar key
+            </Button>
+          </div>
+        </section>
+
+        {/* Existing keys */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold text-foreground">Tus keys</h2>
+          {loading ? (
+            <div className="rounded-xl border bg-card shadow-elev-1 p-6 flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Cargando…
+            </div>
+          ) : keys.length === 0 ? (
+            <EmptyState
+              icon={<KeyRound className="h-7 w-7" />}
+              title="Aún no tienes API keys"
+              description="Genera tu primera key arriba para conectar Claude Desktop u otro cliente MCP."
+              size="sm"
+            />
+          ) : (
+            <ul className="rounded-xl border bg-card shadow-elev-1 overflow-hidden divide-y divide-border">
+              {keys.map((k) => (
+                <li
+                  key={k.keyId}
+                  className="flex items-center justify-between px-4 py-3 text-sm gap-3"
+                >
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <KeyRound className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-medium truncate flex items-center gap-2">
+                        {k.label}
+                        {k.revokedAt && (
+                          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                            Revocada
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        <span className="font-mono">{k.keyId.slice(0, 8)}…</span>
+                        {' · '}creada {new Date(k.createdAt).toLocaleDateString()}
+                        {k.lastUsedAt &&
+                          ` · último uso ${new Date(k.lastUsedAt).toLocaleDateString()}`}
+                      </div>
+                    </div>
+                  </div>
+                  {!k.revokedAt && (
+                    <Tooltip content="Revocar key">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => revoke(k.keyId)}
+                        aria-label="Revocar key"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </Tooltip>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {error && (
+          <InfoBanner tone="danger" title="Error">
+            {error}
+          </InfoBanner>
+        )}
+      </main>
+
+      {/* Fresh secret modal — gated by acknowledgement to prevent accidental dismissal */}
+      <Dialog
+        open={!!freshSecret}
+        onOpenChange={(open) => {
+          if (!open && acknowledged) setFreshSecret(null);
+        }}
+      >
+        <DialogContent
+          className="sm:max-w-2xl"
+          onPointerDownOutside={(e) => {
+            if (!acknowledged) e.preventDefault();
+          }}
+          onEscapeKeyDown={(e) => {
+            if (!acknowledged) e.preventDefault();
+          }}
+        >
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-warning/15 text-warning">
+                <ShieldAlert className="h-5 w-5" />
+              </div>
+              <DialogTitle>Tu nueva API key</DialogTitle>
+            </div>
+            <DialogDescription>
+              Cópiala ahora — no volverá a mostrarse. Si la pierdes deberás revocarla y generar una
+              nueva.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-1.5">
+                Secret
+              </p>
+              <div className="flex items-stretch gap-2">
+                <code className="flex-1 rounded-md border border-border bg-surface-2 px-3 py-2 font-mono text-xs break-all">
+                  {freshSecret}
+                </code>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => freshSecret && copy('secret', freshSecret)}
+                >
+                  {copied === 'secret' ? (
+                    <>
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-success" />
+                      Copiada
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5 mr-1" />
+                      Copiar
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-1.5">
+                Snippet para Claude Desktop (~/.config/claude/mcp.json)
+              </p>
+              <div className="flex items-stretch gap-2">
+                <pre className="flex-1 overflow-x-auto rounded-md border border-border bg-surface-2 p-3 font-mono text-[11px]">
+                  {snippet}
+                </pre>
+                <Button variant="outline" size="sm" onClick={() => copy('snippet', snippet)}>
+                  {copied === 'snippet' ? (
+                    <>
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-success" />
+                      Copiado
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5 mr-1" />
+                      Copiar
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           </div>
-        </div>
-      )}
 
-      <section className="rounded-lg border border-gray-200 bg-white p-4">
-        <div className="flex items-center gap-3">
-          <input
-            value={newLabel}
-            onChange={(e) => setNewLabel(e.target.value)}
-            placeholder="Nombre descriptivo (ej. 'Claude Desktop laptop')"
-            className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none"
-          />
-          <Button onClick={issue} disabled={issuing || !newLabel.trim()}>
-            {issuing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-            Generar nueva key
-          </Button>
-        </div>
-      </section>
+          <label className="flex items-start gap-2 rounded-md border border-border bg-surface-2 p-3 text-sm cursor-pointer">
+            <Checkbox
+              checked={acknowledged}
+              onCheckedChange={(v) => setAcknowledged(v === true)}
+              className="mt-0.5"
+            />
+            <span>
+              <span className="font-medium">Guardé este secret en un lugar seguro</span>
+              <span className="block text-xs text-muted-foreground mt-0.5">
+                (gestor de contraseñas, archivo de configuración o variable de entorno).
+              </span>
+            </span>
+          </label>
 
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium text-gray-700">Tus keys</h2>
-        {loading ? (
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Loader2 className="h-4 w-4 animate-spin" /> Cargando…
+          <div className="flex justify-end">
+            <Button
+              onClick={() => acknowledged && setFreshSecret(null)}
+              disabled={!acknowledged}
+            >
+              Cerrar
+            </Button>
           </div>
-        ) : keys.length === 0 ? (
-          <p className="text-sm text-gray-500">No tienes API keys todavía.</p>
-        ) : (
-          <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white">
-            {keys.map((k) => (
-              <li key={k.keyId} className="flex items-center justify-between px-4 py-3 text-sm">
-                <div>
-                  <div className="font-medium">{k.label}</div>
-                  <div className="text-xs text-gray-500">
-                    {k.keyId.slice(0, 8)}… · creada {new Date(k.createdAt).toLocaleDateString()}
-                    {k.lastUsedAt && ` · último uso ${new Date(k.lastUsedAt).toLocaleDateString()}`}
-                    {k.revokedAt && (
-                      <span className="ml-2 rounded bg-gray-200 px-1.5 py-0.5 text-[10px] uppercase">Revocada</span>
-                    )}
-                  </div>
-                </div>
-                {!k.revokedAt && (
-                  <Button variant="ghost" size="icon" onClick={() => revoke(k.keyId)}>
-                    <Trash2 className="h-4 w-4 text-red-600" />
-                  </Button>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {error && (
-        <div className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

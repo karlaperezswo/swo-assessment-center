@@ -1,9 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CostBreakdown } from '@/types/assessment';
-import { DollarSign, TrendingDown, ExternalLink, BarChart3 } from 'lucide-react';
+import { DollarSign, TrendingDown, ExternalLink, BarChart3, Trophy } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { useTranslation } from '@/i18n/useTranslation';
+import type { MultiCloudCostBreakdown, CloudProvider } from '@/types/clouds';
+import { brandFor } from '@/theme/cloudBrand';
+import { CloudIcon } from '@/components/shared/CloudIcon';
 
 interface CostSummaryProps {
   costs: CostBreakdown;
@@ -12,9 +15,11 @@ interface CostSummaryProps {
     oneYearNuri: string;
     threeYearNuri: string;
   };
+  /** When present, a comparative multi-cloud section is rendered ABOVE the AWS-only block. */
+  multiCloud?: MultiCloudCostBreakdown;
 }
 
-export function CostSummary({ costs, calculatorLinks }: CostSummaryProps) {
+export function CostSummary({ costs, calculatorLinks, multiCloud }: CostSummaryProps) {
   const { t } = useTranslation();
   const savings1Year = costs.onDemand.annual - costs.oneYearNuri.annual;
   const savings3Year = costs.onDemand.threeYear - costs.threeYearNuri.threeYear;
@@ -59,6 +64,11 @@ export function CostSummary({ costs, calculatorLinks }: CostSummaryProps) {
 
   return (
     <div className="space-y-6">
+      {/* Multi-cloud comparative section — only when backend returned `multiCloud` (>1 provider). */}
+      {multiCloud && multiCloud.providers.length > 1 && (
+        <MultiCloudCostCards multiCloud={multiCloud} />
+      )}
+
       {/* Cards Section */}
       <Card>
         <CardHeader>
@@ -164,6 +174,9 @@ export function CostSummary({ costs, calculatorLinks }: CostSummaryProps) {
         </CardContent>
       </Card>
 
+      {/* Comparative grouped bars — only when multi-cloud data is present. */}
+      {multiCloud && multiCloud.providers.length > 1 && <MultiCloudGroupedBars multiCloud={multiCloud} />}
+
       {/* Calculator Links */}
       {calculatorLinks && (
         <Card>
@@ -205,4 +218,134 @@ export function CostSummary({ costs, calculatorLinks }: CostSummaryProps) {
       )}
     </div>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Multi-cloud sub-components
+// ---------------------------------------------------------------------------
+
+function MultiCloudCostCards({ multiCloud }: { multiCloud: MultiCloudCostBreakdown }) {
+  const { t } = useTranslation();
+  const tiers: Array<{ key: 'onDemand' | 'oneYearCommit' | 'threeYearCommit'; label: string; isBest?: boolean }> = [
+    { key: 'onDemand',         label: t('costSummary.onDemand', { defaultValue: 'On-Demand' }) },
+    { key: 'oneYearCommit',    label: t('costSummary.oneYear',  { defaultValue: '1-Year Reserved' }) },
+    { key: 'threeYearCommit',  label: t('costSummary.threeYear',{ defaultValue: '3-Year Reserved' }), isBest: true },
+  ];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Trophy className="h-5 w-5" />
+          {t('costSummary.multiCloudTitle', { defaultValue: 'Comparativo multi-nube' })}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {tiers.map((tier) => (
+            <div
+              key={tier.key}
+              className={
+                'rounded-lg p-4 border ' +
+                (tier.isBest ? 'border-green-300 bg-green-50/50 dark:bg-green-900/20' : 'border-gray-200 bg-gray-50/50 dark:bg-gray-900/20')
+              }
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold uppercase tracking-wide">{tier.label}</h3>
+                {tier.isBest && (
+                  <span className="text-xs font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full">
+                    {t('costSummary.bestValue')}
+                  </span>
+                )}
+              </div>
+              <ul className="space-y-1.5">
+                {multiCloud.providers.map((p) => {
+                  const brand = brandFor(p.provider);
+                  const isCheapest = p.provider === multiCloud.cheapest && tier.isBest;
+                  return (
+                    <li key={p.provider} className="flex items-center justify-between text-sm">
+                      <span className="inline-flex items-center gap-1.5">
+                        <CloudIcon provider={p.provider} size={12} />
+                        <span style={{ color: brand.text }} className="font-medium">{brand.shortName}</span>
+                        {isCheapest && <Trophy className="h-3 w-3 text-orange-500" aria-label="cheapest" />}
+                      </span>
+                      <span className="font-semibold tabular-nums">
+                        {formatCurrency(p[tier.key].annual)}/yr
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+        {multiCloud.comparisonNotes.length > 0 && (
+          <p className="text-xs text-muted-foreground mt-3">
+            {multiCloud.comparisonNotes.join(' ')}
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function MultiCloudGroupedBars({ multiCloud }: { multiCloud: MultiCloudCostBreakdown }) {
+  const { t } = useTranslation();
+  // Build a Recharts dataset where each row is a tier and each provider is a series.
+  const data = [
+    { tier: 'On-Demand',         ...providerSeries(multiCloud, 'onDemand') },
+    { tier: '1-Year',            ...providerSeries(multiCloud, 'oneYearCommit') },
+    { tier: '3-Year',            ...providerSeries(multiCloud, 'threeYearCommit') },
+  ];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <BarChart3 className="h-5 w-5" />
+          {t('costSummary.multiCloudChartTitle', { defaultValue: 'Costo anual por nube y nivel de compromiso' })}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="tier" tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 500 }} />
+              <YAxis
+                tick={{ fill: '#6b7280', fontSize: 12 }}
+                tickFormatter={(value: number) => `$${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip formatter={(v: number) => formatCurrency(v)} />
+              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="circle" />
+              {multiCloud.providers.map((p) => {
+                const brand = brandFor(p.provider);
+                return (
+                  <Bar
+                    key={p.provider}
+                    dataKey={p.provider}
+                    fill={brand.color}
+                    name={brand.shortName}
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={50}
+                  />
+                );
+              })}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function providerSeries(
+  multiCloud: MultiCloudCostBreakdown,
+  tier: 'onDemand' | 'oneYearCommit' | 'threeYearCommit'
+): Record<CloudProvider, number> {
+  const acc = {} as Record<CloudProvider, number>;
+  for (const p of multiCloud.providers) {
+    acc[p.provider] = p[tier].annual;
+  }
+  return acc;
 }

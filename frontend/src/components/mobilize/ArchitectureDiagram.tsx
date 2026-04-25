@@ -10,9 +10,15 @@ import {
   BarChart3, FileText, Building2, AlertCircle
 } from 'lucide-react';
 
+import { useActiveClouds } from '@/clouds/useActiveClouds';
+import { MultiCloudArchitecture } from './MultiCloudArchitecture';
+import type { ExcelData } from '@/types/assessment';
+
 interface ArchitectureDiagramProps {
   landingZone: LandingZoneChecklist;
   securityChecklist: SecurityComplianceChecklist;
+  /** Optional inventory used to render the multi-cloud comparative view above the AWS-detailed SVG. */
+  excelData?: ExcelData;
 }
 
 // AWS Account Types
@@ -134,8 +140,11 @@ const PILLARS = [
   }
 ];
 
-export function ArchitectureDiagram({ landingZone, securityChecklist }: ArchitectureDiagramProps) {
+export function ArchitectureDiagram({ landingZone, securityChecklist, excelData }: ArchitectureDiagramProps) {
   const { t } = useTranslation();
+  const { state: cloudState } = useActiveClouds();
+  const isMultiCloud = cloudState.active.length > 1;
+  const hasAws = cloudState.active.includes('aws');
   // Initialize with all essential and recommended accounts enabled by default
   const [selectedAccounts, setSelectedAccounts] = useState<Set<string>>(
     new Set(
@@ -215,6 +224,12 @@ export function ArchitectureDiagram({ landingZone, securityChecklist }: Architec
 
   return (
     <div className="space-y-6">
+      {/* Multi-cloud comparative architecture (when >1 cloud is active and we have inventory data). */}
+      {isMultiCloud && excelData && <MultiCloudArchitecture excelData={excelData} />}
+
+      {/* AWS-detailed SVG below — only shown when AWS is one of the active clouds. */}
+      {!hasAws ? null : (
+        <>
       {/* Header */}
       <Card className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white border-0">
         <CardContent className="pt-6">
@@ -742,6 +757,8 @@ export function ArchitectureDiagram({ landingZone, securityChecklist }: Architec
           </div>
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
   );
 }

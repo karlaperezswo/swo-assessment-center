@@ -3,6 +3,8 @@ import { ExcelService } from '../services/excelService';
 import { DocxService } from '../services/docxService';
 import { EC2RecommendationService } from '../services/ec2RecommendationService';
 import { AWSCalculatorService } from '../services/awsCalculatorService';
+import { MultiCloudRecommendationService } from '../services/multiCloudRecommendationService';
+import type { CloudProvider } from '../../../shared/types/cloud.types';
 import { StorageService } from '../services/storageService';
 import { DependencyService } from '../services/dependencyService';
 import { ReportInput } from '../types';
@@ -21,6 +23,7 @@ export class ReportController {
   private docxService: DocxService;
   private ec2Service: EC2RecommendationService;
   private calculatorService: AWSCalculatorService;
+  private multiCloudService: MultiCloudRecommendationService;
   private dependencyService: DependencyService;
 
   constructor() {
@@ -28,6 +31,7 @@ export class ReportController {
     this.docxService = new DocxService();
     this.ec2Service = new EC2RecommendationService();
     this.calculatorService = new AWSCalculatorService();
+    this.multiCloudService = new MultiCloudRecommendationService();
     this.dependencyService = new DependencyService();
   }
 
@@ -252,7 +256,19 @@ export class ReportController {
         return;
       }
 
-      // Generate EC2 recommendations
+      // Multi-cloud detection. When `selectedProviders` is absent or only AWS,
+      // we keep the exact legacy flow. When 2+ providers are selected, we run
+      // them through MultiCloudRecommendationService and surface the result
+      // alongside the legacy AWS payload (so the docx generator and existing
+      // frontend keep working until F5b refactors them).
+      const selectedProviders: CloudProvider[] =
+        input.selectedProviders && input.selectedProviders.length > 0
+          ? input.selectedProviders
+          : ['aws'];
+      const isMultiCloud =
+        selectedProviders.length > 1 || (selectedProviders.length === 1 && selectedProviders[0] !== 'aws');
+
+      // Generate EC2 recommendations (legacy AWS path — always populated for compat)
       const ec2Recommendations = this.ec2Service.generateRecommendations(
         input.excelData.servers,
         input.awsRegion
@@ -278,13 +294,33 @@ export class ReportController {
         dbRecommendations
       );
 
-      // Generate Word document
+      // Multi-cloud rollup (only when multiple providers selected). The result
+      // is included in the response payload for the frontend to render
+      // dynamic columns; the docx generator currently still uses the AWS-only
+      // payload above (F5b will switch it to receive `multiCloudResult`).
+      const multiCloudResult = isMultiCloud
+        ? await this.multiCloudService.run({
+            servers: input.excelData.servers,
+            databases: input.excelData.databases,
+            selectedProviders,
+            regions: { ...(input.regions ?? {}), aws: input.awsRegion },
+          })
+        : undefined;
+
+      // Generate Word document. Multi-cloud sections are appended at the end
+      // when the orchestrator produced data; otherwise the doc is byte-identical
+      // to the legacy AWS-only baseline.
       const documentBuffer = await this.docxService.generateReport({
         ...input,
         ec2Recommendations,
         dbRecommendations,
         costs,
-        calculatorLinks
+        calculatorLinks,
+        selectedProviders,
+        multiCloud: multiCloudResult?.multiCloud,
+        multiCloudByProvider: multiCloudResult?.byProvider as
+          | import('../types/multiCloud').MultiCloudByProviderPayload
+          | undefined,
       });
 
       // Save document (automatically uses S3 in production, local filesystem in development)
@@ -314,7 +350,13 @@ export class ReportController {
             totalStorageGB: input.excelData.servers.reduce((sum, s) => sum + (s.totalDiskSize || 0), 0),
             estimatedCosts: costs,
             ec2Recommendations,
-            databaseRecommendations: dbRecommendations
+            databaseRecommendations: dbRecommendations,
+            // Multi-cloud payload (only when selectedProviders has more than
+            // just AWS). The frontend reads `multiCloud` for the rollup chart
+            // and `multiCloudByProvider` for per-cloud columns in tables.
+            multiCloud: multiCloudResult?.multiCloud,
+            multiCloudByProvider: multiCloudResult?.byProvider,
+            selectedProviders,
           }
         }
       });

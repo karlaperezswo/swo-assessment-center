@@ -6,10 +6,14 @@
  *  - ships its JSON Schema for arguments (Claude validates against it).
  *  - exposes `run` which is the actual TS implementation.
  */
+import type { CloudProvider } from '../../../../shared/types/cloud.types';
+
 export interface AgentToolContext {
   sessionId?: string;
   userId?: string;
   orgId?: string;
+  /** Cloud providers in scope for this session. Defaults to ['aws'] when absent. */
+  activeProviders?: readonly CloudProvider[];
   /** Whatever the UI flagged as "what the user is looking at". */
   pageContext?: Record<string, unknown>;
 }

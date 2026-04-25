@@ -1,14 +1,18 @@
 import { estimateCostTool } from './estimateCost';
+import { estimateCloudCostTool } from './estimateCloudCost';
 import { getSessionSummaryTool } from './getSessionSummary';
 import { listOpportunitiesTool } from './listOpportunities';
 import { searchAwsDocsTool } from './searchAwsDocs';
+import { searchCloudDocsTool } from './searchCloudDocs';
 import type { AgentTool, AgentToolContext, ToolCall, ToolResult } from './types';
 
 export const AGENT_TOOLS: AgentTool[] = [
   getSessionSummaryTool,
   listOpportunitiesTool,
-  searchAwsDocsTool,
-  estimateCostTool,
+  searchCloudDocsTool,        // multi-cloud, primary
+  estimateCloudCostTool,      // multi-cloud, primary
+  searchAwsDocsTool,          // legacy alias, kept for cached threads
+  estimateCostTool,           // legacy alias, kept for cached threads
 ];
 
 const BY_NAME = new Map(AGENT_TOOLS.map((t) => [t.name, t]));

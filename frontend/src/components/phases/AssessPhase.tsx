@@ -77,6 +77,8 @@ interface AssessPhaseProps {
   questionnaireFile: File | null;
   onQuestionnaireFileChange: (file: File | null) => void;
   dependencyData?: any;
+  /** Multi-cloud rollup (only present when >1 provider was selected during /generate). */
+  multiCloudCost?: import('@/types/clouds').MultiCloudCostBreakdown;
 }
 
 export function AssessPhase({
@@ -89,6 +91,7 @@ export function AssessPhase({
   mraFile, onMRAFileChange,
   questionnaireFile, onQuestionnaireFileChange,
   dependencyData,
+  multiCloudCost,
 }: AssessPhaseProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('rapid-discovery');
@@ -153,6 +156,7 @@ export function AssessPhase({
             excelData={excelData}
             dependencyData={dependencyData}
             migrationWaves={migrationWaves}
+            multiCloud={multiCloudCost}
           />
         )}
         {activeTab === 'dependency-map' && (

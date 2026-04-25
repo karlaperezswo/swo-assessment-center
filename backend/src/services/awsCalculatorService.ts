@@ -1,4 +1,20 @@
+// Legacy facade. Delegates cost rollup to `calculateProviderCosts` over the
+// AWS provider. Public shape (`CostBreakdown` with onDemand/oneYearNuri/threeYearNuri)
+// is preserved so reportController and the docx generator keep working when
+// no `selectedProviders` is sent.
+//
+// @deprecated since 2026-04. Use `MultiCloudRecommendationService` for new code.
+//
+// Removal criteria: same as ec2RecommendationService.ts — wait until telemetry
+// shows zero AWS-only-implicit requests for one full release cycle.
+
 import { EC2Recommendation, DatabaseRecommendation, Server, CostEstimate } from '../types';
+import { awsProvider } from '../cloud/providers/aws';
+import { calculateProviderCosts } from '../cloud/algorithms/costCalculator';
+import type {
+  ComputeRecommendation,
+  CloudDatabaseRecommendation,
+} from '../../../shared/types/cloud.types';
 
 interface CostBreakdown {
   onDemand: CostEstimate;
@@ -6,14 +22,53 @@ interface CostBreakdown {
   threeYearNuri: CostEstimate;
 }
 
-// Reserved Instance discount rates
-const RI_DISCOUNTS = {
-  oneYear: 0.36, // ~36% discount for 1-year NURI
-  threeYear: 0.60 // ~60% discount for 3-year NURI
-};
+const EBS_PRICE_PER_GB = 0.08;     // gp3, AWS default — kept here as legacy export.
 
-// EBS Storage pricing (gp3)
-const EBS_PRICE_PER_GB = 0.08; // $/GB/month
+function liftRec(rec: EC2Recommendation): ComputeRecommendation {
+  // Approximate the 1Y/3Y rates from the on-demand monthly: the legacy callers
+  // only have the on-demand number on the recommendation, so we recover the
+  // committed-tier figures from the catalog using the SKU.
+  const sku = awsProvider.compute.catalog.find((c) => c.sku === rec.recommendedInstance);
+  const isWindows = rec.monthlyEstimate > 0 && sku
+    ? Math.abs(rec.monthlyEstimate - sku.pricing.onDemandMonthlyUSD * 1.8) <
+      Math.abs(rec.monthlyEstimate - sku.pricing.onDemandMonthlyUSD)
+    : false;
+  const mult = isWindows && sku?.osMultipliers?.windows ? sku.osMultipliers.windows : 1;
+
+  return {
+    provider: 'aws',
+    hostname: rec.hostname,
+    originalSpecs: rec.originalSpecs,
+    recommendedSku: rec.recommendedInstance,
+    family: sku?.family ?? 'general',
+    rightsizingNote: rec.rightsizingNote,
+    monthlyEstimateOnDemand: rec.monthlyEstimate,
+    monthlyEstimateOneYear: (sku?.pricing.oneYearMonthlyUSD ?? 0) * mult,
+    monthlyEstimateThreeYear: (sku?.pricing.threeYearMonthlyUSD ?? 0) * mult,
+  };
+}
+
+function liftDb(rec: DatabaseRecommendation): CloudDatabaseRecommendation {
+  const sku = awsProvider.database.catalog.find((c) => c.sku === rec.instanceClass);
+  const storageCost = rec.storageGB * EBS_PRICE_PER_GB;
+
+  return {
+    provider: 'aws',
+    dbName: rec.dbName,
+    sourceEngine: rec.sourceEngine,
+    targetService: rec.targetEngine,
+    recommendedSku: rec.instanceClass,
+    storageGB: rec.storageGB,
+    monthlyEstimateOnDemand: rec.monthlyEstimate,
+    monthlyEstimateOneYear: (sku?.pricing.oneYearMonthlyUSD ?? 0) + storageCost,
+    monthlyEstimateThreeYear: (sku?.pricing.threeYearMonthlyUSD ?? 0) + storageCost,
+    licenseModel: rec.licenseModel,
+  };
+}
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
 
 export class AWSCalculatorService {
   calculateCosts(
@@ -21,115 +76,43 @@ export class AWSCalculatorService {
     dbRecommendations: DatabaseRecommendation[],
     servers: Server[]
   ): CostBreakdown {
-    // Calculate EC2 costs
-    const ec2OnDemandMonthly = ec2Recommendations.reduce(
-      (sum, rec) => sum + rec.monthlyEstimate,
-      0
-    );
-
-    // Calculate storage costs
     const totalStorageGB = servers.reduce((sum, s) => sum + (s.totalDiskSize || 0), 0);
-    const storageMonthly = totalStorageGB * EBS_PRICE_PER_GB;
 
-    // Calculate RDS costs
-    const rdsOnDemandMonthly = dbRecommendations.reduce(
-      (sum, rec) => sum + rec.monthlyEstimate,
-      0
-    );
-
-    // Calculate networking costs (estimate: 10% of compute)
-    const networkingMonthly = (ec2OnDemandMonthly + rdsOnDemandMonthly) * 0.1;
-
-    // Total on-demand monthly
-    const totalOnDemandMonthly = ec2OnDemandMonthly + storageMonthly + rdsOnDemandMonthly + networkingMonthly;
-
-    // Apply RI discounts (only to compute, not storage/networking)
-    const computeOnDemand = ec2OnDemandMonthly + rdsOnDemandMonthly;
-    const nonCompute = storageMonthly + networkingMonthly;
-
-    const oneYearMonthly = computeOnDemand * (1 - RI_DISCOUNTS.oneYear) + nonCompute;
-    const threeYearMonthly = computeOnDemand * (1 - RI_DISCOUNTS.threeYear) + nonCompute;
+    const result = calculateProviderCosts({
+      provider: 'aws',
+      computeRecs: ec2Recommendations.map(liftRec),
+      dbRecs: dbRecommendations.map(liftDb),
+      totalBlockStorageGB: totalStorageGB,
+      blockStoragePricePerGBMonth: awsProvider.compute.getBlockStoragePricePerGBMonth(),
+      pricing: awsProvider.pricing,
+    });
 
     return {
       onDemand: {
-        monthly: Math.round(totalOnDemandMonthly * 100) / 100,
-        annual: Math.round(totalOnDemandMonthly * 12 * 100) / 100,
-        threeYear: Math.round(totalOnDemandMonthly * 36 * 100) / 100
+        monthly: round2(result.onDemand.monthly),
+        annual: round2(result.onDemand.annual),
+        threeYear: round2(result.onDemand.threeYear),
       },
       oneYearNuri: {
-        monthly: Math.round(oneYearMonthly * 100) / 100,
-        annual: Math.round(oneYearMonthly * 12 * 100) / 100,
-        threeYear: Math.round(oneYearMonthly * 36 * 100) / 100
+        monthly: round2(result.oneYearCommit.monthly),
+        annual: round2(result.oneYearCommit.annual),
+        threeYear: round2(result.oneYearCommit.threeYear),
       },
       threeYearNuri: {
-        monthly: Math.round(threeYearMonthly * 100) / 100,
-        annual: Math.round(threeYearMonthly * 12 * 100) / 100,
-        threeYear: Math.round(threeYearMonthly * 36 * 100) / 100
-      }
+        monthly: round2(result.threeYearCommit.monthly),
+        annual: round2(result.threeYearCommit.annual),
+        threeYear: round2(result.threeYearCommit.threeYear),
+      },
     };
   }
 
   generateCalculatorLinks(
     region: string,
-    ec2Recommendations: EC2Recommendation[],
-    dbRecommendations: DatabaseRecommendation[]
+    _ec2Recommendations: EC2Recommendation[],
+    _dbRecommendations: DatabaseRecommendation[]
   ): { onDemand: string; oneYearNuri: string; threeYearNuri: string } {
-    // AWS Calculator URLs - Estos links llevan a la calculadora donde el usuario puede crear estimaciones
-    // Nota: AWS Calculator no tiene API pública para generar configuraciones automáticamente
-    // El documento incluye todas las especificaciones detalladas para ingresar manualmente
-
-    const baseUrl = 'https://calculator.aws/#/addService';
-    const regionParam = `?region=${region}`;
-
-    // Links directos a agregar cada servicio en la calculadora
-    const ec2Link = `${baseUrl}/EC2${regionParam}`;
-    const rdsLink = `${baseUrl}/RDS${regionParam}`;
-    const ebsLink = `${baseUrl}/EBS${regionParam}`;
-
-    // Proporcionar el link a la calculadora principal con la región correcta
-    const mainCalculatorUrl = `https://calculator.aws/#/estimate?region=${region}`;
-
-    return {
-      onDemand: mainCalculatorUrl,
-      oneYearNuri: mainCalculatorUrl,
-      threeYearNuri: mainCalculatorUrl
-    };
-  }
-
-  private buildCalculatorConfig(
-    region: string,
-    ec2Recommendations: EC2Recommendation[],
-    dbRecommendations: DatabaseRecommendation[]
-  ): object {
-    return {
-      region,
-      ec2: {
-        instances: ec2Recommendations.map(rec => ({
-          instanceType: rec.recommendedInstance,
-          quantity: 1,
-          usage: 730 // hours per month
-        }))
-      },
-      ebs: {
-        volumes: ec2Recommendations.map(rec => ({
-          type: 'gp3',
-          size: rec.originalSpecs.storage,
-          quantity: 1
-        }))
-      },
-      rds: {
-        instances: dbRecommendations.map(rec => ({
-          instanceClass: rec.instanceClass,
-          engine: rec.targetEngine,
-          storage: rec.storageGB,
-          quantity: 1
-        }))
-      },
-      vpc: {
-        natGateways: 2,
-        dataTransferGB: 1000
-      }
-    };
+    const url = `https://calculator.aws/#/estimate?region=${encodeURIComponent(region)}`;
+    return { onDemand: url, oneYearNuri: url, threeYearNuri: url };
   }
 
   generateDetailedCostBreakdown(
@@ -142,38 +125,23 @@ export class AWSCalculatorService {
     rds: { total: number; details: { db: string; cost: number }[] };
     networking: { total: number };
   } {
-    const ec2Details = ec2Recommendations.map(rec => ({
+    const ec2Details = ec2Recommendations.map((rec) => ({
       instance: `${rec.hostname} (${rec.recommendedInstance})`,
-      cost: rec.monthlyEstimate
+      cost: rec.monthlyEstimate,
     }));
-
     const totalStorageGB = servers.reduce((sum, s) => sum + (s.totalDiskSize || 0), 0);
     const ebsTotal = totalStorageGB * EBS_PRICE_PER_GB;
-
-    const rdsDetails = dbRecommendations.map(rec => ({
+    const rdsDetails = dbRecommendations.map((rec) => ({
       db: `${rec.dbName} (${rec.instanceClass})`,
-      cost: rec.monthlyEstimate
+      cost: rec.monthlyEstimate,
     }));
-
-    const computeTotal = ec2Recommendations.reduce((sum, r) => sum + r.monthlyEstimate, 0) +
-      dbRecommendations.reduce((sum, r) => sum + r.monthlyEstimate, 0);
-
+    const ec2Total = ec2Recommendations.reduce((sum, r) => sum + r.monthlyEstimate, 0);
+    const rdsTotal = dbRecommendations.reduce((sum, r) => sum + r.monthlyEstimate, 0);
     return {
-      ec2: {
-        total: ec2Recommendations.reduce((sum, r) => sum + r.monthlyEstimate, 0),
-        details: ec2Details
-      },
-      ebs: {
-        total: ebsTotal,
-        totalGB: totalStorageGB
-      },
-      rds: {
-        total: dbRecommendations.reduce((sum, r) => sum + r.monthlyEstimate, 0),
-        details: rdsDetails
-      },
-      networking: {
-        total: computeTotal * 0.1
-      }
+      ec2: { total: ec2Total, details: ec2Details },
+      ebs: { total: ebsTotal, totalGB: totalStorageGB },
+      rds: { total: rdsTotal, details: rdsDetails },
+      networking: { total: (ec2Total + rdsTotal) * awsProvider.pricing.networkingRatio },
     };
   }
 }

@@ -8,6 +8,7 @@ import { I18nProvider } from './i18n/I18nProvider';
 import { AuthProvider } from './auth/AuthProvider';
 import { AccessTokenBridge } from './auth/AccessTokenBridge';
 import { AgentContextProvider } from './agent/AgentContextProvider';
+import { ActiveCloudsProvider } from './clouds/ActiveCloudsProvider';
 import { ThemeProvider } from './theme/ThemeProvider';
 import { CommandPalette } from './components/CommandPalette';
 import { queryClient } from './lib/queryClient';
@@ -20,10 +21,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <BrowserRouter>
             <AuthProvider>
               <AccessTokenBridge />
-              <AgentContextProvider>
-                <CommandPalette />
-                <RootRouter />
-              </AgentContextProvider>
+              <ActiveCloudsProvider>
+                <AgentContextProvider>
+                  <CommandPalette />
+                  <RootRouter />
+                </AgentContextProvider>
+              </ActiveCloudsProvider>
             </AuthProvider>
           </BrowserRouter>
         </QueryClientProvider>

@@ -14,6 +14,9 @@ import {
   PhaseStatus, MigrationWave, EC2Recommendation, DatabaseRecommendation,
   GenerateReportResponse,
 } from '@/types/assessment';
+import type {
+  CloudProvider, ComputeRecommendation, CloudDatabaseRecommendation, MultiCloudCostBreakdown,
+} from '@/types/clouds';
 import {
   Server, Database, Waves, TrendingDown, Rocket, FileText, Download, Loader2,
 } from 'lucide-react';
@@ -24,6 +27,9 @@ interface MigratePhaseProps {
   estimatedCosts: CostBreakdown | null;
   ec2Recommendations: EC2Recommendation[];
   dbRecommendations: DatabaseRecommendation[];
+  recommendationsByCloud?: Partial<Record<CloudProvider, ComputeRecommendation[]>>;
+  databasesByCloud?: Partial<Record<CloudProvider, CloudDatabaseRecommendation[]>>;
+  multiCloudCost?: MultiCloudCostBreakdown;
   migrationWaves: MigrationWave[];
   onMigrationWavesChange: (waves: MigrationWave[]) => void;
   phaseStatus: PhaseStatus;
@@ -37,6 +43,7 @@ interface MigratePhaseProps {
 export function MigratePhase({
   excelData, clientData, estimatedCosts,
   ec2Recommendations, dbRecommendations,
+  recommendationsByCloud, databasesByCloud, multiCloudCost,
   migrationWaves, onMigrationWavesChange,
   phaseStatus, onCompletePhase,
   reportResult, onGenerateReport, onDownloadReport, isGenerating,
@@ -76,24 +83,24 @@ export function MigratePhase({
           <EC2Recommendations
             servers={excelData?.servers || []}
             recommendations={ec2Recommendations}
+            recommendationsByCloud={recommendationsByCloud}
           />
         )}
         {activeTab === 'rds-recommendations' && (
           <RDSRecommendations
             databases={excelData?.databases || []}
             recommendations={dbRecommendations}
+            recommendationsByCloud={databasesByCloud}
           />
         )}
         {activeTab === 'migration-waves' && (
           <MigrationWaves
             waves={migrationWaves}
             onWavesChange={onMigrationWavesChange}
-            
-            
           />
         )}
         {activeTab === 'cost-optimization' && (
-          <CostOptimization estimatedCosts={estimatedCosts} />
+          <CostOptimization estimatedCosts={estimatedCosts} multiCloud={multiCloudCost} />
         )}
         {activeTab === 'modernization-roadmap' && (
           <ModernizationRoadmap />

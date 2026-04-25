@@ -1,1364 +1,1456 @@
 {
-  "common": {
-    "reset": "Reset All",
-    "save": "Save",
-    "cancel": "Cancel",
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "download": "Download",
-    "upload": "Upload",
-    "generate": "Generate",
-    "back": "Back",
-    "next": "Next",
-    "complete": "Complete",
-    "add": "Add",
-    "remove": "Remove",
-    "edit": "Edit",
-    "view": "View",
-    "close": "Close",
-    "confirm": "Confirm",
-    "yes": "Yes",
-    "no": "No",
-    "optional": "Optional",
-    "required": "Required",
-    "developedBy": "Developed by",
-    "tip": "Tip",
-    "savings": "savings",
-    "downloadStarting": "Starting report download",
+  "agent": {
+    "assistantTitle": {
+      "aws": "AWS Assistant",
+      "multi": "Cloud Assistant"
+    },
+    "placeholder": "Type your question… (Enter to send)"
+  },
+  "app": {
+    "errorGeneratingReport": "Error generating report",
+    "generatingReport": "Generating Word report...",
+    "reportGenerated": "Report generated successfully",
+    "reportReadyToDownload": "The report is ready to download"
+  },
+  "appDependencyMap": {
+    "errorGeneratingGraphPdf": "Error generating PDF",
+    "errorGeneratingGraphWord": "Error generating Word",
+    "errorGeneratingTablePdf": "Error generating PDF",
+    "errorGeneratingTableWord": "Error generating Word",
+    "generatingGraphPdf": "Generating graph PDF...",
+    "generatingGraphWord": "Generating graph Word...",
+    "generatingTablePdf": "Generating table PDF...",
+    "generatingTableWord": "Generating table Word...",
+    "graphNotAvailable": "Graph is not available",
+    "graphPdfGenerated": "Graph PDF generated",
+    "graphWordGenerated": "Graph Word generated",
+    "noDataToChart": "No data to chart",
+    "noDataToExport": "No data to export",
+    "noDependencies": "No application dependencies",
+    "tablePdfGenerated": "PDF generated",
+    "tableWordGenerated": "Word generated"
+  },
+  "applicationTable": {
+    "allEnvironments": "All Environments",
+    "appName": "Application Name",
+    "environment": "Environment",
     "filterByEnvironment": "Filter by environment",
-    "and": "and"
+    "inbound": "Inbound",
+    "noApps": "No applications found for the selected environment",
+    "outbound": "Outbound",
+    "scrollHint": "Scroll inside the table — headers stay pinned.",
+    "title": "Applications ({{count}})",
+    "totalConnections": "Total Connections",
+    "type": "Type"
   },
-  "header": {
-    "title": "AWS Migration Assessment Center",
-    "subtitle": "Assess → Mobilize → Migrate and Modernize",
-    "brand": "SoftwareOne"
-  },
-  "footer": {
-    "copyright": "AWS Assessment Report Generator"
-  },
-  "phases": {
-    "assess": {
-      "name": "ASSESS",
-      "subtitle": "Build a business case",
-      "description": "Assess the current state of the infrastructure"
-    },
-    "mobilize": {
-      "name": "MOBILIZE",
-      "subtitle": "Prepare to migrate",
-      "description": "Prepare the team and infrastructure for migration"
-    },
-    "migrate": {
-      "name": "MIGRATE AND MODERNIZE",
-      "subtitle": "Execute the migration",
-      "description": "Execute the migration and modernization to AWS"
-    },
-    "status": {
-      "not_started": "Not started",
-      "in_progress": "In progress",
-      "completed": "Completed"
-    }
-  },
-  "upload": {
-    "title": "Load MPA Data",
-    "description": "Upload the Excel file exported from Migration Portfolio Assessment",
-    "dragDrop": "Drag and drop your file here, or click to select",
-    "fileTypes": "Excel files (.xlsx, .xls)",
-    "uploading": "Uploading file...",
-    "success": "File uploaded successfully",
-    "error": "Error uploading file"
-  },
-  "report": {
-    "generate": "Generate Word Report",
-    "generating": "Generating Word report...",
-    "generated": "Report generated successfully",
-    "download": "Download Report",
-    "error": "Error generating report",
-    "clientName": "Client Name",
-    "clientNamePlaceholder": "Enter client name",
-    "vertical": "Vertical",
-    "reportDate": "Report Date",
-    "awsRegion": "AWS Region",
-    "totalServers": "Total Servers",
-    "onPremisesCost": "On-Premises Cost",
-    "companyDescription": "Company Description",
-    "migrationReadiness": "Migration Readiness"
-  },
-  "opportunities": {
-    "title": "Sales Opportunities",
-    "analyzing": "Analyzing opportunities with AWS Bedrock...",
-    "analyzing_description": "This may take up to 5 minutes for large datasets. The system is processing data with AI.",
-    "completed": "Analysis completed!",
-    "identified": "opportunities identified",
-    "viewDetails": "Go to the \"Sales Opportunities\" tab to see the details",
-    "error": "Error analyzing opportunities",
-    "retry": "Try again or contact support",
-    "polling": "Analysis in progress...",
-    "polling_description": "Checking status every 5 seconds. You can close this window and come back later.",
-    "failed": "The analysis failed",
-    "polling_error": "Error checking analysis status",
-    "polling_error_description": "Failed {{count}} consecutive times. Please reload the page and try again."
-  },
-  "costs": {
-    "title": "AWS Cost Estimation",
-    "onDemand": "On-Demand",
-    "oneYearRI": "1-Year Reserved",
-    "threeYearRI": "3-Year Reserved",
-    "monthly": "Monthly",
-    "annual": "Annual",
-    "threeYear": "3 Years",
-    "savings": "Savings",
-    "total": "Total"
-  },
-  "costOptimization": {
-    "title": "AWS Cost Optimization",
-    "description": "Additional strategies to maximize savings beyond the base migration.",
-    "potentialSavings": "Additional Potential Savings",
-    "beyondBaseline": "Beyond the {{amount}}/year baseline with 3-Year NURI",
-    "categories": {
-      "rightSizing": "Instance Rightsizing",
-      "reservedInstances": "Reserved Instances & Savings Plans",
-      "storage": "Storage Optimization",
-      "modernization": "Architecture Modernization"
-    },
-    "rightSizing": {
-      "op1": {
-        "title": "CPU/RAM Utilization Analysis",
-        "description": "Identify oversized instances using CloudWatch metrics and recommend smaller instance types."
-      },
-      "op2": {
-        "title": "Migration to Graviton (ARM)",
-        "description": "AWS Graviton3 instances offer up to 40% better price/performance vs equivalent x86 instances."
-      },
-      "op3": {
-        "title": "Dynamic Auto Scaling",
-        "description": "Implement automatic scaling policies to adjust capacity based on real demand."
-      }
-    },
-    "reservedInstances": {
-      "op1": {
-        "title": "3-Year Reserved Instances (No Upfront)",
-        "description": "3-year commitment with no upfront payment. Ideal for stable and predictable workloads."
-      },
-      "op2": {
-        "title": "1-Year Reserved Instances",
-        "description": "Balance between flexibility and savings. Recommended for workloads with moderate growth."
-      },
-      "op3": {
-        "title": "Savings Plans (Compute)",
-        "description": "Flexibility to switch between instance families, regions and operating systems."
-      }
-    },
-    "storage": {
-      "op1": {
-        "title": "S3 Intelligent-Tiering",
-        "description": "Automatically moves data between frequent and infrequent access tiers based on usage patterns."
-      },
-      "op2": {
-        "title": "EBS Volume Optimization",
-        "description": "Migrate from gp2 to gp3 for better performance at lower cost. gp3 is 20% cheaper than gp2."
-      },
-      "op3": {
-        "title": "Lifecycle Policies",
-        "description": "Archive old data to S3 Glacier to reduce long-term storage costs."
-      }
-    },
-    "modernization": {
-      "op1": {
-        "title": "Serverless with AWS Lambda",
-        "description": "Eliminate idle server costs. Pay only per execution. Ideal for intermittent workloads."
-      },
-      "op2": {
-        "title": "Containers with ECS/EKS",
-        "description": "Higher workload density per server. Reduces number of instances needed."
-      },
-      "op3": {
-        "title": "Managed Services (RDS, ElastiCache)",
-        "description": "Reduces operational overhead and optimizes database licensing costs."
-      }
-    }
-  },
-  "modernization": {
-    "title": "Modernization Roadmap",
-    "description": "Structured plan to modernize your infrastructure leveraging native AWS services.",
-    "benefits": {
-      "title": "Key Modernization Benefits",
-      "innovation": {
-        "title": "Innovation Speed",
-        "description": "Faster development cycles with managed services and modern architectures."
-      },
-      "performance": {
-        "title": "Optimized Performance",
-        "description": "Native AWS services designed to scale automatically on demand."
-      },
-      "capabilities": {
-        "title": "New Capabilities",
-        "description": "Access to AI/ML, advanced analytics and next-generation services."
-      }
-    },
-    "phase1": {
-      "title": "Phase 1: Cloud-Ready Foundations",
-      "init1": {
-        "title": "Database Optimization",
-        "description": "Migrate to Amazon RDS/Aurora to reduce operational overhead and improve availability."
-      },
-      "init2": {
-        "title": "CI/CD Implementation",
-        "description": "Automate deployment pipelines with AWS CodePipeline, CodeBuild and CodeDeploy."
-      },
-      "init3": {
-        "title": "Monitoring & Observability",
-        "description": "Implement CloudWatch, X-Ray and AWS Config for full system visibility."
-      }
-    },
-    "phase2": {
-      "title": "Phase 2: Containerization",
-      "init1": {
-        "title": "Application Containerization",
-        "description": "Migrate monolithic applications to Docker containers for greater portability."
-      },
-      "init2": {
-        "title": "Orchestration with ECS/EKS",
-        "description": "Implement container orchestration for scalability and high availability."
-      },
-      "init3": {
-        "title": "Service Mesh & Istio",
-        "description": "Implement secure and observable communication between microservices."
-      }
-    },
-    "phase3": {
-      "title": "Phase 3: Microservices Architecture",
-      "init1": {
-        "title": "Monolith Decomposition",
-        "description": "Identify and extract bounded contexts to create independent microservices."
-      },
-      "init2": {
-        "title": "Event-Driven Architecture",
-        "description": "Implement asynchronous communication with Amazon SQS, SNS and EventBridge."
-      },
-      "init3": {
-        "title": "API Gateway & GraphQL",
-        "description": "Centralize API management with Amazon API Gateway and AWS AppSync."
-      }
-    },
-    "phase4": {
-      "title": "Phase 4: Cloud-Native & AI",
-      "init1": {
-        "title": "Serverless with Lambda",
-        "description": "Migrate appropriate workloads to serverless architecture for maximum efficiency."
-      },
-      "init2": {
-        "title": "ML/AI Integration",
-        "description": "Incorporate Amazon SageMaker, Rekognition and Bedrock for AI capabilities."
-      },
-      "init3": {
-        "title": "Data Lake & Analytics",
-        "description": "Implement modern data architecture with S3, Glue, Athena and QuickSight."
-      }
-    },
-    "metrics": {
-      "title": "Expected Success Metrics",
-      "deploymentTime": "Deployment time reduction",
-      "releaseFrequency": "Release frequency",
-      "opsCost": "Operational cost reduction",
-      "availability": "Target availability"
-    }
-  },
-  "servers": {
-    "title": "Servers",
-    "titleWithCount": "Servers ({{count}})",
-    "count": "{{count}} servers",
-    "hostname": "Hostname",
-    "os": "Operating System",
-    "vcpus": "vCPUs",
-    "ram": "RAM (GB)",
-    "storage": "Storage (GB)",
-    "avgCpu": "Avg CPU %",
-    "avgRam": "Avg RAM %",
-    "recommended": "Recommended",
-    "estimatedCost": "Est. Cost",
-    "showingCount": "Showing {{shown}} of {{total}} servers",
-    "recommendation": "Recommended Instance"
-  },
-  "databases": {
-    "title": "Databases",
-    "titleWithCount": "Databases ({{count}})",
-    "count": "{{count}} databases",
-    "name": "Name",
-    "dbName": "Database Name",
-    "engine": "Engine",
-    "edition": "Edition",
-    "size": "Size (GB)",
-    "targetService": "Target Service",
-    "instanceClass": "Instance Class",
-    "estimatedCost": "Est. Cost",
-    "showingCount": "Showing {{shown}} of {{total}} databases",
-    "recommendation": "Recommended RDS Instance"
-  },
-  "costSummary": {
-    "title": "Cost Estimation Summary",
-    "noCommitment": "No commitment required",
-    "bestValue": "BEST VALUE",
-    "savesPerYear": "Saves {{amount}}/year",
-    "savesIn3Years": "Saves {{amount}} over 3 years",
-    "monthly": "Monthly",
-    "annual": "Annual",
-    "chartTitle": "Cost Comparison Chart",
-    "calculatorLinks": "AWS Pricing Calculators",
-    "onDemandCalc": "On-Demand Calculator",
-    "oneYearCalc": "NURI 1-Year Calculator",
-    "threeYearCalc": "NURI 3-Year Calculator"
-  },
-  "opportunityDetail": {
-    "priority": "Priority",
-    "estimatedArr": "Estimated ARR",
-    "opportunityStatus": "Opportunity Status",
-    "reasoning": "Reasoning",
-    "evidence": "Analysis Evidence",
-    "talkingPoints": "Talking Points",
-    "nextSteps": "Next Steps",
-    "relatedServices": "Related AWS Services",
-    "created": "Created",
-    "updated": "Updated"
-  },
-  "errors": {
-    "uploadFirst": "Please upload an Excel file and enter the client name",
-    "generic": "An unexpected error occurred",
-    "network": "Connection error. Check your internet connection."
-  },
-  "language": {
-    "selector": "Language",
-    "changing": "Changing language..."
-  },
-  "nav": {
-    "assess": {
-      "label": "ASSESS",
-      "subtitle": "Build a business case"
-    },
-    "mobilize": {
-      "label": "MOBILIZE",
-      "subtitle": "Prepare to migrate"
-    },
-    "migrate": {
-      "label": "MIGRATE AND MODERNIZE",
-      "subtitle": "Execute the migration"
-    }
+  "architectureDiagram": {
+    "devAccount": "Development Account",
+    "devDesc": "Development and testing",
+    "implementationScore": "Implementation Score",
+    "required": "Required",
+    "stagingAccount": "Staging Account",
+    "stagingDesc": "Pre-production",
+    "title": "AWS Architecture Diagram"
   },
   "assess": {
-    "title": "Assess Phase",
-    "tabs": {
-      "rapidDiscovery": "Rapid Discovery",
-      "tcoReport": "TCO Report",
-      "migrationReadiness": "Migration Readiness",
-      "opportunities": "Sales Opportunities",
-      "migrationWaves": "Migration Waves Planning",
-      "briefings": "Briefings & Workshops",
-      "immersionDay": "Immersion Day",
-      "selector": "Tool Selector",
-      "dependencyMap": "Dependency Map",
-      "businessCase": "Business Case",
-      "executiveSummary": "Executive Summary"
+    "prereq": {
+      "deps": "Requires dependency data from the MPA",
+      "mpa": "Upload the MPA first in Rapid Discovery",
+      "opps": "Complete the Assess phase to run opportunity analysis"
     },
     "requirements": {
-      "excelFile": "Upload MPA Excel file",
       "clientName": "Enter client name",
+      "excelFile": "Upload MPA Excel file",
       "onPremisesCost": "Enter annual on-premises cost"
     },
-    "prereq": {
-      "mpa": "Upload the MPA first in Rapid Discovery",
-      "deps": "Requires dependency data from the MPA",
-      "opps": "Complete the Assess phase to run opportunity analysis"
-    }
-  },
-  "mobilize": {
-    "title": "Mobilize Phase",
-    "groups": {
-      "portfolio": "Portfolio",
-      "people": "People",
-      "platform": "Platform"
-    },
     "tabs": {
-      "discoveryPlanning": "Discovery & Planning",
-      "migrationPlan": "Migration Plan",
+      "briefings": "Briefings & Workshops",
       "businessCase": "Business Case",
-      "skills": "Skills & CoE",
-      "landingZone": "Landing Zone",
-      "security": "Security & Compliance",
-      "architecture": "Architecture Diagram"
+      "dependencyMap": "Dependency Map",
+      "executiveSummary": "Executive Summary",
+      "immersionDay": "Immersion Day",
+      "migrationReadiness": "Migration Readiness",
+      "migrationWaves": "Migration Waves Planning",
+      "opportunities": "Sales Opportunities",
+      "rapidDiscovery": "Rapid Discovery",
+      "selector": "Tool Selector",
+      "tcoReport": "TCO Report"
     },
-    "requirements": {
-      "assessPhase": "Complete Assessment Phase",
-      "migrationWaves": "Define at least 1 migration wave",
-      "landingZoneItems": "Initialize Landing Zone configuration (check at least 1 item)"
-    }
-  },
-  "migrate": {
-    "title": "Migrate & Modernize Phase",
-    "groups": {
-      "migrate": "Migrate",
-      "optimize": "Optimize",
-      "modernize": "Modernize"
-    },
-    "tabs": {
-      "ec2": "EC2 Recommendations",
-      "rds": "RDS Recommendations",
-      "waves": "Migration Waves",
-      "costOptimization": "Cost Optimization",
-      "modernizationRoadmap": "Modernization Roadmap"
-    },
-    "report": {
-      "title": "Final Assessment Report",
-      "description": "Generate a complete Word document with all migration recommendations",
-      "buttonGenerate": "Generate Report",
-      "buttonGenerating": "Generating...",
-      "buttonDownload": "Download Report",
-      "successMessage": "Report generated successfully!",
-      "successDescription": "Click download to get your Word document"
-    },
-    "requirements": {
-      "mobilizePhase": "Complete Mobilize Phase",
-      "reportGeneration": "Generate final assessment report"
-    }
-  },
-  "phaseComplete": {
-    "button": "Complete {{phase}}",
-    "completed": "{{phaseLabel}} Completed",
-    "requirements": "Requirements to complete this phase:"
-  },
-  "clientForm": {
-    "title": "Client Information",
-    "labels": {
-      "clientName": "Client Name *",
-      "vertical": "Vertical/Industry",
-      "reportDate": "Report Date",
-      "awsRegion": "AWS Region",
-      "totalServers": "Total Servers in Scope",
-      "onPremisesCost": "On-Premises Cost (USD/year)",
-      "companyDescription": "Company Description",
-      "priorities": "Client Priorities",
-      "migrationReadiness": "Migration Readiness"
-    },
-    "placeholders": {
-      "clientName": "Enter client name",
-      "vertical": "Select industry",
-      "companyDescription": "Briefly describe the company",
-      "onPremisesCost": "E.g.: 500000",
-      "selectRegion": "Select region",
-      "selectReadiness": "Select status"
-    },
-    "verticals": {
-      "Energy": "Energy",
-      "Insurance": "Insurance",
-      "Healthcare": "Healthcare",
-      "Financial": "Financial",
-      "Retail": "Retail",
-      "Manufacturing": "Manufacturing",
-      "Technology": "Technology",
-      "Other": "Other"
-    },
-    "awsRegions": {
-      "usEast1": "US East (N. Virginia)",
-      "usEast2": "US East (Ohio)",
-      "usWest1": "US West (N. California)",
-      "usWest2": "US West (Oregon)",
-      "euWest1": "Europe (Ireland)",
-      "euWest2": "Europe (London)",
-      "euCentral1": "Europe (Frankfurt)",
-      "apSoutheast1": "Asia Pacific (Singapore)",
-      "apSoutheast2": "Asia Pacific (Sydney)",
-      "apNortheast1": "Asia Pacific (Tokyo)",
-      "saEast1": "South America (São Paulo)"
-    },
-    "validation": {
-      "clientNameRequired": "Client name is required",
-      "reportDateRequired": "Report date is required",
-      "totalServersMin": "There must be at least 1 server",
-      "costPositive": "Cost must be a positive value"
-    },
-    "priorities": {
-      "reduceCosts": "Reduce infrastructure costs",
-      "improveResiliency": "Improve operational resilience",
-      "businessAgility": "Business agility",
-      "innovationAcceleration": "Accelerate innovation",
-      "legacyModernization": "Legacy system modernization",
-      "securityCompliance": "Security and compliance"
-    },
-    "readiness": {
-      "ready": "Ready to migrate",
-      "evaluating": "Evaluating",
-      "notReady": "Not yet ready"
-    }
-  },
-  "fileUploader": {
-    "title": "Upload MPA Excel",
-    "dragDrop": "Drag and drop Excel file here",
-    "dragDropActive": "Drop the Excel file here",
-    "uploadingMessage": "Uploading to S3...",
-    "analyzingMessage": "Analyzing data...",
-    "summary": {
-      "servers": "Servers",
-      "databases": "Databases",
-      "applications": "Applications",
-      "totalGb": "Total GB",
-      "connections": "Connections",
-      "securityGroups": "Security Groups"
-    },
-    "error": "Upload Failed",
-    "errorRetry": "Click to try again",
-    "uploadingFile": "Uploading file...",
-    "uploadedSuccessfully": "File uploaded successfully",
-    "loading": "Loading {{filename}}...",
-    "preparing": "Preparing upload...",
-    "analyzingLocal": "Analyzing data (local mode)...",
-    "clickToSelect": "or click to select file (.xlsx)",
-    "errorToast": "Error loading file: {{message}}",
-    "successLoaded": "{{source}} loaded: {{servers}} servers, {{databases}} databases",
-    "successConnections": "{{count}} connections",
-    "successWaves": "{{count}} migration waves calculated"
-  },
-  "mraUploader": {
-    "toastFileTooLarge": "The PDF file is too large. Maximum 50MB.",
-    "toastInvalidType": "Only PDF files are allowed.",
-    "toastFileSelected": "MRA file selected: {{name}}",
-    "toastFileRemoved": "MRA file removed",
-    "dragText": "Drag your MRA PDF file here",
-    "clickText": "or click to select (max. 50MB)",
-    "pdfOnly": "PDF only",
-    "removeTitle": "Remove file",
-    "infoNote": "The MRA improves analysis quality by providing context about architecture and risks. For an even more complete analysis, you can also upload the <strong>Infrastructure Questionnaire</strong> (optional) below."
-  },
-  "questionnaireUploader": {
-    "toastFileTooLarge": "The Word file is too large. Maximum 50MB.",
-    "toastInvalidType": "Only Word files (.docx or .doc) are allowed.",
-    "toastFileSelected": "Questionnaire selected: {{name}}",
-    "toastFileRemoved": "Questionnaire removed",
-    "title": "Infrastructure Questionnaire",
-    "optional": "OPTIONAL",
-    "dragText": "Drag your Word file here or click to select (max. 50MB)",
-    "wordOnly": "Word (.docx, .doc)",
-    "removeTitle": "Remove file",
-    "infoNote": "The questionnaire improves analysis quality by providing context about client priorities, constraints and objectives. Sensitive data is automatically anonymized."
-  },
-  "rapidDiscovery": {
-    "title": "Rapid Discovery",
-    "description": "Load your infrastructure data and client information to start the migration analysis.",
-    "mpaUpload": "MPA Excel Upload",
-    "mpaExcelUpload": "MPA Excel Upload",
-    "mraUpload": "MRA PDF Upload (Optional)",
-    "mraPdfUpload": "MRA PDF Upload",
-    "mraDescription": "For AI-powered opportunity analysis",
-    "forAiAnalysis": "For AI analysis",
-    "questionnaireUpload": "Infrastructure Questionnaire (Optional)",
-    "infrastructureQuestionnaire": "Infrastructure Questionnaire",
-    "improvesAnalysis": "Improves analysis",
-    "clientInfo": "Client Information",
-    "dataLoaded": "Excel data loaded",
-    "excelLoaded": "{{servers}} servers, {{databases}} databases loaded",
-    "pdfLoaded": "MRA PDF loaded",
-    "mraLoaded": "MRA: {{name}}",
-    "questionnaireLoaded": "Questionnaire loaded",
-    "client": "Client:",
-    "clientAdded": "Client: {{name}}"
-  },
-  "tcoReport": {
-    "title": "TCO Report",
-    "empty": "TCO Report Not Available",
-    "emptyDescription": "Upload your MPA data in the Rapid Discovery tab to generate TCO analysis.",
-    "totalCostOfOwnership": "Total Cost of Ownership Analysis",
-    "currentOnPremises": "Current On-Premises",
-    "perYear": "per year",
-    "migration": "Migration",
-    "awsPrice": "AWS (3Y NURI)",
-    "annualSavings": "Annual Savings",
-    "percentReduction": "% reduction",
-    "threeYearSavings": "3-Year Savings",
-    "vsOnPremises": "vs On-Premises",
-    "monthlyAwsCost": "Monthly AWS Cost",
-    "threeYearPricing": "3-Year NURI pricing",
-    "infrastructureScope": "Infrastructure Scope",
-    "awsPricingOptions": "AWS Pricing Options",
-    "onDemand": "On-Demand",
-    "onDemandDesc": "No commitment",
-    "oneYear": "1-Year NURI",
-    "oneYearSavings": "~36% savings",
-    "bestOption": "BEST",
-    "threeYear": "3-Year NURI",
-    "threeYearSavingsLabel": "~60% savings"
-  },
-  "mra": {
-    "title": "Migration Readiness Assessment",
-    "emptyTitle": "Migration Readiness Assessment",
-    "emptyDescription": "Upload your MPA data first to assess migration readiness.",
-    "description": "The MRA evaluates your organization's readiness across infrastructure complexity, team capabilities, and operational requirements to determine the optimal migration approach and timeline."
+    "title": "Assess Phase"
   },
   "briefings": {
-    "title": "Briefings & Workshops",
-    "description": "Track executive briefings, technical workshops and immersion sessions with the client.",
-    "totalSessions": "Total Sessions",
-    "completed": "Completed",
-    "planned": "Planned",
-    "sessions": "Sessions",
+    "add": "Add",
     "addSession": "Add Session",
-    "sessionTitle": "Session title",
     "attendees": "Attendees",
     "cancel": "Cancel",
-    "add": "Add",
+    "completed": "Completed",
+    "description": "Track executive briefings, technical workshops and immersion sessions with the client.",
+    "form": {
+      "attendees": "Attendees",
+      "sessionTitle": "Session title"
+    },
     "noSessions": "No sessions scheduled yet. Click \"Add Session\" to start tracking.",
+    "planned": "Planned",
+    "sessionTitle": "Session title",
+    "sessions": "Sessions",
+    "stats": {
+      "completed": "Completed",
+      "planned": "Planned",
+      "totalSessions": "Total Sessions"
+    },
+    "title": "Briefings & Workshops",
+    "totalSessions": "Total Sessions",
     "types": {
       "briefing": "Briefing",
-      "workshop": "Workshop",
-      "deepDive": "Deep Dive"
-    },
-    "stats": {
-      "totalSessions": "Total Sessions",
-      "completed": "Completed",
-      "planned": "Planned"
-    },
-    "form": {
-      "sessionTitle": "Session title",
-      "attendees": "Attendees"
+      "deepDive": "Deep Dive",
+      "workshop": "Workshop"
     }
-  },
-  "discoveryPlanning": {
-    "noData": "No inventory data available",
-    "noDataDescription": "Upload your MPA Excel file in the Assess phase",
-    "overviewTitle": "Infrastructure Inventory Overview",
-    "servers": "Servers",
-    "databases": "Databases",
-    "applications": "Applications",
-    "totalStorage": "Total Storage",
-    "portfolioTitle": "Application Portfolio Detail",
-    "osDistributionTitle": "Operating System Distribution",
-    "osColumn": "OS",
-    "serverCount": "{{count}} servers ({{percent}}%)"
   },
   "businessCase": {
-    "noData": "Complete the Assess phase to view the business case",
-    "noDataDescription": "Upload data and enter client information in the Assess tab",
     "executiveSummaryTitle": "Executive Summary",
-    "financialAnalysisTitle": "Financial Analysis"
+    "financialAnalysisTitle": "Financial Analysis",
+    "noData": "Complete the Assess phase to view the business case",
+    "noDataDescription": "Upload data and enter client information in the Assess tab"
   },
-  "skillsCoE": {
-    "title": "AWS Skills Assessment & Center of Excellence",
-    "description": "Assess your team's current AWS proficiency and create targeted training plans to build internal expertise. A strong Center of Excellence accelerates migration and reduces reliance on external consultants.",
-    "avgSkillGap": "Avg Skill Gap",
-    "criticalGaps": "Critical Gaps (≥50%)",
-    "skillAreasTracked": "Skill Areas Tracked",
-    "teamSkillAssessment": "Team Skill Assessment",
-    "skillGap": "Skill Gap",
-    "current": "Current",
-    "target": "Target",
-    "levels": {
-      "none": "None",
-      "basic": "Basic",
-      "intermediate": "Intermediate",
-      "advanced": "Advanced",
-      "expert": "Expert"
-    }
+  "businessCaseClientForm": {
+    "assessmentTool": "Assessment Tool *",
+    "awsRegion": "AWS Region",
+    "clientName": "Client Name *",
+    "clientNamePlaceholder": "Enter client name",
+    "companyDescPlaceholder": "Brief description of the company and their infrastructure...",
+    "companyDescription": "Company Description",
+    "migrationReadiness": "Migration Readiness",
+    "onPremisesCost": "On-Premises Cost (USD/year)",
+    "onPremisesCostPlaceholder": "E.g.: 1,500,000.00",
+    "otherToolName": "Tool Name *",
+    "otherToolPlaceholder": "Specify the tool",
+    "priorities": "Client Priorities",
+    "priority_business_agility": "Business agility",
+    "priority_environment_updated": "Environment always updated",
+    "priority_modernize_databases": "Modernize Database workloads",
+    "priority_operational_resilience": "Improve operational resilience",
+    "priority_reduced_costs": "Reduced infrastructure costs",
+    "priority_security_compliance": "Security compliance",
+    "readiness_evaluating": "Evaluating",
+    "readiness_not_ready": "Not ready yet",
+    "readiness_ready": "Ready to migrate",
+    "reportDate": "Report Date",
+    "selectIndustry": "Select industry",
+    "selectReadiness": "Select readiness status",
+    "selectRegion": "Select region",
+    "selectTool": "Select tool",
+    "title": "Client Information",
+    "totalServers": "Total Servers in Scope",
+    "totalServersPlaceholder": "E.g.: 100",
+    "vertical": "Vertical/Industry"
   },
-  "securityCompliance": {
-    "title": "Security & Compliance Framework",
-    "description": "Establish a robust security posture and compliance framework before migrating sensitive workloads. These controls are essential for meeting regulatory requirements and protecting your data.",
-    "identityAccess": "Identity & Access Management",
-    "dataProtection": "Data Protection",
-    "networkSecurity": "Network Security",
-    "compliance": "Compliance",
-    "incidentResponse": "Incident Response"
+  "businessCaseMetrics": {
+    "annualSavings": "Annual Savings",
+    "applications": "Applications",
+    "basedOnComplexity": "Based on infrastructure complexity",
+    "complexityLabel": "Migration Complexity",
+    "costReduction": "Cost Reduction",
+    "costReductionDesc": "Potential annual savings vs on-premises",
+    "costTitle": "Cost Reduction Potential",
+    "databases": "Databases",
+    "estimatedROI": "Estimated ROI",
+    "fte": "FTE",
+    "fteNeeded": "Full-time equivalents needed",
+    "includingPlanning": "Including planning & testing",
+    "infraTitle": "Infrastructure Scope",
+    "months": "months",
+    "monthsBreakEven": "months to break even",
+    "optimizationDesc": "Quick win opportunities across infrastructure",
+    "optimizationPotential": "Optimization Potential",
+    "perYear": "{{amount}}k per year",
+    "readinessScore": "Readiness Score",
+    "readinessTitle": "Migration Readiness Assessment",
+    "recommendationsTitle": "Strategic Recommendations",
+    "resourceTitle": "Resource Requirements",
+    "riskHigh": "High",
+    "riskLevel": "Risk Level",
+    "riskLow": "Low",
+    "riskMedium": "Medium",
+    "riskSuffix": "Risk",
+    "servers": "Servers",
+    "statusLabel": "Status:",
+    "tbStorage": "TB Storage",
+    "timelineTitle": "Timeline Estimate"
+  },
+  "businessCaseModule": {
+    "annexes": "Annexes",
+    "annexesDesc": "Additional information and complementary analysis",
+    "annualCostTitle": "Annual Cost in USD (ARR)",
+    "assessmentToolDesc": "Select the tool used for the assessment (required)",
+    "assessmentToolLabel": "Assessment Tool *",
+    "carbonReport": "Carbon Report",
+    "clientInfoSection": "Client Information",
+    "clientStatus": "Client: {{name}}",
+    "dataLoaded": "Data loaded ({{servers}} servers, {{os}} operating systems)",
+    "dataUploadSection": "Data Upload",
+    "description": "Cost and benefit analysis for AWS migration",
+    "development": "Development",
+    "ec2ChartTitle": "Annual EC2 Cost in USD (ARR)",
+    "ec2CostsTitle": "Annual AWS Costs - EC2 (USD)",
+    "includeRDS": "Include scenario with RDS (databases)",
+    "instanceTypes": "Instance Types",
+    "migrationStrategy": "Migration Strategy",
+    "networkTransfer": "Network Data Transfer",
+    "noDataInstruction": "Upload an Excel file from {{tool}} to start the analysis",
+    "noDataLoaded": "No data loaded",
+    "osDistribution": "OS Distribution",
+    "production": "Production",
+    "qa": "QA",
+    "rdsChartTitle": "Annual RDS Cost in USD (ARR)",
+    "rdsCostsTitle": "Annual AWS Costs - RDS (USD)",
+    "resourceOptimization": "Resource Optimization",
+    "selectTool": "Select tool",
+    "selectToolWarning": "⚠️ You must select a tool before continuing",
+    "sqlLicensing": "SQL Server Licensing Optimization",
+    "supportRisk": "Support Risk",
+    "tco": "TCO",
+    "tco1YearLoaded": "TCO 1 Year loaded ({{resources}} resources)",
+    "tcoRDS": "TCO - RDS",
+    "title": "Business Case",
+    "totalServers": "Total Servers"
+  },
+  "businessCaseUploader": {
+    "networkError": "Could not process the file. If it is open in Excel, close it and try again.",
+    "successLoaded": "{{client}} - {{source}} loaded: {{servers}} servers",
+    "supportedFiles": "Supported files: Cloudamize, Concierto, Matilda",
+    "title": "Ondemand AS-IS",
+    "uploadError": "Error loading file: {{message}}"
+  },
+  "carbonReportTable": {
+    "awsUsage": "AWS Usage",
+    "chartCenter": "Savings",
+    "colMetric": "Metric",
+    "colValue": "Value (kgCO2eq)",
+    "currentUsage": "Current Usage",
+    "impactNote": "* kgCO2eq = Kilograms of carbon dioxide equivalent",
+    "impactText": "Migrating to AWS reduces carbon emissions by {{savings}} kgCO2eq, representing a {{pct}} reduction compared to current infrastructure.",
+    "impactTitle": "Environmental Impact:",
+    "legendAWS": "AWS Usage",
+    "legendSavings": "Carbon Savings",
+    "rowAWS": "AWS Usage",
+    "rowCurrent": "Current Usage (On-Premises)",
+    "rowSavings": "Carbon Savings",
+    "savings": "Savings",
+    "title": "Carbon Report",
+    "unit": "kgCO2eq"
+  },
+  "carbonReportUploader": {
+    "dataLoaded": "✓ Carbon data loaded successfully",
+    "errorTitle": "Error processing file",
+    "fileInfo": "Excel file with carbon data (.xlsx)",
+    "title": "Carbon Report"
   },
   "checklistCard": {
     "addNotes": "Add notes...",
     "priorities": {
       "critical": "critical",
       "high": "high",
-      "medium": "medium",
-      "low": "low"
+      "low": "low",
+      "medium": "medium"
     }
   },
-  "migrationPlan": {
-    "strategyTitle": "Migration Strategy (7Rs)",
-    "wavesTitle": "Migration Waves Planning",
-    "wordGenerated": "Word report generated",
-    "wordGeneratedDesc": "The .doc file has been downloaded",
-    "csvExported": "Migration plan exported",
-    "csvExportedDesc": "The CSV file has been downloaded"
-  },
-  "immersionDay": {
-    "title": "AWS Immersion Days",
-    "description": "Plan hands-on technical sessions where your team can experience AWS services firsthand. Immersion Days accelerate cloud adoption by providing practical, guided experiences.",
-    "addFromSuggested": "Add from Suggested Topics",
-    "suggestedTopics": "Recommended Immersion Day Topics",
-    "plannedTitle": "Planned Immersion Days ({{count}})",
-    "noPlans": "No immersion days planned yet. Add from suggested topics to get started.",
-    "alreadyAdded": "Already added",
-    "objectives": "Objectives:",
-    "statusLabels": {
-      "planned": "Planned",
-      "in_progress": "In Progress",
-      "completed": "Completed"
+  "clientForm": {
+    "awsRegions": {
+      "apNortheast1": "Asia Pacific (Tokyo)",
+      "apSoutheast1": "Asia Pacific (Singapore)",
+      "apSoutheast2": "Asia Pacific (Sydney)",
+      "euCentral1": "Europe (Frankfurt)",
+      "euWest1": "Europe (Ireland)",
+      "euWest2": "Europe (London)",
+      "saEast1": "South America (São Paulo)",
+      "usEast1": "US East (N. Virginia)",
+      "usEast2": "US East (Ohio)",
+      "usWest1": "US West (N. California)",
+      "usWest2": "US West (Oregon)"
+    },
+    "labels": {
+      "awsRegion": "AWS Region",
+      "clientName": "Client Name *",
+      "companyDescription": "Company Description",
+      "migrationReadiness": "Migration Readiness",
+      "onPremisesCost": "On-Premises Cost (USD/year)",
+      "priorities": "Client Priorities",
+      "reportDate": "Report Date",
+      "totalServers": "Total Servers in Scope",
+      "vertical": "Vertical/Industry"
+    },
+    "placeholders": {
+      "clientName": "Enter client name",
+      "companyDescription": "Briefly describe the company",
+      "onPremisesCost": "E.g.: 500000",
+      "selectReadiness": "Select status",
+      "selectRegion": "Select region",
+      "vertical": "Select industry"
+    },
+    "priorities": {
+      "businessAgility": "Business agility",
+      "improveResiliency": "Improve operational resilience",
+      "innovationAcceleration": "Accelerate innovation",
+      "legacyModernization": "Legacy system modernization",
+      "reduceCosts": "Reduce infrastructure costs",
+      "securityCompliance": "Security and compliance"
+    },
+    "readiness": {
+      "evaluating": "Evaluating",
+      "notReady": "Not yet ready",
+      "ready": "Ready to migrate"
+    },
+    "title": "Client Information",
+    "validation": {
+      "clientNameRequired": "Client name is required",
+      "costPositive": "Cost must be a positive value",
+      "reportDateRequired": "Report date is required",
+      "totalServersMin": "There must be at least 1 server"
+    },
+    "verticals": {
+      "Energy": "Energy",
+      "Financial": "Financial",
+      "Healthcare": "Healthcare",
+      "Insurance": "Insurance",
+      "Manufacturing": "Manufacturing",
+      "Other": "Other",
+      "Retail": "Retail",
+      "Technology": "Technology"
     }
   },
-  "migrationWaves": {
-    "title": "Migration Waves Planning",
-    "description": "Plan your migration in phases",
-    "waveName": "Wave Name",
-    "strategy": "Strategy",
-    "startDate": "Start Date",
-    "endDate": "End Date",
-    "serverCount": "Server Count",
-    "applicationCount": "Application Count",
-    "createWave": "Create Wave",
-    "addWave": "Add Wave",
+  "cloud": {
+    "aws": {
+      "compute": {
+        "label": "EC2"
+      },
+      "database": {
+        "label": "RDS"
+      },
+      "fullName": "Amazon Web Services",
+      "shortName": "AWS"
+    },
+    "azure": {
+      "compute": {
+        "label": "Virtual Machines"
+      },
+      "database": {
+        "label": "Azure SQL"
+      },
+      "fullName": "Microsoft Azure",
+      "shortName": "Azure"
+    },
+    "gcp": {
+      "compute": {
+        "label": "Compute Engine"
+      },
+      "database": {
+        "label": "Cloud SQL"
+      },
+      "fullName": "Google Cloud Platform",
+      "shortName": "GCP"
+    },
+    "oracle": {
+      "compute": {
+        "label": "OCI Compute"
+      },
+      "database": {
+        "label": "Autonomous DB"
+      },
+      "fullName": "Oracle Cloud Infrastructure",
+      "shortName": "Oracle"
+    }
+  },
+  "cloudSelector": {
+    "label": "Active clouds",
+    "lastCloudWarning": "At least one cloud must remain active"
+  },
+  "common": {
+    "add": "Add",
+    "and": "and",
+    "back": "Back",
     "cancel": "Cancel",
-    "createNew": "Create New Migration Wave",
-    "noWaves": "No migration waves defined yet. Click \"Add Wave\" to create one.",
-    "capacityDistribution": "Wave Capacity Distribution",
-    "waveLabel": "WAVE",
-    "strategyLabel": "Strategy",
-    "serversLabel": "servers",
-    "appsLabel": "apps",
-    "statuses": {
-      "planned": "Planned",
-      "inProgress": "In Progress",
-      "completed": "Completed",
-      "blocked": "Blocked"
-    }
+    "close": "Close",
+    "complete": "Complete",
+    "confirm": "Confirm",
+    "developedBy": "Developed by",
+    "download": "Download",
+    "downloadStarting": "Starting report download",
+    "edit": "Edit",
+    "error": "Error",
+    "filterByEnvironment": "Filter by environment",
+    "generate": "Generate",
+    "loading": "Loading...",
+    "next": "Next",
+    "no": "No",
+    "optional": "Optional",
+    "remove": "Remove",
+    "required": "Required",
+    "reset": "Reset All",
+    "save": "Save",
+    "savings": "savings",
+    "success": "Success",
+    "tip": "Tip",
+    "upload": "Upload",
+    "view": "View",
+    "yes": "Yes"
+  },
+  "costOptimization": {
+    "beyondBaseline": "Beyond the {{amount}}/year baseline with 3-Year NURI",
+    "categories": {
+      "modernization": "Architecture Modernization",
+      "reservedInstances": "Reserved Instances & Savings Plans",
+      "rightSizing": "Instance Rightsizing",
+      "storage": "Storage Optimization"
+    },
+    "description": "Additional strategies to maximize savings beyond the base migration.",
+    "modernization": {
+      "op1": {
+        "description": "Eliminate idle server costs. Pay only per execution. Ideal for intermittent workloads.",
+        "title": "Serverless with AWS Lambda"
+      },
+      "op2": {
+        "description": "Higher workload density per server. Reduces number of instances needed.",
+        "title": "Containers with ECS/EKS"
+      },
+      "op3": {
+        "description": "Reduces operational overhead and optimizes database licensing costs.",
+        "title": "Managed Services (RDS, ElastiCache)"
+      }
+    },
+    "potentialSavings": "Additional Potential Savings",
+    "reservedInstances": {
+      "op1": {
+        "description": "3-year commitment with no upfront payment. Ideal for stable and predictable workloads.",
+        "title": "3-Year Reserved Instances (No Upfront)"
+      },
+      "op2": {
+        "description": "Balance between flexibility and savings. Recommended for workloads with moderate growth.",
+        "title": "1-Year Reserved Instances"
+      },
+      "op3": {
+        "description": "Flexibility to switch between instance families, regions and operating systems.",
+        "title": "Savings Plans (Compute)"
+      }
+    },
+    "rightSizing": {
+      "op1": {
+        "description": "Identify oversized instances using CloudWatch metrics and recommend smaller instance types.",
+        "title": "CPU/RAM Utilization Analysis"
+      },
+      "op2": {
+        "description": "AWS Graviton3 instances offer up to 40% better price/performance vs equivalent x86 instances.",
+        "title": "Migration to Graviton (ARM)"
+      },
+      "op3": {
+        "description": "Implement automatic scaling policies to adjust capacity based on real demand.",
+        "title": "Dynamic Auto Scaling"
+      }
+    },
+    "storage": {
+      "op1": {
+        "description": "Automatically moves data between frequent and infrequent access tiers based on usage patterns.",
+        "title": "S3 Intelligent-Tiering"
+      },
+      "op2": {
+        "description": "Migrate from gp2 to gp3 for better performance at lower cost. gp3 is 20% cheaper than gp2.",
+        "title": "EBS Volume Optimization"
+      },
+      "op3": {
+        "description": "Archive old data to S3 Glacier to reduce long-term storage costs.",
+        "title": "Lifecycle Policies"
+      }
+    },
+    "title": "AWS Cost Optimization"
+  },
+  "costSummary": {
+    "annual": "Annual",
+    "bestValue": "BEST VALUE",
+    "calculatorLinks": "AWS Pricing Calculators",
+    "chartTitle": "Cost Comparison Chart",
+    "monthly": "Monthly",
+    "noCommitment": "No commitment required",
+    "onDemandCalc": "On-Demand Calculator",
+    "oneYearCalc": "NURI 1-Year Calculator",
+    "savesIn3Years": "Saves {{amount}} over 3 years",
+    "savesPerYear": "Saves {{amount}}/year",
+    "threeYearCalc": "NURI 3-Year Calculator",
+    "title": "Cost Estimation Summary"
+  },
+  "costs": {
+    "annual": "Annual",
+    "monthly": "Monthly",
+    "onDemand": "On-Demand",
+    "oneYearRI": "1-Year Reserved",
+    "savings": "Savings",
+    "threeYear": "3 Years",
+    "threeYearRI": "3-Year Reserved",
+    "title": "AWS Cost Estimation",
+    "total": "Total"
+  },
+  "databaseDependencyMap": {
+    "colDestServer": "Destination Server",
+    "colPort": "Port",
+    "colProcess": "Process / Service",
+    "colProtocol": "Protocol",
+    "colSourceServer": "Source Server",
+    "connectionsCount": "connections",
+    "connectionsSubtitle": "Network traffic detected between DB instances and servers",
+    "connectionsTitle": "Connections between Databases and Servers",
+    "custom": "Custom",
+    "filterPlaceholder": "Filter by server, port, protocol, process...",
+    "filteringLabel": "Filtering:",
+    "noData": "No databases or database dependencies were found in the loaded file.",
+    "noDataToGraph": "No data to graph",
+    "portsTitle": "Network ports used in detected connections",
+    "processesTitle": "Processes and services involved in connections",
+    "server": "Server",
+    "statConnections": "DB Connections",
+    "statDatabases": "Databases",
+    "statPorts": "Unique Ports",
+    "statProcesses": "Processes/Services",
+    "viewConnections": "DB↔Server Connections",
+    "viewPorts": "By Port",
+    "viewProcesses": "By Process"
+  },
+  "databases": {
+    "count": "{{count}} databases",
+    "dbName": "Database Name",
+    "edition": "Edition",
+    "engine": "Engine",
+    "estimatedCost": "Est. Cost",
+    "instanceClass": "Instance Class",
+    "name": "Name",
+    "recommendation": "Recommended RDS Instance",
+    "showingCount": "Showing {{shown}} of {{total}} databases",
+    "size": "Size (GB)",
+    "targetService": "Target Service",
+    "title": "Databases",
+    "titleWithCount": "Databases ({{count}})"
+  },
+  "dependencyGraph": {
+    "enterSearchTerm": "Enter a search term",
+    "errorGeneratingPdf": "Error generating PDF",
+    "errorGeneratingSrvPdf": "Error generating PDF",
+    "errorGeneratingSrvWord": "Error generating Word",
+    "errorGeneratingWord": "Error generating document",
+    "generatingPdf": "Generating graph PDF...",
+    "generatingSrvPdf": "Generating PDF...",
+    "generatingSrvWord": "Generating Word...",
+    "generatingWord": "Generating Word document...",
+    "noDataToExport": "No data to export",
+    "noDependencyData": "No dependency data available",
+    "noGraphToExport": "No graph to export",
+    "pdfGenerated": "PDF generated successfully",
+    "search": "Search",
+    "searchError": "Search error",
+    "searching": "Searching...",
+    "serverFound": "Server found: {{server}}",
+    "serverNotFound": "No server found with that name",
+    "srvPdfGenerated": "PDF generated",
+    "srvWordGenerated": "Word generated",
+    "wordGenerated": "Word document generated"
+  },
+  "discoveryPlanning": {
+    "applications": "Applications",
+    "databases": "Databases",
+    "noData": "No inventory data available",
+    "noDataDescription": "Upload your MPA Excel file in the Assess phase",
+    "osColumn": "OS",
+    "osDistributionTitle": "Operating System Distribution",
+    "overviewTitle": "Infrastructure Inventory Overview",
+    "portfolioTitle": "Application Portfolio Detail",
+    "serverCount": "{{count}} servers ({{percent}}%)",
+    "servers": "Servers",
+    "totalStorage": "Total Storage"
   },
   "ec2": {
-    "title": "EC2 Instance Recommendations",
     "description": "Server migration recommendations",
     "noServers": "No server data available",
     "noServersDescription": "Upload your MPA Excel file in the Assess phase",
-    "recommendationTitle": "Server Migration Recommendations ({{count}} servers)"
+    "recommendationTitle": "Server Migration Recommendations ({{count}} servers)",
+    "title": "EC2 Instance Recommendations"
   },
-  "rds": {
-    "title": "RDS Recommendations",
-    "description": "Database migration recommendations",
-    "noDatabases": "No database data available",
-    "noDatabasesDescription": "Upload your MPA Excel file in the Assess phase",
-    "recommendationTitle": "Database Migration Recommendations ({{count}} databases)"
+  "errors": {
+    "generic": "An unexpected error occurred",
+    "network": "Connection error. Check your internet connection.",
+    "uploadFirst": "Please upload an Excel file and enter the client name"
   },
-  "opportunitiesDashboard": {
-    "title": "Sales Opportunities",
-    "aiAnalysis": "AI-Powered Opportunity Analysis",
-    "description": "To generate sales opportunities, complete the following steps:",
-    "loading": "Loading opportunities...",
-    "error": "Error loading opportunities",
-    "errorUpdate": "Error updating status",
-    "of": "of",
-    "opportunities": "opportunities",
-    "tipMessage": "You can upload the infrastructure questionnaire to improve the quality of the analysis.",
-    "step1": {
-      "title": "Load MPA data",
-      "description": "Upload the Excel file exported from Migration Portfolio Assessment in the 'Rapid Discovery' tab."
+  "excelValidation": {
+    "allPassed": "All checks passed. Data is ready for analysis.",
+    "errors": "{{count}} error(s)",
+    "info": "{{count}} info",
+    "ok": "OK",
+    "stats": {
+      "applications": "Applications",
+      "databases": "Databases",
+      "dependencies": "Dependencies",
+      "servers": "Servers"
     },
-    "step2": {
-      "title": "Client information",
-      "description": "Enter the client name and annual on-premises cost."
+    "title": "MPA validation",
+    "warnings": "{{count}} warning(s)"
+  },
+  "executiveSummary": {
+    "annualCostReduction": "Annual Cost Reduction",
+    "annualOnPremises": "Annual On-Premises",
+    "applications": "Applications",
+    "awsAnnual3ANURI": "AWS Annual (3Y NURI)",
+    "bestValue": "BEST VALUE",
+    "connections": "Connections",
+    "connectionsSuffix": "connections",
+    "continueToMobilize": "Continue to Mobilize",
+    "currentCost": "Current cost",
+    "databases": "Databases",
+    "dependenciesTitle": "Dependency Complexity",
+    "infrastructure": "Infrastructure",
+    "inventoryTitle": "Infrastructure Inventory",
+    "mappedApps": "Mapped Apps",
+    "mappedDBs": "Mapped DBs",
+    "months": "months",
+    "optimizedCost": "Optimized cost",
+    "osDistribution": "OS Distribution",
+    "paybackPeriod": "Payback Period",
+    "perMonth": "/mo",
+    "perYear": "/year",
+    "perYearShort": "/yr",
+    "pricingComparisonTitle": "AWS Pricing Comparison",
+    "riskHigh": "⚠️ High risk — requires immediate attention",
+    "riskLow": "ℹ️ Low risk — include in migration plan",
+    "riskMedium": "⚠️ Medium risk — plan priority migration",
+    "riskTitle": "Risk Indicators — EOL Operating Systems",
+    "roi3Year": "3-Year ROI",
+    "savingsApprox36": "~36% savings",
+    "savingsPerYear": "Save {{amount}}/year",
+    "serverEOL": "{{count}} servers with end-of-life OS",
+    "serverEOL_one": "server with EOL OS",
+    "serverEOL_other": "servers with EOL OS",
+    "servers": "Servers",
+    "serversPlanned": "Servers planned",
+    "serversToMigrate": "Servers to migrate",
+    "subtitle": "AWS Migration Business Case",
+    "tcoSavings3Year": "3-Year TCO Savings",
+    "topServersByDeps": "Top servers by dependencies",
+    "totalStorageGB": "Total Storage (GB)",
+    "vsOnPremises": "vs. On-Premises",
+    "wavesCompleted": "Waves completed",
+    "wavesDefined": "Waves defined",
+    "wavesPlanTitle": "Migration Wave Plan"
+  },
+  "exportButton": {
+    "errorExporting": "Error exporting playbook",
+    "exportPlaybook": "Export Playbook",
+    "exported": "Playbook exported successfully: {{filename}}",
+    "exporting": "Exporting..."
+  },
+  "fileUploader": {
+    "analyzingLocal": "Analyzing data (local mode)...",
+    "analyzingMessage": "Analyzing data...",
+    "clickToSelect": "or click to select file (.xlsx)",
+    "dragDrop": "Drag and drop Excel file here",
+    "dragDropActive": "Drop the Excel file here",
+    "error": "Upload Failed",
+    "errorRetry": "Click to try again",
+    "errorToast": "Error loading file: {{message}}",
+    "loading": "Loading {{filename}}...",
+    "preparing": "Preparing upload...",
+    "successConnections": "{{count}} connections",
+    "successLoaded": "{{source}} loaded: {{servers}} servers, {{databases}} databases",
+    "successWaves": "{{count}} migration waves calculated",
+    "summary": {
+      "applications": "Applications",
+      "connections": "Connections",
+      "databases": "Databases",
+      "securityGroups": "Security Groups",
+      "servers": "Servers",
+      "totalGb": "Total GB"
     },
-    "step2dot5": {
-      "title": "Questionnaire (Optional)",
-      "description": "Upload the infrastructure questionnaire to enrich the AI analysis."
+    "title": "Upload MPA Excel",
+    "uploadedSuccessfully": "File uploaded successfully",
+    "uploadingFile": "Uploading file...",
+    "uploadingMessage": "Uploading to S3..."
+  },
+  "footer": {
+    "copyright": "AWS Assessment Report Generator"
+  },
+  "header": {
+    "brand": "SoftwareOne",
+    "subtitle": "Assess → Mobilize → Migrate and Modernize",
+    "title": "AWS Migration Assessment Center"
+  },
+  "icsExport": {
+    "button": "Calendar (.ics)",
+    "downloaded": ".ics calendar downloaded",
+    "empty": "No sessions to export"
+  },
+  "immersionDay": {
+    "addFromSuggested": "Add from Suggested Topics",
+    "alreadyAdded": "Already added",
+    "description": "Plan hands-on technical sessions where your team can experience AWS services firsthand. Immersion Days accelerate cloud adoption by providing practical, guided experiences.",
+    "noPlans": "No immersion days planned yet. Add from suggested topics to get started.",
+    "objectives": "Objectives:",
+    "plannedTitle": "Planned Immersion Days ({{count}})",
+    "statusLabels": {
+      "completed": "Completed",
+      "in_progress": "In Progress",
+      "planned": "Planned"
     },
-    "step3": {
-      "title": "MRA PDF (Optional)",
-      "description": "Upload the Migration Readiness Assessment PDF for additional analysis."
+    "suggestedTopics": "Recommended Immersion Day Topics",
+    "title": "AWS Immersion Days"
+  },
+  "instanceTypesChart": {
+    "noteLabel": "Note: Recommended instances are based on Cloudamize analysis considering observed resources (vCPU, RAM, Storage) and workload characteristics.",
+    "servers": "{{n}} servers",
+    "subtitle": "Showing the top 10 most recommended instances",
+    "title": "Top 10 Recommended Instance Types",
+    "totalLabel": "Total instances analyzed:"
+  },
+  "landingZone": {
+    "accountStructure": "Account Structure",
+    "cfnBtn": "CloudFormation (.yaml)",
+    "checklistDesc": "Use this checklist to track your Landing Zone configuration tasks. The templates generated above automate many of these tasks.",
+    "checklistTitle": "Landing Zone Checklist",
+    "configureBtn": "Configure",
+    "contactEmail": "Contact Email",
+    "downloadAllBtn": "Download All",
+    "generatorDesc": "Generate CloudFormation and Terraform ready to run with AWS best practices",
+    "generatorTitle": "IaC Template Generator",
+    "governance": "Governance",
+    "hideConfigBtn": "Hide Configuration",
+    "loggingMonitoring": "Logging & Monitoring",
+    "networking": "Networking",
+    "nextSteps": "📌 Next steps: Download the templates, review the configuration, and deploy using AWS CLI or the web console. The README includes complete deployment commands.",
+    "orgNameLabel": "Organization Name",
+    "primaryRegion": "Primary Region",
+    "readmeBtn": "README Guide",
+    "security": "Security",
+    "securityServices": "Security Services",
+    "tfBtn": "Terraform (.tf)",
+    "vpcCidr": "VPC CIDR Block"
+  },
+  "language": {
+    "changing": "Changing language...",
+    "selector": "Language"
+  },
+  "matildaUploader": {
+    "clientNameRequired": "⚠️ Complete the client name in the form on the right to continue",
+    "description": "Upload the complete Matilda file. This file contains all the information needed for analysis.",
+    "dragOrClick": "Drag and drop your file here or click to select",
+    "fileLabel": "Matilda Excel File",
+    "fileTypes": "Excel files (.xlsx, .xls)",
+    "invalidFile": "Please select an Excel file (.xlsx or .xls)",
+    "networkError": "Could not connect to the server. If the Excel file is open, close it and try again.",
+    "processing": "Processing file...",
+    "storageIncrement": "Storage Increment (%)",
+    "storageIncrementHelper": "Additional percentage to add to recommended storage (optional)",
+    "success": "✓ File processed successfully",
+    "title": "Matilda Discovery Assessment",
+    "upload": "Upload and Process"
+  },
+  "mcpKeys": {
+    "headerLink": "MCP Access Keys"
+  },
+  "migrate": {
+    "groups": {
+      "migrate": "Migrate",
+      "modernize": "Modernize",
+      "optimize": "Optimize"
     },
-    "step4": {
-      "title": "Start analysis",
-      "description": "Click 'Complete Assessment' to start the AWS Bedrock analysis."
+    "report": {
+      "buttonDownload": "Download Report",
+      "buttonGenerate": "Generate Report",
+      "buttonGenerating": "Generating...",
+      "description": "Generate a complete Word document with all migration recommendations",
+      "successDescription": "Click download to get your Word document",
+      "successMessage": "Report generated successfully!",
+      "title": "Final Assessment Report"
+    },
+    "requirements": {
+      "mobilizePhase": "Complete Mobilize Phase",
+      "reportGeneration": "Generate final assessment report"
+    },
+    "tabs": {
+      "costOptimization": "Cost Optimization",
+      "ec2": "EC2 Recommendations",
+      "modernizationRoadmap": "Modernization Roadmap",
+      "rds": "RDS Recommendations",
+      "waves": "Migration Waves"
+    },
+    "title": "Migrate & Modernize Phase"
+  },
+  "migrationPlan": {
+    "csvExported": "Migration plan exported",
+    "csvExportedDesc": "The CSV file has been downloaded",
+    "strategyTitle": "Migration Strategy (7Rs)",
+    "wavesTitle": "Migration Waves Planning",
+    "wordGenerated": "Word report generated",
+    "wordGeneratedDesc": "The .doc file has been downloaded"
+  },
+  "migrationStrategyTable": {
+    "classifiedByOS": "Classified by OS",
+    "colCategory": "Category",
+    "colCount": "Count",
+    "colNotes": "Notes",
+    "colOS": "Operating System",
+    "colStrategy": "Strategy",
+    "colSupported": "Supported",
+    "footerLink": "View official documentation",
+    "footerNote": "Classification based on AWS Application Migration Service —",
+    "footerTitle": "Migration Categories:",
+    "legendGreen": "Rehost / Relocate",
+    "legendRed": "Replatform / Refactor — requires attention",
+    "legendYellow": "Retire / Retain / Repurchase",
+    "migrate": "Migrate: Move applications to the cloud (Rehost, Relocate, Replatform)",
+    "migrateLabel": "Migrate",
+    "modernize": "Modernize: Modernize and build applications (Refactor)",
+    "purchase": "Purchase: Optimize commercial terms (Repurchase, Retire, Retain)",
+    "purchaseDetail": "Retire: {{retire}} | Retain: {{retain}} | Repurchase: {{repurchase}}",
+    "purchaseLabel": "Purchase",
+    "rehostLbl": "Rehost: {{rehost}} | Replatform: {{replatform}}",
+    "title": "Migration Strategy by Operating System",
+    "totalServers": "Total Servers"
+  },
+  "migrationWaves": {
+    "addWave": "Add Wave",
+    "applicationCount": "Application Count",
+    "appsLabel": "apps",
+    "cancel": "Cancel",
+    "capacityDistribution": "Wave Capacity Distribution",
+    "createNew": "Create New Migration Wave",
+    "createWave": "Create Wave",
+    "description": "Plan your migration in phases",
+    "endDate": "End Date",
+    "noWaves": "No migration waves defined yet. Click \"Add Wave\" to create one.",
+    "serverCount": "Server Count",
+    "serversLabel": "servers",
+    "startDate": "Start Date",
+    "statuses": {
+      "blocked": "Blocked",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "planned": "Planned"
+    },
+    "strategy": "Strategy",
+    "strategyLabel": "Strategy",
+    "title": "Migration Waves Planning",
+    "waveLabel": "WAVE",
+    "waveName": "Wave Name"
+  },
+  "mobilize": {
+    "groups": {
+      "people": "People",
+      "platform": "Platform",
+      "portfolio": "Portfolio"
+    },
+    "requirements": {
+      "assessPhase": "Complete Assessment Phase",
+      "landingZoneItems": "Initialize Landing Zone configuration (check at least 1 item)",
+      "migrationWaves": "Define at least 1 migration wave"
+    },
+    "tabs": {
+      "architecture": "Architecture Diagram",
+      "businessCase": "Business Case",
+      "discoveryPlanning": "Discovery & Planning",
+      "landingZone": "Landing Zone",
+      "migrationPlan": "Migration Plan",
+      "security": "Security & Compliance",
+      "skills": "Skills & CoE"
+    },
+    "title": "Mobilize Phase"
+  },
+  "modernization": {
+    "benefits": {
+      "capabilities": {
+        "description": "Access to AI/ML, advanced analytics and next-generation services.",
+        "title": "New Capabilities"
+      },
+      "innovation": {
+        "description": "Faster development cycles with managed services and modern architectures.",
+        "title": "Innovation Speed"
+      },
+      "performance": {
+        "description": "Native AWS services designed to scale automatically on demand.",
+        "title": "Optimized Performance"
+      },
+      "title": "Key Modernization Benefits"
+    },
+    "description": "Structured plan to modernize your infrastructure leveraging native AWS services.",
+    "metrics": {
+      "availability": "Target availability",
+      "deploymentTime": "Deployment time reduction",
+      "opsCost": "Operational cost reduction",
+      "releaseFrequency": "Release frequency",
+      "title": "Expected Success Metrics"
+    },
+    "phase1": {
+      "init1": {
+        "description": "Migrate to Amazon RDS/Aurora to reduce operational overhead and improve availability.",
+        "title": "Database Optimization"
+      },
+      "init2": {
+        "description": "Automate deployment pipelines with AWS CodePipeline, CodeBuild and CodeDeploy.",
+        "title": "CI/CD Implementation"
+      },
+      "init3": {
+        "description": "Implement CloudWatch, X-Ray and AWS Config for full system visibility.",
+        "title": "Monitoring & Observability"
+      },
+      "title": "Phase 1: Cloud-Ready Foundations"
+    },
+    "phase2": {
+      "init1": {
+        "description": "Migrate monolithic applications to Docker containers for greater portability.",
+        "title": "Application Containerization"
+      },
+      "init2": {
+        "description": "Implement container orchestration for scalability and high availability.",
+        "title": "Orchestration with ECS/EKS"
+      },
+      "init3": {
+        "description": "Implement secure and observable communication between microservices.",
+        "title": "Service Mesh & Istio"
+      },
+      "title": "Phase 2: Containerization"
+    },
+    "phase3": {
+      "init1": {
+        "description": "Identify and extract bounded contexts to create independent microservices.",
+        "title": "Monolith Decomposition"
+      },
+      "init2": {
+        "description": "Implement asynchronous communication with Amazon SQS, SNS and EventBridge.",
+        "title": "Event-Driven Architecture"
+      },
+      "init3": {
+        "description": "Centralize API management with Amazon API Gateway and AWS AppSync.",
+        "title": "API Gateway & GraphQL"
+      },
+      "title": "Phase 3: Microservices Architecture"
+    },
+    "phase4": {
+      "init1": {
+        "description": "Migrate appropriate workloads to serverless architecture for maximum efficiency.",
+        "title": "Serverless with Lambda"
+      },
+      "init2": {
+        "description": "Incorporate Amazon SageMaker, Rekognition and Bedrock for AI capabilities.",
+        "title": "ML/AI Integration"
+      },
+      "init3": {
+        "description": "Implement modern data architecture with S3, Glue, Athena and QuickSight.",
+        "title": "Data Lake & Analytics"
+      },
+      "title": "Phase 4: Cloud-Native & AI"
+    },
+    "title": "Modernization Roadmap"
+  },
+  "mra": {
+    "description": "The MRA evaluates your organization's readiness across infrastructure complexity, team capabilities, and operational requirements to determine the optimal migration approach and timeline.",
+    "emptyDescription": "Upload your MPA data first to assess migration readiness.",
+    "emptyTitle": "Migration Readiness Assessment",
+    "title": "Migration Readiness Assessment"
+  },
+  "mraUploader": {
+    "clickText": "or click to select (max. 50MB)",
+    "dragText": "Drag your MRA PDF file here",
+    "infoNote": "The MRA improves analysis quality by providing context about architecture and risks. For an even more complete analysis, you can also upload the <strong>Infrastructure Questionnaire</strong> (optional) below.",
+    "pdfOnly": "PDF only",
+    "removeTitle": "Remove file",
+    "toastFileRemoved": "MRA file removed",
+    "toastFileSelected": "MRA file selected: {{name}}",
+    "toastFileTooLarge": "The PDF file is too large. Maximum 50MB.",
+    "toastInvalidType": "Only PDF files are allowed."
+  },
+  "nav": {
+    "assess": {
+      "label": "ASSESS",
+      "subtitle": "Build a business case"
+    },
+    "migrate": {
+      "label": "MIGRATE AND MODERNIZE",
+      "subtitle": "Execute the migration"
+    },
+    "mobilize": {
+      "label": "MOBILIZE",
+      "subtitle": "Prepare to migrate"
     }
   },
-  "opportunitiesFilters": {
-    "search": "Search opportunities...",
-    "searchPlaceholder": "Search opportunities...",
-    "filters": "Filters",
-    "status": "Status",
-    "arrRange": "ARR Range",
-    "minimum": "Minimum",
-    "maximum": "Maximum",
-    "unlimited": "Unlimited",
-    "noLimit": "No limit",
-    "showingCount": "Showing {{count}} opportunities",
-    "showing": "Showing {{count}} opportunities",
-    "clearFilters": "Clear filters",
-    "priority": {
-      "high": "High",
-      "medium": "Medium",
-      "low": "Low"
-    },
-    "priorityLabel": "Priority"
+  "networkTransferChart": {
+    "noteLabel": "Note: Transfer data represents outbound network traffic per server measured in GB/month during the assessment period. This is useful for estimating data transfer costs in AWS.",
+    "subtitle": "Showing the 10 servers with the highest outbound data transfer",
+    "title": "Top 10 Network Data Transfer",
+    "totalLabel": "Total monthly transfer:"
+  },
+  "opportunities": {
+    "analyzing": "Analyzing opportunities with AWS Bedrock...",
+    "analyzing_description": "This may take up to 5 minutes for large datasets. The system is processing data with AI.",
+    "completed": "Analysis completed!",
+    "error": "Error analyzing opportunities",
+    "failed": "The analysis failed",
+    "identified": "opportunities identified",
+    "polling": "Analysis in progress...",
+    "polling_description": "Checking status every 5 seconds. You can close this window and come back later.",
+    "polling_error": "Error checking analysis status",
+    "polling_error_description": "Failed {{count}} consecutive times. Please reload the page and try again.",
+    "retry": "Try again or contact support",
+    "title": "Sales Opportunities",
+    "viewDetails": "Go to the \"Sales Opportunities\" tab to see the details"
   },
   "opportunitiesCard": {
+    "categories": {
+      "costOptimization": "Cost Optimization",
+      "migration": "Migration",
+      "modernization": "Modernization",
+      "operationalExcellence": "Operational Excellence",
+      "other": "Other",
+      "performance": "Performance",
+      "performanceEfficiency": "Performance Efficiency",
+      "reliability": "Reliability",
+      "security": "Security",
+      "sustainability": "Sustainability",
+      "workshop": "Workshop"
+    },
+    "category": {
+      "costOptimization": "Cost Optimization",
+      "migration": "Migration",
+      "modernization": "Modernization",
+      "operationalExcellence": "Operational Excellence",
+      "other": "Other",
+      "performanceEfficiency": "Performance Efficiency",
+      "reliability": "Reliability",
+      "security": "Security",
+      "sustainability": "Sustainability",
+      "workshop": "Workshop"
+    },
     "relatedService": "related AWS service",
     "relatedServices": "{{count}} related AWS services",
     "status": {
-      "new": "New",
+      "discarded": "Discarded",
       "inProgress": "In Progress",
-      "won": "Won",
       "lost": "Lost",
-      "discarded": "Discarded"
+      "new": "New",
+      "won": "Won"
     },
     "statuses": {
-      "new": "New",
+      "discarded": "Discarded",
       "inProgress": "In Progress",
-      "won": "Won",
       "lost": "Lost",
-      "discarded": "Discarded"
-    },
-    "category": {
-      "workshop": "Workshop",
-      "security": "Security",
-      "costOptimization": "Cost Optimization",
-      "reliability": "Reliability",
-      "operationalExcellence": "Operational Excellence",
-      "performanceEfficiency": "Performance Efficiency",
-      "sustainability": "Sustainability",
-      "migration": "Migration",
-      "modernization": "Modernization",
-      "other": "Other"
-    },
-    "categories": {
-      "workshop": "Workshop",
-      "security": "Security",
-      "costOptimization": "Cost Optimization",
-      "reliability": "Reliability",
-      "performance": "Performance",
-      "operationalExcellence": "Operational Excellence",
-      "performanceEfficiency": "Performance Efficiency",
-      "sustainability": "Sustainability",
-      "migration": "Migration",
-      "modernization": "Modernization",
-      "other": "Other"
+      "new": "New",
+      "won": "Won"
     }
   },
-  "selector": {
-    "title": "MAP Tool Selector",
-    "description": "Answer 28 questions to get the ideal tool recommendation",
-    "clientName": "Client Name",
-    "clientNameLabel": "Client Name",
-    "clientNamePlaceholder": "E.g.: Acme Corp",
-    "startSelector": "Start Selector",
-    "startButton": "Start Selector",
-    "assessmentResult": "Assessment Result",
-    "clientLabel": "Client: {{name}}",
-    "recommendedTool": "Recommended Tool",
-    "confidence": "Confidence: {{confidence}} ({{percentage}}%)",
-    "toolComparison": "Visual Tool Comparison",
-    "score": "Score",
-    "scorePercent": "Score (%)",
-    "whyRecommendation": "Why this recommendation?",
-    "impactfulQuestions": "These questions had the most impact on the {{tool}} recommendation:",
-    "yourAnswer": "Your answer:",
-    "impact": "Impact:",
-    "allScores": "All Tools Scores",
-    "exportResults": "Export Results",
-    "exportPdf": "Export PDF",
-    "exportCsv": "Export CSV",
-    "close": "Close",
-    "stickyAssessment": "Assessment: {{name}}",
-    "stickyDescription": "Answer all questions to get your recommendation",
-    "answeredProgress": "{{answered}} / {{total}} answered",
-    "validationRequired": "You must answer all questions",
-    "validationMissing": "Missing {{count}} question{{count}} to answer",
-    "calculateRecommendation": "Calculate Recommendation",
-    "questionRequired": "This question is required",
-    "messages": {
-      "sessionCreated": "Session created successfully",
-      "pdfDownloadSuccess": "PDF downloaded successfully",
-      "csvDownloadSuccess": "CSV downloaded successfully",
-      "calculationSuccess": "Recommendation calculated successfully"
+  "opportunitiesDashboard": {
+    "aiAnalysis": "AI-Powered Opportunity Analysis",
+    "description": "To generate sales opportunities, complete the following steps:",
+    "error": "Error loading opportunities",
+    "errorUpdate": "Error updating status",
+    "loading": "Loading opportunities...",
+    "of": "of",
+    "opportunities": "opportunities",
+    "step1": {
+      "description": "Upload the Excel file exported from Migration Portfolio Assessment in the 'Rapid Discovery' tab.",
+      "title": "Load MPA data"
     },
-    "errors": {
-      "loadingQuestions": "Error loading questions",
-      "creatingSession": "Error creating session",
-      "invalidResponse": "Error: Invalid server response",
-      "invalidServerResponse": "Error: Invalid server response",
-      "invalidPdf": "Error: Invalid PDF generated",
-      "generatingPdf": "Error generating PDF",
-      "exportingPdf": "Error exporting PDF",
-      "generatingCsv": "Error generating CSV",
-      "exportingCsv": "Error exporting CSV",
-      "calculatingRecommendation": "Error calculating recommendation",
-      "calculating": "Error calculating recommendation",
-      "unansweredQuestions": "{{count}} questions still unanswered"
+    "step2": {
+      "description": "Enter the client name and annual on-premises cost.",
+      "title": "Client information"
     },
-    "toasts": {
-      "sessionCreated": "Session created successfully",
-      "pdfDownloaded": "PDF downloaded successfully",
-      "csvDownloaded": "CSV downloaded successfully",
-      "recommendationCalculated": "Recommendation calculated successfully"
+    "step2dot5": {
+      "description": "Upload the infrastructure questionnaire to enrich the AI analysis.",
+      "title": "Questionnaire (Optional)"
     },
-    "results": {
-      "title": "Assessment Result",
-      "client": "Client: {{name}}",
-      "recommendedTool": "Recommended Tool",
-      "confidence": "Confidence: {{confidence}} ({{percentage}}%)",
-      "toolComparison": "Visual Tool Comparison",
-      "score": "Score",
-      "tool": "Tool",
-      "scorePercentage": "Score (%)",
-      "whyRecommendation": "Why this recommendation?",
-      "decisiveFactorsText": "These questions had the most impact on the {{tool}} recommendation:",
-      "yourAnswer": "Your answer",
-      "impact": "Impact",
-      "allToolScores": "All Tools Scores",
-      "exportResults": "Export Results",
-      "exportPdf": "Export PDF",
-      "exportCsv": "Export CSV"
+    "step3": {
+      "description": "Upload the Migration Readiness Assessment PDF for additional analysis.",
+      "title": "MRA PDF (Optional)"
     },
-    "questionnaire": {
-      "title": "Assessment: {{name}}",
-      "description": "Answer all questions to get your recommendation",
-      "answered": "{{answered}} / {{total}} answered",
-      "requiredQuestion": "This question is required",
-      "mustAnswerAll": "You must answer all questions",
-      "unansweredCount": "{{count}} questions still unanswered",
-      "calculateButton": "Calculate Recommendation"
-    }
+    "step4": {
+      "description": "Click 'Complete Assessment' to start the AWS Bedrock analysis.",
+      "title": "Start analysis"
+    },
+    "tipMessage": "You can upload the infrastructure questionnaire to improve the quality of the analysis.",
+    "title": "Sales Opportunities"
   },
-  "techMemory": {
-    "title": "Technical Memory",
-    "subtitle": "AWS Migration — SoftwareOne",
-    "exportWord": "Export Word",
-    "tabs": {
-      "letter": "Cover Letter",
-      "client": "Client",
-      "services": "AWS Services",
-      "dictionary": "Dictionary",
-      "document": "Document",
-      "wellarch": "Well-Architected"
+  "opportunitiesFilters": {
+    "arrRange": "ARR Range",
+    "clearFilters": "Clear filters",
+    "filters": "Filters",
+    "maximum": "Maximum",
+    "minimum": "Minimum",
+    "noLimit": "No limit",
+    "priority": {
+      "high": "High",
+      "low": "Low",
+      "medium": "Medium"
     },
-    "letter": {
-      "title": "Letter Data",
-      "subtitle": "All fields are editable. Date is auto-generated if not modified.",
-      "date": "Letter Date",
-      "itTeam": "Recipient IT Team",
-      "consultorName": "Consultant Name (SoftwareOne)",
-      "signature": "Title / Signature",
-      "email": "Consultant Email"
-    },
-    "client": {
-      "title": "Client Information",
-      "subtitle": "Basic data that will appear in the document header",
-      "name": "Client Name",
-      "industry": "Industry / Vertical",
-      "country": "Country",
-      "website": "Website (optional)",
-      "searchWeb": "Search web",
-      "searching": "Searching...",
-      "autoExtract": "Mission and vision will be automatically extracted from the client website.",
-      "mission": "Mission",
-      "vision": "Vision",
-      "about": "About the Company"
-    },
-    "services": {
-      "title": "Search AWS Service",
-      "subtitle": "Search official AWS documentation and add to document",
-      "searchByName": "Search by AWS service name",
-      "searchPlaceholder": "e.g. Amazon S3, AWS Lambda, Amazon RDS...",
-      "searchBtn": "Search AWS",
-      "searching": "Searching...",
-      "searchByUrl": "Or paste a URL and extract automatically",
-      "urlPlaceholder": "e.g. https://aws.amazon.com/s3/ or any documentation URL...",
-      "extractBtn": "Extract from URL",
-      "extracting": "Extracting...",
-      "noServices": "No services added",
-      "noServicesHint": "Search an AWS service to start",
-      "description": "Description (editable)",
-      "whyUsed": "Why is this service used in the project? *",
-      "whyUsedPlaceholder": "Describe the technical justification for this service in the project context...",
-      "advantages": "Advantages",
-      "disadvantages": "Disadvantages",
-      "addAdvantage": "Add advantage",
-      "addDisadvantage": "Add disadvantage",
-      "source": "Source"
-    },
-    "dictionary": {
-      "title": "Add Term to Dictionary",
-      "subtitle": "Selected terms are automatically included in the Word as Glossary",
-      "term": "Term *",
-      "termPlaceholder": "e.g. Kubernetes",
-      "category": "Category",
-      "categoryPlaceholder": "e.g. Technologies",
-      "definition": "Definition *",
-      "definitionPlaceholder": "Term definition...",
-      "addBtn": "Add",
-      "filterPlaceholder": "Filter terms...",
-      "selectedCount": "{{count}} selected → Word",
-      "clickHint": "Click any term to select/deselect it. Selected terms will appear in the 'Glossary' section of the exported Word document."
-    },
-    "document": {
-      "introduction": "Introduction",
-      "introHint": "Describe the project context, objectives and scope. Use [COMPANY_NAME], [CONSULTANT], [EMAIL] as markers.",
-      "infraSummary": "Infrastructure Summary",
-      "infraHint": "Describe the implemented architecture, environments, VPCs and key components.",
-      "conclusions": "Conclusions",
-      "conclusionsHint": "Summarize achievements, benefits obtained and final recommendations."
-    },
-    "wellarch": {
-      "hint": "Edit recommendations by pillar. All will be included in the exported Word document.",
-      "recommendations": "{{count}} recommendations",
-      "addRecommendation": "Add recommendation"
-    },
-    "toasts": {
-      "logoLoadError": "Could not load SoftwareOne logo",
-      "logoLoadFailed": "Error loading SoftwareOne logo",
-      "enterClientUrl": "Enter the client URL",
-      "searchingCompanyInfo": "Searching company information...",
-      "companyInfoObtained": "Company information obtained",
-      "couldNotObtainInfo": "Could not obtain the information",
-      "serverConnectionError": "Error connecting to server",
-      "enterAwsServiceName": "Enter the AWS service name",
-      "serviceAlreadyAdded": "This service has already been added",
-      "searchingAwsService": "Searching {{service}} in AWS...",
-      "serviceAdded": "{{title}} added to the document and dictionary",
-      "serviceNotFound": "Service not found",
-      "errorSearchingService": "Error searching AWS service",
-      "enterUrl": "Enter a URL",
-      "extractingFromUrl": "Extracting information from URL...",
-      "serviceAddedFromUrl": "\"{{title}}\" added from URL",
-      "couldNotExtractInfo": "Could not extract information",
-      "enterTermAndDefinition": "Enter the term and definition",
-      "termAdded": "\"{{term}}\" added to dictionary",
-      "completeProjectAndClient": "Complete the project and client name before exporting",
-      "documentWordGenerated": "Word document generated successfully"
-    }
+    "priorityLabel": "Priority",
+    "search": "Search opportunities...",
+    "searchPlaceholder": "Search opportunities...",
+    "showing": "Showing {{count}} opportunities",
+    "showingCount": "Showing {{count}} opportunities",
+    "status": "Status",
+    "unlimited": "Unlimited"
   },
-  "applicationTable": {
-    "title": "Applications ({{count}})",
-    "filterByEnvironment": "Filter by environment",
-    "allEnvironments": "All Environments",
-    "appName": "Application Name",
-    "type": "Type",
-    "totalConnections": "Total Connections",
-    "inbound": "Inbound",
-    "outbound": "Outbound",
-    "environment": "Environment",
-    "noApps": "No applications found for the selected environment",
-    "scrollHint": "Scroll inside the table — headers stay pinned."
+  "opportunitiesList": {
+    "empty": "No opportunities found",
+    "emptyHint": "Try adjusting the search filters",
+    "opportunities": "opportunities",
+    "opportunity": "opportunity"
   },
-  "appDependencyMap": {
-    "noDataToExport": "No data to export",
-    "generatingTablePdf": "Generating table PDF...",
-    "tablePdfGenerated": "PDF generated",
-    "errorGeneratingTablePdf": "Error generating PDF",
-    "generatingTableWord": "Generating table Word...",
-    "tableWordGenerated": "Word generated",
-    "errorGeneratingTableWord": "Error generating Word",
-    "graphNotAvailable": "Graph is not available",
-    "generatingGraphPdf": "Generating graph PDF...",
-    "graphPdfGenerated": "Graph PDF generated",
-    "errorGeneratingGraphPdf": "Error generating PDF",
-    "generatingGraphWord": "Generating graph Word...",
-    "graphWordGenerated": "Graph Word generated",
-    "errorGeneratingGraphWord": "Error generating Word",
-    "noDependencies": "No application dependencies",
-    "noDataToChart": "No data to chart"
+  "opportunityDetail": {
+    "created": "Created",
+    "estimatedArr": "Estimated ARR",
+    "evidence": "Analysis Evidence",
+    "nextSteps": "Next Steps",
+    "opportunityStatus": "Opportunity Status",
+    "priority": "Priority",
+    "reasoning": "Reasoning",
+    "relatedServices": "Related AWS Services",
+    "talkingPoints": "Talking Points",
+    "updated": "Updated"
   },
-  "dependencyGraph": {
-    "noGraphToExport": "No graph to export",
-    "generatingPdf": "Generating graph PDF...",
-    "pdfGenerated": "PDF generated successfully",
-    "errorGeneratingPdf": "Error generating PDF",
-    "generatingWord": "Generating Word document...",
-    "wordGenerated": "Word document generated",
-    "errorGeneratingWord": "Error generating document",
-    "enterSearchTerm": "Enter a search term",
-    "serverNotFound": "No server found with that name",
-    "serverFound": "Server found: {{server}}",
-    "searchError": "Search error",
-    "noDataToExport": "No data to export",
-    "generatingSrvPdf": "Generating PDF...",
-    "srvPdfGenerated": "PDF generated",
-    "errorGeneratingSrvPdf": "Error generating PDF",
-    "generatingSrvWord": "Generating Word...",
-    "srvWordGenerated": "Word generated",
-    "errorGeneratingSrvWord": "Error generating Word",
-    "noDependencyData": "No dependency data available",
-    "searching": "Searching...",
-    "search": "Search"
-  },
-  "app": {
-    "generatingReport": "Generating Word report...",
-    "reportGenerated": "Report generated successfully",
-    "reportReadyToDownload": "The report is ready to download",
-    "errorGeneratingReport": "Error generating report"
-  },
-  "wavePlanner": {
-    "wavesReassigned": "Waves automatically reassigned",
-    "excelEmpty": "The Excel file is empty",
-    "columnsNotFound": "Required columns not found",
-    "noValidServers": "No valid servers found",
-    "fileLoaded": "File loaded successfully",
-    "errorProcessing": "Error processing the file",
-    "errorReading": "Error reading the file",
-    "pdfGenerated": "PDF generated",
-    "pdfDesc": "Open the file and use Ctrl+P to print as PDF",
-    "wordGenerated": "Word generated",
-    "wordDesc": "The .doc file has been downloaded correctly",
-    "serverMoved": "{{server}} → {{wave}}"
-  },
-  "businessCaseUploader": {
-    "successLoaded": "{{client}} - {{source}} loaded: {{servers}} servers",
-    "title": "Ondemand AS-IS",
-    "supportedFiles": "Supported files: Cloudamize, Concierto, Matilda",
-    "networkError": "Could not process the file. If it is open in Excel, close it and try again.",
-    "uploadError": "Error loading file: {{message}}"
-  },
-  "tco1Year": {
-    "confirmStorageFirst": "Please confirm the Storage increment percentage",
-    "confirmStorageDesc": "You must enter and confirm the percentage before uploading the file",
-    "enterIncrement": "Please enter an increment percentage",
-    "enterIncrementDesc": "You can enter 0 for no increment",
-    "invalidPercent": "Invalid percentage",
-    "invalidPercentDesc": "Must be a number between 0 and 100",
-    "recalculating": "Recalculating with new percentage...",
-    "percentConfirmed": "Percentage confirmed: {{value}}%",
-    "successLoaded": "TCO 1 Year loaded: {{resources}} resources (Storage +{{increment}}%)"
-  },
-  "exportButton": {
-    "exported": "Playbook exported successfully: {{filename}}",
-    "errorExporting": "Error exporting playbook",
-    "exporting": "Exporting...",
-    "exportPlaybook": "Export Playbook"
+  "phaseComplete": {
+    "button": "Complete {{phase}}",
+    "completed": "{{phaseLabel}} Completed",
+    "requirements": "Requirements to complete this phase:"
   },
   "phaseNavigator": {
     "assess": {
       "label": "ASSESS",
       "subtitle": "Build a case for change"
     },
-    "mobilize": {
-      "label": "MOBILIZE",
-      "subtitle": "Build readiness through experiences"
-    },
     "migrate": {
       "label": "MIGRATE & MODERNIZE",
       "subtitle": "Accelerate transformation at scale"
+    },
+    "mobilize": {
+      "label": "MOBILIZE",
+      "subtitle": "Build readiness through experiences"
     },
     "techMemory": {
       "label": "TECHNICAL MEMORY",
       "subtitle": "AWS technical documentation with APA standards"
     }
   },
-  "executiveSummary": {
-    "subtitle": "AWS Migration Business Case",
-    "annualCostReduction": "Annual Cost Reduction",
-    "perYear": "/year",
-    "roi3Year": "3-Year ROI",
-    "paybackPeriod": "Payback Period",
-    "months": "months",
-    "tcoSavings3Year": "3-Year TCO Savings",
-    "vsOnPremises": "vs. On-Premises",
-    "infrastructure": "Infrastructure",
-    "serversToMigrate": "Servers to migrate",
-    "annualOnPremises": "Annual On-Premises",
-    "currentCost": "Current cost",
-    "awsAnnual3ANURI": "AWS Annual (3Y NURI)",
-    "optimizedCost": "Optimized cost",
-    "inventoryTitle": "Infrastructure Inventory",
-    "servers": "Servers",
-    "databases": "Databases",
-    "applications": "Applications",
-    "totalStorageGB": "Total Storage (GB)",
-    "osDistribution": "OS Distribution",
-    "dependenciesTitle": "Dependency Complexity",
-    "connections": "Connections",
-    "mappedDBs": "Mapped DBs",
-    "mappedApps": "Mapped Apps",
-    "topServersByDeps": "Top servers by dependencies",
-    "connectionsSuffix": "connections",
-    "wavesPlanTitle": "Migration Wave Plan",
-    "wavesDefined": "Waves defined",
-    "serversPlanned": "Servers planned",
-    "wavesCompleted": "Waves completed",
-    "pricingComparisonTitle": "AWS Pricing Comparison",
-    "savingsPerYear": "Save {{amount}}/year",
-    "perMonth": "/mo",
-    "perYearShort": "/yr",
-    "riskTitle": "Risk Indicators — EOL Operating Systems",
-    "serverEOL_one": "server with EOL OS",
-    "serverEOL_other": "servers with EOL OS",
-    "riskHigh": "⚠️ High risk — requires immediate attention",
-    "riskMedium": "⚠️ Medium risk — plan priority migration",
-    "riskLow": "ℹ️ Low risk — include in migration plan",
-    "continueToMobilize": "Continue to Mobilize",
-    "savingsApprox36": "~36% savings",
-    "bestValue": "BEST VALUE",
-    "serverEOL": "{{count}} servers with end-of-life OS"
+  "phases": {
+    "assess": {
+      "description": "Assess the current state of the infrastructure",
+      "name": "ASSESS",
+      "subtitle": "Build a business case"
+    },
+    "migrate": {
+      "description": "Execute the migration and modernization to AWS",
+      "name": "MIGRATE AND MODERNIZE",
+      "subtitle": "Execute the migration"
+    },
+    "mobilize": {
+      "description": "Prepare the team and infrastructure for migration",
+      "name": "MOBILIZE",
+      "subtitle": "Prepare to migrate"
+    },
+    "status": {
+      "completed": "Completed",
+      "in_progress": "In progress",
+      "not_started": "Not started"
+    }
   },
-  "uploader": {
-    "dragActive": "Drop the file here",
-    "dragInactive": "Drag and drop the Excel file here",
-    "clickSelect": "or click to select file (.xlsx, .xls)",
-    "clickSelectSimple": "or click to select",
-    "success": "File uploaded successfully",
-    "failed": "Upload Failed",
-    "retryHint": "Click to try again",
-    "replaceHint": "Drag another file to replace",
-    "retryHint2": "Drag another file to try again",
-    "uploading": "Uploading file...",
-    "preparing": "Preparing upload...",
-    "uploadingS3": "Uploading to S3...",
-    "analyzing": "Analyzing data...",
-    "processing": "Processing file..."
+  "questionnaireUploader": {
+    "dragText": "Drag your Word file here or click to select (max. 50MB)",
+    "infoNote": "The questionnaire improves analysis quality by providing context about client priorities, constraints and objectives. Sensitive data is automatically anonymized.",
+    "optional": "OPTIONAL",
+    "removeTitle": "Remove file",
+    "title": "Infrastructure Questionnaire",
+    "toastFileRemoved": "Questionnaire removed",
+    "toastFileSelected": "Questionnaire selected: {{name}}",
+    "toastFileTooLarge": "The Word file is too large. Maximum 50MB.",
+    "toastInvalidType": "Only Word files (.docx or .doc) are allowed.",
+    "wordOnly": "Word (.docx, .doc)"
   },
-  "businessCaseModule": {
-    "title": "Business Case",
-    "description": "Cost and benefit analysis for AWS migration",
-    "dataLoaded": "Data loaded ({{servers}} servers, {{os}} operating systems)",
-    "tco1YearLoaded": "TCO 1 Year loaded ({{resources}} resources)",
-    "clientStatus": "Client: {{name}}",
-    "assessmentToolLabel": "Assessment Tool *",
-    "assessmentToolDesc": "Select the tool used for the assessment (required)",
-    "selectTool": "Select tool",
-    "selectToolWarning": "⚠️ You must select a tool before continuing",
-    "dataUploadSection": "Data Upload",
-    "clientInfoSection": "Client Information",
-    "totalServers": "Total Servers",
-    "production": "Production",
-    "development": "Development",
-    "qa": "QA",
-    "osDistribution": "OS Distribution",
-    "resourceOptimization": "Resource Optimization",
-    "tco": "TCO",
-    "ec2CostsTitle": "Annual AWS Costs - EC2 (USD)",
-    "ec2ChartTitle": "Annual EC2 Cost in USD (ARR)",
-    "annualCostTitle": "Annual Cost in USD (ARR)",
-    "includeRDS": "Include scenario with RDS (databases)",
-    "tcoRDS": "TCO - RDS",
-    "rdsCostsTitle": "Annual AWS Costs - RDS (USD)",
-    "rdsChartTitle": "Annual RDS Cost in USD (ARR)",
-    "carbonReport": "Carbon Report",
-    "migrationStrategy": "Migration Strategy",
-    "annexes": "Annexes",
-    "annexesDesc": "Additional information and complementary analysis",
-    "sqlLicensing": "SQL Server Licensing Optimization",
-    "instanceTypes": "Instance Types",
-    "networkTransfer": "Network Data Transfer",
-    "supportRisk": "Support Risk",
-    "noDataLoaded": "No data loaded",
-    "noDataInstruction": "Upload an Excel file from {{tool}} to start the analysis"
+  "rapidDiscovery": {
+    "client": "Client:",
+    "clientAdded": "Client: {{name}}",
+    "clientInfo": "Client Information",
+    "dataLoaded": "Excel data loaded",
+    "description": "Load your infrastructure data and client information to start the migration analysis.",
+    "excelLoaded": "{{servers}} servers, {{databases}} databases loaded",
+    "forAiAnalysis": "For AI analysis",
+    "improvesAnalysis": "Improves analysis",
+    "infrastructureQuestionnaire": "Infrastructure Questionnaire",
+    "mpaExcelUpload": "MPA Excel Upload",
+    "mpaUpload": "MPA Excel Upload",
+    "mraDescription": "For AI-powered opportunity analysis",
+    "mraLoaded": "MRA: {{name}}",
+    "mraPdfUpload": "MRA PDF Upload",
+    "mraUpload": "MRA PDF Upload (Optional)",
+    "pdfLoaded": "MRA PDF loaded",
+    "questionnaireLoaded": "Questionnaire loaded",
+    "questionnaireUpload": "Infrastructure Questionnaire (Optional)",
+    "title": "Rapid Discovery"
   },
-  "businessCaseClientForm": {
-    "title": "Client Information",
-    "clientName": "Client Name *",
-    "clientNamePlaceholder": "Enter client name",
-    "vertical": "Vertical/Industry",
-    "selectIndustry": "Select industry",
-    "reportDate": "Report Date",
+  "rds": {
+    "description": "Database migration recommendations",
+    "noDatabases": "No database data available",
+    "noDatabasesDescription": "Upload your MPA Excel file in the Assess phase",
+    "recommendationTitle": "Database Migration Recommendations ({{count}} databases)",
+    "title": "RDS Recommendations"
+  },
+  "readiness": {
+    "autoBadge": "auto",
+    "dimensions": {
+      "data": "Data",
+      "dataDesc": "Data inventory, classification, and migration strategy.",
+      "organizational": "Organizational",
+      "organizationalDesc": "Sponsorship, operating model, skills, and funding.",
+      "security": "Security & Compliance",
+      "securityDesc": "Guardrails, identity, data protection, and regulatory readiness.",
+      "technical": "Technical",
+      "technicalDesc": "Infrastructure supportability and data quality."
+    },
+    "gaps": {
+      "empty": "No gaps detected — ready to proceed.",
+      "title": "Top gaps to close"
+    },
+    "levels": {
+      "evaluating": "Evaluating — gaps remain",
+      "not_ready": "Not ready — critical gaps",
+      "ready": "Ready to migrate"
+    },
+    "overall": "Overall Readiness"
+  },
+  "report": {
     "awsRegion": "AWS Region",
-    "selectRegion": "Select region",
-    "totalServers": "Total Servers in Scope",
-    "totalServersPlaceholder": "E.g.: 100",
-    "onPremisesCost": "On-Premises Cost (USD/year)",
-    "onPremisesCostPlaceholder": "E.g.: 1,500,000.00",
+    "clientName": "Client Name",
+    "clientNamePlaceholder": "Enter client name",
     "companyDescription": "Company Description",
-    "companyDescPlaceholder": "Brief description of the company and their infrastructure...",
-    "priorities": "Client Priorities",
-    "assessmentTool": "Assessment Tool *",
-    "selectTool": "Select tool",
+    "download": "Download Report",
+    "error": "Error generating report",
+    "generate": "Generate Word Report",
+    "generated": "Report generated successfully",
+    "generating": "Generating Word report...",
     "migrationReadiness": "Migration Readiness",
-    "selectReadiness": "Select readiness status",
-    "otherToolName": "Tool Name *",
-    "otherToolPlaceholder": "Specify the tool",
-    "priority_reduced_costs": "Reduced infrastructure costs",
-    "priority_operational_resilience": "Improve operational resilience",
-    "priority_business_agility": "Business agility",
-    "priority_environment_updated": "Environment always updated",
-    "priority_modernize_databases": "Modernize Database workloads",
-    "priority_security_compliance": "Security compliance",
-    "readiness_ready": "Ready to migrate",
-    "readiness_evaluating": "Evaluating",
-    "readiness_not_ready": "Not ready yet"
+    "onPremisesCost": "On-Premises Cost",
+    "reportDate": "Report Date",
+    "totalServers": "Total Servers",
+    "vertical": "Vertical"
   },
-  "tco1YearUploader": {
-    "title": "TCO 1 Year",
-    "storageIncrementLabel": "Storage Increment (%) *",
-    "storageIncrementPlaceholder": "E.g.: 20 or 0 for no increment",
-    "confirm": "Confirm",
-    "change": "Change",
-    "percentConfirmed": "✓ Percentage confirmed: {{value}}%",
-    "noIncrement": "(no increment)",
-    "confirmFirst": "Enter the percentage and confirm before uploading the file",
-    "confirmWarning": "⚠️ You must confirm the increment percentage before uploading the file",
-    "sheetInfo": "TCO 1 Year file with sheets: Compute, Storage, Network"
+  "resourceOptimizationTable": {
+    "avgOptimization": "Average Optimization:",
+    "colObserved": "Observed",
+    "colOptPct": "% Optimization",
+    "colRecommended": "Recommended",
+    "colResource": "Resource",
+    "obs1": "• RAM, Storage, and Network resources are shown in GB.",
+    "obs2": "• Recommendations are based on 1-year optimization.",
+    "obs3": "• Network information considers the total data transferred by servers during the assessment period.",
+    "obsTitle": "Observations:",
+    "subDev": "Dev",
+    "subProd": "Prod",
+    "subQA": "QA",
+    "subTotal": "Total",
+    "title": "Resource Optimization"
   },
-  "carbonReportUploader": {
-    "title": "Carbon Report",
-    "errorTitle": "Error processing file",
-    "fileInfo": "Excel file with carbon data (.xlsx)",
-    "dataLoaded": "✓ Carbon data loaded successfully"
+  "riskRules": {
+    "addRule": "Add rule",
+    "category": "Category",
+    "configurable": "Configurable rules",
+    "empty": "No risks detected with the active rules.",
+    "label": "Label",
+    "newRule": "New rule",
+    "pattern": "Pattern (regex)",
+    "reset": "Reset",
+    "rulesBtn": "Rules",
+    "severity": {
+      "high": "high",
+      "low": "low",
+      "medium": "medium"
+    },
+    "severityCount": {
+      "high": "{{count}} high",
+      "low": "{{count}} low",
+      "medium": "{{count}} medium"
+    },
+    "severityLabel": "Severity",
+    "title": "Detected risks"
   },
-  "matildaUploader": {
-    "title": "Matilda Discovery Assessment",
-    "description": "Upload the complete Matilda file. This file contains all the information needed for analysis.",
-    "fileLabel": "Matilda Excel File",
-    "dragOrClick": "Drag and drop your file here or click to select",
-    "fileTypes": "Excel files (.xlsx, .xls)",
-    "storageIncrement": "Storage Increment (%)",
-    "storageIncrementHelper": "Additional percentage to add to recommended storage (optional)",
-    "upload": "Upload and Process",
-    "processing": "Processing file...",
-    "clientNameRequired": "⚠️ Complete the client name in the form on the right to continue",
-    "success": "✓ File processed successfully",
-    "invalidFile": "Please select an Excel file (.xlsx or .xls)",
-    "networkError": "Could not connect to the server. If the Excel file is open, close it and try again."
+  "securityCompliance": {
+    "compliance": "Compliance",
+    "dataProtection": "Data Protection",
+    "description": "Establish a robust security posture and compliance framework before migrating sensitive workloads. These controls are essential for meeting regulatory requirements and protecting your data.",
+    "identityAccess": "Identity & Access Management",
+    "incidentResponse": "Incident Response",
+    "networkSecurity": "Network Security",
+    "title": "Security & Compliance Framework"
   },
-  "tcoCostInput": {
-    "defaultTitle": "Annual AWS Costs (USD)",
-    "onDemandLabel": "OnDemand (Optimized As-Is) *",
-    "onDemandPlaceholder": "E.g.: 774,346.80",
-    "onDemandHelper": "Annual OnDemand cost optimized from the AWS calculator",
-    "oneYearLabel": "1-Year Optimized (NUSP) *",
-    "oneYearPlaceholder": "E.g.: 732,272.88",
-    "oneYearHelper": "Annual cost with 1-year Saving Plan (No Upfront)",
-    "threeYearLabel": "3-Year Optimized (NUSP) *",
-    "threeYearPlaceholder": "E.g.: 693,749.88",
-    "threeYearHelper": "Annual cost with 3-year Saving Plan (No Upfront)",
-    "note": "Note: These values are obtained from the AWS calculator provided by the SWO team.",
-    "csvUpload": "Load CSV",
-    "csvLoaded": "Loaded",
-    "csvInvalid": "Invalid format"
+  "selector": {
+    "allScores": "All Tools Scores",
+    "answeredProgress": "{{answered}} / {{total}} answered",
+    "assessmentResult": "Assessment Result",
+    "calculateRecommendation": "Calculate Recommendation",
+    "clientLabel": "Client: {{name}}",
+    "clientName": "Client Name",
+    "clientNameLabel": "Client Name",
+    "clientNamePlaceholder": "E.g.: Acme Corp",
+    "close": "Close",
+    "confidence": "Confidence: {{confidence}} ({{percentage}}%)",
+    "description": "Answer 28 questions to get the ideal tool recommendation",
+    "errors": {
+      "calculating": "Error calculating recommendation",
+      "calculatingRecommendation": "Error calculating recommendation",
+      "creatingSession": "Error creating session",
+      "exportingCsv": "Error exporting CSV",
+      "exportingPdf": "Error exporting PDF",
+      "generatingCsv": "Error generating CSV",
+      "generatingPdf": "Error generating PDF",
+      "invalidPdf": "Error: Invalid PDF generated",
+      "invalidResponse": "Error: Invalid server response",
+      "invalidServerResponse": "Error: Invalid server response",
+      "loadingQuestions": "Error loading questions",
+      "unansweredQuestions": "{{count}} questions still unanswered"
+    },
+    "exportCsv": "Export CSV",
+    "exportPdf": "Export PDF",
+    "exportResults": "Export Results",
+    "impact": "Impact:",
+    "impactfulQuestions": "These questions had the most impact on the {{tool}} recommendation:",
+    "messages": {
+      "calculationSuccess": "Recommendation calculated successfully",
+      "csvDownloadSuccess": "CSV downloaded successfully",
+      "pdfDownloadSuccess": "PDF downloaded successfully",
+      "sessionCreated": "Session created successfully"
+    },
+    "questionRequired": "This question is required",
+    "questionnaire": {
+      "answered": "{{answered}} / {{total}} answered",
+      "calculateButton": "Calculate Recommendation",
+      "description": "Answer all questions to get your recommendation",
+      "mustAnswerAll": "You must answer all questions",
+      "requiredQuestion": "This question is required",
+      "title": "Assessment: {{name}}",
+      "unansweredCount": "{{count}} questions still unanswered"
+    },
+    "recommendedTool": "Recommended Tool",
+    "results": {
+      "allToolScores": "All Tools Scores",
+      "client": "Client: {{name}}",
+      "confidence": "Confidence: {{confidence}} ({{percentage}}%)",
+      "decisiveFactorsText": "These questions had the most impact on the {{tool}} recommendation:",
+      "exportCsv": "Export CSV",
+      "exportPdf": "Export PDF",
+      "exportResults": "Export Results",
+      "impact": "Impact",
+      "recommendedTool": "Recommended Tool",
+      "score": "Score",
+      "scorePercentage": "Score (%)",
+      "title": "Assessment Result",
+      "tool": "Tool",
+      "toolComparison": "Visual Tool Comparison",
+      "whyRecommendation": "Why this recommendation?",
+      "yourAnswer": "Your answer"
+    },
+    "score": "Score",
+    "scorePercent": "Score (%)",
+    "startButton": "Start Selector",
+    "startSelector": "Start Selector",
+    "stickyAssessment": "Assessment: {{name}}",
+    "stickyDescription": "Answer all questions to get your recommendation",
+    "title": "MAP Tool Selector",
+    "toasts": {
+      "csvDownloaded": "CSV downloaded successfully",
+      "pdfDownloaded": "PDF downloaded successfully",
+      "recommendationCalculated": "Recommendation calculated successfully",
+      "sessionCreated": "Session created successfully"
+    },
+    "toolComparison": "Visual Tool Comparison",
+    "validationMissing": "Missing {{count}} question{{count}} to answer",
+    "validationRequired": "You must answer all questions",
+    "whyRecommendation": "Why this recommendation?",
+    "yourAnswer": "Your answer:"
   },
-  "tcoChart": {
-    "defaultTitle": "Annual Cost in USD (ARR)",
-    "onPremises": "On-Premises",
-    "onDemand": "Ondemand (Optimized As-Is)",
-    "oneYear": "1-Year Optimized",
-    "threeYear": "3-Year Optimized",
-    "best": "★ BEST",
-    "annualCost": "ANNUAL COST",
-    "bestSavings": "BEST SAVINGS",
-    "secondSavings": "2ND SAVINGS",
-    "thirdSavings": "3RD SAVINGS",
-    "noteUSD": "All prices are in USD",
-    "noteNUSP": "NUSP = No Upfront Saving Plan",
-    "noteAnnual": "All projected costs are annual"
+  "servers": {
+    "avgCpu": "Avg CPU %",
+    "avgRam": "Avg RAM %",
+    "count": "{{count}} servers",
+    "estimatedCost": "Est. Cost",
+    "hostname": "Hostname",
+    "os": "Operating System",
+    "ram": "RAM (GB)",
+    "recommendation": "Recommended Instance",
+    "recommended": "Recommended",
+    "showingCount": "Showing {{shown}} of {{total}} servers",
+    "storage": "Storage (GB)",
+    "title": "Servers",
+    "titleWithCount": "Servers ({{count}})",
+    "vcpus": "vCPUs"
+  },
+  "sessionMenu": {
+    "ariaLabel": "Session menu",
+    "clear": "Delete saved session",
+    "cleared": "Local session deleted",
+    "cloudEmpty": "No cloud session to restore",
+    "cloudError": "Cloud sync failed",
+    "cloudRestore": "Restore from cloud",
+    "cloudRestoreHint": "Pull the latest synced session",
+    "cloudRestored": "Cloud session restored ({{date}})",
+    "cloudSave": "Save to cloud",
+    "cloudSaveHint": "Sync this session to the server",
+    "cloudSaved": "Session synced to cloud",
+    "export": "Export to file",
+    "exportHint": "JSON with auxiliaries",
+    "exported": "Session exported to JSON",
+    "import": "Import from file",
+    "importError": "Error importing session",
+    "importHint": "Session JSON",
+    "imported": "Session imported successfully",
+    "noSession": "No saved session",
+    "restore": "Restore last session",
+    "restoreHintEmpty": "No saved session",
+    "restoreHintSaved": "Saved {{date}}",
+    "restored": "Session restored ({{date}})",
+    "saveLocal": "Save in this browser",
+    "saveLocalHint": "localStorage",
+    "saved": "Session saved locally",
+    "trigger": "Session"
+  },
+  "sevenRsChart": {
+    "clickDetails": "Click to see details →",
+    "colHostname": "Hostname",
+    "colStorage": "Storage (GB)",
+    "costReduction": "Cost Reduction",
+    "costReductionDesc": "Decommission to reduce costs",
+    "optimizationDesc": "Modernization candidates",
+    "optimizationPotential": "Optimization Potential",
+    "quickWins": "Quick Wins",
+    "quickWinsDesc": "Rehost servers for immediate migration",
+    "recommendationsTitle": "Strategic Recommendations"
+  },
+  "skillsCoE": {
+    "avgSkillGap": "Avg Skill Gap",
+    "criticalGaps": "Critical Gaps (≥50%)",
+    "current": "Current",
+    "description": "Assess your team's current AWS proficiency and create targeted training plans to build internal expertise. A strong Center of Excellence accelerates migration and reduces reliance on external consultants.",
+    "levels": {
+      "advanced": "Advanced",
+      "basic": "Basic",
+      "expert": "Expert",
+      "intermediate": "Intermediate",
+      "none": "None"
+    },
+    "skillAreasTracked": "Skill Areas Tracked",
+    "skillGap": "Skill Gap",
+    "target": "Target",
+    "teamSkillAssessment": "Team Skill Assessment",
+    "title": "AWS Skills Assessment & Center of Excellence"
   },
   "sqlLicensingTable": {
-    "title": "SQL Server Licensing Optimization",
-    "restoreBtn": "Restore Official Prices",
-    "serverSummaryTitle": "SQL Server Summary",
-    "totalSQLServers": "Total SQL Servers",
+    "colEdition": "SQL Edition",
+    "colListPrice": "List Price (USD/2 cores)",
+    "colObservedCost": "Observed Cost",
+    "colObservedVCPU": "Observed vCPUs",
+    "colOptimPct": "% Optimization",
+    "colRecommendedCost": "Recommended Cost",
+    "colRecommendedVCPU": "Recommended vCPUs",
+    "colSavings": "Savings",
+    "colSavingsPct": "% Savings",
     "developerEdition": "Developer Edition",
     "expressEdition": "Express Edition",
     "free": "(Free)",
-    "observedCost": "Observed Cost",
-    "recommendedCost": "Recommended Cost",
-    "totalSavings": "Total Savings",
-    "savingsLabel": "{{pct}} savings",
-    "colEdition": "SQL Edition",
-    "colObservedVCPU": "Observed vCPUs",
-    "colRecommendedVCPU": "Recommended vCPUs",
-    "colOptimPct": "% Optimization",
-    "colListPrice": "List Price (USD/2 cores)",
-    "colObservedCost": "Observed Cost",
-    "colRecommendedCost": "Recommended Cost",
-    "colSavings": "Savings",
-    "colSavingsPct": "% Savings",
-    "total": "TOTAL",
-    "outOfSupport": "Out of Support",
-    "obsTitle": "Observations:",
     "obs1": "• List prices are per 2 cores (Microsoft licensing).",
     "obs2": "• Costs are calculated using: (vCPUs / 2) × List Price.",
     "obs3": "• You can edit list prices to reflect specific negotiations.",
@@ -1370,342 +1462,303 @@
     "obs7Link": "View downgrade rights →",
     "obs8": "• For out-of-support products, see the official Microsoft list:",
     "obs8Link": "Deleted SQL Server products →",
-    "warnTitle": "⚠️ Warning: Out-of-Support Versions",
-    "warnText": "Out-of-support SQL Server versions were detected (shown in red). New licenses CANNOT be purchased for these versions. It is recommended to plan migration to supported versions (SQL Server 2017 or later)."
+    "obsTitle": "Observations:",
+    "observedCost": "Observed Cost",
+    "outOfSupport": "Out of Support",
+    "recommendedCost": "Recommended Cost",
+    "restoreBtn": "Restore Official Prices",
+    "savingsLabel": "{{pct}} savings",
+    "serverSummaryTitle": "SQL Server Summary",
+    "title": "SQL Server Licensing Optimization",
+    "total": "TOTAL",
+    "totalSQLServers": "Total SQL Servers",
+    "totalSavings": "Total Savings",
+    "warnText": "Out-of-support SQL Server versions were detected (shown in red). New licenses CANNOT be purchased for these versions. It is recommended to plan migration to supported versions (SQL Server 2017 or later).",
+    "warnTitle": "⚠️ Warning: Out-of-Support Versions"
   },
   "supportRiskAnalysis": {
-    "totalServers": "Total servers: {{count}}",
-    "colVersion": "Version",
-    "colCount": "Count",
-    "colSupportCycle": "Support Cycle",
-    "colEndOfSupport": "End of Support",
-    "colRisk": "Risk",
-    "colAction": "Required Action",
-    "distByVersion": "Distribution by Version",
     "actionCannotMigrate": "Cannot migrate without updating",
     "actionPlanUpdate": "Plan update",
-    "actionUpdateFirst": "Update before migrating",
     "actionReady": "Ready to migrate",
-    "legendTitle": "Risk Traffic Light:",
-    "legendRed": "Red: No support — cannot migrate without updating first.",
-    "legendOrange": "Orange: Extended support — plan update.",
-    "legendYellow": "Yellow: Support expires in less than 1 year — update before migrating.",
-    "legendGreen": "Green: Active support — ready to migrate."
-  },
-  "migrationStrategyTable": {
-    "title": "Migration Strategy by Operating System",
-    "migrateLabel": "Migrate",
-    "purchaseLabel": "Purchase",
-    "totalServers": "Total Servers",
-    "classifiedByOS": "Classified by OS",
-    "rehostLbl": "Rehost: {{rehost}} | Replatform: {{replatform}}",
-    "purchaseDetail": "Retire: {{retire}} | Retain: {{retain}} | Repurchase: {{repurchase}}",
-    "legendRed": "Replatform / Refactor — requires attention",
-    "legendYellow": "Retire / Retain / Repurchase",
-    "legendGreen": "Rehost / Relocate",
-    "colOS": "Operating System",
+    "actionUpdateFirst": "Update before migrating",
+    "colAction": "Required Action",
     "colCount": "Count",
-    "colSupported": "Supported",
-    "colCategory": "Category",
-    "colStrategy": "Strategy",
-    "colNotes": "Notes",
-    "footerTitle": "Migration Categories:",
-    "purchase": "Purchase: Optimize commercial terms (Repurchase, Retire, Retain)",
-    "migrate": "Migrate: Move applications to the cloud (Rehost, Relocate, Replatform)",
-    "modernize": "Modernize: Modernize and build applications (Refactor)",
-    "footerNote": "Classification based on AWS Application Migration Service —",
-    "footerLink": "View official documentation"
+    "colEndOfSupport": "End of Support",
+    "colRisk": "Risk",
+    "colSupportCycle": "Support Cycle",
+    "colVersion": "Version",
+    "distByVersion": "Distribution by Version",
+    "legendGreen": "Green: Active support — ready to migrate.",
+    "legendOrange": "Orange: Extended support — plan update.",
+    "legendRed": "Red: No support — cannot migrate without updating first.",
+    "legendTitle": "Risk Traffic Light:",
+    "legendYellow": "Yellow: Support expires in less than 1 year — update before migrating.",
+    "totalServers": "Total servers: {{count}}"
   },
-  "resourceOptimizationTable": {
-    "title": "Resource Optimization",
-    "avgOptimization": "Average Optimization:",
-    "colResource": "Resource",
-    "colObserved": "Observed",
-    "colRecommended": "Recommended",
-    "colOptPct": "% Optimization",
-    "obsTitle": "Observations:",
-    "obs1": "• RAM, Storage, and Network resources are shown in GB.",
-    "obs2": "• Recommendations are based on 1-year optimization.",
-    "obs3": "• Network information considers the total data transferred by servers during the assessment period.",
-    "subProd": "Prod",
-    "subDev": "Dev",
-    "subQA": "QA",
-    "subTotal": "Total"
+  "tco1Year": {
+    "confirmStorageDesc": "You must enter and confirm the percentage before uploading the file",
+    "confirmStorageFirst": "Please confirm the Storage increment percentage",
+    "enterIncrement": "Please enter an increment percentage",
+    "enterIncrementDesc": "You can enter 0 for no increment",
+    "invalidPercent": "Invalid percentage",
+    "invalidPercentDesc": "Must be a number between 0 and 100",
+    "percentConfirmed": "Percentage confirmed: {{value}}%",
+    "recalculating": "Recalculating with new percentage...",
+    "successLoaded": "TCO 1 Year loaded: {{resources}} resources (Storage +{{increment}}%)"
   },
-  "carbonReportTable": {
-    "title": "Carbon Report",
-    "currentUsage": "Current Usage",
-    "awsUsage": "AWS Usage",
-    "savings": "Savings",
-    "unit": "kgCO2eq",
-    "rowCurrent": "Current Usage (On-Premises)",
-    "rowAWS": "AWS Usage",
-    "rowSavings": "Carbon Savings",
-    "colMetric": "Metric",
-    "colValue": "Value (kgCO2eq)",
-    "chartCenter": "Savings",
-    "legendAWS": "AWS Usage",
-    "legendSavings": "Carbon Savings",
-    "impactTitle": "Environmental Impact:",
-    "impactText": "Migrating to AWS reduces carbon emissions by {{savings}} kgCO2eq, representing a {{pct}} reduction compared to current infrastructure.",
-    "impactNote": "* kgCO2eq = Kilograms of carbon dioxide equivalent"
+  "tco1YearUploader": {
+    "change": "Change",
+    "confirm": "Confirm",
+    "confirmFirst": "Enter the percentage and confirm before uploading the file",
+    "confirmWarning": "⚠️ You must confirm the increment percentage before uploading the file",
+    "noIncrement": "(no increment)",
+    "percentConfirmed": "✓ Percentage confirmed: {{value}}%",
+    "sheetInfo": "TCO 1 Year file with sheets: Compute, Storage, Network",
+    "storageIncrementLabel": "Storage Increment (%) *",
+    "storageIncrementPlaceholder": "E.g.: 20 or 0 for no increment",
+    "title": "TCO 1 Year"
   },
-  "networkTransferChart": {
-    "title": "Top 10 Network Data Transfer",
-    "totalLabel": "Total monthly transfer:",
-    "subtitle": "Showing the 10 servers with the highest outbound data transfer",
-    "noteLabel": "Note: Transfer data represents outbound network traffic per server measured in GB/month during the assessment period. This is useful for estimating data transfer costs in AWS."
+  "tcoChart": {
+    "annualCost": "ANNUAL COST",
+    "best": "★ BEST",
+    "bestSavings": "BEST SAVINGS",
+    "defaultTitle": "Annual Cost in USD (ARR)",
+    "noteAnnual": "All projected costs are annual",
+    "noteNUSP": "NUSP = No Upfront Saving Plan",
+    "noteUSD": "All prices are in USD",
+    "onDemand": "Ondemand (Optimized As-Is)",
+    "onPremises": "On-Premises",
+    "oneYear": "1-Year Optimized",
+    "secondSavings": "2ND SAVINGS",
+    "thirdSavings": "3RD SAVINGS",
+    "threeYear": "3-Year Optimized"
   },
-  "instanceTypesChart": {
-    "title": "Top 10 Recommended Instance Types",
-    "totalLabel": "Total instances analyzed:",
-    "subtitle": "Showing the top 10 most recommended instances",
-    "servers": "{{n}} servers",
-    "noteLabel": "Note: Recommended instances are based on Cloudamize analysis considering observed resources (vCPU, RAM, Storage) and workload characteristics."
+  "tcoCostInput": {
+    "csvInvalid": "Invalid format",
+    "csvLoaded": "Loaded",
+    "csvUpload": "Load CSV",
+    "defaultTitle": "Annual AWS Costs (USD)",
+    "note": "Note: These values are obtained from the AWS calculator provided by the SWO team.",
+    "onDemandHelper": "Annual OnDemand cost optimized from the AWS calculator",
+    "onDemandLabel": "OnDemand (Optimized As-Is) *",
+    "onDemandPlaceholder": "E.g.: 774,346.80",
+    "oneYearHelper": "Annual cost with 1-year Saving Plan (No Upfront)",
+    "oneYearLabel": "1-Year Optimized (NUSP) *",
+    "oneYearPlaceholder": "E.g.: 732,272.88",
+    "threeYearHelper": "Annual cost with 3-year Saving Plan (No Upfront)",
+    "threeYearLabel": "3-Year Optimized (NUSP) *",
+    "threeYearPlaceholder": "E.g.: 693,749.88"
   },
-  "landingZone": {
-    "generatorTitle": "IaC Template Generator",
-    "generatorDesc": "Generate CloudFormation and Terraform ready to run with AWS best practices",
-    "configureBtn": "Configure",
-    "hideConfigBtn": "Hide Configuration",
-    "orgNameLabel": "Organization Name",
-    "primaryRegion": "Primary Region",
-    "vpcCidr": "VPC CIDR Block",
-    "contactEmail": "Contact Email",
-    "securityServices": "Security Services",
-    "cfnBtn": "CloudFormation (.yaml)",
-    "tfBtn": "Terraform (.tf)",
-    "readmeBtn": "README Guide",
-    "downloadAllBtn": "Download All",
-    "nextSteps": "📌 Next steps: Download the templates, review the configuration, and deploy using AWS CLI or the web console. The README includes complete deployment commands.",
-    "checklistTitle": "Landing Zone Checklist",
-    "checklistDesc": "Use this checklist to track your Landing Zone configuration tasks. The templates generated above automate many of these tasks.",
-    "accountStructure": "Account Structure",
-    "networking": "Networking",
-    "security": "Security",
-    "loggingMonitoring": "Logging & Monitoring",
-    "governance": "Governance"
-  },
-  "opportunitiesList": {
-    "empty": "No opportunities found",
-    "emptyHint": "Try adjusting the search filters",
-    "opportunity": "opportunity",
-    "opportunities": "opportunities"
-  },
-  "businessCaseMetrics": {
-    "readinessTitle": "Migration Readiness Assessment",
-    "readinessScore": "Readiness Score",
-    "statusLabel": "Status:",
-    "complexityLabel": "Migration Complexity",
-    "riskLevel": "Risk Level",
-    "basedOnComplexity": "Based on infrastructure complexity",
-    "timelineTitle": "Timeline Estimate",
-    "months": "months",
-    "includingPlanning": "Including planning & testing",
-    "resourceTitle": "Resource Requirements",
-    "fte": "FTE",
-    "fteNeeded": "Full-time equivalents needed",
-    "costTitle": "Cost Reduction Potential",
+  "tcoReport": {
     "annualSavings": "Annual Savings",
-    "perYear": "{{amount}}k per year",
-    "recommendationsTitle": "Strategic Recommendations",
-    "optimizationPotential": "Optimization Potential",
-    "optimizationDesc": "Quick win opportunities across infrastructure",
-    "costReduction": "Cost Reduction",
-    "costReductionDesc": "Potential annual savings vs on-premises",
-    "estimatedROI": "Estimated ROI",
-    "monthsBreakEven": "months to break even",
-    "infraTitle": "Infrastructure Scope",
-    "servers": "Servers",
-    "databases": "Databases",
-    "applications": "Applications",
-    "tbStorage": "TB Storage",
-    "riskHigh": "High",
-    "riskMedium": "Medium",
-    "riskLow": "Low",
-    "riskSuffix": "Risk"
-  },
-  "sevenRsChart": {
-    "clickDetails": "Click to see details →",
-    "recommendationsTitle": "Strategic Recommendations",
-    "quickWins": "Quick Wins",
-    "quickWinsDesc": "Rehost servers for immediate migration",
-    "optimizationPotential": "Optimization Potential",
-    "optimizationDesc": "Modernization candidates",
-    "costReduction": "Cost Reduction",
-    "costReductionDesc": "Decommission to reduce costs",
-    "colHostname": "Hostname",
-    "colStorage": "Storage (GB)"
-  },
-  "architectureDiagram": {
-    "title": "AWS Architecture Diagram",
-    "implementationScore": "Implementation Score",
-    "required": "Required",
-    "stagingAccount": "Staging Account",
-    "stagingDesc": "Pre-production",
-    "devAccount": "Development Account",
-    "devDesc": "Development and testing"
-  },
-  "databaseDependencyMap": {
-    "noData": "No databases or database dependencies were found in the loaded file.",
-    "statDatabases": "Databases",
-    "statConnections": "DB Connections",
-    "statPorts": "Unique Ports",
-    "statProcesses": "Processes/Services",
-    "viewConnections": "DB↔Server Connections",
-    "viewPorts": "By Port",
-    "viewProcesses": "By Process",
-    "colSourceServer": "Source Server",
-    "colDestServer": "Destination Server",
-    "colPort": "Port",
-    "colProtocol": "Protocol",
-    "colProcess": "Process / Service",
-    "connectionsTitle": "Connections between Databases and Servers",
-    "connectionsSubtitle": "Network traffic detected between DB instances and servers",
-    "filterPlaceholder": "Filter by server, port, protocol, process...",
-    "noDataToGraph": "No data to graph",
-    "server": "Server",
-    "custom": "Custom",
-    "filteringLabel": "Filtering:",
-    "connectionsCount": "connections",
-    "portsTitle": "Network ports used in detected connections",
-    "processesTitle": "Processes and services involved in connections"
-  },
-  "readiness": {
-    "overall": "Overall Readiness",
-    "levels": {
-      "ready": "Ready to migrate",
-      "evaluating": "Evaluating — gaps remain",
-      "not_ready": "Not ready — critical gaps"
-    },
-    "dimensions": {
-      "technical": "Technical",
-      "data": "Data",
-      "security": "Security & Compliance",
-      "organizational": "Organizational",
-      "technicalDesc": "Infrastructure supportability and data quality.",
-      "dataDesc": "Data inventory, classification, and migration strategy.",
-      "securityDesc": "Guardrails, identity, data protection, and regulatory readiness.",
-      "organizationalDesc": "Sponsorship, operating model, skills, and funding."
-    },
-    "gaps": {
-      "title": "Top gaps to close",
-      "empty": "No gaps detected — ready to proceed."
-    },
-    "autoBadge": "auto"
+    "awsPrice": "AWS (3Y NURI)",
+    "awsPricingOptions": "AWS Pricing Options",
+    "bestOption": "BEST",
+    "currentOnPremises": "Current On-Premises",
+    "empty": "TCO Report Not Available",
+    "emptyDescription": "Upload your MPA data in the Rapid Discovery tab to generate TCO analysis.",
+    "infrastructureScope": "Infrastructure Scope",
+    "migration": "Migration",
+    "monthlyAwsCost": "Monthly AWS Cost",
+    "onDemand": "On-Demand",
+    "onDemandDesc": "No commitment",
+    "oneYear": "1-Year NURI",
+    "oneYearSavings": "~36% savings",
+    "perYear": "per year",
+    "percentReduction": "% reduction",
+    "threeYear": "3-Year NURI",
+    "threeYearPricing": "3-Year NURI pricing",
+    "threeYearSavings": "3-Year Savings",
+    "threeYearSavingsLabel": "~60% savings",
+    "title": "TCO Report",
+    "totalCostOfOwnership": "Total Cost of Ownership Analysis",
+    "vsOnPremises": "vs On-Premises"
   },
   "tcoScenarios": {
-    "title": "TCO Scenario Comparator",
     "adjust": "Adjust",
-    "hide": "Hide",
-    "exportCsv": "CSV",
     "best": "BEST",
     "columns": {
-      "scenario": "Scenario",
-      "commitment": "Commitment",
-      "risk": "Risk",
-      "monthly": "Monthly",
       "annual": "Annual",
-      "threeYear": "3 years",
+      "commitment": "Commitment",
+      "monthly": "Monthly",
+      "percent": "%",
+      "risk": "Risk",
       "savings3y": "3Y Savings",
-      "percent": "%"
+      "scenario": "Scenario",
+      "threeYear": "3 years"
     },
-    "spotDiscount": "Spot discount (%)",
-    "spotHint": "Typical: 60-80% depending on instance family.",
+    "disclaimer": "Spot and Savings Plan values are parametric estimates. Adjust percentages above based on actual AWS negotiation.",
+    "exportCsv": "CSV",
+    "hide": "Hide",
     "savingsPlan": "Savings Plan discount (fraction of On-Demand)",
     "savingsPlanHint": "Fraction paid vs On-Demand. 50% = 50% savings.",
-    "disclaimer": "Spot and Savings Plan values are parametric estimates. Adjust percentages above based on actual AWS negotiation."
+    "spotDiscount": "Spot discount (%)",
+    "spotHint": "Typical: 60-80% depending on instance family.",
+    "title": "TCO Scenario Comparator"
   },
-  "riskRules": {
-    "title": "Detected risks",
-    "rulesBtn": "Rules",
-    "severity": {
-      "high": "high",
-      "medium": "medium",
-      "low": "low"
+  "techMemory": {
+    "client": {
+      "about": "About the Company",
+      "autoExtract": "Mission and vision will be automatically extracted from the client website.",
+      "country": "Country",
+      "industry": "Industry / Vertical",
+      "mission": "Mission",
+      "name": "Client Name",
+      "searchWeb": "Search web",
+      "searching": "Searching...",
+      "subtitle": "Basic data that will appear in the document header",
+      "title": "Client Information",
+      "vision": "Vision",
+      "website": "Website (optional)"
     },
-    "severityCount": {
-      "high": "{{count}} high",
-      "medium": "{{count}} medium",
-      "low": "{{count}} low"
+    "dictionary": {
+      "addBtn": "Add",
+      "category": "Category",
+      "categoryPlaceholder": "e.g. Technologies",
+      "clickHint": "Click any term to select/deselect it. Selected terms will appear in the 'Glossary' section of the exported Word document.",
+      "definition": "Definition *",
+      "definitionPlaceholder": "Term definition...",
+      "filterPlaceholder": "Filter terms...",
+      "selectedCount": "{{count}} selected → Word",
+      "subtitle": "Selected terms are automatically included in the Word as Glossary",
+      "term": "Term *",
+      "termPlaceholder": "e.g. Kubernetes",
+      "title": "Add Term to Dictionary"
     },
-    "empty": "No risks detected with the active rules.",
-    "configurable": "Configurable rules",
-    "reset": "Reset",
-    "newRule": "New rule",
-    "label": "Label",
-    "pattern": "Pattern (regex)",
-    "severityLabel": "Severity",
-    "category": "Category",
-    "addRule": "Add rule"
-  },
-  "excelValidation": {
-    "title": "MPA validation",
-    "ok": "OK",
-    "errors": "{{count}} error(s)",
-    "warnings": "{{count}} warning(s)",
-    "info": "{{count}} info",
-    "stats": {
-      "servers": "Servers",
-      "databases": "Databases",
-      "applications": "Applications",
-      "dependencies": "Dependencies"
+    "document": {
+      "conclusions": "Conclusions",
+      "conclusionsHint": "Summarize achievements, benefits obtained and final recommendations.",
+      "infraHint": "Describe the implemented architecture, environments, VPCs and key components.",
+      "infraSummary": "Infrastructure Summary",
+      "introHint": "Describe the project context, objectives and scope. Use [COMPANY_NAME], [CONSULTANT], [EMAIL] as markers.",
+      "introduction": "Introduction"
     },
-    "allPassed": "All checks passed. Data is ready for analysis."
-  },
-  "sessionMenu": {
-    "trigger": "Session",
-    "ariaLabel": "Session menu",
-    "saveLocal": "Save in this browser",
-    "saveLocalHint": "localStorage",
-    "restore": "Restore last session",
-    "restoreHintSaved": "Saved {{date}}",
-    "restoreHintEmpty": "No saved session",
-    "export": "Export to file",
-    "exportHint": "JSON with auxiliaries",
-    "import": "Import from file",
-    "importHint": "Session JSON",
-    "clear": "Delete saved session",
-    "saved": "Session saved locally",
-    "restored": "Session restored ({{date}})",
-    "noSession": "No saved session",
-    "exported": "Session exported to JSON",
-    "imported": "Session imported successfully",
-    "importError": "Error importing session",
-    "cleared": "Local session deleted",
-    "cloudSave": "Save to cloud",
-    "cloudSaveHint": "Sync this session to the server",
-    "cloudRestore": "Restore from cloud",
-    "cloudRestoreHint": "Pull the latest synced session",
-    "cloudSaved": "Session synced to cloud",
-    "cloudRestored": "Cloud session restored ({{date}})",
-    "cloudEmpty": "No cloud session to restore",
-    "cloudError": "Cloud sync failed"
-  },
-  "waveIntegration": {
-    "autoGroup": "Auto-group from dependencies",
-    "autoGroupTooltip": "Generate waves from clusters detected in the dependency map",
-    "autoGroupError": "No dependency data to group",
-    "autoGroupSuccess": "{{waves}} waves suggested from {{clusters}} clusters",
-    "waveLabel": "Wave {{n}} · cluster ({{count}} srv)",
-    "conflictsHeader": "{{count}} dependency conflict(s) between waves",
-    "conflictsMore": "+{{count}} more conflicts",
-    "severityCritical": "CRITICAL",
-    "severityWarning": "warning",
-    "gantt": {
-      "title": "Wave timeline"
+    "exportWord": "Export Word",
+    "letter": {
+      "consultorName": "Consultant Name (SoftwareOne)",
+      "date": "Letter Date",
+      "email": "Consultant Email",
+      "itTeam": "Recipient IT Team",
+      "signature": "Title / Signature",
+      "subtitle": "All fields are editable. Date is auto-generated if not modified.",
+      "title": "Letter Data"
+    },
+    "services": {
+      "addAdvantage": "Add advantage",
+      "addDisadvantage": "Add disadvantage",
+      "advantages": "Advantages",
+      "description": "Description (editable)",
+      "disadvantages": "Disadvantages",
+      "extractBtn": "Extract from URL",
+      "extracting": "Extracting...",
+      "noServices": "No services added",
+      "noServicesHint": "Search an AWS service to start",
+      "searchBtn": "Search AWS",
+      "searchByName": "Search by AWS service name",
+      "searchByUrl": "Or paste a URL and extract automatically",
+      "searchPlaceholder": "e.g. Amazon S3, AWS Lambda, Amazon RDS...",
+      "searching": "Searching...",
+      "source": "Source",
+      "subtitle": "Search official AWS documentation and add to document",
+      "title": "Search AWS Service",
+      "urlPlaceholder": "e.g. https://aws.amazon.com/s3/ or any documentation URL...",
+      "whyUsed": "Why is this service used in the project? *",
+      "whyUsedPlaceholder": "Describe the technical justification for this service in the project context..."
+    },
+    "subtitle": "AWS Migration — SoftwareOne",
+    "tabs": {
+      "client": "Client",
+      "dictionary": "Dictionary",
+      "document": "Document",
+      "letter": "Cover Letter",
+      "services": "AWS Services",
+      "wellarch": "Well-Architected"
+    },
+    "title": "Technical Memory",
+    "toasts": {
+      "companyInfoObtained": "Company information obtained",
+      "completeProjectAndClient": "Complete the project and client name before exporting",
+      "couldNotExtractInfo": "Could not extract information",
+      "couldNotObtainInfo": "Could not obtain the information",
+      "documentWordGenerated": "Word document generated successfully",
+      "enterAwsServiceName": "Enter the AWS service name",
+      "enterClientUrl": "Enter the client URL",
+      "enterTermAndDefinition": "Enter the term and definition",
+      "enterUrl": "Enter a URL",
+      "errorSearchingService": "Error searching AWS service",
+      "extractingFromUrl": "Extracting information from URL...",
+      "logoLoadError": "Could not load SoftwareOne logo",
+      "logoLoadFailed": "Error loading SoftwareOne logo",
+      "searchingAwsService": "Searching {{service}} in AWS...",
+      "searchingCompanyInfo": "Searching company information...",
+      "serverConnectionError": "Error connecting to server",
+      "serviceAdded": "{{title}} added to the document and dictionary",
+      "serviceAddedFromUrl": "\"{{title}}\" added from URL",
+      "serviceAlreadyAdded": "This service has already been added",
+      "serviceNotFound": "Service not found",
+      "termAdded": "\"{{term}}\" added to dictionary"
+    },
+    "wellarch": {
+      "addRecommendation": "Add recommendation",
+      "hint": "Edit recommendations by pillar. All will be included in the exported Word document.",
+      "recommendations": "{{count}} recommendations"
     }
-  },
-  "icsExport": {
-    "button": "Calendar (.ics)",
-    "empty": "No sessions to export",
-    "downloaded": ".ics calendar downloaded"
   },
   "theme": {
     "switchToDark": "Switch to dark mode",
     "switchToLight": "Switch to light mode"
   },
-  "mcpKeys": {
-    "headerLink": "MCP Access Keys"
+  "upload": {
+    "description": "Upload the Excel file exported from Migration Portfolio Assessment",
+    "dragDrop": "Drag and drop your file here, or click to select",
+    "error": "Error uploading file",
+    "fileTypes": "Excel files (.xlsx, .xls)",
+    "success": "File uploaded successfully",
+    "title": "Load MPA Data",
+    "uploading": "Uploading file..."
+  },
+  "uploader": {
+    "analyzing": "Analyzing data...",
+    "clickSelect": "or click to select file (.xlsx, .xls)",
+    "clickSelectSimple": "or click to select",
+    "dragActive": "Drop the file here",
+    "dragInactive": "Drag and drop the Excel file here",
+    "failed": "Upload Failed",
+    "preparing": "Preparing upload...",
+    "processing": "Processing file...",
+    "replaceHint": "Drag another file to replace",
+    "retryHint": "Click to try again",
+    "retryHint2": "Drag another file to try again",
+    "success": "File uploaded successfully",
+    "uploading": "Uploading file...",
+    "uploadingS3": "Uploading to S3..."
+  },
+  "waveIntegration": {
+    "autoGroup": "Auto-group from dependencies",
+    "autoGroupError": "No dependency data to group",
+    "autoGroupSuccess": "{{waves}} waves suggested from {{clusters}} clusters",
+    "autoGroupTooltip": "Generate waves from clusters detected in the dependency map",
+    "conflictsHeader": "{{count}} dependency conflict(s) between waves",
+    "conflictsMore": "+{{count}} more conflicts",
+    "gantt": {
+      "title": "Wave timeline"
+    },
+    "severityCritical": "CRITICAL",
+    "severityWarning": "warning",
+    "waveLabel": "Wave {{n}} · cluster ({{count}} srv)"
+  },
+  "wavePlanner": {
+    "columnsNotFound": "Required columns not found",
+    "errorProcessing": "Error processing the file",
+    "errorReading": "Error reading the file",
+    "excelEmpty": "The Excel file is empty",
+    "fileLoaded": "File loaded successfully",
+    "noValidServers": "No valid servers found",
+    "pdfDesc": "Open the file and use Ctrl+P to print as PDF",
+    "pdfGenerated": "PDF generated",
+    "serverMoved": "{{server}} → {{wave}}",
+    "wavesReassigned": "Waves automatically reassigned",
+    "wordDesc": "The .doc file has been downloaded correctly",
+    "wordGenerated": "Word generated"
   }
 }

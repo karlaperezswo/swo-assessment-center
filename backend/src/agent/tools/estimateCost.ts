@@ -1,7 +1,15 @@
-import type { AgentTool } from './types';
+// Legacy AWS-only cost estimator. Now an alias of `estimate_cloud_cost` with
+// provider hard-coded to 'aws'. The legacy resource-type names ('ec2'/'rds'/
+// 'storage') are translated to the multi-cloud generic names.
+//
+// @deprecated Use `estimate_cloud_cost`. Remove in F7.
 
-interface Resource {
-  type: 'ec2' | 'rds' | 'storage';
+import type { AgentTool } from './types';
+import { estimateCloudCostTool } from './estimateCloudCost';
+
+type LegacyResourceType = 'ec2' | 'rds' | 'storage';
+interface LegacyResource {
+  type: LegacyResourceType;
   vcpus?: number;
   ramGB?: number;
   storageGB?: number;
@@ -9,22 +17,19 @@ interface Resource {
   engine?: string;
 }
 interface Input {
-  resources: Resource[];
+  resources: LegacyResource[];
   currency?: 'USD';
 }
 
-/**
- * Napkin-math TCO estimator that mirrors the in-browser estimation in
- * App.tsx. Intentionally deterministic and offline — the agent uses this
- * for quick "what would this cost" answers; the real TCO runs through
- * Bedrock + the Business Case parser elsewhere.
- */
+const TYPE_MAP: Record<LegacyResourceType, 'compute' | 'managed_db' | 'block_storage'> = {
+  ec2: 'compute',
+  rds: 'managed_db',
+  storage: 'block_storage',
+};
+
 export const estimateCostTool: AgentTool<Input> = {
   name: 'estimate_cost',
-  description:
-    'Produce a quick monthly cost estimate for a list of candidate AWS ' +
-    'resources. Deterministic heuristics — good enough for triage during a ' +
-    'call, not a replacement for the formal Business Case report.',
+  description: '(legacy) AWS-only quick cost estimate. New code should call estimate_cloud_cost.',
   input_schema: {
     type: 'object',
     properties: {
@@ -48,47 +53,14 @@ export const estimateCostTool: AgentTool<Input> = {
     required: ['resources'],
     additionalProperties: false,
   },
-  async run(input) {
-    let monthly = 0;
-    const breakdown = input.resources.map((r) => {
-      const cost = costFor(r);
-      monthly += cost;
-      return { ...r, monthlyUSD: Math.round(cost) };
-    });
-    return {
-      currency: 'USD',
-      monthlyUSD: Math.round(monthly),
-      annualUSD: Math.round(monthly * 12),
-      threeYearUSD: Math.round(monthly * 36),
-      breakdown,
-      notes: [
-        'On-demand pricing — Savings Plans typically reduce 30-40%.',
-        'Excludes data transfer, support and backup.',
-      ],
-    };
+  async run(input, ctx) {
+    return estimateCloudCostTool.run(
+      {
+        provider: 'aws',
+        currency: input.currency,
+        resources: input.resources.map((r) => ({ ...r, type: TYPE_MAP[r.type] })),
+      },
+      ctx
+    );
   },
 };
-
-function costFor(r: Resource): number {
-  if (r.type === 'storage') return (r.storageGB ?? 0) * 0.08;
-  if (r.type === 'rds') {
-    const size = r.storageGB ?? 50;
-    let base = 50;
-    if (size > 500) base = 350;
-    else if (size > 200) base = 180;
-    else if (size > 100) base = 125;
-    else if (size > 50) base = 100;
-    return base + size * 0.08;
-  }
-  // ec2
-  const vcpus = r.vcpus ?? 2;
-  const ram = r.ramGB ?? 8;
-  let base = 70;
-  if (vcpus <= 2 && ram <= 4) base = 30;
-  else if (vcpus <= 4 && ram <= 16) base = 70;
-  else if (vcpus <= 8 && ram <= 32) base = 140;
-  else if (vcpus <= 16 && ram <= 64) base = 280;
-  else base = 560;
-  if (r.windows) base *= 1.8;
-  return base;
-}

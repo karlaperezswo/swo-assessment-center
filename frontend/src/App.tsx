@@ -43,6 +43,14 @@ import { TechnicalMemory } from '@/components/techMemory/TechnicalMemory';
 import { SessionMenu } from '@/components/layout/SessionMenu';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { McpKeysLink } from '@/components/layout/McpKeysLink';
+import { CloudSelector } from '@/components/layout/CloudSelector';
+import { useActiveClouds } from '@/clouds/useActiveClouds';
+import type {
+  CloudProvider,
+  ComputeRecommendation,
+  CloudDatabaseRecommendation,
+  MultiCloudCostBreakdown,
+} from '@/types/clouds';
 import { saveSession, SessionSnapshot } from '@/lib/sessionPersistence';
 
 function App() {
@@ -68,6 +76,20 @@ function App() {
   const [estimatedCosts, setEstimatedCosts] = useState<CostBreakdown | null>(null);
   const [ec2Recommendations, setEc2Recommendations] = useState<EC2Recommendation[]>([]);
   const [dbRecommendations, setDbRecommendations] = useState<DatabaseRecommendation[]>([]);
+
+  // Multi-cloud results — populated by the backend when `selectedProviders.length > 1`.
+  // When only AWS is active, these stay empty and the legacy single-cloud props above
+  // drive the UI (component-level fallbacks lift them transparently).
+  const [recommendationsByCloud, setRecommendationsByCloud] = useState<
+    Partial<Record<CloudProvider, ComputeRecommendation[]>> | undefined
+  >(undefined);
+  const [databasesByCloud, setDatabasesByCloud] = useState<
+    Partial<Record<CloudProvider, CloudDatabaseRecommendation[]>> | undefined
+  >(undefined);
+  const [multiCloudCost, setMultiCloudCost] = useState<MultiCloudCostBreakdown | undefined>(undefined);
+
+  // Active cloud selection (header CloudSelector). Drives the report-generation payload.
+  const { state: cloudState } = useActiveClouds();
 
   // Phase navigation state — backed by React Router so URLs are shareable.
   const [currentPhase, setCurrentPhase] = usePhase();
@@ -346,23 +368,44 @@ function App() {
     toast.loading(t('app.generatingReport'), { id: 'generate-report' });
 
     try {
+      // Build per-provider regions map. AWS region comes from the form for compat;
+      // GCP/Azure/Oracle use each provider's defaultRegion (resolved on the backend
+      // when `regions[p]` is absent). Future iteration: per-provider region picker.
+      const selectedProviders: CloudProvider[] = [...cloudState.active];
+      const regions: Partial<Record<CloudProvider, string>> = { aws: clientData.awsRegion };
+
       const response = await apiClient.post('/api/report/generate', {
         ...clientData,
         excelData,
+        selectedProviders,
+        regions,
       });
 
       if (response.data.success) {
         setReportResult(response.data.data);
+        const summary = response.data.data.summary;
 
-        // Update with actual backend calculations
-        if (response.data.data.summary.estimatedCosts) {
-          setEstimatedCosts(response.data.data.summary.estimatedCosts);
-        }
-        if (response.data.data.summary.ec2Recommendations) {
-          setEc2Recommendations(response.data.data.summary.ec2Recommendations);
-        }
-        if (response.data.data.summary.databaseRecommendations) {
-          setDbRecommendations(response.data.data.summary.databaseRecommendations);
+        // Legacy AWS-only payload — always populated for compat with the rest of the app.
+        if (summary.estimatedCosts) setEstimatedCosts(summary.estimatedCosts);
+        if (summary.ec2Recommendations) setEc2Recommendations(summary.ec2Recommendations);
+        if (summary.databaseRecommendations) setDbRecommendations(summary.databaseRecommendations);
+
+        // Multi-cloud payload — only present when >1 provider was selected.
+        if (summary.multiCloud && summary.multiCloudByProvider) {
+          setMultiCloudCost(summary.multiCloud);
+          const byCompute: Partial<Record<CloudProvider, ComputeRecommendation[]>> = {};
+          const byDb:      Partial<Record<CloudProvider, CloudDatabaseRecommendation[]>> = {};
+          for (const [prov, payload] of Object.entries(summary.multiCloudByProvider)) {
+            const r = payload as { compute: ComputeRecommendation[]; databases: CloudDatabaseRecommendation[] };
+            byCompute[prov as CloudProvider] = r.compute;
+            byDb[prov as CloudProvider] = r.databases;
+          }
+          setRecommendationsByCloud(byCompute);
+          setDatabasesByCloud(byDb);
+        } else {
+          setMultiCloudCost(undefined);
+          setRecommendationsByCloud(undefined);
+          setDatabasesByCloud(undefined);
         }
         toast.success(t('app.reportGenerated'), {
           id: 'generate-report',
@@ -593,6 +636,7 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <CloudSelector />
             <ThemeToggle />
             <McpKeysLink />
             <SessionMenu
@@ -648,6 +692,7 @@ function App() {
               questionnaireFile={questionnaireFile}
               onQuestionnaireFileChange={setQuestionnaireFile}
               dependencyData={dependencyData}
+              multiCloudCost={multiCloudCost}
             />
           )}
 
@@ -659,6 +704,9 @@ function App() {
               estimatedCosts={estimatedCosts}
               ec2Recommendations={ec2Recommendations}
               dbRecommendations={dbRecommendations}
+              recommendationsByCloud={recommendationsByCloud}
+              databasesByCloud={databasesByCloud}
+              multiCloudCost={multiCloudCost}
               reportResult={reportResult}
               migrationWaves={migrationWaves}
               onMigrationWavesChange={setMigrationWaves}
@@ -680,6 +728,9 @@ function App() {
               estimatedCosts={estimatedCosts}
               ec2Recommendations={ec2Recommendations}
               dbRecommendations={dbRecommendations}
+              recommendationsByCloud={recommendationsByCloud}
+              databasesByCloud={databasesByCloud}
+              multiCloudCost={multiCloudCost}
               migrationWaves={migrationWaves}
               onMigrationWavesChange={setMigrationWaves}
               phaseStatus={phaseStatus}

@@ -17,6 +17,7 @@ import {
   convertInchesToTwip
 } from 'docx';
 import { ReportGenerationInput } from '../types';
+import type { ProviderRunResultPayload } from '../types/multiCloud';
 
 // SoftwareOne brand colors
 const COLORS = {
@@ -204,6 +205,18 @@ export class DocxService {
 
     // Section 7: Supporting Links
     sections.push(...this.createSection7(input));
+
+    // Section 8: Multi-cloud comparison (appended only when the orchestrator
+    // produced per-provider results — i.e., the consultant selected >1 cloud).
+    // Sections 1-7 above remain AWS-centric and untouched, so AWS-only reports
+    // are byte-identical to the pre-refactor baseline.
+    if (
+      input.multiCloud &&
+      input.multiCloudByProvider &&
+      input.multiCloud.providers.length > 1
+    ) {
+      sections.push(...this.createSection8MultiCloud(input));
+    }
 
     return {
       properties: {
@@ -1372,6 +1385,239 @@ export class DocxService {
           ]
         })
       ]
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Section 8 — Multi-cloud comparison (appended only when >1 provider selected)
+  // ---------------------------------------------------------------------------
+
+  private createSection8MultiCloud(input: ReportGenerationInput): (Paragraph | Table)[] {
+    const elements: (Paragraph | Table)[] = [];
+    const multiCloud = input.multiCloud!;
+    const byProvider = input.multiCloudByProvider!;
+
+    // Section header on a new page so the AWS-centric narrative ends cleanly
+    // before the multi-cloud comparative starts.
+    elements.push(
+      new Paragraph({ children: [new PageBreak()] }),
+      new Paragraph({
+        text: '8. Comparativo Multi-Nube',
+        heading: HeadingLevel.HEADING_1,
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `Análisis comparativo entre ${multiCloud.providers.length} proveedores: ${multiCloud.providers
+              .map((p) => p.provider.toUpperCase())
+              .join(', ')}. La nube más económica a 3 años es ${multiCloud.cheapest.toUpperCase()}.`,
+            italics: true,
+          }),
+        ],
+        spacing: { after: 240 },
+      })
+    );
+
+    // 8.1 — cross-cloud cost comparison table (rows = tier; cols = provider)
+    elements.push(
+      new Paragraph({ text: '8.1. Comparación de costos por nivel de compromiso', heading: HeadingLevel.HEADING_2 }),
+      this.createCrossCloudCostTable(multiCloud)
+    );
+
+    // 8.2..N — one subsection per provider with compute + database SKUs
+    let idx = 2;
+    for (const cost of multiCloud.providers) {
+      const result = byProvider[cost.provider];
+      if (!result) continue;
+      const subTitle = `8.${idx}. ${cost.provider.toUpperCase()} — Detalle`;
+      elements.push(
+        new Paragraph({ text: subTitle, heading: HeadingLevel.HEADING_2 }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Región: ', bold: true }),
+            new TextRun({ text: result.region }),
+          ],
+          spacing: { after: 120 },
+        })
+      );
+
+      // Compute table
+      if (result.compute.length > 0) {
+        elements.push(
+          new Paragraph({
+            children: [new TextRun({ text: `Compute (${result.compute.length} servidores)`, bold: true })],
+            spacing: { before: 120, after: 80 },
+          }),
+          this.createProviderComputeTable(result.compute)
+        );
+      }
+
+      // Database table
+      if (result.databases.length > 0) {
+        elements.push(
+          new Paragraph({
+            children: [new TextRun({ text: `Database (${result.databases.length} bases)`, bold: true })],
+            spacing: { before: 120, after: 80 },
+          }),
+          this.createProviderDatabaseTable(result.databases)
+        );
+      }
+
+      // Per-provider cost summary line
+      elements.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Costo 3-Year Reserved: ', bold: true }),
+            new TextRun({ text: `$${cost.threeYearCommit.annual.toFixed(2)}/año` }),
+          ],
+          spacing: { before: 80, after: 120 },
+        })
+      );
+      idx += 1;
+    }
+
+    // 8.X — comparison notes from the orchestrator
+    if (multiCloud.comparisonNotes.length > 0) {
+      elements.push(
+        new Paragraph({
+          text: `8.${idx}. Notas comparativas`,
+          heading: HeadingLevel.HEADING_2,
+        }),
+        ...multiCloud.comparisonNotes.map(
+          (note) => new Paragraph({ children: [new TextRun({ text: `• ${note}` })] })
+        )
+      );
+    }
+
+    return elements;
+  }
+
+  private createCrossCloudCostTable(multiCloud: NonNullable<ReportGenerationInput['multiCloud']>): Table {
+    const headerRow = new TableRow({
+      children: [
+        new TableCell({
+          width: { size: 25, type: WidthType.PERCENTAGE },
+          shading: { fill: COLORS.primary, type: ShadingType.CLEAR },
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text: 'Modelo de pricing', bold: true, color: COLORS.white })],
+            }),
+          ],
+        }),
+        ...multiCloud.providers.map(
+          (p) =>
+            new TableCell({
+              width: { size: 75 / multiCloud.providers.length, type: WidthType.PERCENTAGE },
+              shading: { fill: COLORS.primary, type: ShadingType.CLEAR },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: p.provider.toUpperCase(), bold: true, color: COLORS.white })],
+                }),
+              ],
+            })
+        ),
+      ],
+    });
+
+    const tiers: Array<{ key: 'onDemand' | 'oneYearCommit' | 'threeYearCommit'; label: string }> = [
+      { key: 'onDemand', label: 'On-Demand' },
+      { key: 'oneYearCommit', label: '1-Year Reserved' },
+      { key: 'threeYearCommit', label: '3-Year Reserved' },
+    ];
+
+    const dataRows = tiers.map(
+      (tier) =>
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 25, type: WidthType.PERCENTAGE },
+              children: [new Paragraph({ children: [new TextRun({ text: tier.label, bold: true })] })],
+            }),
+            ...multiCloud.providers.map((p) => {
+              const isCheapest = p.provider === multiCloud.cheapest && tier.key === 'threeYearCommit';
+              return new TableCell({
+                width: { size: 75 / multiCloud.providers.length, type: WidthType.PERCENTAGE },
+                shading: isCheapest ? { fill: 'FFE6CC', type: ShadingType.CLEAR } : undefined,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: `$${p[tier.key].annual.toFixed(0)}/yr`,
+                        bold: isCheapest,
+                      }),
+                      ...(isCheapest ? [new TextRun({ text: ' ★', color: COLORS.accent })] : []),
+                    ],
+                  }),
+                ],
+              });
+            }),
+          ],
+        })
+    );
+
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: [headerRow, ...dataRows],
+    });
+  }
+
+  private createProviderComputeTable(compute: ProviderRunResultPayload['compute']): Table {
+    const headerCells = ['Hostname', 'SKU', 'Familia', 'Costo/mes (On-Demand)'].map(
+      (h) =>
+        new TableCell({
+          shading: { fill: COLORS.lightGray, type: ShadingType.CLEAR },
+          children: [new Paragraph({ children: [new TextRun({ text: h, bold: true })] })],
+        })
+    );
+
+    const rows = compute.slice(0, 50).map(
+      (rec) =>
+        new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: rec.hostname })] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: rec.recommendedSku })] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: rec.family })] })] }),
+            new TableCell({
+              children: [new Paragraph({ children: [new TextRun({ text: `$${rec.monthlyEstimateOnDemand.toFixed(2)}` })] })],
+            }),
+          ],
+        })
+    );
+
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: [new TableRow({ children: headerCells }), ...rows],
+    });
+  }
+
+  private createProviderDatabaseTable(databases: ProviderRunResultPayload['databases']): Table {
+    const headerCells = ['DB Name', 'Servicio destino', 'SKU', 'Costo/mes'].map(
+      (h) =>
+        new TableCell({
+          shading: { fill: COLORS.lightGray, type: ShadingType.CLEAR },
+          children: [new Paragraph({ children: [new TextRun({ text: h, bold: true })] })],
+        })
+    );
+
+    const rows = databases.slice(0, 50).map(
+      (rec) =>
+        new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: rec.dbName })] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: rec.targetService })] })] }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: rec.recommendedSku })] })] }),
+            new TableCell({
+              children: [new Paragraph({ children: [new TextRun({ text: `$${rec.monthlyEstimateOnDemand.toFixed(2)}` })] })],
+            }),
+          ],
+        })
+    );
+
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: [new TableRow({ children: headerCells }), ...rows],
     });
   }
 }

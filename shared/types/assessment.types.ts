@@ -1,3 +1,25 @@
+// Re-export the multi-cloud value types so callers can import them from a single place.
+export type {
+  CloudProvider,
+  ComputeFamily,
+  ComputeInstanceType,
+  ComputeRecommendation,
+  ManagedDbInstanceType,
+  CloudDatabaseRecommendation,
+  NormalizedOS,
+  NormalizedDbEngine,
+  CommitmentTerm,
+  CostEstimate as CloudCostEstimate,
+  ProviderCostBreakdown,
+  MultiCloudCostBreakdown,
+  SpecialDiscount,
+  GlobalRegion,
+  LandingZoneSection,
+  LandingZoneChecklistItem,
+  GenericService,
+} from './cloud.types';
+export { ALL_CLOUDS, REGION_MAP } from './cloud.types';
+
 // Data source types
 export type DataSourceType = 'AWS_MPA' | 'CONCIERTO' | 'MATILDA' | 'UNKNOWN';
 
@@ -214,6 +236,7 @@ export interface ReportInput {
   clientName: string;
   vertical: IndustryVertical;
   reportDate: string;
+  /** @deprecated Use `regions.aws`. Retained for legacy AWS-only callers. */
   awsRegion: AWSRegion;
   totalServers: number;
   onPremisesCost: number;
@@ -221,6 +244,13 @@ export interface ReportInput {
   priorities: ClientPriority[];
   migrationReadiness: MigrationReadiness;
   excelData: ExcelData;
+
+  /** Multi-cloud: which providers are in scope for this assessment. Defaults to ['aws'] when absent. */
+  selectedProviders?: import('./cloud.types').CloudProvider[];
+  /** Multi-cloud: per-provider region selection. When absent, derived from `awsRegion` for AWS only. */
+  regions?: Partial<Record<import('./cloud.types').CloudProvider, string>>;
+  /** Multi-cloud: optional global region when the consultant prefers a single geographic choice. */
+  globalRegion?: import('./cloud.types').GlobalRegion;
 }
 
 // Cost estimation for different pricing models

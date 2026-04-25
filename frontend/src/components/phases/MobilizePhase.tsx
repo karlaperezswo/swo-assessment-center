@@ -14,6 +14,9 @@ import {
   LandingZoneChecklist, SecurityComplianceChecklist,
   GenerateReportResponse, EC2Recommendation, DatabaseRecommendation,
 } from '@/types/assessment';
+import type {
+  CloudProvider, ComputeRecommendation, CloudDatabaseRecommendation, MultiCloudCostBreakdown,
+} from '@/types/clouds';
 import {
   AppWindow, Waves, GraduationCap, Cloud, Shield, Network,
 } from 'lucide-react';
@@ -25,6 +28,10 @@ interface MobilizePhaseProps {
   estimatedCosts: CostBreakdown | null;
   ec2Recommendations: EC2Recommendation[];
   dbRecommendations: DatabaseRecommendation[];
+  // Multi-cloud — present only when >1 provider was selected during /generate.
+  recommendationsByCloud?: Partial<Record<CloudProvider, ComputeRecommendation[]>>;
+  databasesByCloud?: Partial<Record<CloudProvider, CloudDatabaseRecommendation[]>>;
+  multiCloudCost?: MultiCloudCostBreakdown;
   reportResult: GenerateReportResponse | null;
   migrationWaves: MigrationWave[];
   onMigrationWavesChange: (waves: MigrationWave[]) => void;
@@ -118,6 +125,7 @@ export function MobilizePhase({
           <ArchitectureDiagram
             landingZone={landingZoneChecklist}
             securityChecklist={securityChecklist}
+            excelData={excelData ?? undefined}
           />
         )}
       </SubTabLayout>

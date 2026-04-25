@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useTranslation } from '@/i18n/useTranslation';
+import { useActiveClouds } from '@/clouds/useActiveClouds';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ interface MatildaUploaderProps {
 
 export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, clientData }: MatildaUploaderProps) {
   const { t } = useTranslation();
+  const { state: cloudState } = useActiveClouds();
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -108,6 +110,8 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
         formDataBC.append('companyDescription', clientData.companyDescription || '');
         formDataBC.append('priorities', JSON.stringify(clientData.priorities || []));
         formDataBC.append('migrationReadiness', clientData.migrationReadiness || 'evaluating');
+        formDataBC.append('selectedProviders', JSON.stringify(cloudState.active));
+        formDataBC.append('regions', JSON.stringify({ aws: clientData.awsRegion || 'us-east-1' }));
 
         const responseBC = await fetch(`${API_URL}/api/business-case/upload`, { method: 'POST', body: formDataBC });
         if (!responseBC.ok) { const e = await responseBC.json(); throw new Error(e.error || `Error ${responseBC.status}`); }
@@ -149,7 +153,9 @@ export function MatildaUploader({ onBusinessCaseLoaded, onTCO1YearLoaded, client
             reportDate: clientData.reportDate || new Date().toISOString().split('T')[0],
             awsRegion: clientData.awsRegion || 'us-east-1', totalServers: clientData.totalServers || 0,
             onPremisesCost: clientData.onPremisesCost || 0, companyDescription: clientData.companyDescription || '',
-            priorities: clientData.priorities || [], migrationReadiness: clientData.migrationReadiness || 'evaluating'
+            priorities: clientData.priorities || [], migrationReadiness: clientData.migrationReadiness || 'evaluating',
+            selectedProviders: cloudState.active,
+            regions: { aws: clientData.awsRegion || 'us-east-1' },
           })
         });
         if (!responseBC.ok) { const e = await responseBC.json(); throw new Error(e.error || `Error ${responseBC.status}`); }

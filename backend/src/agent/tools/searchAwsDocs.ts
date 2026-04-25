@@ -1,25 +1,22 @@
+// Legacy AWS-only docs search. Now an alias of `search_cloud_docs` with the
+// provider hard-coded to 'aws' so cached agent threads keep working. New
+// agent runs receive the multi-cloud tool from the registry instead.
+//
+// @deprecated Use `search_cloud_docs` with provider='aws'. Remove in F7.
+
 import type { AgentTool } from './types';
+import { searchCloudDocsTool } from './searchCloudDocs';
 
 interface Input {
   query: string;
   maxResults?: number;
 }
 
-/**
- * Thin wrapper around AWS docs search. The existing scraperController
- * already does HTML scraping; we keep the tool pure/safe by just returning
- * canonical URLs and letting the orchestrator fetch on demand.
- *
- * Implementation is intentionally a stub that returns structured URLs so
- * the tool is always available even when Puppeteer (heavy dep) is not
- * warmed up. Swap to the real scraper in a follow-up PR.
- */
 export const searchAwsDocsTool: AgentTool<Input> = {
   name: 'search_aws_docs',
   description:
-    'Search AWS documentation. Returns a list of candidate URLs and short ' +
-    'descriptions. Prefer this over guessing AWS service semantics from ' +
-    'memory — it grounds recommendations in the canonical docs.',
+    '(legacy) Search AWS documentation. New code should call search_cloud_docs ' +
+    'with provider=aws.',
   input_schema: {
     type: 'object',
     properties: {
@@ -29,25 +26,7 @@ export const searchAwsDocsTool: AgentTool<Input> = {
     required: ['query'],
     additionalProperties: false,
   },
-  async run(input) {
-    const limit = Math.min(input.maxResults ?? 5, 10);
-    const encoded = encodeURIComponent(input.query);
-    // Curated starting points — covers 80% of consultant queries without
-    // scraping.  The agent can follow up with `fetch_url` in future.
-    const candidates = [
-      {
-        url: `https://docs.aws.amazon.com/search/doc-search.html?searchPath=documentation&searchQuery=${encoded}`,
-        title: `AWS Docs search: ${input.query}`,
-      },
-      {
-        url: `https://aws.amazon.com/search/?searchQuery=${encoded}`,
-        title: `AWS portal search: ${input.query}`,
-      },
-      {
-        url: `https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html`,
-        title: 'AWS Well-Architected Framework — authoritative reference',
-      },
-    ];
-    return candidates.slice(0, limit);
+  async run(input, ctx) {
+    return searchCloudDocsTool.run({ provider: 'aws', ...input }, ctx);
   },
 };

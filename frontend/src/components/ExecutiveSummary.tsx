@@ -1,12 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CostBreakdown, ExcelData, MigrationWave } from '@/types/assessment';
+import type { MultiCloudCostBreakdown } from '@/types/clouds';
 import { useTranslation } from '@/i18n/useTranslation';
 import {
   TrendingDown, TrendingUp, DollarSign, Zap, Shield, Target,
   ArrowDownCircle, Calendar, Server, Database, AppWindow,
-  HardDrive, Network, Waves, ArrowRight,
+  HardDrive, Network, Waves, ArrowRight, Trophy,
 } from 'lucide-react';
 import { RiskRulesEditor } from '@/components/assess/RiskRulesEditor';
+import { brandFor } from '@/theme/cloudBrand';
+import { CloudIcon } from '@/components/shared/CloudIcon';
 
 interface ExecutiveSummaryProps {
   clientName: string;
@@ -20,6 +23,8 @@ interface ExecutiveSummaryProps {
   migrationWaves?: MigrationWave[];
   opportunitySessionId?: string | null;
   onGoToMobilize?: () => void;
+  /** Multi-cloud rollup — when present, the hero KPIs show the cheapest cloud rather than AWS-only. */
+  multiCloud?: MultiCloudCostBreakdown;
 }
 
 export function ExecutiveSummary({
@@ -32,9 +37,19 @@ export function ExecutiveSummary({
   dependencyData,
   migrationWaves,
   onGoToMobilize,
+  multiCloud,
 }: ExecutiveSummaryProps) {
   const { t } = useTranslation();
-  const awsCost = estimatedCosts.threeYearNuri.annual;
+  // When multi-cloud data is present, use the cheapest provider's 3-Year cost
+  // as the headline cloudCost. Falls back to AWS-only legacy estimate.
+  const isMultiCloud = !!multiCloud && multiCloud.providers.length > 1;
+  const cheapestProvider = isMultiCloud
+    ? multiCloud!.providers.find((p) => p.provider === multiCloud!.cheapest)
+    : undefined;
+  const cloudCost = cheapestProvider
+    ? cheapestProvider.threeYearCommit.annual
+    : estimatedCosts.threeYearNuri.annual;
+  const awsCost = cloudCost;
   const totalSavings = onPremisesCost - awsCost;
   const savingsPercentage = onPremisesCost > 0 ? ((totalSavings / onPremisesCost) * 100).toFixed(1) : 0;
   const roi = onPremisesCost > 0 ? (((totalSavings * 3) / onPremisesCost) * 100).toFixed(0) : 0;
@@ -89,6 +104,36 @@ export function ExecutiveSummary({
 
   return (
     <div className="space-y-6">
+      {/* Multi-cloud banner — only when >1 provider was selected. Shows which
+          cloud the headline KPIs below are based on (the cheapest 3Y option). */}
+      {isMultiCloud && cheapestProvider && (
+        <Card className="border-orange-300 bg-gradient-to-br from-orange-50 to-amber-50">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center gap-3">
+              <Trophy className="h-5 w-5 text-orange-600 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-xs font-semibold uppercase tracking-wide text-orange-700">
+                  {t('executiveSummary.multiCloudWinnerLabel', { defaultValue: 'KPIs basados en la nube más económica' })}
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <CloudIcon provider={cheapestProvider.provider} size={18} />
+                  <span className="font-bold" style={{ color: brandFor(cheapestProvider.provider).text }}>
+                    {brandFor(cheapestProvider.provider).fullName}
+                  </span>
+                  <span className="text-sm text-orange-700">
+                    · {multiCloud!.providers.length} {t('executiveSummary.cloudsCompared', { defaultValue: 'nubes comparadas' })}
+                  </span>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xl font-extrabold text-orange-700">{fmt(cloudCost)}/yr</div>
+                <div className="text-xs text-orange-600">{t('executiveSummary.threeYearCommit', { defaultValue: '3-Year Reserved' })}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* ── Hero ── */}
       <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 rounded-xl p-8 text-white shadow-2xl">
         <div className="flex items-center justify-between mb-6">

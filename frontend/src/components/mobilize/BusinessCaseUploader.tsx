@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BusinessCaseUploadResponse, BusinessCaseClientData } from '@/types/assessment';
 import apiClient from '@/lib/api';
 import { toast } from 'sonner';
+import { useActiveClouds } from '@/clouds/useActiveClouds';
 
 interface BusinessCaseUploaderProps {
   onDataLoaded: (data: BusinessCaseUploadResponse, fileName?: string) => void;
@@ -16,6 +17,7 @@ interface BusinessCaseUploaderProps {
 
 export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, loadedFileName }: BusinessCaseUploaderProps) {
   const { t } = useTranslation();
+  const { state: cloudState } = useActiveClouds();
   const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>(() =>
     alreadyLoaded ? 'success' : 'idle'
   );
@@ -55,6 +57,10 @@ export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, 
         formData.append('companyDescription', clientData.companyDescription);
         formData.append('priorities', JSON.stringify(clientData.priorities));
         formData.append('migrationReadiness', clientData.migrationReadiness);
+        // Multi-cloud: send the active providers + per-cloud regions (AWS only
+        // for now; other clouds default to their `defaultRegion` server-side).
+        formData.append('selectedProviders', JSON.stringify(cloudState.active));
+        formData.append('regions', JSON.stringify({ aws: clientData.awsRegion }));
 
         const response = await apiClient.post('/api/business-case/upload', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
@@ -100,7 +106,9 @@ export function BusinessCaseUploader({ onDataLoaded, clientData, alreadyLoaded, 
           onPremisesCost: clientData.onPremisesCost,
           companyDescription: clientData.companyDescription,
           priorities: clientData.priorities,
-          migrationReadiness: clientData.migrationReadiness
+          migrationReadiness: clientData.migrationReadiness,
+          selectedProviders: cloudState.active,
+          regions: { aws: clientData.awsRegion },
         });
 
         if (response.data.success) {

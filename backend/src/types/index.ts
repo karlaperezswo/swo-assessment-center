@@ -45,4 +45,11 @@ export interface ReportGenerationInput {
     oneYearNuri: string;
     threeYearNuri: string;
   };
+  // Multi-cloud — populated only when reportController ran the orchestrator
+  // because more than one provider was selected. The docx generator appends
+  // per-provider sections at the end of the document when these are present.
+  selectedProviders?: import('../../../shared/types/cloud.types').CloudProvider[];
+  multiCloud?: import('../../../shared/types/cloud.types').MultiCloudCostBreakdown;
+  multiCloudByProvider?: import('./multiCloud').MultiCloudByProviderPayload;
 }
+

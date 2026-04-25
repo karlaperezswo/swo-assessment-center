@@ -2,15 +2,21 @@ import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DatabaseTable } from '@/components/DatabaseTable';
 import { Database, DatabaseRecommendation } from '@/types/assessment';
+import type { CloudProvider, CloudDatabaseRecommendation } from '@/types/clouds';
 import { Database as DatabaseIcon } from 'lucide-react';
+import { useActiveClouds } from '@/clouds/useActiveClouds';
 
 interface RDSRecommendationsProps {
   databases: Database[];
   recommendations: DatabaseRecommendation[];
+  /** Multi-cloud — when present, DatabaseTable renders columns dynamically per active cloud. */
+  recommendationsByCloud?: Partial<Record<CloudProvider, CloudDatabaseRecommendation[]>>;
 }
 
-export function RDSRecommendations({ databases, recommendations }: RDSRecommendationsProps) {
+export function RDSRecommendations({ databases, recommendations, recommendationsByCloud }: RDSRecommendationsProps) {
   const { t } = useTranslation();
+  const { state: cloudState } = useActiveClouds();
+  const isMultiCloud = cloudState.active.length > 1 && !!recommendationsByCloud;
 
   if (!databases || databases.length === 0) {
     return (
@@ -42,10 +48,22 @@ export function RDSRecommendations({ databases, recommendations }: RDSRecommenda
       {/* Database Table */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('rds.recommendationTitle', { count: databases.length })}</CardTitle>
+          <CardTitle>
+            {isMultiCloud
+              ? t('rds.recommendationTitleMultiCloud', {
+                  count: databases.length,
+                  defaultValue: 'Database recommendations — {{count}} BBDD × {{clouds}} nubes',
+                  clouds: cloudState.active.length,
+                })
+              : t('rds.recommendationTitle', { count: databases.length })}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <DatabaseTable databases={databases} recommendations={recommendations} />
+          <DatabaseTable
+            databases={databases}
+            recommendations={recommendations}
+            recommendationsByCloud={recommendationsByCloud}
+          />
         </CardContent>
       </Card>
     </div>

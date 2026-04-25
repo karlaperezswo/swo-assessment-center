@@ -1,15 +1,21 @@
 import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CostBreakdown } from '@/types/assessment';
-import { TrendingDown, Lightbulb, DollarSign, Zap } from 'lucide-react';
+import type { MultiCloudCostBreakdown } from '@/types/clouds';
+import { TrendingDown, Lightbulb, DollarSign, Zap, Trophy } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { brandFor } from '@/theme/cloudBrand';
+import { CloudIcon } from '@/components/shared/CloudIcon';
 
 interface CostOptimizationProps {
   estimatedCosts: CostBreakdown | null;
+  /** Multi-cloud rollup — surfaces cheapest provider + delta vs baseline. */
+  multiCloud?: MultiCloudCostBreakdown;
 }
 
-export function CostOptimization({ estimatedCosts }: CostOptimizationProps) {
+export function CostOptimization({ estimatedCosts, multiCloud }: CostOptimizationProps) {
   const { t } = useTranslation();
+  const isMultiCloud = !!multiCloud && multiCloud.providers.length > 1;
 
   const OPTIMIZATION_OPPORTUNITIES = [
     {
@@ -81,6 +87,49 @@ export function CostOptimization({ estimatedCosts }: CostOptimizationProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Multi-cloud cheapest summary */}
+      {isMultiCloud && (() => {
+        const cheapest = multiCloud!.providers.find((p) => p.provider === multiCloud!.cheapest)!;
+        const others = multiCloud!.providers.filter((p) => p.provider !== multiCloud!.cheapest);
+        const maxOther = others.reduce(
+          (acc, p) => (p.threeYearCommit.annual > acc ? p.threeYearCommit.annual : acc),
+          0
+        );
+        const delta = maxOther - cheapest.threeYearCommit.annual;
+        const brand = brandFor(cheapest.provider);
+        return (
+          <Card className="border-orange-300 bg-gradient-to-br from-orange-50 to-amber-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-orange-900">
+                <Trophy className="h-5 w-5" />
+                {t('costOptimization.cheapestCloudTitle', { defaultValue: 'Nube más económica (3-Year Reserved)' })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-2xl font-bold" style={{ color: brand.text }}>
+                  <CloudIcon provider={cheapest.provider} size={28} />
+                  {brand.fullName}
+                </div>
+                <div className="ml-auto text-right">
+                  <div className="text-3xl font-extrabold text-green-700">
+                    {formatCurrency(cheapest.threeYearCommit.annual)}/yr
+                  </div>
+                  {delta > 0 && (
+                    <div className="text-sm text-green-700 font-semibold mt-1">
+                      ↓ {formatCurrency(delta)}/yr {t('costOptimization.vsMostExpensiveCloud', { defaultValue: 'vs nube más cara' })}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {multiCloud!.comparisonNotes.length > 0 && (
+                <p className="text-xs text-orange-900 mt-3">{multiCloud!.comparisonNotes.join(' ')}</p>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Potential Savings */}
       {estimatedCosts && (

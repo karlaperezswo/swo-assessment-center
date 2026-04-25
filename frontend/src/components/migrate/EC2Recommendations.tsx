@@ -2,15 +2,21 @@ import { useTranslation } from '@/i18n/useTranslation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ServerTable } from '@/components/ServerTable';
 import { Server, EC2Recommendation } from '@/types/assessment';
+import type { CloudProvider, ComputeRecommendation } from '@/types/clouds';
 import { Server as ServerIcon } from 'lucide-react';
+import { useActiveClouds } from '@/clouds/useActiveClouds';
 
 interface EC2RecommendationsProps {
   servers: Server[];
   recommendations: EC2Recommendation[];
+  /** Multi-cloud — when present, ServerTable renders columns dynamically per active cloud. */
+  recommendationsByCloud?: Partial<Record<CloudProvider, ComputeRecommendation[]>>;
 }
 
-export function EC2Recommendations({ servers, recommendations }: EC2RecommendationsProps) {
+export function EC2Recommendations({ servers, recommendations, recommendationsByCloud }: EC2RecommendationsProps) {
   const { t } = useTranslation();
+  const { state: cloudState } = useActiveClouds();
+  const isMultiCloud = cloudState.active.length > 1 && !!recommendationsByCloud;
 
   if (!servers || servers.length === 0) {
     return (
@@ -42,10 +48,22 @@ export function EC2Recommendations({ servers, recommendations }: EC2Recommendati
       {/* Server Table */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('ec2.recommendationTitle', { count: servers.length })}</CardTitle>
+          <CardTitle>
+            {isMultiCloud
+              ? t('ec2.recommendationTitleMultiCloud', {
+                  count: servers.length,
+                  defaultValue: 'Compute recommendations — {{count}} servidores × {{clouds}} nubes',
+                  clouds: cloudState.active.length,
+                })
+              : t('ec2.recommendationTitle', { count: servers.length })}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <ServerTable servers={servers} recommendations={recommendations} />
+          <ServerTable
+            servers={servers}
+            recommendations={recommendations}
+            recommendationsByCloud={recommendationsByCloud}
+          />
         </CardContent>
       </Card>
     </div>

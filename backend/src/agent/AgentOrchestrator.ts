@@ -3,7 +3,7 @@ import {
   InvokeModelWithResponseStreamCommand,
   InvokeModelCommand,
 } from '@aws-sdk/client-bedrock-runtime';
-import { AGENT_SYSTEM_PROMPT } from './systemPrompt';
+import { buildSystemPrompt } from './systemPrompt';
 import { AGENT_TOOLS, executeTool, toolsForBedrock } from './tools';
 import type { AgentToolContext, ToolCall } from './tools';
 
@@ -291,7 +291,7 @@ function buildSystemBlocks(ctx: AgentToolContext) {
   }> = [
     {
       type: 'text',
-      text: AGENT_SYSTEM_PROMPT,
+      text: buildSystemPrompt({ activeProviders: ctx.activeProviders }),
       cache_control: { type: 'ephemeral' },
     },
   ];
@@ -300,6 +300,9 @@ function buildSystemBlocks(ctx: AgentToolContext) {
   if (ctx.sessionId) ctxLines.push(`sessionId: ${ctx.sessionId}`);
   if (ctx.orgId) ctxLines.push(`orgId: ${ctx.orgId}`);
   if (ctx.userId) ctxLines.push(`userId: ${ctx.userId}`);
+  if (ctx.activeProviders && ctx.activeProviders.length > 0) {
+    ctxLines.push(`activeProviders: [${ctx.activeProviders.join(', ')}]`);
+  }
   if (ctx.pageContext && Object.keys(ctx.pageContext).length > 0) {
     ctxLines.push(
       `pageContext (what the user is currently looking at):\n${JSON.stringify(ctx.pageContext, null, 2)}`

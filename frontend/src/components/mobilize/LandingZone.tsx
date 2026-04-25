@@ -18,6 +18,10 @@ import {
   defaultLandingZoneConfig,
   LandingZoneConfig,
 } from '@/lib/landingZoneTemplates';
+import { useActiveClouds } from '@/clouds/useActiveClouds';
+import { usePersistedState } from '@/lib/usePersistedState';
+import { MultiCloudLandingZone, type CloudChecklistState } from './MultiCloudLandingZone';
+import type { CloudProvider } from '@/types/clouds';
 
 interface LandingZoneProps {
   checklist: LandingZoneChecklist;
@@ -28,6 +32,22 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
   const { t } = useTranslation();
   const [config, setConfig] = useState<LandingZoneConfig>(defaultLandingZoneConfig);
   const [showConfig, setShowConfig] = useState(false);
+
+  // Multi-cloud landing zone state. Stored separately from the legacy
+  // `checklist` prop because each cloud has its own catalog. Persisted across
+  // sessions so progress isn't lost on reload.
+  const { state: cloudState } = useActiveClouds();
+  const [cloudChecklistState, setCloudChecklistState] = usePersistedState<CloudChecklistState>(
+    'landing-zone-multi:v1',
+    {}
+  );
+  const handleCloudToggle = (provider: CloudProvider, itemId: string) => {
+    setCloudChecklistState((prev) => ({
+      ...prev,
+      [`${provider}.${itemId}`]: !prev[`${provider}.${itemId}`],
+    }));
+  };
+  const isMultiCloud = cloudState.active.length > 1;
 
   const handleToggle = (category: keyof LandingZoneChecklist, id: string) => {
     onChecklistChange({
@@ -82,6 +102,11 @@ export function LandingZone({ checklist, onChecklistChange }: LandingZoneProps) 
 
   return (
     <div className="space-y-6">
+      {/* Multi-cloud comparative checklist (only when >1 cloud is active). */}
+      {isMultiCloud && (
+        <MultiCloudLandingZone state={cloudChecklistState} onToggle={handleCloudToggle} />
+      )}
+
       {/* Template Generator Section */}
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
         <CardHeader>

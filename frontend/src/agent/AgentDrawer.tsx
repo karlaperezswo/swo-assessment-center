@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Sparkles, Send, X, RotateCcw, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import { useAgentContextValue } from './AgentContextProvider';
 import { AgentToolCall, useAgentChat } from './useAgentChat';
+import { useActiveClouds } from '@/clouds/useActiveClouds';
 
 /**
  * Persistent lateral drawer for the AI copilot. Collapsible, 420px wide,
@@ -17,6 +19,15 @@ export function AgentDrawer() {
   const { sessionId, pageContext } = useAgentContextValue();
   const { messages, isSending, send, cancel, reset } = useAgentChat();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
+  const { state: cloudState } = useActiveClouds();
+  const isMultiCloud = cloudState.active.length > 1;
+
+  // Title rebrands automatically: AWS-only → "Asistente AWS" (legacy),
+  // multi-cloud → "Asistente Cloud" (new).
+  const assistantTitle = isMultiCloud
+    ? t('agent.assistantTitle.multi', { defaultValue: 'Asistente Cloud' })
+    : t('agent.assistantTitle.aws', { defaultValue: 'Asistente AWS' });
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -27,7 +38,10 @@ export function AgentDrawer() {
 
   const submit = () => {
     if (!input.trim()) return;
-    send(input.trim(), { sessionId, pageContext });
+    // Forward active clouds + primary as part of pageContext so the agent's
+    // system prompt and tool filters know which clouds are in scope.
+    const ctx = { ...pageContext, clouds: { active: cloudState.active, primary: cloudState.primary } };
+    send(input.trim(), { sessionId, pageContext: ctx });
     setInput('');
   };
 
@@ -41,7 +55,7 @@ export function AgentDrawer() {
           className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
         >
           <Sparkles className="h-4 w-4" />
-          Asistente AWS
+          {assistantTitle}
         </button>
       )}
 
@@ -60,7 +74,7 @@ export function AgentDrawer() {
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <div>
-              <div className="text-sm font-semibold">Asistente AWS</div>
+              <div className="text-sm font-semibold">{assistantTitle}</div>
               <div className="text-xs text-gray-500">
                 {sessionId ? `Sesión ${sessionId.slice(0, 8)}…` : 'Sin sesión activa'}
               </div>
@@ -118,7 +132,7 @@ export function AgentDrawer() {
                 }
               }}
               rows={2}
-              placeholder="Escribe tu pregunta… (Enter para enviar)"
+              placeholder={t('agent.placeholder', { defaultValue: 'Escribe tu pregunta… (Enter para enviar)' })}
               className="flex-1 resize-none rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
             />
             {isSending ? (

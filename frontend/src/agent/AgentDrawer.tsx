@@ -52,10 +52,11 @@ export function AgentDrawer() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
+          aria-label={assistantTitle}
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex h-12 w-12 sm:h-auto sm:w-auto items-center justify-center sm:gap-2 rounded-full bg-primary sm:px-4 sm:py-3 text-sm font-medium text-white shadow-lg transition hover:scale-105"
         >
-          <Sparkles className="h-4 w-4" />
-          {assistantTitle}
+          <Sparkles className="h-5 w-5 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">{assistantTitle}</span>
         </button>
       )}
 

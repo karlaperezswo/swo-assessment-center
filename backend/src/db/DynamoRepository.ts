@@ -36,6 +36,52 @@ export interface QueryOptions {
   filterValues?: Record<string, unknown>;
 }
 
+/**
+ * Defensive validator for DynamoDB filter expressions.
+ *
+ * The expression must reference only placeholders (`#name` / `:value`) — never
+ * raw attribute names or literal user input. This prevents callers from
+ * accidentally interpolating untrusted strings into the expression.
+ *
+ * Throws on suspicious input so a violation is loud at the call site rather
+ * than producing an unintended scan.
+ */
+function assertSafeFilterExpression(opts: QueryOptions): void {
+  const expr = opts.filterExpression;
+  if (!expr) return;
+
+  // Only allow placeholders, comma, parens, whitespace, and the small set of
+  // DynamoDB operator keywords. Anything else (raw column names, quotes,
+  // arithmetic, semicolons, etc.) is rejected.
+  const ALLOWED_TOKENS = new Set([
+    'AND', 'OR', 'NOT', 'IN', 'BETWEEN',
+    'attribute_exists', 'attribute_not_exists', 'attribute_type',
+    'begins_with', 'contains', 'size',
+  ]);
+  const tokens = expr.split(/[\s(),]+/).filter(Boolean);
+  for (const t of tokens) {
+    if (t.startsWith('#') || t.startsWith(':')) continue;
+    if (ALLOWED_TOKENS.has(t)) continue;
+    if (t === '=' || t === '<>' || t === '<' || t === '>' || t === '<=' || t === '>=') continue;
+    throw new Error(
+      `Unsafe filterExpression token "${t}". Only placeholders (#x, :y) and DynamoDB operators are allowed.`
+    );
+  }
+
+  // Every placeholder must have a matching name/value in the supplied maps so
+  // there are no dangling references that could be resolved against unrelated
+  // attributes.
+  const placeholders = expr.match(/[#:][A-Za-z0-9_]+/g) ?? [];
+  for (const ph of placeholders) {
+    if (ph.startsWith('#') && !(opts.filterNames && ph in opts.filterNames)) {
+      throw new Error(`filterExpression references unknown name placeholder ${ph}`);
+    }
+    if (ph.startsWith(':') && !(opts.filterValues && ph in opts.filterValues)) {
+      throw new Error(`filterExpression references unknown value placeholder ${ph}`);
+    }
+  }
+}
+
 export interface QueryResult<T> {
   items: T[];
   lastEvaluatedKey?: Record<string, unknown>;
@@ -117,6 +163,7 @@ export class DynamoRepository {
     skPrefix?: string,
     options: QueryOptions = {}
   ): Promise<QueryResult<T>> {
+    assertSafeFilterExpression(options);
     const input: QueryCommandInput = {
       TableName: this.tableName,
       IndexName: options.indexName,

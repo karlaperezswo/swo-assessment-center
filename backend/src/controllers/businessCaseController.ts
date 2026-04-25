@@ -4,12 +4,12 @@ import { getCacheStatus, refreshProduct, PRODUCT_SLUGS } from '../services/eolAp
 import { getSQLPricingStatus } from '../services/sqlPricingService';
 import { S3Client, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import * as XLSX from 'xlsx';
+import { getS3BucketName } from '../config/awsResources';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
-const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'assessment-center-files-assessment-dashboard';
 
 async function getBufferFromS3(key: string): Promise<Buffer> {
-  const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: key });
+  const command = new GetObjectCommand({ Bucket: getS3BucketName(), Key: key });
   const response = await s3Client.send(command);
   if (!response.Body) throw new Error('No file content received from S3');
   const chunks: Uint8Array[] = [];
@@ -18,7 +18,7 @@ async function getBufferFromS3(key: string): Promise<Buffer> {
 }
 
 async function deleteFromS3(key: string): Promise<void> {
-  await s3Client.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME, Key: key }));
+  await s3Client.send(new DeleteObjectCommand({ Bucket: getS3BucketName(), Key: key }));
 }
 
 /**

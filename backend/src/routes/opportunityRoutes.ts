@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import { OpportunityController } from '../controllers/OpportunityController';
+import { requirePermission } from '../middleware/requireRole';
+import { buildBedrockRateLimiter } from '../middleware/security';
 
 const router = Router();
 const controller = new OpportunityController();
+
+// Heavy / Bedrock-hitting endpoints share a tighter limiter on top of the
+// global per-IP base limiter applied in index.ts.
+const heavyLimiter = buildBedrockRateLimiter();
 
 /**
  * POST /api/opportunities/get-upload-urls
@@ -20,7 +26,12 @@ const controller = new OpportunityController();
  *   - questionnaireUrl?: string (presigned URL, optional)
  *   - questionnaireKey?: string (S3 key, optional)
  */
-router.post('/get-upload-urls', controller.getUploadUrls);
+router.post(
+  '/get-upload-urls',
+  heavyLimiter,
+  requirePermission('assessments:upload'),
+  controller.getUploadUrls
+);
 
 /**
  * POST /api/opportunities/analyze
@@ -39,7 +50,7 @@ router.post('/get-upload-urls', controller.getUploadUrls);
  *   - statusUrl: string
  *   - resultUrl: string
  */
-router.post('/analyze', controller.analyze);
+router.post('/analyze', heavyLimiter, requirePermission('bedrock:invoke'), controller.analyze);
 
 /**
  * GET /api/opportunities/status/:jobId
@@ -56,7 +67,11 @@ router.post('/analyze', controller.analyze);
  *   - progress: number (0-100)
  *   - error?: string (if failed)
  */
-router.get('/status/:jobId', controller.getJobStatus);
+router.get(
+  '/status/:jobId',
+  requirePermission('sessions:read:own'),
+  controller.getJobStatus
+);
 
 /**
  * GET /api/opportunities/result/:jobId
@@ -68,7 +83,11 @@ router.get('/status/:jobId', controller.getJobStatus);
  * Response: JobResultResponse
  *   - result: { sessionId, opportunities, summary }
  */
-router.get('/result/:jobId', controller.getJobResult);
+router.get(
+  '/result/:jobId',
+  requirePermission('sessions:read:own'),
+  controller.getJobResult
+);
 
 /**
  * GET /api/opportunities/list
@@ -86,7 +105,7 @@ router.get('/result/:jobId', controller.getJobResult);
  *   - opportunities: Opportunity[]
  *   - total: number
  */
-router.get('/list', controller.list);
+router.get('/list', requirePermission('sessions:read:own'), controller.list);
 
 /**
  * PATCH /api/opportunities/:id/status
@@ -101,7 +120,11 @@ router.get('/list', controller.list);
  * Response: UpdateStatusResponseBody
  *   - opportunity: Opportunity
  */
-router.patch('/:id/status', controller.updateStatus);
+router.patch(
+  '/:id/status',
+  requirePermission('opportunities:approve'),
+  controller.updateStatus
+);
 
 /**
  * POST /api/opportunities/export
@@ -117,6 +140,6 @@ router.patch('/:id/status', controller.updateStatus);
  *   - expiresAt: Date
  *   - filename: string
  */
-router.post('/export', controller.export);
+router.post('/export', heavyLimiter, requirePermission('report:download'), controller.export);
 
 export { router as opportunityRouter };

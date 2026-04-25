@@ -6,6 +6,7 @@ Puente entre el backend Node.js y awslabs.aws-documentation-mcp-server
 
 import asyncio
 import json
+import os
 import subprocess
 import sys
 from typing import Optional
@@ -19,11 +20,24 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# CORS allowlist — env-driven for production. The localhost defaults are only
+# used when CORS_ALLOWED_ORIGINS is unset (dev convenience).
+_default_origins = [
+    "http://localhost:4000",
+    "http://localhost:3005",
+    "http://localhost:3006",
+    "http://127.0.0.1:4000",
+]
+_allowed_origins = [
+    o.strip()
+    for o in os.getenv("CORS_ALLOWED_ORIGINS", ",".join(_default_origins)).split(",")
+    if o.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4000", "http://localhost:3005", "http://localhost:3006", "http://127.0.0.1:4000"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_allowed_origins,
+    allow_methods=["GET", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 
@@ -311,5 +325,10 @@ async def servicio_completo(
 
 
 if __name__ == "__main__":
+    import os
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
+    # Bind to localhost by default; only expose externally when explicitly opted in
+    # via BIND_HOST. Auto-reload only enabled in development.
+    is_dev = os.getenv("ENVIRONMENT", "production").lower() == "development"
+    host = os.getenv("BIND_HOST", "127.0.0.1")
+    uvicorn.run("main:app", host=host, port=8001, reload=is_dev)

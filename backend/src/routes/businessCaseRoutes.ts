@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { BusinessCaseController } from '../controllers/businessCaseController';
+import { requirePermission } from '../middleware/requireRole';
+import { buildBedrockRateLimiter } from '../middleware/security';
+
+const heavyLimiter = buildBedrockRateLimiter();
 
 /**
  * Business Case Routes
@@ -31,7 +35,7 @@ const upload = multer({
 });
 
 // Upload and parse Business Case Excel file
-router.post('/upload', (req, res, next) => {
+router.post('/upload', heavyLimiter, requirePermission('assessments:upload'), (req, res, next) => {
   upload.single('file')(req, res, (err) => {
     if (err) {
       return res.status(400).json({ success: false, error: err.message || 'File upload error' });
@@ -41,7 +45,7 @@ router.post('/upload', (req, res, next) => {
 }, controller.uploadBusinessCase);
 
 // Upload and parse TCO 1 Year Excel file
-router.post('/upload-tco-1year', (req, res, next) => {
+router.post('/upload-tco-1year', heavyLimiter, requirePermission('assessments:upload'), (req, res, next) => {
   upload.single('file')(req, res, (err) => {
     if (err) {
       return res.status(400).json({ success: false, error: err.message || 'File upload error' });
@@ -51,7 +55,7 @@ router.post('/upload-tco-1year', (req, res, next) => {
 }, controller.uploadTCO1Year);
 
 // Upload and parse Carbon Report Excel file
-router.post('/upload-carbon-report', (req, res, next) => {
+router.post('/upload-carbon-report', heavyLimiter, requirePermission('assessments:upload'), (req, res, next) => {
   upload.single('file')(req, res, (err) => {
     if (err) {
       return res.status(400).json({ success: false, error: err.message || 'File upload error' });
@@ -64,16 +68,16 @@ router.post('/upload-carbon-report', (req, res, next) => {
 // router.post('/export-pptx', controller.exportPPTX); // REMOVED: PPTX export functionality removed
 
 // Process files from S3 (production mode)
-router.post('/upload-from-s3', controller.uploadBusinessCaseFromS3);
-router.post('/upload-tco-1year-from-s3', controller.uploadTCO1YearFromS3);
-router.post('/upload-carbon-report-from-s3', controller.uploadCarbonReportFromS3);
+router.post('/upload-from-s3', heavyLimiter, requirePermission('assessments:upload'), controller.uploadBusinessCaseFromS3);
+router.post('/upload-tco-1year-from-s3', heavyLimiter, requirePermission('assessments:upload'), controller.uploadTCO1YearFromS3);
+router.post('/upload-carbon-report-from-s3', heavyLimiter, requirePermission('assessments:upload'), controller.uploadCarbonReportFromS3);
 
 // EOL & pricing data status + manual refresh
-router.get('/eol-status', controller.getEolStatus);
-router.post('/eol-refresh', controller.refreshEolData);
+router.get('/eol-status', requirePermission('sessions:read:own'), controller.getEolStatus);
+router.post('/eol-refresh', requirePermission('orgs:manage'), controller.refreshEolData);
 
-// Diagnostic: inspect Excel file columns (dev only)
-router.post('/inspect-columns', (req, res, next) => {
+// Diagnostic: inspect Excel file columns (superadmin only)
+router.post('/inspect-columns', requirePermission('orgs:manage'), (req, res, next) => {
   upload.single('file')(req, res, (err) => {
     if (err) return res.status(400).json({ success: false, error: err.message });
     next();

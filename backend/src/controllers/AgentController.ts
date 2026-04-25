@@ -5,6 +5,8 @@ import { AgentOrchestrator } from '../agent/AgentOrchestrator';
 import type { AgentUserMessage } from '../agent/AgentOrchestrator';
 import { getAgentThreadRepository } from '../db/AgentThreadRepository';
 import { getAuditLog } from '../services/AuditLogService';
+import { AnonymizationService } from '../services/AnonymizationService';
+import type { AnonymizationMapping } from '../../../shared/types/opportunity.types';
 import {
   evaluateInput,
   userMessageFor,
@@ -19,6 +21,18 @@ const chatSchema = z.object({
 });
 
 const orchestrator = new AgentOrchestrator();
+const anonymizer = new AnonymizationService();
+
+function emptyMapping(): AnonymizationMapping {
+  return {
+    ipAddresses: new Map<string, string>(),
+    hostnames: new Map<string, string>(),
+    companyNames: new Map<string, string>(),
+    locations: new Map<string, string>(),
+    contacts: new Map<string, string>(),
+    reverseMap: new Map<string, string>(),
+  };
+}
 
 function writeSse(res: Response, event: string, data: unknown) {
   res.write(`event: ${event}\n`);
@@ -107,15 +121,26 @@ export class AgentController {
       createdAt: new Date().toISOString(),
     });
 
+    // Anonymise PII (IPs, hostnames, company names) in the entire turn before
+    // sending it to Bedrock; deanonymise the assistant's reply with the same
+    // mapping so the user sees the original values back. Tokens accumulate
+    // across the conversation so a name introduced in turn 1 remains the same
+    // token in turn 2.
+    const conversationMapping = emptyMapping();
     const turnHistory: AgentUserMessage[] = thread.messages
       .filter((m) => m.role === 'user' || m.role === 'assistant')
-      .map((m) => ({
-        role: m.role === 'assistant' ? 'assistant' : 'user',
-        content: m.content,
-      }));
+      .map((m) => {
+        const role: 'user' | 'assistant' = m.role === 'assistant' ? 'assistant' : 'user';
+        if (role === 'user') {
+          const { text, mapping } = anonymizer.anonymizeFreeText(m.content);
+          anonymizer.mergeMappings(conversationMapping, mapping);
+          return { role, content: text };
+        }
+        return { role, content: m.content };
+      });
 
     try {
-      let assistantText = '';
+      let assistantTextRedacted = '';
       await orchestrator.run({
         messages: turnHistory,
         context: {
@@ -127,8 +152,11 @@ export class AgentController {
         onEvent: async (ev) => {
           if (ev.type === 'text_delta') {
             const t = (ev.data as { text: string }).text;
-            assistantText += t;
-            writeSse(res, 'text_delta', { text: t });
+            assistantTextRedacted += t;
+            // Deanonymise on the way out so the UI never sees redacted tokens.
+            writeSse(res, 'text_delta', {
+              text: anonymizer.deanonymize(t, conversationMapping),
+            });
           } else if (ev.type === 'tool_use_start') {
             writeSse(res, 'tool_use_start', ev.data);
           } else if (ev.type === 'tool_use_result' || ev.type === 'tool_use_error') {
@@ -141,10 +169,10 @@ export class AgentController {
         },
       });
 
-      if (assistantText) {
+      if (assistantTextRedacted) {
         thread.messages.push({
           role: 'assistant',
-          content: assistantText,
+          content: anonymizer.deanonymize(assistantTextRedacted, conversationMapping),
           createdAt: new Date().toISOString(),
         });
       }

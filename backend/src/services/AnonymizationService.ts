@@ -53,6 +53,33 @@ export class AnonymizationService {
   }
 
   /**
+   * Anonymize a free-text string (e.g. an agent chat message) using a fresh
+   * mapping. Returns both the redacted text and the mapping so callers can
+   * deanonymise the assistant's reply with the same tokens.
+   */
+  anonymizeFreeText(text: string): { text: string; mapping: AnonymizationMapping } {
+    const mapping: AnonymizationMapping = {
+      ipAddresses: new Map<string, string>(),
+      hostnames: new Map<string, string>(),
+      companyNames: new Map<string, string>(),
+      locations: new Map<string, string>(),
+      contacts: new Map<string, string>(),
+      reverseMap: new Map<string, string>(),
+    };
+    return { text: this.anonymizeText(text, mapping), mapping };
+  }
+
+  /**
+   * Merge tokens from `incoming` into `target` so the same reverseMap can be
+   * reused across multiple messages in a conversation.
+   */
+  mergeMappings(target: AnonymizationMapping, incoming: AnonymizationMapping): void {
+    for (const [k, v] of incoming.reverseMap.entries()) {
+      target.reverseMap.set(k, v);
+    }
+  }
+
+  /**
    * Restore original values in AI response
    * @param response - Bedrock response text
    * @param mapping - Anonymization mapping

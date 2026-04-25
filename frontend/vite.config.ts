@@ -10,6 +10,12 @@ export default defineConfig({
       '@shared': path.resolve(__dirname, '../shared'),
     },
   },
+  build: {
+    // Never ship source maps to production — they expose original source code
+    // to anyone with browser DevTools. Set VITE_SOURCEMAP=true locally if you
+    // need them while debugging a deployed build.
+    sourcemap: process.env.VITE_SOURCEMAP === 'true',
+  },
   server: {
     host: '0.0.0.0',
     port: 3005,

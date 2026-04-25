@@ -17,12 +17,18 @@ frontend/test-results/
 frontend/playwright-report/
 frontend/.playwright/
 
-# Environment files
+# Environment files — never commit real values; copy from *.example instead.
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+# Frontend env files: keep .env.example tracked, ignore the rest so production
+# URLs / Cognito identifiers are not committed by mistake going forward.
+frontend/.env.development
+frontend/.env.production
+frontend/.env.portforward
+backend/.env
 
 # Logs
 logs/
@@ -249,6 +255,9 @@ backend/data/selector/sessions/
 shared/types/*.js
 shared/types/*.js.map
 shared/types/*.d.ts.map
+# Compiled TS artifacts in shared/ — source is the .ts file
+shared/types/*.js
+shared/types/*.d.ts
 
 # ── Kiro specs (herramienta de desarrollo local) ─────────────────────────────
 .kiro/specs/

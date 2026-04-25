@@ -81,12 +81,16 @@ app.get('/', (req, res) => {
 });
 
 // Error handling middleware
+// Logs full error server-side with a correlation id; returns only an opaque
+// id and a generic message to the client so internal details never leak.
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err.message);
-  console.error('Stack:', err.stack);
+  const correlationId = `err_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+  console.error(`[${correlationId}] ${err.name}: ${err.message}`);
+  if (err.stack) console.error(`[${correlationId}] ${err.stack}`);
   res.status(500).json({
     success: false,
-    error: err.message || 'Internal server error'
+    error: 'Internal server error',
+    correlationId,
   });
 });
 

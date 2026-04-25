@@ -26,9 +26,9 @@ import {
   JobStatusResponse,
   JobResultResponse,
 } from '../types/job';
+import { getS3BucketName } from '../config/awsResources';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
-const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'assessment-center-files-assessment-dashboard';
 
 export class OpportunityController {
   private pdfParser: any; // Lazy loaded
@@ -82,49 +82,106 @@ export class OpportunityController {
       // Generate unique session ID for this upload
       const sessionId = uuidv4();
 
-      // Generate presigned URLs for each file
-      const urlPromises = files.map(async (file: { filename: string; contentType: string }, index: number) => {
-        // Determine file type based on index or content type
-        let fileType = 'unknown';
-        let key = '';
+      // Strict allow-list per slot. We bind the S3 key to a server-decided
+      // extension so a caller can't smuggle a different file type through the
+      // upload URL by lying about Content-Type or filename.
+      type SlotConfig = {
+        fileType: 'mpa' | 'mra' | 'questionnaire';
+        allowedContentTypes: string[];
+        allowedExtensions: string[];
+        // Extension chosen by the server based on the (validated) caller hint.
+        extensionFor: (file: { filename: string; contentType: string }) => string;
+      };
+      const SLOTS: SlotConfig[] = [
+        {
+          fileType: 'mpa',
+          allowedContentTypes: [
+            'application/json',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel',
+          ],
+          allowedExtensions: ['.json', '.xlsx', '.xls'],
+          extensionFor: (f) =>
+            f.contentType === 'application/json' || f.filename.toLowerCase().endsWith('.json')
+              ? 'json'
+              : 'xlsx',
+        },
+        {
+          fileType: 'mra',
+          allowedContentTypes: ['application/pdf'],
+          allowedExtensions: ['.pdf'],
+          extensionFor: () => 'pdf',
+        },
+        {
+          fileType: 'questionnaire',
+          allowedContentTypes: [
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          ],
+          allowedExtensions: ['.docx'],
+          extensionFor: () => 'docx',
+        },
+      ];
 
-        if (index === 0 || file.contentType === 'application/json' || file.filename.endsWith('.json') || file.filename.endsWith('.xlsx')) {
-          fileType = 'mpa';
-          key = `opportunities/mpa-${sessionId}.${file.filename.endsWith('.json') ? 'json' : 'xlsx'}`;
-        } else if (index === 1 || file.contentType === 'application/pdf' || file.filename.endsWith('.pdf')) {
-          fileType = 'mra';
-          key = `opportunities/mra-${sessionId}.pdf`;
-        } else if (index === 2 || file.contentType.includes('wordprocessingml') || file.filename.endsWith('.docx')) {
-          fileType = 'questionnaire';
-          key = `opportunities/questionnaire-${sessionId}.docx`;
+      const lowerName = (n: string) => (typeof n === 'string' ? n.toLowerCase() : '');
+      const validationErrors: string[] = [];
+
+      const urlPromises = files.map(
+        async (file: { filename: string; contentType: string }, index: number) => {
+          if (index >= SLOTS.length) {
+            validationErrors.push(`File at index ${index} is unexpected (max ${SLOTS.length - 1})`);
+            return null;
+          }
+          const slot = SLOTS[index];
+          const ct = (file.contentType ?? '').toLowerCase();
+          const fname = lowerName(file.filename ?? '');
+          const ctOk = slot.allowedContentTypes.includes(ct);
+          const extOk = slot.allowedExtensions.some((e) => fname.endsWith(e));
+          if (!ctOk || !extOk) {
+            validationErrors.push(
+              `Slot ${slot.fileType} (index ${index}) rejects content-type "${ct}" / filename "${fname}"`
+            );
+            return null;
+          }
+
+          const ext = slot.extensionFor(file);
+          // Filename pattern is fully server-controlled — no caller-supplied
+          // bytes end up in the S3 key.
+          const key = `opportunities/${slot.fileType}-${sessionId}.${ext}`;
+
+          const command = new PutObjectCommand({
+            Bucket: getS3BucketName(),
+            Key: key,
+            // Use the validated content-type, never the raw header.
+            ContentType: ct,
+            ServerSideEncryption: 'AES256',
+          });
+
+          const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 900 });
+
+          console.log(`[GET-UPLOAD-URLS] Generated URL for ${slot.fileType}: ${key}`);
+
+          return { fileType: slot.fileType, uploadUrl, key };
         }
-
-        // Create presigned URL for PUT operation (15 minutes expiry)
-        const command = new PutObjectCommand({
-          Bucket: BUCKET_NAME,
-          Key: key,
-          ContentType: file.contentType
-        });
-
-        const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 900 });
-
-        console.log(`[GET-UPLOAD-URLS] Generated URL for ${fileType}: ${key}`);
-
-        return {
-          fileType,
-          uploadUrl,
-          key,
-        };
-      });
+      );
 
       const urls = await Promise.all(urlPromises);
 
+      if (validationErrors.length > 0) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid file(s) for upload',
+          details: validationErrors,
+        });
+        return;
+      }
+
       // Organize URLs by file type
-      const result: any = { sessionId };
-      urls.forEach(({ fileType, uploadUrl, key }) => {
-        result[`${fileType}Url`] = uploadUrl;
-        result[`${fileType}Key`] = key;
-      });
+      const result: Record<string, string> = { sessionId };
+      for (const item of urls) {
+        if (!item) continue;
+        result[`${item.fileType}Url`] = item.uploadUrl;
+        result[`${item.fileType}Key`] = item.key;
+      }
 
       console.log(`[GET-UPLOAD-URLS] Generated ${urls.length} presigned URLs for session ${sessionId}`);
 
@@ -149,14 +206,13 @@ export class OpportunityController {
   analyze = async (req: Request, res: Response): Promise<void> => {
     try {
       console.log('[ANALYZE] Request received for async processing');
-      console.log('[ANALYZE] req.body:', req.body);
-      
+
       // Validate S3 keys are present
       const { mpaKey, mraKey, questionnaireKey } = req.body;
-      
-      console.log('[ANALYZE] mpaKey present:', !!mpaKey);
-      console.log('[ANALYZE] mraKey present:', !!mraKey);
-      console.log('[ANALYZE] questionnaireKey present:', !!questionnaireKey);
+
+      console.log(
+        `[ANALYZE] keys present: mpa=${!!mpaKey} mra=${!!mraKey} questionnaire=${!!questionnaireKey}`
+      );
       
       if (!mpaKey || !mraKey) {
         console.log('[ANALYZE] Missing required S3 keys - returning 400');
@@ -374,7 +430,7 @@ export class OpportunityController {
     contentType: string
   ): Promise<void> {
     const command = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: getS3BucketName(),
       Key: `opportunities/${key}`,
       Body: buffer,
       ContentType: contentType,

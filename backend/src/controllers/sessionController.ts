@@ -19,8 +19,16 @@ async function ensureDir(): Promise<void> {
   await fs.mkdir(SESSION_DIR, { recursive: true });
 }
 
+/**
+ * Strict session-key sanitiser.
+ *
+ * Allows only characters that cannot form a path-traversal sequence (no dots,
+ * no slashes). Anything else is replaced with `_`. Empty results fall back to
+ * `default` so callers always get a usable filename.
+ */
 function sanitizeKey(raw: string): string {
-  return raw.replace(/[^a-zA-Z0-9_.-]/g, '_').slice(0, 128);
+  const cleaned = raw.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 128);
+  return cleaned.length > 0 ? cleaned : 'default';
 }
 
 function resolveKey(req: Request): string {
@@ -28,11 +36,17 @@ function resolveKey(req: Request): string {
   if (sub) return sanitizeKey(sub);
   const header = req.header('x-session-key');
   if (header) return sanitizeKey(header);
-  return 'session.default';
+  return 'default';
 }
 
 function sessionPath(key: string): string {
-  return path.join(SESSION_DIR, `${key}.json`);
+  // Defence in depth: validate the resolved path stays inside SESSION_DIR.
+  const target = path.resolve(SESSION_DIR, `${key}.json`);
+  const root = path.resolve(SESSION_DIR);
+  if (!target.startsWith(root + path.sep)) {
+    throw new Error('Invalid session key');
+  }
+  return target;
 }
 
 export async function getSession(req: Request, res: Response): Promise<void> {

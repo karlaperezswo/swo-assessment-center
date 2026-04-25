@@ -47,6 +47,15 @@ const DEFAULT_MAX_TOKENS = Number(process.env.BEDROCK_MAX_TOKENS ?? 2048);
 const GUARDRAIL_ID = process.env.BEDROCK_GUARDRAIL_ID;
 const GUARDRAIL_VERSION = process.env.BEDROCK_GUARDRAIL_VERSION;
 
+// Fail fast in production if the Bedrock guardrail isn't configured. The
+// regex-based guardrails in agent/guardrails.ts are best-effort only and must
+// not be the sole defence against prompt injection / unsafe output.
+if (process.env.NODE_ENV === 'production' && (!GUARDRAIL_ID || !GUARDRAIL_VERSION)) {
+  throw new Error(
+    'BEDROCK_GUARDRAIL_ID and BEDROCK_GUARDRAIL_VERSION are required in production'
+  );
+}
+
 /**
  * Transversal-copilot orchestrator.
  *

@@ -7,14 +7,14 @@ import { StorageService } from '../services/storageService';
 import { DependencyService } from '../services/dependencyService';
 import { ReportInput } from '../types';
 import { S3Client, GetObjectCommand, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getS3BucketName } from '../config/awsResources';
 
 // Configuración de AWS S3 — usa IAM Role del Lambda automáticamente
 const AWS_REGION = process.env.AWS_REGION || 'us-east-1';
-const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'assessment-center-files-assessment-dashboard';
 
 const s3Client = new S3Client({ region: AWS_REGION });
 
-console.log(`📦 [ReportController] S3 Configuration: Region=${AWS_REGION}, Bucket=${BUCKET_NAME}`);
+console.log(`📦 [ReportController] S3 Configuration: Region=${AWS_REGION}`);
 
 export class ReportController {
   private excelService: ExcelService;
@@ -127,7 +127,7 @@ export class ReportController {
 
       // Get file from S3
       const command = new GetObjectCommand({
-        Bucket: BUCKET_NAME,
+        Bucket: getS3BucketName(),
         Key: key
       });
 
@@ -154,7 +154,7 @@ export class ReportController {
 
       // Delete file from S3 after parsing (cleanup)
       const deleteCommand = new DeleteObjectCommand({
-        Bucket: BUCKET_NAME,
+        Bucket: getS3BucketName(),
         Key: key
       });
       await s3Client.send(deleteCommand);
@@ -201,7 +201,7 @@ export class ReportController {
       // Save full excelData to S3 to avoid Lambda 6MB response limit
       const dataKey = `processed-data/${Date.now()}-${Math.random().toString(36).substring(7)}.json`;
       const putCommand = new PutObjectCommand({
-        Bucket: BUCKET_NAME,
+        Bucket: getS3BucketName(),
         Key: dataKey,
         Body: JSON.stringify(excelData),
         ContentType: 'application/json'

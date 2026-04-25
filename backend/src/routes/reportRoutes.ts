@@ -2,8 +2,11 @@ import { Router } from 'express';
 import multer from 'multer';
 import { ReportController } from '../controllers/reportController';
 import { UploadController } from '../controllers/uploadController';
+import { requirePermission } from '../middleware/requireRole';
+import { buildBedrockRateLimiter } from '../middleware/security';
 
 const router = Router();
+const heavyLimiter = buildBedrockRateLimiter();
 const controller = new ReportController();
 const uploadController = new UploadController();
 
@@ -30,13 +33,13 @@ const upload = multer({
 });
 
 // Get pre-signed URL for direct S3 upload
-router.post('/get-upload-url', uploadController.getUploadUrl);
+router.post('/get-upload-url', heavyLimiter, requirePermission('assessments:upload'), uploadController.getUploadUrl);
 
 // Process Excel file from S3 (after direct upload)
-router.post('/upload-from-s3', controller.uploadExcelFromS3);
+router.post('/upload-from-s3', heavyLimiter, requirePermission('assessments:upload'), controller.uploadExcelFromS3);
 
 // Upload and parse Excel file (legacy method - will timeout on large files)
-router.post('/upload', (req, res, next) => {
+router.post('/upload', heavyLimiter, requirePermission('assessments:upload'), (req, res, next) => {
   upload.single('file')(req, res, (err) => {
     if (err) {
       // Handle multer errors
@@ -50,9 +53,9 @@ router.post('/upload', (req, res, next) => {
 }, controller.uploadExcel);
 
 // Generate Word report
-router.post('/generate', controller.generateReport);
+router.post('/generate', heavyLimiter, requirePermission('report:download'), controller.generateReport);
 
 // Download generated report
-router.get('/download/:filename', controller.downloadReport);
+router.get('/download/:filename', requirePermission('report:download'), controller.downloadReport);
 
 export { router as reportRouter };

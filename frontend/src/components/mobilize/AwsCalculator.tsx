@@ -252,9 +252,9 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
               <div className="flex items-center gap-2 h-8">
                 <button
                   onClick={() => setDedicatedHosts(v => !v)}
-                  className={`relative h-5 w-9 rounded-full transition-colors ${dedicatedHosts ? 'bg-orange-500' : 'bg-gray-300'}`}
+                  className={`relative h-5 w-9 rounded-full overflow-hidden transition-colors ${dedicatedHosts ? 'bg-orange-500' : 'bg-gray-300'}`}
                 >
-                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${dedicatedHosts ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                  <span className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${dedicatedHosts ? 'translate-x-4' : 'translate-x-0'}`} />
                 </button>
                 <span className="text-xs text-gray-500">{dedicatedHosts ? 'Incluido' : 'No incluido'}</span>
               </div>
@@ -646,9 +646,9 @@ function ServiceCard({
         </div>
         <button
           onClick={() => onToggle(!enabled)}
-          className={`relative flex-shrink-0 mt-0.5 h-5 w-9 rounded-full transition-colors ${enabled ? 'bg-green-500' : 'bg-gray-300'}`}
+          className={`relative flex-shrink-0 mt-0.5 h-5 w-9 rounded-full overflow-hidden transition-colors ${enabled ? 'bg-green-500' : 'bg-gray-300'}`}
         >
-          <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${enabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
+          <span className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${enabled ? 'translate-x-4' : 'translate-x-0'}`} />
         </button>
       </div>
       {enabled && (

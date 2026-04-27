@@ -16,7 +16,8 @@ import {
   TCO1YearUploadResponse,
   CarbonReportUploadResponse,
 } from '@/types/assessment';
-import { TrendingUp, Briefcase, Leaf, Map as MapIcon, Paperclip } from 'lucide-react';
+import { TrendingUp, Briefcase, Leaf, Map as MapIcon, Paperclip, Calculator } from 'lucide-react';
+import { AwsCalculator } from './AwsCalculator';
 
 export interface BusinessCaseResultsProps {
   businessCaseData: BusinessCaseUploadResponse | null;
@@ -102,6 +103,10 @@ export function BusinessCaseResults(props: BusinessCaseResultsProps) {
         <TabsTrigger value="anexos" disabled={!hasAnexos} className="flex items-center gap-1.5">
           <Paperclip className="h-3.5 w-3.5" />
           Anexos
+        </TabsTrigger>
+        <TabsTrigger value="calculadora" className="flex items-center gap-1.5">
+          <Calculator className="h-3.5 w-3.5" />
+          Calculadora AWS
         </TabsTrigger>
       </TabsList>
 
@@ -290,6 +295,14 @@ export function BusinessCaseResults(props: BusinessCaseResultsProps) {
             </CardContent>
           </Card>
         )}
+      </TabsContent>
+
+      <TabsContent value="calculadora">
+        <AwsCalculator
+          businessCaseData={businessCaseData}
+          tco1YearData={tco1YearData}
+          clientData={clientData}
+        />
       </TabsContent>
     </Tabs>
   );

@@ -161,7 +161,18 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
             </Badge>
           )}
         </div>
-        {isExpanded ? <ChevronUp className="h-5 w-5 text-orange-600" /> : <ChevronDown className="h-5 w-5 text-orange-600" />}
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            disabled={!canExport}
+            onClick={e => { e.stopPropagation(); handleDownloadAll(); }}
+            className="gap-1.5 bg-orange-600 hover:bg-orange-700 text-white"
+          >
+            <Download className="h-4 w-4" />
+            Descargar todo
+          </Button>
+          {isExpanded ? <ChevronUp className="h-5 w-5 text-orange-600" /> : <ChevronDown className="h-5 w-5 text-orange-600" />}
+        </div>
       </div>
 
       {isExpanded && (

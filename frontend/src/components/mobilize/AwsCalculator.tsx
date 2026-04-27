@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Calculator, ChevronDown, ChevronUp, Download, Server,
-  Settings, FileJson, CheckCircle2, Circle, Info,
+  Settings, FileSpreadsheet, CheckCircle2, Circle, Info,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -15,7 +15,7 @@ import {
 } from '@/types/assessment';
 import {
   ServerMapping, AdditionalServicesConfig, InstanceFamily, PaymentOption, PricingModel,
-  mapInstanceType, getOsString, getInstanceOptions, generateCalculatorJson, downloadJson,
+  mapInstanceType, getOsString, getInstanceOptions, generateEC2BulkImportXlsx, downloadXlsx,
   REGION_DISPLAY_NAMES,
 } from '@/lib/awsCalculatorGenerator';
 
@@ -106,7 +106,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
       '3yr': `3Yr-${paymentLabel}`,
     };
     const name = estimateName || 'AWS-Estimate';
-    const json = generateCalculatorJson({
+    const buffer = generateEC2BulkImportXlsx({
       estimateName: `${name} - ${labels[model]}`,
       region,
       pricingModel: model,
@@ -115,8 +115,8 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
       additionalServices,
       date: new Date().toLocaleDateString('es-ES'),
     });
-    downloadJson(json, `${name.replace(/\s+/g, '-')}-${labels[model]}.json`);
-    toast.success(`Archivo ${labels[model]} descargado`, { description: 'Impórtalo en calculator.aws' });
+    downloadXlsx(buffer, `${name.replace(/\s+/g, '-')}-${labels[model]}-EC2.xlsx`);
+    toast.success(`Excel ${labels[model]} descargado`, { description: 'Impórtalo en calculator.aws → Bulk Import → EC2 Instances' });
   };
 
   const handleDownloadAll = () => {
@@ -152,7 +152,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
           <div>
             <h3 className="font-bold text-orange-900 text-lg">Calculadora AWS</h3>
             <p className="text-sm text-orange-700">
-              Genera los 3 archivos JSON listos para importar en calculator.aws
+              Genera Excel de EC2 para Bulk Import en calculator.aws
             </p>
           </div>
           {canExport && (
@@ -240,7 +240,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
             {([
               { key: 'servers',  label: 'Servidores',          icon: Server },
               { key: 'services', label: 'Servicios adicionales', icon: Settings },
-              { key: 'export',   label: 'Exportar',             icon: FileJson },
+              { key: 'export',   label: 'Exportar',             icon: FileSpreadsheet },
             ] as const).map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
@@ -467,14 +467,23 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
             <div className="space-y-4">
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
                 <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-semibold text-blue-900">Cómo importar en AWS Calculator</p>
-                  <ol className="text-sm text-blue-800 mt-2 space-y-1 list-decimal list-inside">
-                    <li>Descarga el archivo JSON del modelo que necesites</li>
-                    <li>Ve a <span className="font-mono bg-blue-100 px-1 rounded">calculator.aws</span> → crea nueva estimación</li>
-                    <li>Haz clic en <strong>Exportar → Importar</strong> y selecciona el archivo</li>
-                    <li>AWS Calculator calculará los costos reales automáticamente</li>
-                  </ol>
+                <div className="space-y-3">
+                  <div>
+                    <p className="font-semibold text-blue-900">Cómo importar EC2 en AWS Calculator</p>
+                    <ol className="text-sm text-blue-800 mt-2 space-y-1 list-decimal list-inside">
+                      <li>Descarga el Excel del modelo de pricing que necesites</li>
+                      <li>Ve a <span className="font-mono bg-blue-100 px-1 rounded">calculator.aws</span> → crea una nueva estimación</li>
+                      <li>Agrega un servicio <strong>Amazon EC2</strong> → selecciona <strong>Bulk Import</strong></li>
+                      <li>Sube el archivo <strong>.xlsx</strong> → AWS Calculator calcula los costos automáticamente</li>
+                    </ol>
+                  </div>
+                  <div className="border-t border-blue-200 pt-2">
+                    <p className="text-xs text-blue-700 font-medium">Servicios adicionales (configuración manual)</p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      CloudWatch, Network Firewall, S3, VPN, Data Transfer y EBS Backup no soportan Bulk Import.
+                      Agrégalos manualmente en la estimación usando los valores configurados en la pestaña "Servicios adicionales".
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -529,7 +538,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
                         variant={model === '1yr' ? 'default' : 'outline'}
                       >
                         <Download className="h-4 w-4" />
-                        Descargar JSON
+                        Descargar Excel (.xlsx)
                       </Button>
                     </div>
                   );
@@ -544,7 +553,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
                 className="w-full gap-2 bg-orange-600 hover:bg-orange-700"
               >
                 <Download className="h-5 w-5" />
-                Descargar los 3 archivos de una vez
+                Descargar los 3 Excel de una vez
               </Button>
             </div>
           )}

@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { CloudamizeServer } from '@/types/assessment';
 
 export type PricingModel = 'ondemand' | '1yr' | '3yr';
@@ -120,6 +121,7 @@ export function mapInstanceType(cpus: number, ram: number, family: InstanceFamil
   return `${family}.${sizes[sizes.length - 1].size}`;
 }
 
+/** Spanish OS string for UI display */
 export function getOsString(osVersion: string): string {
   const os = (osVersion ?? '').toLowerCase();
   if (os.includes('sql') && os.includes('enterprise')) return 'Windows Server con SQL Server Enterprise';
@@ -129,192 +131,111 @@ export function getOsString(osVersion: string): string {
   return 'Linux';
 }
 
+/** English OS string matching AWS Bulk Import valid values exactly */
+export function getOsStringEnglish(osVersion: string): string {
+  const os = (osVersion ?? '').toLowerCase();
+  if (os.includes('sql') && os.includes('enterprise')) return 'Windows Server with SQL Server Enterprise';
+  if (os.includes('sql') && os.includes('standard'))   return 'Windows Server with SQL Server Standard';
+  if (os.includes('sql') && os.includes('web'))        return 'Windows Server with SQL Server Web';
+  if (os.includes('windows'))                          return 'Windows Server';
+  return 'Linux';
+}
+
 export function getInstanceOptions(family: InstanceFamily): string[] {
   return (INSTANCE_SIZES[family] ?? INSTANCE_SIZES.r8i).map(s => `${family}.${s.size}`);
 }
 
-function getPricingStrategy(model: PricingModel, paymentOption: PaymentOption): string {
+function getPurchasingOption(model: PricingModel, paymentOption: PaymentOption): string {
   if (model === 'ondemand') return 'On-Demand';
-  if (model === '1yr') return `Compute Savings Plans 1yr ${paymentOption}`;
-  return `Compute Savings Plans 3yr ${paymentOption}`;
+  const yr = model === '1yr' ? '1' : '3';
+  return `${yr} Yr ${paymentOption} Compute Savings Plan`;
 }
 
-export function generateCalculatorJson(config: GeneratorConfig): object {
-  const regionName = REGION_DISPLAY_NAMES[config.region] ?? config.region;
-  const pricingStrategy = getPricingStrategy(config.pricingModel, config.paymentOption);
-  const { additionalServices: svc } = config;
-  const zero = { mensual: '0.00', inicial: '0.00', '12 meses': '0.00' };
-
+/**
+ * Generates an EC2 Instances Bulk Upload Excel (.xlsx) matching the
+ * AWS Pricing Calculator Bulk Import template format exactly.
+ */
+export function generateEC2BulkImportXlsx(config: GeneratorConfig): ArrayBuffer {
+  const purchasingOption = getPurchasingOption(config.pricingModel, config.paymentOption);
   const included = config.serverMappings.filter(m => m.isIncluded);
 
-  const ec2Services = included.map(m => ({
-    'Nombre del servicio': 'Amazon EC2 ',
-    'Descripción': m.server.hostname,
-    'Región': regionName,
-    'Estado': '',
-    'Costo del servicio': zero,
-    'Propiedades': {
-      'Tenencia': 'Instancias compartidas',
-      'Sistema operativo': m.osString,
-      'Workload': 'Consistent, Number of instances: 1',
-      'Instancia EC2 por adelantado': m.instanceType,
-      'Pricing strategy': pricingStrategy,
-    },
-  }));
-
-  const ebsServices = included
-    .filter(m => m.server.storage && m.server.storage > 0)
-    .map(m => ({
-      'Nombre del servicio': 'Amazon Elastic Block Store (EBS)',
-      'Descripción': `${m.server.hostname} C`,
-      'Región': regionName,
-      'Estado': '',
-      'Costo del servicio': zero,
-      'Propiedades': {
-        'Cantidad de volúmenes': '1',
-        'Duración media del volumen': '730 horas al mes',
-        'Cantidad de almacenamiento por volumen': `${m.server.storage} GB`,
-        'Aprovisionamiento de IOPS por volumen (gp3)': '3000',
-        'SSD de uso general (gp3): Rendimiento': '150 MBps',
-        'Frecuencia de instantáneas': 'Sin almacenamiento de instantáneas',
-      },
-    }));
-
-  const securityServices = [
-    ...(svc.cloudwatch.enabled ? [{
-      'Nombre del servicio': 'Amazon CloudWatch',
-      'Descripción': 'Cloudwatch',
-      'Región': regionName,
-      'Estado': '',
-      'Costo del servicio': zero,
-      'Propiedades': {
-        'Número de eventos de OTEL móvil y spans, o spans por visita': String(svc.cloudwatch.spans),
-        'Frecuencia de muestreo móvil': '1',
-        'Cantidad de métricas (incluye las métricas personalizadas y detalladas)': String(svc.cloudwatch.metrics),
-        'Registros estándares: datos incorporados': `${svc.cloudwatch.logsGB} GB`,
-        'Cantidad de paneles': String(svc.cloudwatch.dashboards),
-        'Cantidad de métricas de las alarmas de resolución estándar': String(svc.cloudwatch.standardAlarms),
-        'Cantidad de métricas de las alarmas de alta resolución': String(svc.cloudwatch.highResAlarms),
-      },
-    }] : []),
-    ...(svc.firewall.enabled ? [{
-      'Nombre del servicio': 'AWS Network Firewall',
-      'Descripción': 'Firewall Manager',
-      'Región': regionName,
-      'Estado': '',
-      'Costo del servicio': zero,
-      'Propiedades': {
-        'Cantidad de puntos de conexión de AWS Network Firewall': String(svc.firewall.endpoints),
-        'Cantidad de puntos de enlace secundarios de Network Firewall': String(svc.firewall.endpoints),
-        'Uso mensual por punto de enlace': '720 horas',
-        'Uso mensual de la inspección avanzada por punto de enlace': '720 horas',
-        'Datos procesados por mes': `${svc.firewall.dataProcessedGB} GB`,
-      },
-    }] : []),
+  const row1 = Array(17).fill('');
+  const row2 = [
+    '', '', '', '',
+    'Elastic Cloud Compute (EC2) Specifications',
+    '', '', '', '', '', '',
+    'Elastic Block Storage (EBS) Specifications (Optional)',
+    '', '', '', '', '',
+  ];
+  const row3 = [
+    '',
+    'Group\n(Group name cannot contain \'>\', \'<\' and \'&\')',
+    'Description\n(Description cannot contain \'>\', \'<\' and \'&\')',
+    'AWS Region',
+    'Operating System',
+    'Instance Type',
+    'Tenancy',
+    'Number of Instances',
+    'Assumed Usage',
+    'Usage Type',
+    'Purchasing Option',
+    'Storage Type',
+    'Storage amount per Instance\n(GB)',
+    'Provisioning IOPS per instance\n(applicable for\ngp3, io1, io2)',
+    'EBS Throughput per Instance\n(applicable for gp3)\n(Mbps)',
+    'Snapshot Frequency',
+    'EBS Snapshot amount per Instance (GB/snapshot)',
   ];
 
-  const networkingServices = [
-    ...(svc.s3Logs.enabled ? [
-      {
-        'Nombre del servicio': 'S3 Standard',
-        'Descripción': 'S3 Almacenamiento de Logs',
-        'Región': regionName,
-        'Estado': '',
-        'Costo del servicio': zero,
-        'Propiedades': { 'Almacenamiento de S3 Estándar': `${svc.s3Logs.storageGB} GB per mes` },
-      },
-      {
-        'Nombre del servicio': 'Data Transfer',
-        'Descripción': 'S3 Almacenamiento de Logs',
-        'Región': regionName,
-        'Estado': '',
-        'Costo del servicio': zero,
-        'Propiedades': {
-          'DT Inbound: Internet': '1 TB per month',
-          'DT Outbound: Not selected': '0 TB per month',
-        },
-      },
-    ] : []),
-    ...(svc.vpn.enabled ? [
-      {
-        'Nombre del servicio': 'VPN Connection',
-        'Descripción': 'VPN',
-        'Región': regionName,
-        'Estado': '',
-        'Costo del servicio': zero,
-        'Propiedades': {
-          'Días laborables al mes': String(svc.vpn.workDaysPerMonth),
-          'Número de conexiones de Site-to-Site VPN': String(svc.vpn.connections),
-          'Número de asociaciones de subred': '1',
-        },
-      },
-      {
-        'Nombre del servicio': 'Data Transfer',
-        'Descripción': 'VPN',
-        'Región': regionName,
-        'Estado': '',
-        'Costo del servicio': zero,
-        'Propiedades': {
-          'DT Inbound: Not selected': '0 TB per month',
-          'DT Outbound: Internet': '500 GB per month',
-          'DT Intra-Region:': '0 TB per month',
-        },
-      },
-    ] : []),
-    ...(svc.dataTransfer.enabled ? [{
-      'Nombre del servicio': 'Data Transfer',
-      'Descripción': 'Data Transfer',
-      'Región': regionName,
-      'Estado': '',
-      'Costo del servicio': zero,
-      'Propiedades': {
-        'DT Inbound: Not selected': '0 TB per month',
-        'DT Outbound: Internet': `${svc.dataTransfer.outboundTB} TB per month`,
-        'DT Intra-Region:': '0 TB per month',
-      },
-    }] : []),
+  const dataRows = included.map((m, i) => {
+    const hasStorage = !!m.server.storage && m.server.storage > 0;
+    const group = m.server.environment || 'Production';
+    return [
+      i + 1,
+      group,
+      m.server.hostname,
+      config.region,
+      getOsStringEnglish(m.server.osVersion),
+      m.instanceType,
+      'Shared Instances',
+      1,
+      '',
+      'Always On',
+      purchasingOption,
+      hasStorage ? 'General Purpose SSD (gp3)' : '',
+      hasStorage ? m.server.storage : '',
+      hasStorage ? 3000 : '',
+      hasStorage ? 125 : '',
+      'No snapshot storage',
+      '',
+    ];
+  });
+
+  const wsData = [row1, row2, row3, ...dataRows];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  ws['!cols'] = [
+    { wch: 4 },  { wch: 22 }, { wch: 30 }, { wch: 14 }, { wch: 36 },
+    { wch: 16 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+    { wch: 40 }, { wch: 28 }, { wch: 22 }, { wch: 22 }, { wch: 22 },
+    { wch: 22 }, { wch: 32 },
   ];
 
-  const continuityServices = svc.backup.enabled ? [{
-    'Nombre del servicio': 'EBS Backup',
-    'Descripción': 'Backup',
-    'Región': regionName,
-    'Estado': '',
-    'Costo del servicio': zero,
-    'Propiedades': {
-      'Incremento anual estimado de los datos principales (%)': '0.02',
-      'Variación diaria estimada de los datos principales (%)': '0.002',
-      'Cantidad de datos principales de los que se va a hacer copia de seguridad': `${svc.backup.primaryDataTB} TB`,
-      'Periodo de retención en caliente de las copias de seguridad diarias': `${svc.backup.dailyRetentionDays} Días`,
-      'Periodo de retención en caliente de las copias de seguridad semanales': `${svc.backup.weeklyRetentionWeeks} Semanas`,
-      'Periodo de retención en caliente de las copias de seguridad mensuales': `${svc.backup.monthlyRetentionMonths} Meses`,
-    },
-  }] : [];
+  // Merge section header cells (row index 1 = row 2)
+  ws['!merges'] = [
+    { s: { r: 1, c: 4 },  e: { r: 1, c: 10 } },
+    { s: { r: 1, c: 11 }, e: { r: 1, c: 16 } },
+  ];
 
-  return {
-    Nombre: config.estimateName,
-    'Costo total': { mensual: '0.00', inicial: '0.00', '12 meses': '0.00' },
-    Metadatos: {
-      Divisa: 'USD',
-      'Configuración regional': 'es_ES',
-      'Creado el': config.date,
-      'Descargo de responsabilidad legal': 'La Calculadora de precios de AWS proporciona únicamente una estimación de sus tarifas de AWS y no incluye los impuestos que puedan aplicarse. El valor real de sus tarifas depende de una serie de factores, entre los que se incluye su uso real de AWS.',
-      'Compartir URL': '',
-    },
-    Grupos: {
-      Servers: {
-        ...(ec2Services.length > 0       ? { Production:                { Servicios: ec2Services }         } : {}),
-        ...(securityServices.length > 0   ? { Security:                  { Servicios: securityServices }    } : {}),
-        ...(networkingServices.length > 0 ? { Networking:                { Servicios: networkingServices }  } : {}),
-        ...(continuityServices.length > 0 ? { 'Continuidad del negocio': { Servicios: continuityServices } } : {}),
-        ...(ebsServices.length > 0        ? { EBS:                       { Servicios: ebsServices }         } : {}),
-      },
-    },
-  };
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Inputs');
+  return XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
 }
 
-export function downloadJson(json: object, filename: string): void {
-  const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
+export function downloadXlsx(buffer: ArrayBuffer, filename: string): void {
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

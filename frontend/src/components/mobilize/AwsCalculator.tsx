@@ -99,10 +99,11 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
       toast.error('No hay servidores para exportar. Carga el archivo AS Is primero.');
       return;
     }
+    const paymentLabel = paymentOption.replace(/\s+/g, '-');
     const labels: Record<PricingModel, string> = {
       ondemand: 'OnDemand',
-      '1yr': '1Yr-No-Upfront',
-      '3yr': '3Yr-No-Upfront',
+      '1yr': `1Yr-${paymentLabel}`,
+      '3yr': `3Yr-${paymentLabel}`,
     };
     const name = estimateName || 'AWS-Estimate';
     const json = generateCalculatorJson({

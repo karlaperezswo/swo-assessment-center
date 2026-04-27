@@ -174,7 +174,7 @@ export function generateCalculatorJson(config: GeneratorConfig): object {
         'Cantidad de volúmenes': '1',
         'Duración media del volumen': '730 horas al mes',
         'Cantidad de almacenamiento por volumen': `${m.server.storage} GB`,
-        'Aprovisionamiento de IOPS por volumen (gp3)': 'gp3',
+        'Aprovisionamiento de IOPS por volumen (gp3)': '3000',
         'SSD de uso general (gp3): Rendimiento': '150 MBps',
         'Frecuencia de instantáneas': 'Sin almacenamiento de instantáneas',
       },

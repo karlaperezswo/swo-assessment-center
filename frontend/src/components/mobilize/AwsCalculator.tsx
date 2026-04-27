@@ -312,75 +312,93 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
                     </div>
                   </div>
 
-                  <div className="rounded-lg border border-gray-200 overflow-hidden">
-                    <div className="overflow-y-auto max-h-96">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                          <th className="text-left px-3 py-2 font-semibold text-gray-600 w-8"></th>
-                          <th className="text-left px-3 py-2 font-semibold text-gray-600">Hostname</th>
-                          <th className="text-left px-3 py-2 font-semibold text-gray-600">Sistema operativo</th>
-                          <th className="text-right px-3 py-2 font-semibold text-gray-600">vCPUs</th>
-                          <th className="text-right px-3 py-2 font-semibold text-gray-600">RAM (GB)</th>
-                          <th className="text-right px-3 py-2 font-semibold text-gray-600">Storage (GB)</th>
-                          <th className="text-left px-3 py-2 font-semibold text-gray-600 w-48">Instance type</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100">
-                        {serverMappings.map((mapping, idx) => (
-                          <tr
-                            key={mapping.server.serverId}
-                            className={`transition-colors ${mapping.isIncluded ? 'bg-white' : 'bg-gray-50 opacity-50'}`}
-                          >
-                            <td className="px-3 py-2">
-                              <button
-                                onClick={() => updateServerMapping(idx, { isIncluded: !mapping.isIncluded })}
-                                className="text-orange-500 hover:text-orange-700"
-                              >
-                                {mapping.isIncluded
-                                  ? <CheckCircle2 className="h-5 w-5 text-green-500" />
-                                  : <Circle className="h-5 w-5 text-gray-300" />
-                                }
-                              </button>
-                            </td>
-                            <td className="px-3 py-2 font-medium text-gray-900">
-                              {mapping.server.hostname}
-                              {mapping.server.environment && (
-                                <Badge variant="outline" className="ml-2 text-xs py-0 h-4">
-                                  {mapping.server.environment}
-                                </Badge>
-                              )}
-                            </td>
-                            <td className="px-3 py-2 text-gray-600 max-w-[200px] truncate" title={mapping.osString}>
-                              {mapping.osString}
-                            </td>
-                            <td className="px-3 py-2 text-right text-gray-700">{mapping.server.cpus ?? '—'}</td>
-                            <td className="px-3 py-2 text-right text-gray-700">{mapping.server.ram ?? '—'}</td>
-                            <td className="px-3 py-2 text-right text-gray-700">
-                              {mapping.server.storage ? mapping.server.storage.toLocaleString() : '—'}
-                            </td>
-                            <td className="px-3 py-2">
-                              <Select
-                                value={mapping.instanceType}
-                                onValueChange={v => updateServerMapping(idx, { instanceType: v })}
-                                disabled={!mapping.isIncluded}
-                              >
-                                <SelectTrigger className="h-7 text-xs">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {getInstanceOptions(instanceFamily).map(opt => (
-                                    <SelectItem key={opt} value={opt} className="text-xs font-mono">{opt}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    </div>
-                  </div>
+                  {(() => {
+                    const environments = [...new Set(
+                      serverMappings.map(m => m.server.environment || 'Production')
+                    )];
+                    const indexed = serverMappings.map((m, i) => ({ mapping: m, idx: i }));
+                    return (
+                      <div className="rounded-lg border border-gray-200 overflow-hidden">
+                        <div className="overflow-y-auto max-h-96">
+                          <table className="w-full text-sm">
+                            <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+                              <tr>
+                                <th className="text-left px-3 py-2 font-semibold text-gray-600 w-8"></th>
+                                <th className="text-left px-3 py-2 font-semibold text-gray-600">Hostname</th>
+                                <th className="text-left px-3 py-2 font-semibold text-gray-600">Sistema operativo</th>
+                                <th className="text-right px-3 py-2 font-semibold text-gray-600">vCPUs</th>
+                                <th className="text-right px-3 py-2 font-semibold text-gray-600">RAM (GB)</th>
+                                <th className="text-right px-3 py-2 font-semibold text-gray-600">Storage (GB)</th>
+                                <th className="text-left px-3 py-2 font-semibold text-gray-600 w-48">Instance type</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {environments.map(env => {
+                                const group = indexed.filter(({ mapping: m }) =>
+                                  (m.server.environment || 'Production') === env
+                                );
+                                return (
+                                  <>
+                                    <tr key={`env-${env}`}>
+                                      <td colSpan={7} className="px-3 py-1.5 bg-blue-50 border-y border-blue-100">
+                                        <span className="text-xs font-semibold text-blue-700 uppercase tracking-wide">{env}</span>
+                                        <span className="ml-2 text-xs text-blue-500">
+                                          {group.filter(({ mapping: m }) => m.isIncluded).length}/{group.length} incluidos
+                                        </span>
+                                      </td>
+                                    </tr>
+                                    {group.map(({ mapping, idx }) => (
+                                      <tr
+                                        key={mapping.server.serverId}
+                                        className={`border-b border-gray-100 transition-colors ${mapping.isIncluded ? 'bg-white' : 'bg-gray-50 opacity-50'}`}
+                                      >
+                                        <td className="px-3 py-2">
+                                          <button
+                                            onClick={() => updateServerMapping(idx, { isIncluded: !mapping.isIncluded })}
+                                            className="text-orange-500 hover:text-orange-700"
+                                          >
+                                            {mapping.isIncluded
+                                              ? <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                              : <Circle className="h-5 w-5 text-gray-300" />
+                                            }
+                                          </button>
+                                        </td>
+                                        <td className="px-3 py-2 font-medium text-gray-900">{mapping.server.hostname}</td>
+                                        <td className="px-3 py-2 text-gray-600 max-w-[200px] truncate" title={mapping.osString}>
+                                          {mapping.osString}
+                                        </td>
+                                        <td className="px-3 py-2 text-right text-gray-700">{mapping.server.cpus ?? '—'}</td>
+                                        <td className="px-3 py-2 text-right text-gray-700">{mapping.server.ram ?? '—'}</td>
+                                        <td className="px-3 py-2 text-right text-gray-700">
+                                          {mapping.server.storage ? mapping.server.storage.toLocaleString() : '—'}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                          <Select
+                                            value={mapping.instanceType}
+                                            onValueChange={v => updateServerMapping(idx, { instanceType: v })}
+                                            disabled={!mapping.isIncluded}
+                                          >
+                                            <SelectTrigger className="h-7 text-xs">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              {getInstanceOptions(instanceFamily).map(opt => (
+                                                <SelectItem key={opt} value={opt} className="text-xs font-mono">{opt}</SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </>
               )}
             </div>
@@ -388,105 +406,126 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
 
           {/* ── TAB: Servicios adicionales ── */}
           {activeTab === 'services' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-5">
 
-              {/* CloudWatch */}
-              <ServiceCard
-                title="Amazon CloudWatch"
-                subtitle="Monitoreo y observabilidad"
-                enabled={additionalServices.cloudwatch.enabled}
-                onToggle={v => updateService('cloudwatch', { enabled: v })}
-                color="blue"
-              >
-                <NumberField label="Spans / visita" value={additionalServices.cloudwatch.spans}
-                  onChange={v => updateService('cloudwatch', { spans: v })} />
-                <NumberField label="Métricas" value={additionalServices.cloudwatch.metrics}
-                  onChange={v => updateService('cloudwatch', { metrics: v })} />
-                <NumberField label="Logs (GB)" value={additionalServices.cloudwatch.logsGB}
-                  onChange={v => updateService('cloudwatch', { logsGB: v })} />
-                <NumberField label="Dashboards" value={additionalServices.cloudwatch.dashboards}
-                  onChange={v => updateService('cloudwatch', { dashboards: v })} />
-                <NumberField label="Alarmas estándar" value={additionalServices.cloudwatch.standardAlarms}
-                  onChange={v => updateService('cloudwatch', { standardAlarms: v })} />
-                <NumberField label="Alarmas alta resolución" value={additionalServices.cloudwatch.highResAlarms}
-                  onChange={v => updateService('cloudwatch', { highResAlarms: v })} />
-              </ServiceCard>
+              {/* ── Seguridad ── */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                  <span className="h-px flex-1 bg-gray-200" />
+                  Seguridad
+                  <span className="h-px flex-1 bg-gray-200" />
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ServiceCard
+                    title="Amazon CloudWatch"
+                    subtitle="Monitoreo y observabilidad"
+                    enabled={additionalServices.cloudwatch.enabled}
+                    onToggle={v => updateService('cloudwatch', { enabled: v })}
+                    color="blue"
+                  >
+                    <NumberField label="Spans / visita" value={additionalServices.cloudwatch.spans}
+                      onChange={v => updateService('cloudwatch', { spans: v })} />
+                    <NumberField label="Métricas" value={additionalServices.cloudwatch.metrics}
+                      onChange={v => updateService('cloudwatch', { metrics: v })} />
+                    <NumberField label="Logs (GB)" value={additionalServices.cloudwatch.logsGB}
+                      onChange={v => updateService('cloudwatch', { logsGB: v })} />
+                    <NumberField label="Dashboards" value={additionalServices.cloudwatch.dashboards}
+                      onChange={v => updateService('cloudwatch', { dashboards: v })} />
+                    <NumberField label="Alarmas estándar" value={additionalServices.cloudwatch.standardAlarms}
+                      onChange={v => updateService('cloudwatch', { standardAlarms: v })} />
+                    <NumberField label="Alarmas alta resolución" value={additionalServices.cloudwatch.highResAlarms}
+                      onChange={v => updateService('cloudwatch', { highResAlarms: v })} />
+                  </ServiceCard>
+                  <ServiceCard
+                    title="AWS Network Firewall"
+                    subtitle="Firewall Manager"
+                    enabled={additionalServices.firewall.enabled}
+                    onToggle={v => updateService('firewall', { enabled: v })}
+                    color="red"
+                  >
+                    <NumberField label="Endpoints" value={additionalServices.firewall.endpoints}
+                      onChange={v => updateService('firewall', { endpoints: v })} />
+                    <NumberField label="Datos procesados (GB/mes)" value={additionalServices.firewall.dataProcessedGB}
+                      onChange={v => updateService('firewall', { dataProcessedGB: v })} />
+                  </ServiceCard>
+                </div>
+              </div>
 
-              {/* Network Firewall */}
-              <ServiceCard
-                title="AWS Network Firewall"
-                subtitle="Firewall Manager"
-                enabled={additionalServices.firewall.enabled}
-                onToggle={v => updateService('firewall', { enabled: v })}
-                color="red"
-              >
-                <NumberField label="Endpoints" value={additionalServices.firewall.endpoints}
-                  onChange={v => updateService('firewall', { endpoints: v })} />
-                <NumberField label="Datos procesados (GB/mes)" value={additionalServices.firewall.dataProcessedGB}
-                  onChange={v => updateService('firewall', { dataProcessedGB: v })} />
-              </ServiceCard>
+              {/* ── Redes ── */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                  <span className="h-px flex-1 bg-gray-200" />
+                  Redes
+                  <span className="h-px flex-1 bg-gray-200" />
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ServiceCard
+                    title="S3 Standard"
+                    subtitle="Almacenamiento de Logs"
+                    enabled={additionalServices.s3Logs.enabled}
+                    onToggle={v => updateService('s3Logs', { enabled: v })}
+                    color="green"
+                  >
+                    <NumberField label="Storage (GB/mes)" value={additionalServices.s3Logs.storageGB}
+                      onChange={v => updateService('s3Logs', { storageGB: v })} />
+                  </ServiceCard>
+                  <ServiceCard
+                    title="VPN Connection"
+                    subtitle="Site-to-Site VPN"
+                    enabled={additionalServices.vpn.enabled}
+                    onToggle={v => updateService('vpn', { enabled: v })}
+                    color="purple"
+                  >
+                    <NumberField label="Conexiones VPN" value={additionalServices.vpn.connections}
+                      onChange={v => updateService('vpn', { connections: v })} />
+                    <NumberField label="Días laborables/mes" value={additionalServices.vpn.workDaysPerMonth}
+                      onChange={v => updateService('vpn', { workDaysPerMonth: v })} />
+                  </ServiceCard>
+                  <ServiceCard
+                    title="Data Transfer"
+                    subtitle={tco1YearData?.tco1YearData?.networkTransfer?.length
+                      ? 'Auto-calculado del reporte TCO 1 Año'
+                      : 'Transferencia de datos saliente'}
+                    enabled={additionalServices.dataTransfer.enabled}
+                    onToggle={v => updateService('dataTransfer', { enabled: v })}
+                    color="cyan"
+                    autoDetected={!!tco1YearData?.tco1YearData?.networkTransfer?.length}
+                  >
+                    <NumberField label="Outbound Internet (TB/mes)" value={additionalServices.dataTransfer.outboundTB}
+                      onChange={v => updateService('dataTransfer', { outboundTB: v })} />
+                  </ServiceCard>
+                </div>
+              </div>
 
-              {/* S3 Logs */}
-              <ServiceCard
-                title="S3 Standard"
-                subtitle="Almacenamiento de Logs"
-                enabled={additionalServices.s3Logs.enabled}
-                onToggle={v => updateService('s3Logs', { enabled: v })}
-                color="green"
-              >
-                <NumberField label="Storage (GB/mes)" value={additionalServices.s3Logs.storageGB}
-                  onChange={v => updateService('s3Logs', { storageGB: v })} />
-              </ServiceCard>
-
-              {/* VPN */}
-              <ServiceCard
-                title="VPN Connection"
-                subtitle="Site-to-Site VPN"
-                enabled={additionalServices.vpn.enabled}
-                onToggle={v => updateService('vpn', { enabled: v })}
-                color="purple"
-              >
-                <NumberField label="Conexiones VPN" value={additionalServices.vpn.connections}
-                  onChange={v => updateService('vpn', { connections: v })} />
-                <NumberField label="Días laborables/mes" value={additionalServices.vpn.workDaysPerMonth}
-                  onChange={v => updateService('vpn', { workDaysPerMonth: v })} />
-              </ServiceCard>
-
-              {/* Data Transfer */}
-              <ServiceCard
-                title="Data Transfer"
-                subtitle={tco1YearData?.tco1YearData?.networkTransfer?.length
-                  ? 'Auto-calculado del reporte TCO 1 Año'
-                  : 'Transferencia de datos saliente'}
-                enabled={additionalServices.dataTransfer.enabled}
-                onToggle={v => updateService('dataTransfer', { enabled: v })}
-                color="cyan"
-                autoDetected={!!tco1YearData?.tco1YearData?.networkTransfer?.length}
-              >
-                <NumberField label="Outbound Internet (TB/mes)" value={additionalServices.dataTransfer.outboundTB}
-                  onChange={v => updateService('dataTransfer', { outboundTB: v })} />
-              </ServiceCard>
-
-              {/* Backup */}
-              <ServiceCard
-                title="EBS Backup"
-                subtitle={businessCaseData
-                  ? 'Auto-calculado del storage total de servidores'
-                  : 'Continuidad del negocio'}
-                enabled={additionalServices.backup.enabled}
-                onToggle={v => updateService('backup', { enabled: v })}
-                color="orange"
-                autoDetected={!!businessCaseData}
-              >
-                <NumberField label="Datos primarios (TB)" value={additionalServices.backup.primaryDataTB}
-                  onChange={v => updateService('backup', { primaryDataTB: v })} />
-                <NumberField label="Retención diaria (días)" value={additionalServices.backup.dailyRetentionDays}
-                  onChange={v => updateService('backup', { dailyRetentionDays: v })} />
-                <NumberField label="Retención semanal (semanas)" value={additionalServices.backup.weeklyRetentionWeeks}
-                  onChange={v => updateService('backup', { weeklyRetentionWeeks: v })} />
-                <NumberField label="Retención mensual (meses)" value={additionalServices.backup.monthlyRetentionMonths}
-                  onChange={v => updateService('backup', { monthlyRetentionMonths: v })} />
-              </ServiceCard>
+              {/* ── Continuidad del negocio ── */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                  <span className="h-px flex-1 bg-gray-200" />
+                  Continuidad del negocio
+                  <span className="h-px flex-1 bg-gray-200" />
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ServiceCard
+                    title="EBS Backup"
+                    subtitle={businessCaseData
+                      ? 'Auto-calculado del storage total de servidores'
+                      : 'Continuidad del negocio'}
+                    enabled={additionalServices.backup.enabled}
+                    onToggle={v => updateService('backup', { enabled: v })}
+                    color="orange"
+                    autoDetected={!!businessCaseData}
+                  >
+                    <NumberField label="Datos primarios (TB)" value={additionalServices.backup.primaryDataTB}
+                      onChange={v => updateService('backup', { primaryDataTB: v })} />
+                    <NumberField label="Retención diaria (días)" value={additionalServices.backup.dailyRetentionDays}
+                      onChange={v => updateService('backup', { dailyRetentionDays: v })} />
+                    <NumberField label="Retención semanal (semanas)" value={additionalServices.backup.weeklyRetentionWeeks}
+                      onChange={v => updateService('backup', { weeklyRetentionWeeks: v })} />
+                    <NumberField label="Retención mensual (meses)" value={additionalServices.backup.monthlyRetentionMonths}
+                      onChange={v => updateService('backup', { monthlyRetentionMonths: v })} />
+                  </ServiceCard>
+                </div>
+              </div>
             </div>
           )}
 

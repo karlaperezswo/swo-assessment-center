@@ -553,7 +553,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
                 className="w-full gap-2 bg-orange-600 hover:bg-orange-700"
               >
                 <Download className="h-5 w-5" />
-                Descargar los 3 Excel de una vez
+                Descargar todo
               </Button>
             </div>
           )}

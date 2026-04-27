@@ -156,6 +156,7 @@ function getPurchasingOption(model: PricingModel, paymentOption: PaymentOption):
  * AWS Pricing Calculator Bulk Import template format exactly.
  */
 export function generateEC2BulkImportXlsx(config: GeneratorConfig): ArrayBuffer {
+
   const purchasingOption = getPurchasingOption(config.pricingModel, config.paymentOption);
   const included = config.serverMappings.filter(m => m.isIncluded);
 
@@ -225,6 +226,118 @@ export function generateEC2BulkImportXlsx(config: GeneratorConfig): ArrayBuffer 
   ws['!merges'] = [
     { s: { r: 1, c: 4 },  e: { r: 1, c: 10 } },
     { s: { r: 1, c: 11 }, e: { r: 1, c: 16 } },
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Inputs');
+  return XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
+}
+
+/**
+ * Generates an EBS Bulk Upload Excel (.xlsx) — one row per included server with storage.
+ */
+export function generateEBSBulkImportXlsx(config: GeneratorConfig): ArrayBuffer {
+  const included = config.serverMappings.filter(m => m.isIncluded && m.server.storage && m.server.storage > 0);
+
+  const row1 = ['', '', '', '', 'Elastic Block Storage (EBS) Specifications', '', '', '', '', '', '', ''];
+  const row2 = [
+    '',
+    'Group\n(Group name cannot contain \'>\', \'<\' and \'&\')',
+    'Description\n(Description cannot contain \'>\', \'<\' and \'&\')',
+    'AWS Region',
+    'Storage Type',
+    'Average duration each instance runs\n(hours per month)',
+    'Number\nof volumes',
+    'Storage amount\nper volume\n(GB)',
+    'Provisioning IOPS per volume\n(applicable for\ngp3, io1, io2)',
+    'EBS Throughput per volume\n(applicable for gp3)\n(Mbps)',
+    'Snapshot Frequency',
+    'EBS Snapshot amount\nper volume\n(GB/snapshot)',
+  ];
+
+  const dataRows = included.map(m => [
+    '',
+    m.server.environment || 'Production',
+    m.server.hostname,
+    config.region,
+    'General Purpose SSD (gp3)',
+    730,
+    1,
+    m.server.storage,
+    3000,
+    125,
+    'No snapshot storage',
+    '',
+  ]);
+
+  const ws = XLSX.utils.aoa_to_sheet([row1, row2, ...dataRows]);
+  ws['!cols'] = [
+    { wch: 4 }, { wch: 22 }, { wch: 30 }, { wch: 14 }, { wch: 28 },
+    { wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 18 }, { wch: 18 },
+    { wch: 22 }, { wch: 22 },
+  ];
+  ws['!merges'] = [{ s: { r: 0, c: 4 }, e: { r: 0, c: 11 } }];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Inputs');
+  return XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
+}
+
+/**
+ * Generates a Dedicated Hosts Bulk Upload Excel (.xlsx).
+ * Uses instance family (e.g. "r8i") not the full instance type.
+ */
+export function generateDedicatedHostsBulkImportXlsx(config: GeneratorConfig): ArrayBuffer {
+  const purchasingOption = getPurchasingOption(config.pricingModel, config.paymentOption);
+  const included = config.serverMappings.filter(m => m.isIncluded);
+
+  const row1 = [
+    '', '', '', '',
+    'Elastic Cloud Compute (EC2) Dedicated Host Specifications',
+    '', '',
+    'Elastic Block Storage (EBS) Specifications (Optional)',
+    '', '', '',
+  ];
+  const row2 = [
+    '',
+    'Group\n(Group name cannot contain \'>\', \'<\' and \'&\')',
+    'Description\n(Description cannot contain \'>\', \'<\' and \'&\')',
+    'AWS Region',
+    'Instance Family',
+    'Number of Hosts',
+    'Purchasing Option',
+    'Storage Type',
+    'Storage amount per Instance\n(GB)',
+    'Provisioning IOPS per instance\n(applicable for\ngp3, io1, io2)',
+    'EBS Throughput per Instance\n(applicable for gp3)\n(Mbps)',
+  ];
+
+  const dataRows = included.map(m => {
+    const family = m.instanceType.split('.')[0];
+    const hasStorage = !!m.server.storage && m.server.storage > 0;
+    return [
+      '',
+      m.server.environment || 'Production',
+      m.server.hostname,
+      config.region,
+      family,
+      1,
+      purchasingOption,
+      hasStorage ? 'General Purpose SSD (gp3)' : '',
+      hasStorage ? m.server.storage : '',
+      hasStorage ? 3000 : '',
+      hasStorage ? 125 : '',
+    ];
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet([row1, row2, ...dataRows]);
+  ws['!cols'] = [
+    { wch: 4 }, { wch: 22 }, { wch: 30 }, { wch: 14 }, { wch: 16 },
+    { wch: 12 }, { wch: 40 }, { wch: 28 }, { wch: 22 }, { wch: 22 }, { wch: 22 },
+  ];
+  ws['!merges'] = [
+    { s: { r: 0, c: 4 }, e: { r: 0, c: 6 } },
+    { s: { r: 0, c: 7 }, e: { r: 0, c: 10 } },
   ];
 
   const wb = XLSX.utils.book_new();

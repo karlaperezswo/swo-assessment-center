@@ -15,8 +15,9 @@ import {
 } from '@/types/assessment';
 import {
   ServerMapping, AdditionalServicesConfig, InstanceFamily, PaymentOption, PricingModel,
-  mapInstanceType, getOsString, getInstanceOptions, generateEC2BulkImportXlsx, downloadXlsx,
-  REGION_DISPLAY_NAMES,
+  mapInstanceType, getOsString, getInstanceOptions,
+  generateEC2BulkImportXlsx, generateEBSBulkImportXlsx, generateDedicatedHostsBulkImportXlsx,
+  downloadXlsx, REGION_DISPLAY_NAMES,
 } from '@/lib/awsCalculatorGenerator';
 
 interface AwsCalculatorProps {
@@ -52,6 +53,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
   const [paymentOption, setPaymentOption] = useState<PaymentOption>('No Upfront');
   const [serverMappings, setServerMappings] = useState<ServerMapping[]>([]);
   const [additionalServices, setAdditionalServices] = useState<AdditionalServicesConfig>(DEFAULT_SERVICES);
+  const [dedicatedHosts, setDedicatedHosts] = useState(false);
 
   // Sync estimate name with client name
   useEffect(() => {
@@ -93,34 +95,55 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
   }, [businessCaseData]);
 
   const includedCount = serverMappings.filter(m => m.isIncluded).length;
+  const hasEBS = serverMappings.some(m => m.isIncluded && m.server.storage && m.server.storage > 0);
 
-  const handleDownload = (model: PricingModel) => {
+  const buildConfig = (model: PricingModel) => ({
+    estimateName: estimateName || 'AWS-Estimate',
+    region,
+    pricingModel: model,
+    paymentOption,
+    serverMappings,
+    additionalServices,
+    date: new Date().toLocaleDateString('es-ES'),
+  });
+
+  const modelLabel = (model: PricingModel): string => {
+    const paymentLabel = paymentOption.replace(/\s+/g, '-');
+    return model === 'ondemand' ? 'OnDemand' : model === '1yr' ? `1Yr-${paymentLabel}` : `3Yr-${paymentLabel}`;
+  };
+
+  const baseName = (estimateName || 'AWS-Estimate').replace(/\s+/g, '-');
+
+  const handleDownload = (model: PricingModel, type: 'ec2' | 'ebs' | 'dh') => {
     if (!serverMappings.length) {
       toast.error('No hay servidores para exportar. Carga el archivo AS Is primero.');
       return;
     }
-    const paymentLabel = paymentOption.replace(/\s+/g, '-');
-    const labels: Record<PricingModel, string> = {
-      ondemand: 'OnDemand',
-      '1yr': `1Yr-${paymentLabel}`,
-      '3yr': `3Yr-${paymentLabel}`,
-    };
-    const name = estimateName || 'AWS-Estimate';
-    const buffer = generateEC2BulkImportXlsx({
-      estimateName: `${name} - ${labels[model]}`,
-      region,
-      pricingModel: model,
-      paymentOption,
-      serverMappings,
-      additionalServices,
-      date: new Date().toLocaleDateString('es-ES'),
-    });
-    downloadXlsx(buffer, `${name.replace(/\s+/g, '-')}-${labels[model]}-EC2.xlsx`);
-    toast.success(`Excel ${labels[model]} descargado`, { description: 'Impórtalo en calculator.aws → Bulk Import → EC2 Instances' });
+    const cfg = buildConfig(model);
+    const lbl = modelLabel(model);
+    if (type === 'ec2') {
+      downloadXlsx(generateEC2BulkImportXlsx(cfg), `${baseName}-${lbl}-EC2.xlsx`);
+      toast.success(`EC2 ${lbl} descargado`);
+    } else if (type === 'ebs') {
+      downloadXlsx(generateEBSBulkImportXlsx(cfg), `${baseName}-${lbl}-EBS.xlsx`);
+      toast.success(`EBS ${lbl} descargado`);
+    } else {
+      downloadXlsx(generateDedicatedHostsBulkImportXlsx(cfg), `${baseName}-${lbl}-DH.xlsx`);
+      toast.success(`Dedicated Hosts ${lbl} descargado`);
+    }
   };
 
   const handleDownloadAll = () => {
-    (['ondemand', '1yr', '3yr'] as PricingModel[]).forEach(m => handleDownload(m));
+    if (!serverMappings.length) {
+      toast.error('No hay servidores para exportar. Carga el archivo AS Is primero.');
+      return;
+    }
+    const models: PricingModel[] = ['ondemand', '1yr', '3yr'];
+    models.forEach(m => {
+      handleDownload(m, 'ec2');
+      if (hasEBS) handleDownload(m, 'ebs');
+      if (dedicatedHosts) handleDownload(m, 'dh');
+    });
   };
 
   const updateServerMapping = (idx: number, patch: Partial<ServerMapping>) => {
@@ -182,7 +205,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
           )}
 
           {/* Config row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white rounded-lg border border-orange-200">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white rounded-lg border border-orange-200">
             <div className="space-y-1">
               <Label className="text-xs text-gray-500 uppercase tracking-wide">Región AWS</Label>
               <Select value={region} onValueChange={(v) => setRegion(v as any)}>
@@ -223,6 +246,18 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-gray-500 uppercase tracking-wide">Dedicated Hosts</Label>
+              <div className="flex items-center gap-2 h-8">
+                <button
+                  onClick={() => setDedicatedHosts(v => !v)}
+                  className={`relative h-5 w-9 rounded-full transition-colors ${dedicatedHosts ? 'bg-orange-500' : 'bg-gray-300'}`}
+                >
+                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${dedicatedHosts ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                </button>
+                <span className="text-xs text-gray-500">{dedicatedHosts ? 'Incluido' : 'No incluido'}</span>
+              </div>
             </div>
           </div>
 
@@ -460,83 +495,99 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
             <div className="space-y-4">
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
                 <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                <div className="space-y-3">
-                  <div>
-                    <p className="font-semibold text-blue-900">Cómo importar EC2 en AWS Calculator</p>
-                    <ol className="text-sm text-blue-800 mt-2 space-y-1 list-decimal list-inside">
-                      <li>Descarga el Excel del modelo de pricing que necesites</li>
-                      <li>Ve a <span className="font-mono bg-blue-100 px-1 rounded">calculator.aws</span> → crea una nueva estimación</li>
-                      <li>Agrega un servicio <strong>Amazon EC2</strong> → selecciona <strong>Bulk Import</strong></li>
-                      <li>Sube el archivo <strong>.xlsx</strong> → AWS Calculator calcula los costos automáticamente</li>
-                    </ol>
-                  </div>
-                  <div className="border-t border-blue-200 pt-2">
-                    <p className="text-xs text-blue-700 font-medium">Servicios adicionales (configuración manual)</p>
-                    <p className="text-xs text-blue-600 mt-1">
-                      CloudWatch, Network Firewall, S3, VPN, Data Transfer y EBS Backup no soportan Bulk Import.
-                      Agrégalos manualmente en la estimación usando los valores configurados en la pestaña "Servicios adicionales".
-                    </p>
-                  </div>
+                <div className="space-y-2">
+                  <p className="font-semibold text-blue-900">Cómo importar en AWS Calculator</p>
+                  <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                    <li>Descarga el Excel del tipo y modelo que necesites</li>
+                    <li>Ve a <span className="font-mono bg-blue-100 px-1 rounded">calculator.aws</span> → nueva estimación</li>
+                    <li>Agrega el servicio (EC2 / EBS / Dedicated Hosts) → <strong>Bulk Import</strong> → sube el <strong>.xlsx</strong></li>
+                  </ol>
+                  <p className="text-xs text-blue-600 border-t border-blue-200 pt-2">
+                    CloudWatch, Firewall, S3, VPN, Data Transfer y Backup no soportan Bulk Import — agrégalos manualmente.
+                  </p>
                 </div>
               </div>
 
-              {/* Resumen de lo que incluye */}
+              {/* Tabla de descargas: fila por modelo × columna por tipo */}
               {canExport && (
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="p-3 bg-white rounded-lg border border-gray-200">
-                    <p className="text-2xl font-bold text-gray-900">{includedCount}</p>
-                    <p className="text-xs text-gray-500 mt-1">Instancias EC2</p>
-                  </div>
-                  <div className="p-3 bg-white rounded-lg border border-gray-200">
-                    <p className="text-2xl font-bold text-gray-900">{serverMappings.filter(m => m.isIncluded && m.server.storage).length}</p>
-                    <p className="text-xs text-gray-500 mt-1">Volúmenes EBS</p>
-                  </div>
-                  <div className="p-3 bg-white rounded-lg border border-gray-200">
-                    <p className="text-2xl font-bold text-gray-900">
-                      {Object.values(additionalServices).filter(s => s.enabled).length}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">Servicios adicionales</p>
-                  </div>
+                <div className="rounded-lg border border-gray-200 overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="text-left px-4 py-2 font-semibold text-gray-600">Modelo</th>
+                        <th className="text-center px-4 py-2 font-semibold text-gray-600">
+                          EC2 Instances
+                          <span className="block text-xs font-normal text-gray-400">{includedCount} instancias</span>
+                        </th>
+                        <th className="text-center px-4 py-2 font-semibold text-gray-600">
+                          EBS
+                          {hasEBS
+                            ? <span className="block text-xs font-normal text-gray-400">{serverMappings.filter(m => m.isIncluded && m.server.storage).length} volúmenes</span>
+                            : <span className="block text-xs font-normal text-orange-400">sin storage</span>}
+                        </th>
+                        <th className="text-center px-4 py-2 font-semibold text-gray-600">
+                          Dedicated Hosts
+                          {!dedicatedHosts && <span className="block text-xs font-normal text-gray-400">no incluido</span>}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {(['ondemand', '1yr', '3yr'] as PricingModel[]).map(model => {
+                        const meta = MODEL_META[model];
+                        return (
+                          <tr key={model} className="bg-white hover:bg-gray-50">
+                            <td className="px-4 py-3">
+                              <p className="font-semibold text-gray-900 text-sm">{meta.label}</p>
+                              <Badge variant="outline" className="mt-1 text-xs">{meta.badge}</Badge>
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-1.5 w-full"
+                                onClick={() => handleDownload(model, 'ec2')}
+                              >
+                                <Download className="h-3.5 w-3.5" />
+                                .xlsx
+                              </Button>
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              {hasEBS ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="gap-1.5 w-full"
+                                  onClick={() => handleDownload(model, 'ebs')}
+                                >
+                                  <Download className="h-3.5 w-3.5" />
+                                  .xlsx
+                                </Button>
+                              ) : (
+                                <span className="text-xs text-gray-400">—</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              {dedicatedHosts ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="gap-1.5 w-full"
+                                  onClick={() => handleDownload(model, 'dh')}
+                                >
+                                  <Download className="h-3.5 w-3.5" />
+                                  .xlsx
+                                </Button>
+                              ) : (
+                                <span className="text-xs text-gray-400">—</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               )}
-
-              {/* 3 download cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {(['ondemand', '1yr', '3yr'] as PricingModel[]).map(model => {
-                  const meta = MODEL_META[model];
-                  return (
-                    <div key={model} className={`rounded-lg border-2 ${meta.color} p-4 flex flex-col gap-3`}>
-                      <div>
-                        <p className="font-bold text-gray-900">{meta.label}</p>
-                        <Badge variant="outline" className="mt-1 text-xs">
-                          {meta.badge}
-                        </Badge>
-                        {meta.savings && (
-                          <p className="text-xs text-green-700 mt-2 font-medium">
-                            Ahorro estimado vs OnDemand: {meta.savings}
-                          </p>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        {model === 'ondemand'
-                          ? 'Precio por hora sin compromiso. Máxima flexibilidad.'
-                          : model === '1yr'
-                          ? `Savings Plan 1 año, ${paymentOption}. Ideal para cargas estables.`
-                          : `Savings Plan 3 años, ${paymentOption}. Mayor ahorro a largo plazo.`}
-                      </p>
-                      <Button
-                        onClick={() => handleDownload(model)}
-                        disabled={!canExport}
-                        className="mt-auto w-full gap-2"
-                        variant={model === '1yr' ? 'default' : 'outline'}
-                      >
-                        <Download className="h-4 w-4" />
-                        Descargar Excel (.xlsx)
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
 
               {/* Download all button */}
               <Button

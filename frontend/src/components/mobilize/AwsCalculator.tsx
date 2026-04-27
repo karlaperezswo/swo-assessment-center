@@ -161,18 +161,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
             </Badge>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            disabled={!canExport}
-            onClick={e => { e.stopPropagation(); handleDownloadAll(); }}
-            className="gap-1.5 bg-orange-600 hover:bg-orange-700 text-white"
-          >
-            <Download className="h-4 w-4" />
-            Descargar todo
-          </Button>
-          {isExpanded ? <ChevronUp className="h-5 w-5 text-orange-600" /> : <ChevronDown className="h-5 w-5 text-orange-600" />}
-        </div>
+        {isExpanded ? <ChevronUp className="h-5 w-5 text-orange-600" /> : <ChevronDown className="h-5 w-5 text-orange-600" />}
       </div>
 
       {isExpanded && (
@@ -599,12 +588,12 @@ function ServiceCard({
   return (
     <div className={`rounded-lg border-2 ${border[color] ?? 'border-gray-200'} p-4 space-y-3 ${!enabled ? 'opacity-60' : ''} bg-white`}>
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <div className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${dot[color] ?? 'bg-gray-500'}`} />
           <div className="min-w-0">
             <p className="font-semibold text-gray-900 text-sm truncate">{title}</p>
             <div className="flex items-center gap-1 flex-wrap">
-              <p className="text-xs text-gray-500">{subtitle}</p>
+              <p className="text-xs text-gray-500 break-words">{subtitle}</p>
               {autoDetected && (
                 <Badge className="text-xs py-0 h-4 bg-green-100 text-green-700 border-green-300">auto</Badge>
               )}
@@ -613,7 +602,7 @@ function ServiceCard({
         </div>
         <button
           onClick={() => onToggle(!enabled)}
-          className={`relative flex-shrink-0 h-5 w-9 rounded-full transition-colors ${enabled ? 'bg-green-500' : 'bg-gray-300'}`}
+          className={`relative flex-shrink-0 mt-0.5 h-5 w-9 rounded-full transition-colors ${enabled ? 'bg-green-500' : 'bg-gray-300'}`}
         >
           <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${enabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
         </button>

@@ -182,16 +182,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
           )}
 
           {/* Config row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white rounded-lg border border-orange-200">
-            <div className="space-y-1">
-              <Label className="text-xs text-gray-500 uppercase tracking-wide">Nombre estimación</Label>
-              <Input
-                value={estimateName}
-                onChange={e => setEstimateName(e.target.value)}
-                placeholder="Ej. Cliente - AWS"
-                className="h-8 text-sm"
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white rounded-lg border border-orange-200">
             <div className="space-y-1">
               <Label className="text-xs text-gray-500 uppercase tracking-wide">Región AWS</Label>
               <Select value={region} onValueChange={(v) => setRegion(v as any)}>
@@ -287,6 +278,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
                   </div>
 
                   <div className="rounded-lg border border-gray-200 overflow-hidden">
+                    <div className="overflow-y-auto max-h-96">
                     <table className="w-full text-sm">
                       <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
@@ -352,6 +344,7 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   </div>
                 </>
               )}

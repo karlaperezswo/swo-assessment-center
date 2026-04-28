@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BookOpen, ChevronRight, ChevronDown, Home, Info, Search, Wrench, FileQuestion, Network, GraduationCap, CheckSquare, FolderOpen, HelpCircle, BookMarked, Phone } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -30,70 +31,55 @@ type HerramientaSubPage =
   | 'guia' | 'cloudamize' | 'concierto' | 'matilda'
   | 'aws-transform' | 'aws-transform-ova' | 'aws-transform-proceso' | 'aws-transform-mgn';
 
-const mapSubItems: { value: MapSubPage; label: string }[] = [
-  { value: 'overview',              label: 'Visión General' },
-  { value: 'kickoff-interno',       label: 'Kickoff Interno' },
-  { value: 'kickoff-externo',       label: 'Kickoff Externo' },
-  { value: 'seleccion-herramienta', label: 'Selección de Herramienta' },
-  { value: 'instalacion-agentes',   label: 'Instalación de Agentes' },
-  { value: 'recoleccion-datos',     label: 'Recolección de Datos' },
-  { value: 'validacion-analisis',   label: 'Validación y Análisis' },
-  { value: 'business-case',         label: 'Business Case' },
-  { value: 'plan-migracion',        label: 'Plan de Migración' },
-  { value: 'presentacion',          label: 'Presentación Ejecutiva' },
-];
-
-const herramientaSubItems: { value: HerramientaSubPage; label: string; indent?: boolean }[] = [
-  { value: 'guia',                  label: 'Guía de Selección' },
-  { value: 'cloudamize',            label: 'Cloudamize' },
-  { value: 'concierto',             label: 'Concierto' },
-  { value: 'matilda',               label: 'Matilda' },
-  { value: 'aws-transform',         label: 'AWS Transform' },
-  { value: 'aws-transform-ova',     label: 'Manual OVA', indent: true },
-  { value: 'aws-transform-proceso', label: 'Proceso Transform', indent: true },
-  { value: 'aws-transform-mgn',     label: 'MGN Connector', indent: true },
-];
-
 interface NavItem {
   value: WikiPage;
-  label: string;
+  labelKey: string;
   icon: React.ReactNode;
   expandable?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { value: 'inicio',        label: 'Inicio',                       icon: <Home className="h-4 w-4" /> },
-  { value: 'introduccion',  label: 'Introducción al Programa MAP', icon: <Info className="h-4 w-4" /> },
-  { value: 'map-assessment',label: 'MAP Assessment',               icon: <Search className="h-4 w-4" />, expandable: true },
-  { value: 'herramientas',  label: 'Herramientas de Colecta',      icon: <Wrench className="h-4 w-4" />, expandable: true },
-  { value: 'rapid-discovery',label: 'Rapid Discovery',             icon: <FileQuestion className="h-4 w-4" /> },
-  { value: 'cuestionario',  label: 'Cuestionario de Infraestructura', icon: <FileQuestion className="h-4 w-4" /> },
-  { value: 'diagrama',      label: 'Diagrama de Infraestructura',  icon: <Network className="h-4 w-4" /> },
-  { value: 'immersion-days',label: 'Immersion Days',               icon: <GraduationCap className="h-4 w-4" /> },
-  { value: 'checklist',     label: 'Checklist de Entregables',     icon: <CheckSquare className="h-4 w-4" /> },
-  { value: 'recursos',      label: 'Recursos y Descargables',      icon: <FolderOpen className="h-4 w-4" /> },
-  { value: 'faq',           label: 'Preguntas Frecuentes',         icon: <HelpCircle className="h-4 w-4" /> },
-  { value: 'glosario',      label: 'Glosario de Términos',         icon: <BookMarked className="h-4 w-4" /> },
-  { value: 'contacto',      label: 'Contacto y Soporte',           icon: <Phone className="h-4 w-4" /> },
+  { value: 'inicio',         labelKey: 'nav.inicio',         icon: <Home className="h-4 w-4" /> },
+  { value: 'introduccion',   labelKey: 'nav.introduccion',   icon: <Info className="h-4 w-4" /> },
+  { value: 'map-assessment', labelKey: 'nav.mapAssessment',  icon: <Search className="h-4 w-4" />, expandable: true },
+  { value: 'herramientas',   labelKey: 'nav.herramientas',   icon: <Wrench className="h-4 w-4" />, expandable: true },
+  { value: 'rapid-discovery',labelKey: 'nav.rapidDiscovery', icon: <FileQuestion className="h-4 w-4" /> },
+  { value: 'cuestionario',   labelKey: 'nav.cuestionario',   icon: <FileQuestion className="h-4 w-4" /> },
+  { value: 'diagrama',       labelKey: 'nav.diagrama',       icon: <Network className="h-4 w-4" /> },
+  { value: 'immersion-days', labelKey: 'nav.immersionDays',  icon: <GraduationCap className="h-4 w-4" /> },
+  { value: 'checklist',      labelKey: 'nav.checklist',      icon: <CheckSquare className="h-4 w-4" /> },
+  { value: 'recursos',       labelKey: 'nav.recursos',       icon: <FolderOpen className="h-4 w-4" /> },
+  { value: 'faq',            labelKey: 'nav.faq',            icon: <HelpCircle className="h-4 w-4" /> },
+  { value: 'glosario',       labelKey: 'nav.glosario',       icon: <BookMarked className="h-4 w-4" /> },
+  { value: 'contacto',       labelKey: 'nav.contacto',       icon: <Phone className="h-4 w-4" /> },
 ];
 
-const pageTitles: Record<WikiPage, string> = {
-  inicio:           'Inicio',
-  introduccion:     'Introducción al Programa MAP',
-  'map-assessment': 'MAP Assessment',
-  herramientas:     'Herramientas de Colecta',
-  'rapid-discovery':'Rapid Discovery',
-  cuestionario:     'Cuestionario de Infraestructura',
-  diagrama:         'Diagrama de Infraestructura',
-  'immersion-days': 'Immersion Days',
-  checklist:        'Checklist de Entregables',
-  recursos:         'Recursos y Descargables',
-  faq:              'Preguntas Frecuentes',
-  glosario:         'Glosario de Términos',
-  contacto:         'Contacto y Soporte',
-};
+const mapSubKeys: { value: MapSubPage; labelKey: string }[] = [
+  { value: 'overview',              labelKey: 'mapSub.overview' },
+  { value: 'kickoff-interno',       labelKey: 'mapSub.kickoffInterno' },
+  { value: 'kickoff-externo',       labelKey: 'mapSub.kickoffExterno' },
+  { value: 'seleccion-herramienta', labelKey: 'mapSub.seleccionHerramienta' },
+  { value: 'instalacion-agentes',   labelKey: 'mapSub.instalacionAgentes' },
+  { value: 'recoleccion-datos',     labelKey: 'mapSub.recoleccionDatos' },
+  { value: 'validacion-analisis',   labelKey: 'mapSub.validacionAnalisis' },
+  { value: 'business-case',         labelKey: 'mapSub.businessCase' },
+  { value: 'plan-migracion',        labelKey: 'mapSub.planMigracion' },
+  { value: 'presentacion',          labelKey: 'mapSub.presentacion' },
+];
+
+const herramientaSubKeys: { value: HerramientaSubPage; labelKey: string; indent?: boolean }[] = [
+  { value: 'guia',                  labelKey: 'herramientaSub.guia' },
+  { value: 'cloudamize',            labelKey: 'herramientaSub.cloudamize' },
+  { value: 'concierto',             labelKey: 'herramientaSub.concierto' },
+  { value: 'matilda',               labelKey: 'herramientaSub.matilda' },
+  { value: 'aws-transform',         labelKey: 'herramientaSub.awsTransform' },
+  { value: 'aws-transform-ova',     labelKey: 'herramientaSub.awsTransformOva',     indent: true },
+  { value: 'aws-transform-proceso', labelKey: 'herramientaSub.awsTransformProceso', indent: true },
+  { value: 'aws-transform-mgn',     labelKey: 'herramientaSub.awsTransformMgn',     indent: true },
+];
 
 export function Wiki() {
+  const { t } = useTranslation();
   const [activePage, setActivePage] = useState<WikiPage>('inicio');
   const [expandedSections, setExpandedSections] = useState<Set<WikiPage>>(new Set(['map-assessment', 'herramientas']));
   const [mapSubPage, setMapSubPage] = useState<MapSubPage>('overview');
@@ -129,14 +115,15 @@ export function Wiki() {
 
   const breadcrumbs: string[] = ['Wiki'];
   if (activePage !== 'inicio') {
-    breadcrumbs.push(pageTitles[activePage]);
+    const navItem = navItems.find(i => i.value === activePage);
+    if (navItem) breadcrumbs.push(t(`assess.wiki.${navItem.labelKey}`));
     if (activePage === 'map-assessment') {
-      const sub = mapSubItems.find(s => s.value === mapSubPage);
-      if (sub && mapSubPage !== 'overview') breadcrumbs.push(sub.label);
+      const sub = mapSubKeys.find(s => s.value === mapSubPage);
+      if (sub && mapSubPage !== 'overview') breadcrumbs.push(t(`assess.wiki.${sub.labelKey}`));
     }
     if (activePage === 'herramientas') {
-      const sub = herramientaSubItems.find(s => s.value === herramientaSubPage);
-      if (sub && herramientaSubPage !== 'guia') breadcrumbs.push(sub.label);
+      const sub = herramientaSubKeys.find(s => s.value === herramientaSubPage);
+      if (sub && herramientaSubPage !== 'guia') breadcrumbs.push(t(`assess.wiki.${sub.labelKey}`));
     }
   }
 
@@ -165,9 +152,9 @@ export function Wiki() {
           <div className="flex items-start gap-3">
             <BookOpen className="h-6 w-6 text-fuchsia-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-bold text-fuchsia-900 text-lg">Wiki MAP Assessment</h3>
+              <h3 className="font-bold text-fuchsia-900 text-lg">{t('assess.wiki.title')}</h3>
               <p className="text-sm text-fuchsia-700 mt-1">
-                Guía de ejecución estandarizada para consultores del programa AWS MAP.
+                {t('assess.wiki.subtitle')}
               </p>
             </div>
           </div>
@@ -209,7 +196,7 @@ export function Wiki() {
                       )}
                     >
                       <span className={isActive ? 'text-fuchsia-600' : 'text-gray-400'}>{item.icon}</span>
-                      <span className="flex-1 leading-tight">{item.label}</span>
+                      <span className="flex-1 leading-tight">{t(`assess.wiki.${item.labelKey}`)}</span>
                       {item.expandable && (
                         isExpanded
                           ? <ChevronDown className="h-3 w-3 text-gray-400 flex-shrink-0" />
@@ -220,7 +207,7 @@ export function Wiki() {
                     {/* MAP Assessment sub-items */}
                     {item.value === 'map-assessment' && isExpanded && (
                       <div className="ml-3 border-l border-fuchsia-100 pl-2 mt-0.5 space-y-0.5">
-                        {mapSubItems.map((sub) => {
+                        {mapSubKeys.map((sub) => {
                           const isSubActive = activePage === 'map-assessment' && mapSubPage === sub.value;
                           return (
                             <button
@@ -234,7 +221,7 @@ export function Wiki() {
                               )}
                             >
                               <span className={cn('w-1 h-1 rounded-full flex-shrink-0', isSubActive ? 'bg-fuchsia-500' : 'bg-gray-300')} />
-                              {sub.label}
+                              {t(`assess.wiki.${sub.labelKey}`)}
                             </button>
                           );
                         })}
@@ -244,7 +231,7 @@ export function Wiki() {
                     {/* Herramientas sub-items */}
                     {item.value === 'herramientas' && isExpanded && (
                       <div className="ml-3 border-l border-fuchsia-100 pl-2 mt-0.5 space-y-0.5">
-                        {herramientaSubItems.map((sub) => {
+                        {herramientaSubKeys.map((sub) => {
                           const isSubActive = activePage === 'herramientas' && herramientaSubPage === sub.value;
                           return (
                             <button
@@ -259,7 +246,7 @@ export function Wiki() {
                               )}
                             >
                               <span className={cn('w-1 h-1 rounded-full flex-shrink-0', isSubActive ? 'bg-fuchsia-500' : 'bg-gray-300')} />
-                              {sub.label}
+                              {t(`assess.wiki.${sub.labelKey}`)}
                             </button>
                           );
                         })}

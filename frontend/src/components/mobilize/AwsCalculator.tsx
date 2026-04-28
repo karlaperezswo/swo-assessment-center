@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Calculator, ChevronDown, ChevronUp, Download, Server,
-  Settings, FileSpreadsheet, CheckCircle2, Circle, Info,
+  Settings, FileSpreadsheet, CheckCircle2, Circle, Info, Zap, Copy,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -17,7 +17,7 @@ import {
   ServerMapping, AdditionalServicesConfig, InstanceFamily, PaymentOption, PricingModel,
   mapInstanceType, getOsString, getInstanceOptions,
   generateEC2BulkImportXlsx, generateEBSBulkImportXlsx, generateDedicatedHostsBulkImportXlsx,
-  downloadXlsx, REGION_DISPLAY_NAMES,
+  downloadXlsx, REGION_DISPLAY_NAMES, generateBookmarklet,
 } from '@/lib/awsCalculatorGenerator';
 
 interface AwsCalculatorProps {
@@ -162,6 +162,17 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
   };
 
   const canExport = !!businessCaseData;
+
+  const bookmarkletHref = useMemo(
+    () => generateBookmarklet(additionalServices),
+    [additionalServices],
+  );
+  const bookmarkLinkRef = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    if (bookmarkLinkRef.current) {
+      bookmarkLinkRef.current.setAttribute('href', bookmarkletHref);
+    }
+  }, [bookmarkletHref]);
 
   return (
     <Card className="border-2 border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50">
@@ -638,6 +649,53 @@ export function AwsCalculator({ businessCaseData, tco1YearData, clientData }: Aw
                 <Download className="h-5 w-5" />
                 Descargar todo
               </Button>
+
+              {/* Bookmarklet section */}
+              <div className="rounded-lg border-2 border-dashed border-purple-300 bg-purple-50 p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-purple-600" />
+                  <p className="font-semibold text-purple-900">Servicios adicionales automáticos</p>
+                  <span className="text-xs bg-purple-200 text-purple-700 px-2 py-0.5 rounded-full">beta</span>
+                </div>
+                <p className="text-sm text-purple-800">
+                  Crea un marcador en tu navegador con el código de abajo como URL. Luego, estando en{' '}
+                  <span className="font-mono bg-purple-100 px-1 rounded">calculator.aws</span> en español
+                  con una estimación abierta, haz clic para configurar CloudWatch, Firewall, S3, VPN,
+                  Data Transfer y Backup automáticamente.
+                </p>
+
+                <div className="flex items-center gap-3 flex-wrap">
+                  <a
+                    ref={bookmarkLinkRef}
+                    draggable
+                    onClick={e => e.preventDefault()}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 cursor-grab active:cursor-grabbing select-none"
+                  >
+                    <Zap className="h-4 w-4" />
+                    Configurar servicios AWS
+                  </a>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 border-purple-300 text-purple-700 hover:bg-purple-100"
+                    onClick={() => {
+                      navigator.clipboard.writeText(bookmarkletHref);
+                      toast.success('Código copiado — pégalo como URL de un marcador');
+                    }}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    Copiar código
+                  </Button>
+                </div>
+
+                <ol className="text-xs text-purple-700 space-y-1 list-decimal list-inside border-t border-purple-200 pt-2">
+                  <li>Importa los Excel de EC2 (y EBS si aplica) en una estimación nueva en calculator.aws</li>
+                  <li>Asegúrate de que la calculadora esté en <strong>Español</strong> y el Tracking Prevention desactivado</li>
+                  <li>Estando en <span className="font-mono">#/estimate</span>, haz clic en el marcador guardado</li>
+                  <li>El script navega por cada servicio, rellena los campos y guarda (~30–45 seg en total)</li>
+                </ol>
+              </div>
             </div>
           )}
         </CardContent>

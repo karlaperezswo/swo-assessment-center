@@ -345,6 +345,121 @@ export function generateDedicatedHostsBulkImportXlsx(config: GeneratorConfig): A
   return XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
 }
 
+/**
+ * Generates a bookmarklet href (javascript:...) that auto-fills additional
+ * services on calculator.aws (in Spanish) using the configured values.
+ * Requires: calculator in Spanish + Edge Tracking Prevention disabled for calculator.aws.
+ */
+export function generateBookmarklet(services: AdditionalServicesConfig): string {
+  const steps: string[] = [];
+
+  if (services.cloudwatch.enabled) {
+    const c = services.cloudwatch;
+    steps.push(
+      `await go('CloudWatch');` +
+      `await f('Número de eventos de OTEL móvil y spans, o spans por visita Escriba la cantidad.',${c.spans});` +
+      `await f('Cantidad de métricas (incluye las métricas personalizadas y detalladas) Escriba la cantidad.',${c.metrics});` +
+      `await f('Registros estándares: datos incorporados Value',${c.logsGB});` +
+      `await f('Cantidad de paneles Escriba la cantidad.',${c.dashboards});` +
+      `await f('Cantidad de métricas de las alarmas de resolución estándar Escriba la cantidad.',${c.standardAlarms});` +
+      `await f('Cantidad de métricas de las alarmas de alta resolución Escriba la cantidad.',${c.highResAlarms});` +
+      `await save();`
+    );
+  }
+
+  if (services.firewall.enabled) {
+    const fw = services.firewall;
+    steps.push(
+      `await go('networkfirewall');` +
+      `await f('Cantidad de puntos de conexión de AWS Network Firewall',${fw.endpoints});` +
+      `await p();` +
+      `await f('Uso mensual por punto de enlace Value',720);` +
+      `await f('Uso mensual de la inspección avanzada por punto de enlace Value',720);` +
+      `await f('Cantidad de puntos de enlace secundarios de Network Firewall',${fw.endpoints});` +
+      `await f('Uso por punto de enlace secundario Value',720);` +
+      `await f('Datos procesados por mes Value',${fw.dataProcessedGB});` +
+      `await save();`
+    );
+  }
+
+  if (services.s3Logs.enabled) {
+    steps.push(
+      `await go('S3');` +
+      `await f('Almacenamiento de S3 Estándar Value',${services.s3Logs.storageGB});` +
+      `await save();`
+    );
+  }
+
+  if (services.vpn.enabled) {
+    const v = services.vpn;
+    steps.push(
+      `await go('VPC');` +
+      `await f('Número de conexiones de Site-to-Site VPN Escriba la cantidad.',${v.connections});` +
+      `await f('Días laborables al mes Escribir el número de días laborables',${v.workDaysPerMonth});` +
+      `await f('Número de asociaciones de subred Escriba la cantidad.',1);` +
+      `await save();`
+    );
+  }
+
+  if (services.dataTransfer.enabled) {
+    steps.push(
+      `await go('DataTransfer');` +
+      `await fn(1,${services.dataTransfer.outboundTB});` +
+      `await save();`
+    );
+  }
+
+  if (services.backup.enabled) {
+    const b = services.backup;
+    steps.push(
+      `await go('Backup');` +
+      `await f('Cantidad de datos principales de los que se va a hacer copia de seguridad Value',${b.primaryDataTB * 1024});` +
+      `await f('Incremento anual estimado de los datos principales (%)',0.02);` +
+      `await f('Variación diaria estimada de los datos principales (%)',0.002);` +
+      `await f('Periodo de retención en caliente de las copias de seguridad diarias Value',${b.dailyRetentionDays});` +
+      `await f('Periodo de retención en caliente de las copias de seguridad semanales Value',${b.weeklyRetentionWeeks});` +
+      `await f('Periodo de retención en caliente de las copias de seguridad mensuales Value',${b.monthlyRetentionMonths});` +
+      `await save();`
+    );
+  }
+
+  if (steps.length === 0) {
+    return `javascript:alert('No hay servicios habilitados para configurar.')`;
+  }
+
+  const code =
+    `(async function(){` +
+    `var bt=document.body.innerText||'';` +
+    `if(bt.includes('Add service')&&!bt.includes('Agregar servicio')){` +
+    `alert('\\u26a0\\ufe0f Cambia la calculadora a ESPA\\u00d1OL primero:\\n1. Clic en "Language: English" (men\\u00fa superior)\\n2. Selecciona Espa\\u00f1ol\\n3. Ejecuta el marcador de nuevo');return;}` +
+    `var S=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;` +
+    `function sr(e,v){S.call(e,String(v));['input','change'].forEach(function(n){e.dispatchEvent(new Event(n,{bubbles:true}))})}` +
+    `async function w(fn){var t=Date.now();while(Date.now()-t<15000){var r=fn();if(r)return r;await new Promise(function(re){setTimeout(re,300)})}throw new Error('Timeout esperando elemento')}` +
+    `async function p(ms){await new Promise(function(r){setTimeout(r,ms||800)})}` +
+    `function da(s){return s.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'')}` +
+    `function qi(l){` +
+    `var k=da(l);var all=Array.from(document.querySelectorAll('input'));` +
+    `return document.querySelector('input[aria-label="'+l+'"]')||` +
+    `all.find(function(i){return (i.getAttribute('aria-label')||'')===l;})||` +
+    `all.find(function(i){return da(i.getAttribute('aria-label')||'')===k;})||` +
+    `(function(){var c=Array.from(document.querySelectorAll('[aria-label]')).find(function(x){return da(x.getAttribute('aria-label')||'')===k;});return c&&c.querySelector&&c.querySelector('input')})()}` +
+    `async function f(l,v){var e=await w(function(){return qi(l)});if(e){sr(e,v);await p()}}` +
+    `async function fn(i,v){var e=await w(function(){return document.querySelectorAll('input[type="number"]')[i]});if(e){sr(e,v);await p()}}` +
+    `async function save(){` +
+    `var b=await w(function(){return Array.from(document.querySelectorAll('button')).find(function(x){` +
+    `var a=x.getAttribute('aria-label')||'';var t=x.textContent.trim();` +
+    `return a==='Guardar y agregar servicio'||t==='Guardar y agregar servicio'||a==='Save and add service'||t==='Save and add service'});});` +
+    `if(b){b.click();await new Promise(function(r){setTimeout(r,4000)})}}` +
+    `async function go(s){window.location.hash='/createCalculator/'+s;await new Promise(function(r){setTimeout(r,4000)})}` +
+    `try{${steps.join('')}` +
+    `window.location.hash='/estimate';` +
+    `alert('\\u2705 Servicios adicionales configurados en AWS Calculator.')}` +
+    `catch(e){alert('\\u274c Error: '+e.message+'\\n\\nVerifica estar en calculator.aws en ESPA\\u00d1OL con una estimaci\\u00f3n abierta y Tracking Prevention desactivado.')}` +
+    `})();`;
+
+  return 'javascript:' + encodeURIComponent(code);
+}
+
 export function downloadXlsx(buffer: ArrayBuffer, filename: string): void {
   const blob = new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

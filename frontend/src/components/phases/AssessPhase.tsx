@@ -1,4 +1,5 @@
-import { lazy, Suspense, useState, useCallback } from 'react';
+import { lazy, Suspense, useState, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n/useTranslation';
 import { PhaseWorkspace, PhaseFooterNav } from '@/components/layout/PhaseWorkspace';
 import { StepGroup, StepStatus } from '@/components/ui/step-indicator';
@@ -150,7 +151,26 @@ export function AssessPhase({
   multiCloudCost,
 }: AssessPhaseProps) {
   const { t } = useTranslation();
-  const [activeStep, setActiveStep] = useState<string>('rapid-discovery');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeStep, setActiveStep] = useState<string>(() => {
+    const stepParam = searchParams.get('step');
+    return stepParam && (STEP_ORDER as readonly string[]).includes(stepParam)
+      ? stepParam
+      : 'rapid-discovery';
+  });
+
+  // Deeplink support: when the URL changes to ?step=<id> (e.g. the agent
+  // chat opens the dependency map), jump to that step. We strip the param
+  // afterwards so a manual "Next" doesn't re-trigger the jump.
+  useEffect(() => {
+    const stepParam = searchParams.get('step');
+    if (!stepParam) return;
+    if (!(STEP_ORDER as readonly string[]).includes(stepParam)) return;
+    setActiveStep(stepParam);
+    const next = new URLSearchParams(searchParams);
+    next.delete('step');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
   const [businessCaseState, setBusinessCaseState] =
     useState<BusinessCasePersistedState>(DEFAULT_BUSINESS_CASE_STATE);
   const handleBusinessCaseStateChange = useCallback(

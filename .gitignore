@@ -234,6 +234,9 @@ backend/debug/
 # ── Archivos de input/datos de prueba del backend ────────────────────────────
 backend/input/
 
+# ── Templates de AWS Calculator (uso local, no subir) ────────────────────────
+inputs/
+
 # ── Scripts utilitarios del backend (no son parte del core) ──────────────────
 backend/listar-buckets-s3.js
 backend/verificar-aws-config.js

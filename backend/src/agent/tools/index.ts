@@ -1,5 +1,7 @@
 import { estimateCostTool } from './estimateCost';
 import { estimateCloudCostTool } from './estimateCloudCost';
+import { estimateMonthlySavingsTool } from './estimateMonthlySavings';
+import { getDependencyGraphTool } from './getDependencyGraph';
 import { getSessionSummaryTool } from './getSessionSummary';
 import { listOpportunitiesTool } from './listOpportunities';
 import { searchAwsDocsTool } from './searchAwsDocs';
@@ -9,6 +11,8 @@ import type { AgentTool, AgentToolContext, ToolCall, ToolResult } from './types'
 export const AGENT_TOOLS: AgentTool[] = [
   getSessionSummaryTool,
   listOpportunitiesTool,
+  estimateMonthlySavingsTool, // ROI / monthly-savings math
+  getDependencyGraphTool,     // dependency graph + waves from uploaded MPA
   searchCloudDocsTool,        // multi-cloud, primary
   estimateCloudCostTool,      // multi-cloud, primary
   searchAwsDocsTool,          // legacy alias, kept for cached threads

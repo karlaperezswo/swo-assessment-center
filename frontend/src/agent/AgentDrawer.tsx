@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Sparkles, Send, X, RotateCcw, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
+import { Sparkles, Send, X, RotateCcw, Loader2, ChevronDown, ChevronRight, Paperclip, FileSpreadsheet, CheckCircle2, Network, ArrowRight } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Button } from '@/components/ui/button';
 import { useAgentContextValue } from './AgentContextProvider';
 import { AgentToolCall, useAgentChat } from './useAgentChat';
 import { useActiveClouds } from '@/clouds/useActiveClouds';
+import { uploadMpaForAgent, MpaUploadSummary } from './uploadMpa';
 
 /**
  * Persistent lateral drawer for the AI copilot. Collapsible, 420px wide,
@@ -16,6 +19,13 @@ import { useActiveClouds } from '@/clouds/useActiveClouds';
 export function AgentDrawer() {
   const [isOpen, setOpen] = useState(false);
   const [input, setInput] = useState('');
+  const [mpaStatus, setMpaStatus] = useState<
+    | { state: 'idle' }
+    | { state: 'uploading'; filename: string }
+    | { state: 'ready'; summary: MpaUploadSummary }
+    | { state: 'error'; message: string }
+  >({ state: 'idle' });
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { sessionId, pageContext } = useAgentContextValue();
   const { messages, isSending, send, cancel, reset } = useAgentChat();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -43,6 +53,33 @@ export function AgentDrawer() {
     const ctx = { ...pageContext, clouds: { active: cloudState.active, primary: cloudState.primary } };
     send(input.trim(), { sessionId, pageContext: ctx });
     setInput('');
+  };
+
+  const onPickFile = () => {
+    if (!sessionId) {
+      setMpaStatus({
+        state: 'error',
+        message: 'Necesitas una sesión activa antes de subir el MPA.',
+      });
+      return;
+    }
+    fileInputRef.current?.click();
+  };
+
+  const onFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !sessionId) return;
+    setMpaStatus({ state: 'uploading', filename: file.name });
+    try {
+      const summary = await uploadMpaForAgent(file, sessionId);
+      setMpaStatus({ state: 'ready', summary });
+    } catch (err) {
+      setMpaStatus({
+        state: 'error',
+        message: err instanceof Error ? err.message : 'Error subiendo el MPA.',
+      });
+    }
   };
 
   return (
@@ -94,13 +131,19 @@ export function AgentDrawer() {
         </header>
 
         <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4 text-sm">
+          <MpaStatusBanner status={mpaStatus} onDismiss={() => setMpaStatus({ state: 'idle' })} />
           {messages.length === 0 && (
             <div className="rounded-md border border-dashed border-gray-200 p-4 text-xs text-gray-500">
               Pregúntame sobre esta sesión. Puedo consultar oportunidades,
-              estimar costos, o buscar documentación AWS. <br />
+              estimar ahorro mensual, analizar dependencias del MPA, o buscar
+              documentación de la nube activa. <br />
               <span className="mt-2 block italic">
-                Ejemplos: «resume los hallazgos críticos», «estima 5 servidores
-                Windows de 8 vCPU», «¿qué dice AWS sobre RDS Proxy?».
+                Ejemplos: «¿cuánto ahorra al mes?», «dame las waves de
+                migración», «estima 5 servidores Windows de 8 vCPU».
+              </span>
+              <span className="mt-2 block text-[11px] text-gray-400">
+                Sube el MPA con el clip 📎 para que pueda calcular dependencias
+                y waves directamente.
               </span>
             </div>
           )}
@@ -113,6 +156,7 @@ export function AgentDrawer() {
                   ))}
                 </div>
               ) : null}
+              <DependencyGraphCta toolCalls={m.toolCalls} />
               {m.streaming && !m.text && !m.error ? (
                 <div className="mt-1 flex items-center gap-2 text-xs text-gray-400">
                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -125,6 +169,30 @@ export function AgentDrawer() {
 
         <div className="border-t border-gray-100 p-3 dark:border-gray-800">
           <div className="flex items-end gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
+              className="hidden"
+              onChange={onFileSelected}
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onPickFile}
+              disabled={mpaStatus.state === 'uploading'}
+              title={
+                sessionId
+                  ? 'Adjuntar MPA (Excel/CSV)'
+                  : 'Necesitas una sesión activa para adjuntar el MPA'
+              }
+            >
+              {mpaStatus.state === 'uploading' ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Paperclip className="h-4 w-4" />
+              )}
+            </Button>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -203,6 +271,7 @@ function AssistantMarkdown({ text }: { text: string }) {
   return (
     <div className="agent-md text-[13px] leading-relaxed">
       <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ node, ...props }) => (
             <h3 className="mt-1 mb-1.5 text-sm font-bold text-gray-900 dark:text-gray-50" {...props} />
@@ -264,21 +333,156 @@ function AssistantMarkdown({ text }: { text: string }) {
             />
           ),
           table: ({ node, ...props }) => (
-            <div className="my-1.5 overflow-x-auto">
-              <table className="w-full text-[12px]" {...props} />
+            <div className="my-2 overflow-x-auto rounded-md border border-gray-200 dark:border-gray-700">
+              <table
+                className="w-full border-collapse text-[12px]"
+                {...props}
+              />
             </div>
           ),
-          th: ({ node, ...props }) => (
-            <th className="border-b border-gray-300 px-1.5 py-1 text-left font-semibold" {...props} />
+          thead: ({ node, ...props }) => (
+            <thead className="bg-gray-100 dark:bg-gray-800" {...props} />
           ),
-          td: ({ node, ...props }) => (
-            <td className="border-b border-gray-100 px-1.5 py-1 align-top" {...props} />
+          tbody: ({ node, ...props }) => <tbody {...props} />,
+          tr: ({ node, ...props }) => (
+            <tr
+              className="border-b border-gray-100 last:border-b-0 even:bg-gray-50/60 dark:border-gray-800 dark:even:bg-gray-900/40"
+              {...props}
+            />
+          ),
+          th: ({ node, style, ...props }) => (
+            <th
+              className="px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200"
+              style={style}
+              {...props}
+            />
+          ),
+          td: ({ node, style, ...props }) => (
+            <td
+              className="px-2 py-1.5 align-top text-gray-800 dark:text-gray-100"
+              style={style}
+              {...props}
+            />
           ),
         }}
       >
         {text}
       </ReactMarkdown>
     </div>
+  );
+}
+
+function MpaStatusBanner({
+  status,
+  onDismiss,
+}: {
+  status:
+    | { state: 'idle' }
+    | { state: 'uploading'; filename: string }
+    | { state: 'ready'; summary: MpaUploadSummary }
+    | { state: 'error'; message: string };
+  onDismiss: () => void;
+}) {
+  if (status.state === 'idle') return null;
+  if (status.state === 'uploading') {
+    return (
+      <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
+        <Loader2 className="h-3 w-3 animate-spin" />
+        <span>Procesando MPA «{status.filename}»…</span>
+      </div>
+    );
+  }
+  if (status.state === 'error') {
+    return (
+      <div className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+        <FileSpreadsheet className="mt-0.5 h-3 w-3" />
+        <span className="flex-1">{status.message}</span>
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="text-red-500 hover:text-red-700"
+          aria-label="Cerrar"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      </div>
+    );
+  }
+  const s = status.summary.summary;
+  return (
+    <div className="flex items-start gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100">
+      <CheckCircle2 className="mt-0.5 h-3 w-3" />
+      <div className="flex-1">
+        <div className="font-medium">MPA cargado: {status.summary.filename}</div>
+        <div className="mt-0.5 text-[11px] text-emerald-800/80 dark:text-emerald-200/80">
+          {s.servers} servidores · {s.dependencies} dependencias · {s.applications} apps · {s.databases} BBDD.
+          Pídele al agente «dame las waves» o «cluster del servidor X».
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={onDismiss}
+        className="text-emerald-600 hover:text-emerald-800"
+        aria-label="Cerrar"
+      >
+        <X className="h-3 w-3" />
+      </button>
+    </div>
+  );
+}
+
+/**
+ * When the agent calls `get_dependency_graph` and it succeeds, surface a
+ * one-click CTA that opens the full dependency-map step inside the Assess
+ * phase. The text/markdown answer stays in the bubble; this just gives the
+ * consultant a fast path to the visual graph instead of describing it.
+ */
+function DependencyGraphCta({ toolCalls }: { toolCalls?: AgentToolCall[] }) {
+  const navigate = useNavigate();
+  const target = useMemo(() => {
+    if (!toolCalls?.length) return null;
+    // Use the most recent successful call so multi-turn refinements deeplink
+    // to the latest filter, not the first one.
+    for (let i = toolCalls.length - 1; i >= 0; i--) {
+      const tc = toolCalls[i];
+      if (tc.name !== 'get_dependency_graph' || tc.isError || !tc.result) continue;
+      let parsed: { error?: string; focusServer?: string } = {};
+      try {
+        parsed = JSON.parse(tc.result);
+      } catch {
+        continue;
+      }
+      if (parsed.error) continue;
+      const params = new URLSearchParams({ step: 'dependency-map' });
+      const inputFocus =
+        tc.input && typeof tc.input === 'object'
+          ? (tc.input as Record<string, unknown>).focusServer
+          : undefined;
+      const focus =
+        typeof inputFocus === 'string' && inputFocus
+          ? inputFocus
+          : parsed.focusServer;
+      if (focus) params.set('focusServer', String(focus));
+      return { search: params.toString(), focus };
+    }
+    return null;
+  }, [toolCalls]);
+
+  if (!target) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => navigate(`/assess?${target.search}`)}
+      className="mt-2 flex w-full items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary transition hover:bg-primary/10"
+    >
+      <span className="flex items-center gap-2">
+        <Network className="h-3.5 w-3.5" />
+        {target.focus
+          ? `Abrir grafo completo (${target.focus})`
+          : 'Abrir grafo completo'}
+      </span>
+      <ArrowRight className="h-3.5 w-3.5" />
+    </button>
   );
 }
 

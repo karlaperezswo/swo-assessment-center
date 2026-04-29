@@ -20,7 +20,8 @@
       "Bash(npx tsc:*)",
       "Bash(./node_modules/.bin/tsc --noEmit)",
       "Bash(npm run:*)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git rebase *)"
     ]
   }
 }

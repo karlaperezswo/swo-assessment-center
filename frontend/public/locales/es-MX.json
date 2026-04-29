@@ -74,9 +74,51 @@
       "opportunities": "Oportunidades de Venta",
       "rapidDiscovery": "Descubrimiento Rápido",
       "selector": "Selector",
-      "tcoReport": "Reporte TCO"
+      "tcoReport": "Reporte TCO",
+      "wiki": "Wiki"
     },
-    "title": "Fase de Evaluación"
+    "title": "Fase de Evaluación",
+    "wiki": {
+      "title": "Wiki MAP Assessment",
+      "subtitle": "Guía de ejecución estandarizada para consultores del programa AWS MAP.",
+      "nav": {
+        "inicio": "Inicio",
+        "introduccion": "Introducción al Programa MAP",
+        "mapAssessment": "MAP Assessment",
+        "herramientas": "Herramientas de Colecta",
+        "rapidDiscovery": "Rapid Discovery",
+        "cuestionario": "Cuestionario de Infraestructura",
+        "diagrama": "Diagrama de Infraestructura",
+        "immersionDays": "Immersion Days",
+        "checklist": "Checklist de Entregables",
+        "recursos": "Recursos y Descargables",
+        "faq": "Preguntas Frecuentes",
+        "glosario": "Glosario de Términos",
+        "contacto": "Contacto y Soporte"
+      },
+      "mapSub": {
+        "overview": "Visión General",
+        "kickoffInterno": "Kickoff Interno",
+        "kickoffExterno": "Kickoff Externo",
+        "seleccionHerramienta": "Selección de Herramienta",
+        "instalacionAgentes": "Instalación de Agentes",
+        "recoleccionDatos": "Recolección de Datos",
+        "validacionAnalisis": "Validación y Análisis",
+        "businessCase": "Business Case",
+        "planMigracion": "Plan de Migración",
+        "presentacion": "Presentación Ejecutiva"
+      },
+      "herramientaSub": {
+        "guia": "Guía de Selección",
+        "cloudamize": "Cloudamize",
+        "concierto": "Concierto",
+        "matilda": "Matilda",
+        "awsTransform": "AWS Transform",
+        "awsTransformOva": "Manual OVA",
+        "awsTransformProceso": "Proceso Transform",
+        "awsTransformMgn": "MGN Connector"
+      }
+    }
   },
   "briefings": {
     "add": "Agregar",
